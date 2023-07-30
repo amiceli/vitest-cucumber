@@ -1,26 +1,30 @@
 import { initializeFeature } from "../src/vitest"
 import { expect } from 'vitest'
 
-const path = './index.feature'
+const path = 'examples/index.feature'
 const FeatureTest = await initializeFeature(path)
 
-FeatureTest.describe('Gestion des audiences', ({ Scenario }) => {
+FeatureTest.describe('Use Gherkin in my unit tests', ({ Scenario }) => {
 
-    Scenario('Modifier les domaines', ({ Given, When, And, Then }) => {
+    Scenario(`Detect when step isn't tested`, ({ Given, When, And, Then }) => {
 
-        Given('ETQ admin dans la page des audiences', () => {
+        Given('Front end developer using vitest', () => {
             expect(true).toBeTruthy()
         })
 
-        When('Je coche ou décoche des domaines dans la liste', () => {
+        When('I run my unit tests with vitest', () => {
             expect(false).toBeFalsy()
         })
 
-        And('Que je sauvegarde', () => {
+        And('I forgot to test my Given scenario step', () => {
             expect(true).toBeTruthy()
         })
 
-        Then('Mes modifications sont sauvegardées', () => {
+        Then('My test failed', () => {
+            expect(true).toBeTruthy()
+        })
+
+        And('I know with step I forgot', () => {
             expect(true).toBeTruthy()
         })
 
