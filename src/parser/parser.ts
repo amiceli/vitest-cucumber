@@ -4,11 +4,11 @@ import { Step, stepNames } from "./step";
 
 export class GherkinParser {
 
-    public features: Feature[] = []
+    public readonly features: Feature[] = []
 
-    public currentFeature: number = -1
+    private currentFeature: number = -1
 
-    public currentScenario : number = -1
+    private currentScenario : number = -1
 
     public addLine(line: string) {
         if (line.includes('Feature')) {
