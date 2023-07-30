@@ -65,7 +65,7 @@ class FeatureTest {
 
     public ScenarioStep(key: stepNames, title: string, scenario: Scenario, fn: Function) {
         const foundSteps = scenario.steps.filter((s: Step) => {
-            return s.name === key && s.title === title
+            return s.name === key && s.title.trim() === title
         })
 
         if (foundSteps.length > 0) {
