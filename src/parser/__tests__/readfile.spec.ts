@@ -54,4 +54,5 @@ describe('Parse feature file', async () => {
         expect(LastAnd.name).toEqual(stepNames.AND)
         expect(LastAnd.title).toEqual(`I know with step I forgot`)
     })
+
 })
