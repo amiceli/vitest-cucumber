@@ -1,15 +1,16 @@
-export type scenarioStepFunction = (title: string, fn: Function) => Promise<void> | void
+export type stepCallbackDefinition = (name : string, fn : () => void | Promise<void>) => void
 
-export type scenarioSteps = {
-    Given: scenarioStepFunction
-    When: scenarioStepFunction
-    And: scenarioStepFunction
-    Then: scenarioStepFunction
+export type StepTest = {
+    Given : stepCallbackDefinition
+    When : stepCallbackDefinition
+    But : stepCallbackDefinition
+    And : stepCallbackDefinition
+    Then : stepCallbackDefinition
 }
 
-export type scenarioFunction = (
-    title: string, 
-    fn: (options: scenarioSteps) => Promise<void> | void
-) => Promise<void> | void
+export type ScenarioTest = (
+    name : string, 
+    fn : (options : StepTest) => void
+) => void
 
-export type featureDescribe = (options: { Scenario: scenarioFunction }) => Promise<void> | void
+export type MaybePromise<T = void> = T | Promise<T>

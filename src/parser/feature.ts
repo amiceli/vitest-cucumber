@@ -16,4 +16,10 @@ export class Feature {
         })
     }
 
+    public getNotCalledFirstScenario () : Scenario | undefined {
+        return this.scenarii.find((scenario : Scenario) => {
+            return scenario.isCalled === false
+        })
+    }
+
 }

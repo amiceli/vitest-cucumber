@@ -1,125 +1,95 @@
-import { Feature } from "../parser/feature"
-import { FeatureFileReader } from "../parser/readfile"
-import { it, describe, expect, test } from 'vitest'
-import { Scenario } from "../parser/scenario"
-import { Step, stepNames } from "../parser/step"
+import { describe, test, } from "vitest"
 import chalk from 'chalk'
+// 
 import {
-    featureDescribe,
-    scenarioSteps
+    stepCallbackDefinition,
+    StepTest,
+    ScenarioTest,
+    MaybePromise,
 } from './types'
+import {
+    scenarioDoestNotExist,
+    stepDoesNotExist,
+    stepIsNoCalled,
+    displayNoCalledStepsError,
+} from './displayMessage'
+import {
+    loadFeature, loadFeatures
+} from './loadFeature'
+import { Feature } from "../parser/feature"
 
-class FeatureTest {
 
-    private readonly feature: Feature
+export async function describeFeature(
+    feature: Feature,
+    fn: (
+        scenarioCallback: { Scenario: ScenarioTest }
+    ) => MaybePromise
+) {
+    const descibeFeatureParams = {
+        Scenario: (
+            scenarioTitle: string, 
+            scenarioTestCallback: (op: StepTest) => MaybePromise
+        ) => {
+            const foundScenario = feature.getScenarioByName(scenarioTitle)
 
-    public constructor(feature: Feature) {
-        this.feature = feature
-    }
-
-    public Scenario(title: string, feature: Feature, fn: Function) {
-        const found = feature.scenarii.filter((s: Scenario) => {
-            return s.name === title
-        })
-
-        if (found.length > 0) {
-            const scenario = found[0]
-            const describeScenarioTitle = `${chalk.blue('Scenario:')}: ${title}`
-            const scenarioSteps : scenarioSteps = {
-                Given: (title: string, testFn: Function) => {
-                    this.ScenarioStep(stepNames.GIVEN, title, scenario, testFn)
-                },
-                When: (title: string, testFn: Function) => {
-                    this.ScenarioStep(stepNames.WHEN, title, scenario, testFn)
-                },
-                And: (title: string, testFn: Function) => {
-                    this.ScenarioStep(stepNames.AND, title, scenario, testFn)
-                },
-                Then: (title: string, testFn: Function) => {
-                    this.ScenarioStep(stepNames.THEN, title, scenario, testFn)
-                }
+            if (!foundScenario) {
+                scenarioDoestNotExist(scenarioTitle)
+                return
             }
 
-            scenario.isCalled = true
-
-            describe(
-                describeScenarioTitle,
-                async () => {
-                    await fn(scenarioSteps)
-                }
-            ).on('afterAll', () => {
-                scenario
-                    .steps
-                    .filter((s : Step) => !s.isCalled)
-                    .forEach((s : Step) => {
-                        expect.fail(
-                            `\n    Scenario: ${scenario.name}\n        ${s.name} ${chalk.italic(s.title)} should be called`,
+            describe(scenarioTitle, () => {
+                const createScenarioStepCallback = (type: string): stepCallbackDefinition => {
+                    return (scenarioStepTittle: string, scenarioStepCallback: Function) => {
+                        const foundStep = foundScenario.getStepByNameAndTitle(
+                            type, scenarioStepTittle,
                         )
-                    })
-            })
-        } else {
-            const message = `${chalk.bold('Scenario:')} ${chalk.italic(title)} doesn't exist in this feature`
-            test.fails(chalk.red(message))
-        }
-    }
 
-    public ScenarioStep(key: stepNames, title: string, scenario: Scenario, fn: Function) {
-        const foundSteps = scenario.steps.filter((s: Step) => {
-            return s.name === key && s.title.trim() === title
-        })
+                        if (!foundStep) {
+                            stepDoesNotExist(type, scenarioStepTittle)
+                            return
+                        }
 
-        if (foundSteps.length > 0) {
-            const stepTitle = chalk.green(chalk.bold(key))
-            const [currentStep] = foundSteps
+                        test(`${chalk.bold(type)} ${scenarioStepTittle}`, () => {
+                            scenarioStepCallback()
 
-            currentStep.isCalled = true
-
-            it(`${stepTitle} ${title}`, async () => {
-                await fn()
-            })
-        } else {
-            const message = `No ${chalk.bold(key)} ${title}`
-            test.fails(chalk.red(message))
-        }
-    }
-
-    public describe(line: string, fn: featureDescribe) {
-        if (this.feature.name === line) {
-            const describeTitle = `${chalk.blue('Feature:')} ${line}`
-            const descibeFeatureParams = {
-                Scenario: (title: string, scenarFn: Function) => {
-                    this.Scenario(title, this.feature, scenarFn)
+                            foundStep.isCalled = true
+                        })
+                    }
                 }
-            }
-            const describeFeatureCallback = async () => {
-                await fn( descibeFeatureParams )
-            }
 
-            describe(
-                describeTitle,
-                describeFeatureCallback,
-            ).on('afterAll', () => {
-                this.detectUnTestedScenarios()
+                const scenarioStepsCallback: StepTest = {
+                    Given: createScenarioStepCallback('Given'),
+                    When: createScenarioStepCallback('When'),
+                    And: createScenarioStepCallback('And'),
+                    Then: createScenarioStepCallback('Then'),
+                    But: createScenarioStepCallback('But'),
+                }
+
+                scenarioTestCallback(scenarioStepsCallback)
+            }).on('afterAll', () => {
+                foundScenario.isCalled = true
+
+                if (foundScenario.hasUnCalledSteps()) {
+                    const errorMessage = displayNoCalledStepsError(foundScenario)
+
+                    throw errorMessage
+                }
             })
-        } else {
-            const message = 'Incorrect feature title'
-            test.fails(message)
         }
     }
 
-    private detectUnTestedScenarios () {
-        this.feature.scenarii.forEach((s: Scenario) => {
-            const expectMessage = `\n  Scenario:  ${chalk.bold(s.name)} should be tested\n`
-            
-            expect( s.isCalled, expectMessage ).toBeTruthy()
-        })
-    }
+    describe(feature.name, () => {
+        fn(descibeFeatureParams)
+    }).on('afterAll', () => {
+        const noCalledScenario = feature.getNotCalledFirstScenario()
+        
+        if (noCalledScenario) {
+            throw `Scenario: ${noCalledScenario.name} not called`
+        }
+    })
 }
 
-export async function initializeFeature(path: string) {
-    const feature = await FeatureFileReader
-        .fromPath(path)
-        .parseFile()
-
-    return new FeatureTest(feature[0])
+export {
+    loadFeatures,
+    loadFeature,
 }
