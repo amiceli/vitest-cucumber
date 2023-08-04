@@ -8,9 +8,7 @@
   },
   "scripts": {
     "build": "npx tsc",
-    "test:example" : "vitest --silent --run examples/index.spec.ts",
-    "test:unit" : "vitest --silent --run src/",
-    "test:watch" : "vitest src/"
+    "test:unit" : "vitest --run"
   },
   "keywords": [],
   "author": "",
