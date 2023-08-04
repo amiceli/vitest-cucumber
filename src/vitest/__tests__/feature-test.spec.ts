@@ -1,38 +1,121 @@
-// import {
-//     initializeFeature
-// } from '../index'
-// import {
-//     describe, it, expect, test, vi, beforeEach
-// } from 'vitest'
+import {
+    loadFeature, describeFeature
+} from '../index'
+import {
+    expect, vi, test, beforeEach, it
+} from 'vitest'
 
-// const path = 'examples/index.feature'
-// const featureTest = await initializeFeature(path)
+const feature = await loadFeature('src/vitest/__tests__/index.feature')
 
-// describe('FeatureTest', async () => {
+vi.mock('vitest', async () => {
+    const mod = await vi.importActual<
+        typeof import('vitest')
+    >('vitest')
 
-//     beforeEach(() => {
-//         vi.clearAllMocks()
-//     })
+    return {
+        ...mod,
+        test : (s : string, fn : Function) => {
+            fn()
+        },
+        describe: (s: any, fn: Function) => {
+            fn()
+            return {
+                on: (title: string, f: Function) => {
+                    f()
+                }
+            }
+        }
+    }
+})
 
-//     it('should detect bad feature name', () => {
-//         const displayError = vi.spyOn(featureTest, 'displayError')
+beforeEach(() => {
+    vi.clearAllMocks()
+})
 
-//         featureTest.describe('test', () => {
+test('Forgot a scenario', () => {
+    expect(
+        () => describeFeature(feature, () => {
+            // 
+        })
+    ).toThrowError('Scenario: Forgot a scenario not called')
+})
 
-//         })
+test('Bad scenario name', () => {
+    expect(
+        () => describeFeature(feature, ({ Scenario }) => {
+            
+            Scenario('Forgot a scenario', ({ Given, When, Then }) => {
+                Given('Developer using vitest-gherkin', () => { })
+                When('I forgot a scenario', () => {})
+                Then('vitest-gherkin throw an error', () => {})
+            })
 
-//         expect(displayError).toHaveBeenCalledWith('Incorrect feature title')
-//     })
+            Scenario('wrong name', () => {})
+        })
+    ).toThrowError("Scenario: wrong name doesn't exist in Feature")
+})
 
-// })
+test('Bad step name', () => {
+    expect(
+        () => describeFeature(feature, ({ Scenario }) => {
+            
+            Scenario('Forgot a scenario', ({ Given, When, Then }) => {
+                Given('Developer using vitest-cucumber', () => { })
+            })
 
+        })
+    ).toThrowError("Given Developer using vitest-cucumber doesn't exist in your Scenario")
+})
 
-// try {
-//     featureTest.describe('Use Gherkin in my unit tests', ({ Scenario }) => {
-//         Scenario('zob', () => {
-//             expect(true).toBeFalsy()
-//         })
-//     })
-// } catch (e) {
-//     console.error('la : ', e)
-// }
+test('Scenario steps(s) validation', () => {
+    expect(
+        () => describeFeature(feature, ({ Scenario }) => {
+            
+            Scenario('Forgot a scenario', ({ Given, When, Then }) => {
+                Given('Developer using vitest-gherkin', () => { })
+                When('I forgot a scenario', () => {})
+                Then('vitest-gherkin throw an error', () => {})
+            })
+
+            Scenario('Bad scenario name', ({ Given, When, Then }) => {
+                Given('Developer using again vitest-gherkin', () => { })
+                When('I type a wrong scenario name', () => {})
+                Then('vitest-gherkin throw an error', () => {})
+            })
+
+            Scenario('Scenario steps(s) validation', ({ Given, When, Then}) => {
+                Given('Developer one more time vitest-gherkin', () => {})
+                When('I forgot a scenario step', () => {})
+                Then('vitest-gherkin throw an error', () => {})
+            })
+        })
+
+    ).toThrowError("And I know which steps are missing not called")
+})
+
+test('Everything is ok', () => {
+    expect(
+        () => describeFeature(feature, ({ Scenario }) => {
+            
+            Scenario('Forgot a scenario', ({ Given, When, Then }) => {
+                Given('Developer using vitest-gherkin', () => { })
+                When('I forgot a scenario', () => {})
+                Then('vitest-gherkin throw an error', () => {})
+            })
+
+            Scenario('Bad scenario name', ({ Given, When, Then }) => {
+                Given('Developer using again vitest-gherkin', () => { })
+                When('I type a wrong scenario name', () => {})
+                Then('vitest-gherkin throw an error', () => {})
+            })
+
+            Scenario('Scenario steps(s) validation', ({ Given, When, Then, And}) => {
+                Given('Developer one more time vitest-gherkin', () => {})
+                When('I forgot a scenario step', () => {})
+                Then('vitest-gherkin throw an error', () => {})
+                And('I know which steps are missing', () => {})
+            })
+        })
+
+    ).not.toThrowError()
+})
