@@ -1,3 +1,4 @@
+import { Feature } from "../parser/feature"
 import { FeatureFileReader } from "../parser/readfile"
 
 export async function loadFeatures(path: string): Promise<Readonly<Feature[]>> {
