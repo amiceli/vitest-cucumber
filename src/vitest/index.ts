@@ -19,7 +19,7 @@ import {
 import { Feature } from "../parser/feature"
 
 
-export async function describeFeature(
+export function describeFeature(
     feature: Feature,
     fn: (
         scenarioCallback: { Scenario: ScenarioTest }
@@ -82,7 +82,7 @@ export async function describeFeature(
         fn(descibeFeatureParams)
     }).on('afterAll', () => {
         const noCalledScenario = feature.getNotCalledFirstScenario()
-        
+
         if (noCalledScenario) {
             throw `Scenario: ${noCalledScenario.name} not called`
         }

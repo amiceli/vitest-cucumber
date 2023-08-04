@@ -4,22 +4,22 @@ import { test } from 'vitest'
 import { Scenario } from "../parser/scenario"
 
 export function scenarioDoestNotExist(scenarioName: string) {
-    test.fails(
-        chalk.red(`Scenario: ${chalk.bold(scenarioName)} doesn't exist in Feature`)
+    throw (
+        chalk.red(`Scenario: ${scenarioName} doesn't exist in Feature`)
     )
 }
 
 export function stepDoesNotExist(name: string, title: string) {
-    test.fails(
+    throw (
         chalk.red(
-            `${name} ${chalk.bold(title)} doesn't exist in your Scenario`
+            `${name} ${title} doesn't exist in your Scenario`
         )
     )
 }
 
 export function stepIsNoCalled(step: Step) {
-    test.fails(
-        chalk.red(`${chalk.bold(step.name)} ${step.title} was not called`)
+    throw (
+        chalk.red(`${step.name} ${step.title} was not called`)
     )
 }
 
