@@ -9,11 +9,11 @@
         "./commitlint.config.js"
     ],
     "compilerOptions": {
-        "target": "es2017",
+        "target": "ESNext",
         "lib": [
             "es2015"
         ],
-        "module": "nodenext",
+        "module": "ESNext",
         "moduleResolution": "node",
         "types": [
             "vitest/globals"

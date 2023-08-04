@@ -1,10 +1,10 @@
 {
   "name": "@amiceli/vitest-cucumber",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "vitest tools to use Gherkin feature in unit tests",
-  "main": "dist/index.js",
+  "main": "dist/module.js",
   "scripts": {
-    "build": "npx tsc",
+    "build": "npx tsc --declaration",
     "test:unit": "vitest --run",
     "prepare": "husky install"
   },
