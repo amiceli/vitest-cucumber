@@ -45,9 +45,9 @@ test('Bad scenario name', () => {
         () => describeFeature(feature, ({ Scenario }) => {
             
             Scenario('Forgot a scenario', ({ Given, When, Then }) => {
-                Given('Developer using vitest-gherkin', () => { })
+                Given('Developer using vitest-cucumber', () => { })
                 When('I forgot a scenario', () => {})
-                Then('vitest-gherkin throw an error', () => {})
+                Then('vitest-cucumber throw an error', () => {})
             })
 
             Scenario('wrong name', () => {})
@@ -60,11 +60,11 @@ test('Bad step name', () => {
         () => describeFeature(feature, ({ Scenario }) => {
             
             Scenario('Forgot a scenario', ({ Given, When, Then }) => {
-                Given('Developer using vitest-cucumber', () => { })
+                Given('Developer using vitest-gherkin', () => { })
             })
 
         })
-    ).toThrowError("Given Developer using vitest-cucumber doesn't exist in your Scenario")
+    ).toThrowError("Given Developer using vitest-gherkin doesn't exist in your Scenario")
 })
 
 test('Scenario steps(s) validation', () => {
@@ -72,21 +72,21 @@ test('Scenario steps(s) validation', () => {
         () => describeFeature(feature, ({ Scenario }) => {
             
             Scenario('Forgot a scenario', ({ Given, When, Then }) => {
-                Given('Developer using vitest-gherkin', () => { })
+                Given('Developer using vitest-cucumber', () => { })
                 When('I forgot a scenario', () => {})
-                Then('vitest-gherkin throw an error', () => {})
+                Then('vitest-cucumber throw an error', () => {})
             })
 
             Scenario('Bad scenario name', ({ Given, When, Then }) => {
-                Given('Developer using again vitest-gherkin', () => { })
+                Given('Developer using again vitest-cucumber', () => { })
                 When('I type a wrong scenario name', () => {})
-                Then('vitest-gherkin throw an error', () => {})
+                Then('vitest-cucumber throw an error', () => {})
             })
 
             Scenario('Scenario steps(s) validation', ({ Given, When, Then}) => {
-                Given('Developer one more time vitest-gherkin', () => {})
+                Given('Developer one more time vitest-cucumber', () => {})
                 When('I forgot a scenario step', () => {})
-                Then('vitest-gherkin throw an error', () => {})
+                Then('vitest-cucumber throw an error', () => {})
             })
         })
 
@@ -98,21 +98,21 @@ test('Everything is ok', () => {
         () => describeFeature(feature, ({ Scenario }) => {
             
             Scenario('Forgot a scenario', ({ Given, When, Then }) => {
-                Given('Developer using vitest-gherkin', () => { })
+                Given('Developer using vitest-cucumber', () => { })
                 When('I forgot a scenario', () => {})
-                Then('vitest-gherkin throw an error', () => {})
+                Then('vitest-cucumber throw an error', () => {})
             })
 
             Scenario('Bad scenario name', ({ Given, When, Then }) => {
-                Given('Developer using again vitest-gherkin', () => { })
+                Given('Developer using again vitest-cucumber', () => { })
                 When('I type a wrong scenario name', () => {})
-                Then('vitest-gherkin throw an error', () => {})
+                Then('vitest-cucumber throw an error', () => {})
             })
 
             Scenario('Scenario steps(s) validation', ({ Given, When, Then, And}) => {
-                Given('Developer one more time vitest-gherkin', () => {})
+                Given('Developer one more time vitest-cucumber', () => {})
                 When('I forgot a scenario step', () => {})
-                Then('vitest-gherkin throw an error', () => {})
+                Then('vitest-cucumber throw an error', () => {})
                 And('I know which steps are missing', () => {})
             })
         })
