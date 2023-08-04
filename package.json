@@ -8,13 +8,16 @@
   },
   "scripts": {
     "build": "npx tsc",
-    "test:unit" : "vitest --run"
+    "test:unit": "vitest --run",
+    "prepare": "husky install"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@commitlint/config-conventional": "^17.6.7",
     "@types/node": "^20.4.5",
+    "husky": "^8.0.0",
     "typescript": "^5.1.6"
   },
   "dependencies": {
