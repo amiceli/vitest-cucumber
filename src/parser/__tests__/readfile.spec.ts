@@ -6,7 +6,7 @@ import { Step, stepNames } from "../step";
 
 describe('Parse feature file', async () => {
 
-    const path = 'examples/index.feature'
+    const path = 'src/parser/__tests__/readline.feature'
     const features = await FeatureFileReader
         .fromPath(path)
         .parseFile()
