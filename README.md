@@ -52,10 +52,11 @@ describeFeature(feature, ({ Scenario }) => {
 ~~~
 
 When you will run your test with vitest, **vitest-cucumber** will : 
-    - detect if your forget a Scenario
-    - check if you use correct Scenario names
-    - check if your forgot a Scenario step
-    - check if you use a wrong Scenario step name
+
+- detect if your forget a Scenario
+- check if you use correct Scenario names
+- check if your forgot a Scenario step
+- check if you use a wrong Scenario step name
 
 For example, if you forgot to write : 
 
@@ -66,3 +67,32 @@ When('I run my unit tests', () => {
 ~~~
 
 It will throw **When I run my unit tests was not called**.
+
+### More features
+
+If in your feature file you have more than 1 feature.
+**vitest-cucumber** can load all feature with `loadFeature` : 
+
+~~~ts
+import { loadFeatures, describeFeature } from '@miceli/vitest-cucumber'
+import { expect } from 'vitest'
+
+const [
+    firstFeature, secondFeature
+] = await loadFeatures('path/to/my/file.feature')
+
+describeFeature(firstFeature, ({ Scenario }) => {
+    // ...
+})
+
+describeFeature(secondFeature, ({ Scenario }) => {
+    // ...
+})
+~~~
+
+### How it works
+
+`Scenario` function use vitest `describe` function and all steps function like `Given`, `Then`
+use vitest `test` function.
+
+So you don't need to use `it` or `test` inside `Scenario` or scenario steps.

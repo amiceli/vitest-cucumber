@@ -1,18 +1,19 @@
 {
-  "name": "vitest-cucumber",
+  "name": "@amiceli/vitest-cucumber",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "directories": {
-    "example": "examples"
-  },
+  "description": "vitest tools to use Gherkin feature in unit tests",
+  "main": "dist/index.js",
   "scripts": {
     "build": "npx tsc",
     "test:unit": "vitest --run",
     "prepare": "husky install"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "vitest",
+    "cucumber",
+    "Gherkin"
+  ],
+  "author": "amiceli",
   "license": "ISC",
   "devDependencies": {
     "@commitlint/config-conventional": "^17.6.7",
@@ -23,5 +24,13 @@
   "dependencies": {
     "chalk": "^5.3.0",
     "vitest": "^0.33.0"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/amiceli/vitest-cucumber.git"
+  },
+  "bugs": {
+    "url": "https://github.com/amiceli/vitest-cucumber/issues"
+  },
+  "homepage": "https://github.com/amiceli/vitest-cucumber#readme"
 }
