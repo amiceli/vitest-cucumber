@@ -27,7 +27,6 @@ export class FeatureStateDetector {
 
         if (!foundScenario) {
             throw `Scenario: ${scenarioDescription} doesn't exist in your Feature`
-            // return
         }
 
         return foundScenario
@@ -54,8 +53,6 @@ export class ScenarioStateDetector {
 
         if (!foundStep) {
             throw `${stepType} ${stepDetails} doesn't exist in your Scenario`
-
-            // return
         }
 
         return foundStep
