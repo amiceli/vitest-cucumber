@@ -12,6 +12,8 @@ module.exports = {
     ],
     ignorePatterns: [
         "*.spec.ts",
-        "src/vitest/index.ts",
-    ]
+    ],
+    rules : {
+        '@typescript-eslint/no-throw-literal' : 'off',
+    }
 }
