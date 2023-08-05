@@ -1,13 +1,15 @@
 import { describe, test } from "vitest"
-import chalk from 'chalk'
-// 
-import { stepCallbackDefinition,
+import { 
+    stepCallbackDefinition,
     StepTest,
     ScenarioTest,
-    MaybePromise } from './types'
-import { scenarioDoestNotExist,
+    MaybePromise,
+} from './types'
+import { 
+    scenarioDoestNotExist,
     stepDoesNotExist,
-    displayNoCalledStepsError } from './displayMessage'
+    displayNoCalledStepsError,
+} from './displayMessage'
 import { loadFeature, loadFeatures } from './loadFeature'
 import { Feature } from "../parser/feature"
 
@@ -32,7 +34,7 @@ export function describeFeature (
 
             describe(scenarioTitle, () => {
                 const createScenarioStepCallback = (type: string): stepCallbackDefinition => {
-                    return (scenarioStepTittle: string, scenarioStepCallback: Function) => {
+                    return (scenarioStepTittle: string, scenarioStepCallback: () => void) => {
                         const foundStep = foundScenario.getStepByNameAndTitle(
                             type, scenarioStepTittle,
                         )
@@ -42,7 +44,7 @@ export function describeFeature (
                             return
                         }
 
-                        test(`${chalk.bold(type)} ${scenarioStepTittle}`, () => {
+                        test(`${type} ${scenarioStepTittle}`, () => {
                             scenarioStepCallback()
 
                             foundStep.isCalled = true
@@ -82,5 +84,4 @@ export function describeFeature (
     })
 }
 
-export { loadFeatures,
-    loadFeature }
+export { loadFeatures, loadFeature }

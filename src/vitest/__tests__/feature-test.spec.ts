@@ -52,7 +52,7 @@ test('Bad scenario name', () => {
 
             Scenario('wrong name', () => {})
         })
-    ).toThrowError("Scenario: wrong name doesn't exist in Feature")
+    ).toThrowError("Scenario: wrong name doesn't exist in your Feature")
 })
 
 test('Bad step name', () => {
@@ -90,7 +90,7 @@ test('Scenario steps(s) validation', () => {
             })
         })
 
-    ).toThrowError("And I know which steps are missing not called")
+    ).toThrowError("And I know which steps are missing was not called")
 })
 
 test('Everything is ok', () => {

@@ -13,7 +13,13 @@ module.exports = {
     ignorePatterns: [
         "*.spec.ts",
     ],
-    rules : {
-        '@typescript-eslint/no-throw-literal' : 'off',
+    rules: {
+        '@typescript-eslint/no-throw-literal': 'off',
+        "object-curly-newline": ["error", {
+            "ObjectExpression": { "multiline": true, "minProperties": 3 },
+            "ObjectPattern": { "multiline": true },
+            "ImportDeclaration": { "multiline": true, "minProperties": 3 },
+            "ExportDeclaration": { "multiline": true, "minProperties": 3 }
+        }]
     }
 }

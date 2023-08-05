@@ -1,3 +1,7 @@
-import { loadFeature, loadFeatures, describeFeature } from './vitest/index'
+import {
+    loadFeature, loadFeatures, describeFeature, 
+} from './vitest/index'
 
-export { loadFeature, loadFeatures, describeFeature }
+export {
+    loadFeature, loadFeatures, describeFeature, 
+}
