@@ -1,8 +1,7 @@
+import { loadFeature } from '../load-feature'
+import { describeFeature } from '../describe-feature'
 import {
-    loadFeature, describeFeature
-} from '../index'
-import {
-    expect, vi, test, beforeEach, it
+    expect, vi, test, beforeEach
 } from 'vitest'
 
 const feature = await loadFeature('src/vitest/__tests__/index.feature')
@@ -37,7 +36,7 @@ test('Forgot a scenario', () => {
         () => describeFeature(feature, () => {
             // 
         })
-    ).toThrowError('Scenario: Forgot a scenario not called')
+    ).toThrowError('Scenario: Forgot a scenario was not called')
 })
 
 test('Bad scenario name', () => {

@@ -1,4 +1,9 @@
-export type StepCallbackDefinition = (name : string, fn : () => void | Promise<void>) => void
+export type MaybePromise<T = void> = T | Promise<T>
+
+export type StepCallbackDefinition = (
+    name : string, 
+    fn : () => MaybePromise
+) => void
 
 export type StepTest = {
     Given : StepCallbackDefinition
@@ -8,9 +13,12 @@ export type StepTest = {
     Then : StepCallbackDefinition
 }
 
+export type FeatureDescribeCallback = (
+    scenarioCallback: { Scenario: ScenarioTest }
+) => MaybePromise
+
 export type ScenarioTest = (
-    name : string, 
-    fn : (options : StepTest) => void
+    scenarioDescription : string, 
+    fn : (options : StepTest) => MaybePromise
 ) => void
 
-export type MaybePromise<T = void> = T | Promise<T>
