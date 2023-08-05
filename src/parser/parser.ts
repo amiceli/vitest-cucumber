@@ -1,6 +1,6 @@
-import { Feature } from "./feature";
-import { Scenario } from "./scenario";
-import { Step, stepNames } from "./step";
+import { Feature } from "./feature"
+import { Scenario } from "./scenario"
+import { Step, stepNames } from "./step"
 
 export class GherkinParser {
 
@@ -10,20 +10,20 @@ export class GherkinParser {
 
     private currentScenario : number = -1
 
-    public addLine(line: string) {
-        if (line.includes('Feature')) {
+    public addLine (line: string) {
+        if (line.includes(`Feature`)) {
             this.currentFeature++
 
-            const name = this.getName(line, 'Feature')
+            const name = this.getName(line, `Feature`)
             const feature = new Feature(name)
 
             this.features.push(feature)
         }
 
-        if (line.includes('Scenario')) {
+        if (line.includes(`Scenario`)) {
             this.currentScenario++
 
-            const name = this.getName(line, 'Scenario')
+            const name = this.getName(line, `Scenario`)
             const scneario = new Scenario(name)
 
             this.features[this.currentFeature].scenarii.push(scneario)
@@ -39,24 +39,24 @@ export class GherkinParser {
                 this.currentScenario
             ].steps.push(new Step({
                 name,
-                title
+                title,
             }))
         }
     }
 
-    public finish() : Feature[] {
+    public finish () : Feature[] {
         return this.features
     }
 
-    private getName(line: string, key: string): string {
+    private getName (line: string, key: string): string {
         return line.split(`${key}:`)[1].trim()
     }
 
-    private getStepTitle(line: string, key: string): string {
+    private getStepTitle (line: string, key: string): string {
         return line.split(`${key}`)[1].trim()
     }
 
-    private isStep(line: string): boolean {
+    private isStep (line: string): boolean {
         return Object
             .values(stepNames)
             .some((value) => {
@@ -64,7 +64,7 @@ export class GherkinParser {
             })
     }
 
-    private whatStep(line: string) {
+    private whatStep (line: string) {
         const foundStep = Object
             .values(stepNames)
             .filter((value) => {
@@ -73,4 +73,5 @@ export class GherkinParser {
 
         return foundStep[0]
     }
+
 }

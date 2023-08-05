@@ -1,34 +1,27 @@
-import { describe, test, } from "vitest"
+import { describe, test } from "vitest"
 import chalk from 'chalk'
 // 
-import {
-    stepCallbackDefinition,
+import { stepCallbackDefinition,
     StepTest,
     ScenarioTest,
-    MaybePromise,
-} from './types'
-import {
-    scenarioDoestNotExist,
+    MaybePromise } from './types'
+import { scenarioDoestNotExist,
     stepDoesNotExist,
-    stepIsNoCalled,
-    displayNoCalledStepsError,
-} from './displayMessage'
-import {
-    loadFeature, loadFeatures
-} from './loadFeature'
+    displayNoCalledStepsError } from './displayMessage'
+import { loadFeature, loadFeatures } from './loadFeature'
 import { Feature } from "../parser/feature"
 
 
-export function describeFeature(
+export function describeFeature (
     feature: Feature,
     fn: (
         scenarioCallback: { Scenario: ScenarioTest }
-    ) => MaybePromise
+    ) => MaybePromise,
 ) {
     const descibeFeatureParams = {
-        Scenario: (
+        Scenario : (
             scenarioTitle: string, 
-            scenarioTestCallback: (op: StepTest) => MaybePromise
+            scenarioTestCallback: (op: StepTest) => MaybePromise,
         ) => {
             const foundScenario = feature.getScenarioByName(scenarioTitle)
 
@@ -58,15 +51,15 @@ export function describeFeature(
                 }
 
                 const scenarioStepsCallback: StepTest = {
-                    Given: createScenarioStepCallback('Given'),
-                    When: createScenarioStepCallback('When'),
-                    And: createScenarioStepCallback('And'),
-                    Then: createScenarioStepCallback('Then'),
-                    But: createScenarioStepCallback('But'),
+                    Given : createScenarioStepCallback(`Given`),
+                    When : createScenarioStepCallback(`When`),
+                    And : createScenarioStepCallback(`And`),
+                    Then : createScenarioStepCallback(`Then`),
+                    But : createScenarioStepCallback(`But`),
                 }
 
                 scenarioTestCallback(scenarioStepsCallback)
-            }).on('afterAll', () => {
+            }).on(`afterAll`, () => {
                 foundScenario.isCalled = true
 
                 if (foundScenario.hasUnCalledSteps()) {
@@ -75,12 +68,12 @@ export function describeFeature(
                     throw errorMessage
                 }
             })
-        }
+        },
     }
 
     describe(feature.name, () => {
         fn(descibeFeatureParams)
-    }).on('afterAll', () => {
+    }).on(`afterAll`, () => {
         const noCalledScenario = feature.getNotCalledFirstScenario()
 
         if (noCalledScenario) {
@@ -89,7 +82,5 @@ export function describeFeature(
     })
 }
 
-export {
-    loadFeatures,
-    loadFeature,
-}
+export { loadFeatures,
+    loadFeature }

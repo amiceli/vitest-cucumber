@@ -1,7 +1,7 @@
 import { Feature } from "../parser/feature"
 import { FeatureFileReader } from "../parser/readfile"
 
-export async function loadFeatures(path: string): Promise<Readonly<Feature[]>> {
+export async function loadFeatures (path: string): Promise<Readonly<Feature[]>> {
     const features = await FeatureFileReader
         .fromPath(path)
         .parseFile()
@@ -9,7 +9,7 @@ export async function loadFeatures(path: string): Promise<Readonly<Feature[]>> {
     return features
 }
 
-export async function loadFeature(path: string): Promise<Readonly<Feature>> {
+export async function loadFeature (path: string): Promise<Readonly<Feature>> {
     const features = await loadFeatures(path)
 
     return features[0]

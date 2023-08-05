@@ -1,4 +1,4 @@
-import { Step, stepNames } from './step'
+import { Step } from './step'
 
 export class Scenario {
 

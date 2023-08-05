@@ -1,9 +1,9 @@
 
 export enum stepNames {
-    THEN = 'Then',
-    AND = 'And',
-    WHEN = 'When',
-    GIVEN = 'Given',
+    THEN = `Then`,
+    AND = `And`,
+    WHEN = `When`,
+    GIVEN = `Given`,
 }
 
 type StepDetails = {
