@@ -54,9 +54,9 @@ describeFeature(feature, ({ Scenario }) => {
 When you will run your test with vitest, **vitest-cucumber** will : 
 
 - detect if your forget a Scenario
-- check if you use correct Scenario names
+- check if you use correct Scenario description
 - check if your forgot a Scenario step
-- check if you use a wrong Scenario step name
+- check if you use a wrong Scenario step type
 
 For example, if you forgot to write : 
 
