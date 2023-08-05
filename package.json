@@ -4,6 +4,8 @@
   "description": "vitest tools to use Gherkin feature in unit tests",
   "main": "dist/module.js",
   "scripts": {
+    "lint": "eslint -c .eslintrc.js src/",
+    "lint:fix": "eslint -c .eslintrc.js src/ --fix",
     "build": "npx tsc --declaration",
     "test:unit": "vitest --run",
     "prepare": "husky install"
@@ -16,9 +18,12 @@
   "author": "amiceli",
   "license": "ISC",
   "devDependencies": {
+    "@amiceli/eslint-config-typescript": "^1.0.0",
     "@commitlint/config-conventional": "^17.6.7",
     "@types/node": "^20.4.5",
+    "eslint-plugin-import": "^2.28.0",
     "husky": "^8.0.0",
+    "lint-staged": "^13.2.3",
     "typescript": "^5.1.6"
   },
   "dependencies": {
@@ -28,6 +33,9 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/amiceli/vitest-cucumber.git"
+  },
+  "lint-staged": {
+    "*.ts": "npm run lint"
   },
   "bugs": {
     "url": "https://github.com/amiceli/vitest-cucumber/issues"
