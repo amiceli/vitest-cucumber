@@ -1,7 +1,7 @@
 import { Feature } from "../feature";
 import { describe, test, expect } from "vitest";
 import { Scenario } from "../scenario";
-import { Step, stepNames } from "../step";
+import { Step, StepTypes } from "../step";
 
 describe('Models', () => {
 
@@ -19,7 +19,9 @@ describe('Models', () => {
     
             feature.scenarii.push(scenario)
     
-            expect(feature.getScenarioByName('test')).toEqual(scenario)
+            expect(
+                feature.getScenarioByName('test')
+            ).toEqual(scenario)
         })
     })
 
@@ -27,15 +29,14 @@ describe('Models', () => {
         test('Scenario initialize', () => {
             const scenario = new Scenario('First')
     
-            expect(scenario.name).toEqual('First')
+            expect(scenario.description).toEqual('First')
             expect(scenario.steps.length).toEqual(0)
+            expect(scenario.isCalled).toBeFalsy()
         })
 
         test('Scenaio check uncalled steps', () => {
             const scenario = new Scenario('test')
-            const step = new Step({
-                name : stepNames.AND, title : 'test',
-            })
+            const step = new Step(StepTypes.AND, 'test')
 
             expect(scenario.hasUnCalledSteps()).toBeFalsy()
 
@@ -50,30 +51,26 @@ describe('Models', () => {
 
         test('Scenario find step by name and title', () => {
             const scenario = new Scenario('test')
-            const step = new Step({
-                name : stepNames.AND, title : 'test',
-            })
+            const step = new Step(StepTypes.AND, 'test')
 
             scenario.steps.push(step)
             
             expect(
-                scenario.getStepByNameAndTitle('And', 'test')
+                scenario.findStepByTypeAndDetails('And', 'test')
             ).toEqual(step)
 
             expect(
-                scenario.getStepByNameAndTitle('Given', 'test')
+                scenario.findStepByTypeAndDetails('Given', 'test')
             ).toBeUndefined()
         })
     })
     
 
     test('Step initialize', () => {
-        const step = new Step({
-            name : stepNames.GIVEN, title : 'I trye'
-        })
+        const step = new Step(StepTypes.GIVEN, 'I trye')
 
-        expect(step.name).toEqual('Given')
-        expect(step.title).toEqual('I trye')
+        expect(step.type).toEqual('Given')
+        expect(step.details).toEqual('I trye')
     })
 
 })

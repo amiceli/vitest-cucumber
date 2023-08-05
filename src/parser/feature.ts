@@ -12,11 +12,11 @@ export class Feature {
 
     public getScenarioByName (name : string) : Scenario | undefined {
         return this.scenarii.find((s : Scenario) => {
-            return s.name === name
+            return s.description === name
         })
     }
 
-    public getNotCalledFirstScenario () : Scenario | undefined {
+    public getFirstNotCalledScenario () : Scenario | undefined {
         return this.scenarii.find((scenario : Scenario) => {
             return scenario.isCalled === false
         })

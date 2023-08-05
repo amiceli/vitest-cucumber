@@ -1,11 +1,11 @@
-export type stepCallbackDefinition = (name : string, fn : () => void | Promise<void>) => void
+export type StepCallbackDefinition = (name : string, fn : () => void | Promise<void>) => void
 
 export type StepTest = {
-    Given : stepCallbackDefinition
-    When : stepCallbackDefinition
-    But : stepCallbackDefinition
-    And : stepCallbackDefinition
-    Then : stepCallbackDefinition
+    Given : StepCallbackDefinition
+    When : StepCallbackDefinition
+    But : StepCallbackDefinition
+    And : StepCallbackDefinition
+    Then : StepCallbackDefinition
 }
 
 export type ScenarioTest = (

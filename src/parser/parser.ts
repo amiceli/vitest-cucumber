@@ -1,46 +1,40 @@
 import { Feature } from "./feature"
 import { Scenario } from "./scenario"
-import { Step, stepNames } from "./step"
+import { Step, StepTypes } from "./step"
 
 export class GherkinParser {
 
     public readonly features: Feature[] = []
 
-    private currentFeature: number = -1
+    private currentFeatureIndex: number = -1
 
-    private currentScenario : number = -1
+    private currentScenarioIndex : number = -1
 
     public addLine (line: string) {
         if (line.includes(`Feature`)) {
-            this.currentFeature++
+            this.currentFeatureIndex++
 
-            const name = this.getName(line, `Feature`)
-            const feature = new Feature(name)
+            const featureName = this.getTextAfterKeyword(line, `Feature`)
+            const feature = new Feature(featureName)
 
             this.features.push(feature)
         }
 
         if (line.includes(`Scenario`)) {
-            this.currentScenario++
+            this.currentScenarioIndex++
 
-            const name = this.getName(line, `Scenario`)
-            const scneario = new Scenario(name)
+            const scenarioName = this.getTextAfterKeyword(line, `Scenario`)
+            const scneario = new Scenario(scenarioName)
 
-            this.features[this.currentFeature].scenarii.push(scneario)
+            this.currentFeature.scenarii.push(scneario)
         }
 
         if (this.isStep(line)) {
-            const name = this.whatStep(line)
-            const title = this.getStepTitle(line, name)
+            const stepType = this.findStepType(line)
+            const stepDetails = this.findStepDetails(line, stepType)
+            const newStep = new Step(stepType, stepDetails)
 
-            this.features[
-                this.currentFeature
-            ].scenarii[
-                this.currentScenario
-            ].steps.push(new Step({
-                name,
-                title,
-            }))
+            this.currentScenario.steps.push(newStep)
         }
     }
 
@@ -48,30 +42,36 @@ export class GherkinParser {
         return this.features
     }
 
-    private getName (line: string, key: string): string {
+    private getTextAfterKeyword (line: string, key: string): string {
         return line.split(`${key}:`)[1].trim()
     }
 
-    private getStepTitle (line: string, key: string): string {
-        return line.split(`${key}`)[1].trim()
+    private findStepDetails (line: string, stepType: string): string {
+        return line.split(`${stepType}`)[1].trim()
     }
 
     private isStep (line: string): boolean {
         return Object
-            .values(stepNames)
+            .values(StepTypes)
             .some((value) => {
                 return line.includes(value)
             })
     }
 
-    private whatStep (line: string) {
+    private findStepType (line: string) : StepTypes {
         const foundStep = Object
-            .values(stepNames)
-            .filter((value) => {
-                return line.includes(value)
-            })
+            .values(StepTypes)
+            .find((value) => line.includes(value))
 
-        return foundStep[0]
+        return foundStep!
+    }
+
+    public get currentFeature () : Feature {
+        return this.features[this.currentFeatureIndex]
+    }
+
+    public get currentScenario () : Scenario {
+        return this.currentFeature.scenarii[this.currentScenarioIndex]
     }
 
 }

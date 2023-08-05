@@ -2,7 +2,7 @@ import { FeatureFileReader } from "../readfile";
 import {
     describe, expect, test
 } from 'vitest'
-import { Step, stepNames } from "../step";
+import { Step, StepTypes } from "../step";
 
 describe('Parse feature file', async () => {
 
@@ -21,7 +21,7 @@ describe('Parse feature file', async () => {
 
     test('Feature should have one Scenario', () => {
         expect(feature.scenarii.length).toEqual(1)
-        expect(scenario.name).toEqual(`Detect when step isn't tested`)
+        expect(scenario.description).toEqual(`Detect when step isn't tested`)
         expect(scenario.isCalled).toBeFalsy()
     })
 
@@ -39,20 +39,20 @@ describe('Parse feature file', async () => {
             scenario.steps.every((s : Step) => !s.isCalled)
         ).toBeTruthy()
 
-        expect(Given.name).toEqual(stepNames.GIVEN)
-        expect(Given.title).toEqual(`Front end developer using vitest`)
+        expect(Given.type).toEqual(StepTypes.GIVEN)
+        expect(Given.details).toEqual(`Front end developer using vitest`)
 
-        expect(When.name).toEqual(stepNames.WHEN)
-        expect(When.title).toEqual(`I run my unit tests with vitest`)
+        expect(When.type).toEqual(StepTypes.WHEN)
+        expect(When.details).toEqual(`I run my unit tests with vitest`)
 
-        expect(And.name).toEqual(stepNames.AND)
-        expect(And.title).toEqual(`I forgot to test my Given scenario step`)
+        expect(And.type).toEqual(StepTypes.AND)
+        expect(And.details).toEqual(`I forgot to test my Given scenario step`)
 
-        expect(Then.name).toEqual(stepNames.THEN)
-        expect(Then.title).toEqual(`My test failed`)
+        expect(Then.type).toEqual(StepTypes.THEN)
+        expect(Then.details).toEqual(`My test failed`)
 
-        expect(LastAnd.name).toEqual(stepNames.AND)
-        expect(LastAnd.title).toEqual(`I know with step I forgot`)
+        expect(LastAnd.type).toEqual(StepTypes.AND)
+        expect(LastAnd.details).toEqual(`I know with step I forgot`)
     })
 
 })

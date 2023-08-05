@@ -6,18 +6,15 @@ export class Scenario {
 
     public steps: Step[] = []
 
-    public readonly name : string
+    public readonly description : string
 
-    public constructor (name : string) {
-        this.name = name
+    public constructor (description : string) {
+        this.description = description
     }
 
-    public getStepByNameAndTitle (name : string, title : string) : Step | undefined {
-        return this.steps.find((s : Step) => {
-            const titleIsOk = s.title === title
-            const nameIsOk = s.name === name
-
-            return nameIsOk && titleIsOk
+    public findStepByTypeAndDetails (type : string, details : string) : Step | undefined {
+        return this.steps.find((step : Step) => {
+            return step.type === type && step.details === details
         })
     }
 

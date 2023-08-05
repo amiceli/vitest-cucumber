@@ -1,27 +1,24 @@
 
-export enum stepNames {
+export enum StepTypes {
     THEN = `Then`,
     AND = `And`,
     WHEN = `When`,
     GIVEN = `Given`,
-}
-
-type StepDetails = {
-    name : stepNames
-    title : string
+    BUT = `But`,
 }
 
 export class Step {
 
-    public readonly name : stepNames
+    public readonly type : StepTypes
     
-    public readonly title : string
+    public readonly details : string
 
-    public isCalled : boolean = false
+    public isCalled : boolean
 
-    public constructor (details : StepDetails) {
-        this.name = details.name
-        this.title = details.title
+    public constructor (type : StepTypes, details : string) {
+        this.details = details
+        this.type = type
+        this.isCalled = false
     }
 
 }

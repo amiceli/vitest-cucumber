@@ -1,6 +1,6 @@
 import { describe, test } from "vitest"
 import { 
-    stepCallbackDefinition,
+    StepCallbackDefinition,
     StepTest,
     ScenarioTest,
     MaybePromise,
@@ -33,9 +33,9 @@ export function describeFeature (
             }
 
             describe(scenarioTitle, () => {
-                const createScenarioStepCallback = (type: string): stepCallbackDefinition => {
+                const createScenarioStepCallback = (type: string): StepCallbackDefinition => {
                     return (scenarioStepTittle: string, scenarioStepCallback: () => void) => {
-                        const foundStep = foundScenario.getStepByNameAndTitle(
+                        const foundStep = foundScenario.findStepByTypeAndDetails(
                             type, scenarioStepTittle,
                         )
 
@@ -76,10 +76,10 @@ export function describeFeature (
     describe(feature.name, () => {
         fn(descibeFeatureParams)
     }).on(`afterAll`, () => {
-        const noCalledScenario = feature.getNotCalledFirstScenario()
+        const noCalledScenario = feature.getFirstNotCalledScenario()
 
         if (noCalledScenario) {
-            throw `Scenario: ${noCalledScenario.name} not called`
+            throw `Scenario: ${noCalledScenario.description} not called`
         }
     })
 }

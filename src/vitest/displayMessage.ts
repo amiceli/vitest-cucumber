@@ -10,7 +10,7 @@ export function stepDoesNotExist (name: string, title: string) {
 }
 
 export function stepIsNoCalled (step: Step) {
-    throw `${step.name} ${step.title} was not called`
+    throw `${step.type} ${step.details} was not called`
 }
 
 export function displayNoCalledStepsError (scenario: Scenario): string {
@@ -18,6 +18,6 @@ export function displayNoCalledStepsError (scenario: Scenario): string {
         `\n`,
         ...scenario
             .getNoCalledSteps()
-            .map((s: Step) => `${s.name} ${s.title} was not called` ),
+            .map((s: Step) => `${s.type} ${s.details} was not called` ),
     ].join(`\n`)
 }

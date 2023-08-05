@@ -2,7 +2,7 @@ import { GherkinParser } from "../parser";
 import {
     describe, it, expect
 } from 'vitest'
-import { stepNames } from "../step";
+import { StepTypes } from "../step";
 
 describe('GherkinParser', () => {
 
@@ -43,7 +43,7 @@ describe('GherkinParser', () => {
         const currentScenario = getCurrentScenario(parser)
         
         expect(currentFeature.scenarii.length).toEqual(1)
-        expect(currentScenario.name).toEqual(scenarioTitile)
+        expect(currentScenario.description).toEqual(scenarioTitile)
         expect(currentScenario.steps.length).toEqual(0)
         expect(currentScenario.isCalled).toBeFalsy()
     })
@@ -57,8 +57,8 @@ describe('GherkinParser', () => {
         const [currentStep] = currentScenario.steps
 
         expect(currentScenario.steps.length).toEqual(1)
-        expect(currentStep.name).toEqual(stepNames.GIVEN)
-        expect(currentStep.title).toEqual(givenTitle)
+        expect(currentStep.type).toEqual(StepTypes.GIVEN)
+        expect(currentStep.details).toEqual(givenTitle)
         expect(currentStep.isCalled).toBeFalsy()
     })
 
@@ -69,7 +69,7 @@ describe('GherkinParser', () => {
 
         const scenario = parser.features[0].scenarii[1]
 
-        expect(scenario.name).toEqual('remove space')
+        expect(scenario.description).toEqual('remove space')
     })
 
     it('should trim step line title', () => {
@@ -80,6 +80,6 @@ describe('GherkinParser', () => {
         const scenario = parser.features[0].scenarii[1]
         const [step] = scenario.steps
 
-        expect(step.title).toEqual('I love spaces in string')
+        expect(step.details).toEqual('I love spaces in string')
     })
 })
