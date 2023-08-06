@@ -5,13 +5,10 @@ module.exports = {
         '@typescript-eslint',
     ],
     parserOptions: {
-        project: './tsconfig.json'
+        project: './tsconfig.eslint.json'
     },
     extends: [
         '@amiceli/eslint-config-typescript'
-    ],
-    ignorePatterns: [
-        "*.spec.ts",
     ],
     rules: {
         '@typescript-eslint/no-throw-literal': 'off',
