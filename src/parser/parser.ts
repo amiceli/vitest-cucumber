@@ -31,12 +31,6 @@ export class GherkinParser {
             const newStep = new Step(stepType, stepDetails)
 
             this.currentScenario.steps.push(newStep)
-        } else {
-            if (line.trim().length > 0) {
-                const [keyword] = line.split(` `)
-
-                throw `${keyword} is not a correct step keyword`
-            }
         }
     }
 

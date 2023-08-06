@@ -83,14 +83,4 @@ describe('GherkinParser', () => {
         expect(step.details).toEqual('I love spaces in string')
     })
 
-    it('should detect unknow step type', () => {
-        const lineTitle = 'After    I love spaces in string '
-
-        try {
-            parser.addLine(lineTitle)
-            it.fails('should not valide unknow keyword')
-        } catch (e) {
-            expect(e).toEqual('After is not a correct step keyword')
-        }
-    })
 })
