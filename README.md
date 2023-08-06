@@ -6,7 +6,7 @@ Goal is to write unit test using Gherkin feature file and checking scenario name
 
 ## Installation
 
-    npm install @miceli/vitest-cucumber -D
+    npm install @amiceli/vitest-cucumber -D
 
 ## Usage
 
