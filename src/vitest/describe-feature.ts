@@ -6,13 +6,25 @@ import {
     StepTest,
     MaybePromise,
     FeatureDescribeCallback,
+    FeatureDescriibeCallbackParams,
 } from './types'
+
+function defaultScenarioHook () {
+    return {
+        beforeEachHook : () => {},
+        afterEachHook : () => {},
+        beforeAllHook : () => {},
+        afterAllHook : () => {},
+    }
+}
 
 export function describeFeature (
     feature: Feature,
     featureFn: FeatureDescribeCallback,
 ) {
-    const descibeFeatureParams = {
+    let { beforeAllHook, beforeEachHook, afterAllHook, afterEachHook } = defaultScenarioHook()
+
+    const descibeFeatureParams : FeatureDescriibeCallbackParams = {
         Scenario : (
             scenarioDescription: string, 
             scenarioTestCallback: (op: StepTest) => MaybePromise,
@@ -47,20 +59,41 @@ export function describeFeature (
                     But : createScenarioStepCallback(`But`),
                 }
 
+                beforeAllHook()
+                beforeEachHook()
+
+                beforeAllHook = () => {} // call one time
+                
                 scenarioTestCallback(scenarioStepsCallback)
             }).on(`afterAll`, () => {
                 foundScenario.isCalled = true
+                afterEachHook()
 
                 ScenarioStateDetector 
                     .forScenario(foundScenario)
                     .checkIfStepWasCalled()
             })
         },
+        // check they should be called before Scenario fn
+        BeforeEachScenario : (fn : () => MaybePromise) => {
+            beforeEachHook = fn
+        },
+        BeforeAllScenarios : (fn : () => MaybePromise) => {
+            beforeAllHook = fn
+        },
+        AfterAllScenarios : (fn : () => MaybePromise) => {
+            afterAllHook = fn
+        },
+        AfterEachScenario : (fn : () => MaybePromise) => {
+            afterEachHook = fn
+        },
     }
 
     describe(feature.name, () => {
         featureFn(descibeFeatureParams)
     }).on(`afterAll`, () => {
+        afterAllHook()
+
         FeatureStateDetector
             .forFeature(feature)
             .checkNotCalledScenario()
