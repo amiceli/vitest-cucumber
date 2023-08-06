@@ -10,6 +10,9 @@ module.exports = {
     extends: [
         '@amiceli/eslint-config-typescript'
     ],
+    ignorePatterns : [
+        "**/*.feature"
+    ],
     rules: {
         '@typescript-eslint/no-throw-literal': 'off',
         "object-curly-newline": ["error", {
