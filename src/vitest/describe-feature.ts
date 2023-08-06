@@ -9,20 +9,23 @@ import {
     FeatureDescriibeCallbackParams,
 } from './types'
 
-function defaultScenarioHook () {
-    return {
-        beforeEachHook : () => {},
-        afterEachHook : () => {},
-        beforeAllHook : () => {},
-        afterAllHook : () => {},
-    }
+function initializeHook (
+    feature : Feature, 
+    hook : string, 
+) {
+    FeatureStateDetector  
+        .forFeature(feature)
+        .alreadyCalledScenarioAtStart(hook)
 }
 
 export function describeFeature (
     feature: Feature,
     featureFn: FeatureDescribeCallback,
 ) {
-    let { beforeAllHook, beforeEachHook, afterAllHook, afterEachHook } = defaultScenarioHook()
+    let beforeAllHook : (() => void) | null = null
+    let beforeEachHook : (() => void) | null = null
+    let afterAllHook : (() => void) | null = null
+    let afterEachHook : (() => void) | null = null
 
     const descibeFeatureParams : FeatureDescriibeCallbackParams = {
         Scenario : (
@@ -59,32 +62,42 @@ export function describeFeature (
                     But : createScenarioStepCallback(`But`),
                 }
 
-                beforeAllHook()
-                beforeEachHook()
+                if (beforeAllHook) {
+                    beforeAllHook()
+                    beforeAllHook = null
+                }
 
-                beforeAllHook = () => {} // call one time
+                if (beforeEachHook) {
+                    beforeEachHook()
+                }
                 
                 scenarioTestCallback(scenarioStepsCallback)
             }).on(`afterAll`, () => {
                 foundScenario.isCalled = true
-                afterEachHook()
+                
+                if (afterEachHook) {
+                    afterEachHook()
+                }
 
                 ScenarioStateDetector 
                     .forScenario(foundScenario)
                     .checkIfStepWasCalled()
             })
         },
-        // check they should be called before Scenario fn
         BeforeEachScenario : (fn : () => MaybePromise) => {
+            initializeHook(feature, `BeforeEachScenario`)
             beforeEachHook = fn
         },
         BeforeAllScenarios : (fn : () => MaybePromise) => {
+            initializeHook(feature, `BeforeAllScenarios`)
             beforeAllHook = fn
         },
         AfterAllScenarios : (fn : () => MaybePromise) => {
+            initializeHook(feature, `AfterAllScenarios`)
             afterAllHook = fn
         },
         AfterEachScenario : (fn : () => MaybePromise) => {
+            initializeHook(feature, `AfterEachScenario`)
             afterEachHook = fn
         },
     }
@@ -92,7 +105,9 @@ export function describeFeature (
     describe(feature.name, () => {
         featureFn(descibeFeatureParams)
     }).on(`afterAll`, () => {
-        afterAllHook()
+        if (afterAllHook) {
+            afterAllHook()
+        }
 
         FeatureStateDetector
             .forFeature(feature)

@@ -4,4 +4,4 @@ Feature: vitest-cucumber
         Given Scenario Hook
 
     Scenario: vitest-cucumber hook again
-        Given Scenario Hook Again
+        Given Scenario Hook again
