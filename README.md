@@ -68,7 +68,46 @@ When('I run my unit tests', () => {
 
 It will throw **When I run my unit tests was not called**.
 
-### More features
+### Scenario hooks
+
+Gherkin provide some [scenario hooks](https://cucumber.io/docs/cucumber/api/?lang=java#hooks).
+
+vitest-gherkin provides : 
+
+- `BeforeEachScenario` like `beforeEach`, before each Scenario
+- `BeforeAllScenarios` like`beforeAll`, before all scenarios
+- `AfterEachScenario` like `afterEach`, after each scenario
+- `AfterAllScenarios` like `afterAll`, after all Scenario
+
+All hooks should be called before `Scenario` : 
+
+~~~typescript
+describeFeature(
+    feature,
+    ({ AfterAllScenarios, AfterEachScenario, BeforeAllScenarios, BeforeEachScenario, Scenario }) => {
+        BeforeAllScenarios(() => {
+            // ...
+        })
+        BeforeEachScenario(() => {
+            // ...
+        })
+        AfterEachScenario(() => {
+            // ...
+        })
+        AfterAllScenarios(() => {
+            // ...
+        })
+        Scenario(`vitest-cucumber hook`, ({ Given }) => {
+            // ...
+        })
+        Scenario(`vitest-cucumber hook again`, ({ Given }) => {
+            // ...
+        })
+    }
+)
+~~~
+
+### Many Feature(s)
 
 If in your feature file you have more than 1 feature.
 **vitest-cucumber** can load all feature with `loadFeature` : 
