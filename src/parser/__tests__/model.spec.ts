@@ -23,6 +23,19 @@ describe('Models', () => {
                 feature.getScenarioByName('test')
             ).toEqual(scenario)
         })
+
+        test('Check already called scenario', () => {
+            const feature = new Feature('Awesome')
+            const scenario = new Scenario('test')
+
+            feature.scenarii.push(scenario)
+            
+            expect(feature.haveAlreadyCalledScenario()).toBeFalsy()
+
+            scenario.isCalled = true
+
+            expect(feature.haveAlreadyCalledScenario()).toBeTruthy()
+        })
     })
 
     describe('Scenario', () => {

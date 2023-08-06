@@ -22,4 +22,10 @@ export class Feature {
         })
     }
 
+    public haveAlreadyCalledScenario () : boolean {
+        return this.scenarii
+            .filter((scenario : Scenario) => scenario.isCalled === true)
+            .length > 0
+    }
+
 }

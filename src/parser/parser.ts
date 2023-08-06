@@ -11,14 +11,14 @@ export class GherkinParser {
     private currentScenarioIndex: number = -1
 
     public addLine (line: string) {
-        if (line.includes(`Feature`)) {
+        if (line.includes(`Feature:`)) {
             this.currentFeatureIndex++
 
             const featureName = this.getTextAfterKeyword(line, `Feature`)
             const feature = new Feature(featureName)
 
             this.features.push(feature)
-        } else if (line.includes(`Scenario`)) {
+        } else if (line.includes(`Scenario:`)) {
             this.currentScenarioIndex++
 
             const scenarioName = this.getTextAfterKeyword(line, `Scenario`)
