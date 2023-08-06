@@ -32,6 +32,12 @@ export class FeatureStateDetector {
         return foundScenario
     }
 
+    public alreadyCalledScenarioAtStart (hook : string) {
+        if (this.feature.haveAlreadyCalledScenario()) {
+            throw `${hook}() should be called before Scenario()`
+        }
+    }
+
 }
 
 export class ScenarioStateDetector {

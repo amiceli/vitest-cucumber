@@ -5,6 +5,7 @@
   "main": "dist/module.js",
   "scripts": {
     "lint": "eslint -c .eslintrc.js src/",
+    "lint:staged": "eslint -c .eslintrc.js $(git diff --name-only --cached)",
     "lint:fix": "eslint -c .eslintrc.js src/ --fix",
     "build": "npx tsc --declaration",
     "test:unit": "vitest --run",
@@ -34,7 +35,7 @@
     "url": "git+https://github.com/amiceli/vitest-cucumber.git"
   },
   "lint-staged": {
-    "*.ts": "npm run lint"
+    "*.ts": "npm run lint:staged"
   },
   "bugs": {
     "url": "https://github.com/amiceli/vitest-cucumber/issues"
