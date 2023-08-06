@@ -1,12 +1,12 @@
-import { FeatureFileReader } from "../readfile";
+import { FeatureFileReader } from "../readfile"
 import {
-    describe, expect, test
+    describe, expect, test,
 } from 'vitest'
-import { Step, StepTypes } from "../step";
+import { Step, StepTypes } from "../step"
 
-describe('Parse feature file', async () => {
+describe(`Parse feature file`, async () => {
 
-    const path = 'src/parser/__tests__/readline.feature'
+    const path = `src/parser/__tests__/readline.feature`
     const features = await FeatureFileReader
         .fromPath(path)
         .parseFile()
@@ -14,18 +14,18 @@ describe('Parse feature file', async () => {
     const [feature] = features
     const [scenario] = feature.scenarii
 
-    test('One feature should be parsed', () => {
+    test(`One feature should be parsed`, () => {
         expect(features.length).toEqual(1)
         expect(feature.name).toEqual(`Use Gherkin in my unit tests`)
     })
 
-    test('Feature should have one Scenario', () => {
+    test(`Feature should have one Scenario`, () => {
         expect(feature.scenarii.length).toEqual(1)
         expect(scenario.description).toEqual(`Detect when step isn't tested`)
         expect(scenario.isCalled).toBeFalsy()
     })
 
-    test('Scenario should have 5 steps', () => {
+    test(`Scenario should have 5 steps`, () => {
         const [
             Given,
             When,
@@ -36,7 +36,7 @@ describe('Parse feature file', async () => {
 
         expect(scenario.steps.length).toEqual(5)
         expect(
-            scenario.steps.every((s : Step) => !s.isCalled)
+            scenario.steps.every((s : Step) => !s.isCalled),
         ).toBeTruthy()
 
         expect(Given.type).toEqual(StepTypes.GIVEN)

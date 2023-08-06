@@ -1,15 +1,15 @@
-import { GherkinParser } from "../parser";
+import { GherkinParser } from "../parser"
 import {
-    describe, it, expect
+    describe, it, expect,
 } from 'vitest'
-import { StepTypes } from "../step";
+import { StepTypes } from "../step"
 
-describe('GherkinParser', () => {
+describe(`GherkinParser`, () => {
 
-    const parser = new GherkinParser ()
+    const parser = new GherkinParser()
 
     function getCurrentFeaut (p : GherkinParser) {
-        const features = p.features
+        const { features } = p
         const [firstFeature] = features
 
         return firstFeature
@@ -22,8 +22,8 @@ describe('GherkinParser', () => {
         return scenario
     }
 
-    it('should be able to parse Feature line', () => {
-        const featureTitle = 'Awesome unit tests'
+    it(`should be able to parse Feature line`, () => {
+        const featureTitle = `Awesome unit tests`
 
         parser.addLine(`Feature: ${featureTitle}`)
 
@@ -34,8 +34,8 @@ describe('GherkinParser', () => {
         expect(currentFeature.scenarii.length).toEqual(0)
     })
 
-    it('should be able to parse Scenario line', () => {
-        const scenarioTitile = 'Run unit tests'
+    it(`should be able to parse Scenario line`, () => {
+        const scenarioTitile = `Run unit tests`
 
         parser.addLine(`Scenario: ${scenarioTitile}`)
 
@@ -48,8 +48,8 @@ describe('GherkinParser', () => {
         expect(currentScenario.isCalled).toBeFalsy()
     })
 
-    it('should be able to parse Given line', () => {
-        const givenTitle = 'I run unit tests with vitest'
+    it(`should be able to parse Given line`, () => {
+        const givenTitle = `I run unit tests with vitest`
 
         parser.addLine(`Given ${givenTitle}`)
 
@@ -62,25 +62,27 @@ describe('GherkinParser', () => {
         expect(currentStep.isCalled).toBeFalsy()
     })
 
-    it('should trim Scenario / Feature line title', () => {
-        const lineTitle = 'Scenario:    remove space '
+    it(`should trim Scenario / Feature line title`, () => {
+        const lineTitle = `Scenario:    remove space `
 
         parser.addLine(lineTitle)
 
-        const scenario = parser.features[0].scenarii[1]
+        const [feature] = parser.features
+        const [, scenario] = feature.scenarii
 
-        expect(scenario.description).toEqual('remove space')
+        expect(scenario.description).toEqual(`remove space`)
     })
 
-    it('should trim step line title', () => {
-        const lineTitle = 'Given    I love spaces in string '
+    it(`should trim step line title`, () => {
+        const lineTitle = `Given    I love spaces in string `
 
         parser.addLine(lineTitle)
 
-        const scenario = parser.features[0].scenarii[1]
+        const [feature] = parser.features
+        const [, scenario] = feature.scenarii
         const [step] = scenario.steps
 
-        expect(step.details).toEqual('I love spaces in string')
+        expect(step.details).toEqual(`I love spaces in string`)
     })
 
 })
