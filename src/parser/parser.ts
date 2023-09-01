@@ -13,6 +13,7 @@ export class GherkinParser {
     public addLine (line: string) {
         if (line.includes(`Feature:`)) {
             this.currentFeatureIndex++
+            this.currentScenarioIndex = -1
 
             const featureName = this.getTextAfterKeyword(line, `Feature`)
             const feature = new Feature(featureName)

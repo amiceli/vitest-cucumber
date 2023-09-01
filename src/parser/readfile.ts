@@ -26,7 +26,11 @@ export class FeatureFileReader {
         })
 
         rl.on(`line`, (line : string) => {
-            this.parser.addLine(line)
+            try {
+                this.parser.addLine(line)
+            } catch (e) {
+                console.error(`Failed to parse line : `, e)
+            }
         })
 
         return new Promise((resolve) => {
