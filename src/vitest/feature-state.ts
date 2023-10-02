@@ -52,13 +52,13 @@ export class ScenarioStateDetector {
         return new ScenarioStateDetector(scenario)
     }
 
-    public checkIfStepExists (stepType: string, stepDetails: string) {
+    public checkIfStepExists (stepType: string, stepDetails: string, scenarioDescription : string) {
         const foundStep = this.scenario.findStepByTypeAndDetails(
             stepType, stepDetails,
         )
 
         if (!foundStep) {
-            throw `${stepType} ${stepDetails} doesn't exist in your Scenario`
+            throw `${stepType} ${stepDetails} doesn't exist in your Scenario:${scenarioDescription}`
         }
 
         return foundStep

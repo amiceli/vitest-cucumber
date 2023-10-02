@@ -44,7 +44,7 @@ export function describeFeature (
                     ) => {
                         const foundStep = ScenarioStateDetector
                             .forScenario(foundScenario)
-                            .checkIfStepExists(stepType, stepDetails)
+                            .checkIfStepExists(stepType, stepDetails, scenarioDescription)
 
                         test(`${stepType} ${stepDetails}`, () => {
                             scenarioStepCallback()
