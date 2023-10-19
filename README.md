@@ -26,7 +26,7 @@ Now you can write unit tests with **vitest-cucumber**.
 Foe example : 
 
 ~~~typescript
-import { loadFeature, describeFeature } from '@miceli/vitest-cucumber'
+import { loadFeature, describeFeature } from '@amiceli/vitest-cucumber'
 import { expect } from 'vitest'
 
 const feature = await loadFeature('path/to/my/file.feature')
@@ -113,7 +113,7 @@ If in your feature file you have more than 1 feature.
 **vitest-cucumber** can load all feature with `loadFeature` : 
 
 ~~~ts
-import { loadFeatures, describeFeature } from '@miceli/vitest-cucumber'
+import { loadFeatures, describeFeature } from '@amiceli/vitest-cucumber'
 import { expect } from 'vitest'
 
 const [
