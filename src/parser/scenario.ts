@@ -27,3 +27,13 @@ export class Scenario {
     }
 
 }
+
+export type Example = {
+    [key: string]: any[]
+}
+
+export class ScenarioOutline extends Scenario {
+
+    public examples : Example = {}
+
+}

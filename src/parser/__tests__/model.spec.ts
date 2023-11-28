@@ -104,6 +104,12 @@ describe(`Models`, () => {
                 scenario.findStepByTypeAndDetails(`Given`, `test`),
             ).toBeUndefined()
         })
+
+        test(`Scenario can be outline`, () => {
+            const scenarioOutline = new ScenarioOutline(`outline`)
+
+            expect(scenarioOutline.examples).toEqual({})
+        })
     })
     
 
