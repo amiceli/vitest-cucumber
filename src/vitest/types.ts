@@ -1,3 +1,5 @@
+import { Example } from "../parser/scenario"
+
 export type MaybePromise<T = void> = T | Promise<T>
 
 export type StepCallbackDefinition = (
@@ -27,6 +29,6 @@ export type FeatureDescribeCallback = (
 
 export type ScenarioTest = (
     scenarioDescription : string, 
-    fn : (options : StepTest) => MaybePromise
+    fn : (options : StepTest, examples? : Example) => MaybePromise
 ) => void
 
