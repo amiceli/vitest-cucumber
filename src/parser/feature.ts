@@ -1,4 +1,6 @@
-import { Scenario } from './scenario'
+import {
+    Example, Scenario, ScenarioOutline, 
+} from './scenario'
 
 export class Feature {
 
@@ -14,6 +16,21 @@ export class Feature {
         return this.scenarii.find((s : Scenario) => {
             return s.description === name
         })
+    }
+
+    public isOutline (name : string) : boolean {
+        const scenario = this.getScenarioByName(name)
+        return scenario instanceof ScenarioOutline
+    }
+
+    public getScenarioExample (name : string) : Example | null {
+        const scenario = this.getScenarioByName(name)
+
+        if (scenario instanceof ScenarioOutline) {
+            return scenario.examples
+        }
+
+        return null
     }
 
     public getFirstNotCalledScenario () : Scenario | undefined {
