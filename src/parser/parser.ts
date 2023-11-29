@@ -1,5 +1,7 @@
 import { Feature } from "./feature"
-import { Scenario } from "./scenario"
+import {
+    Example, Scenario, ScenarioOutline, 
+} from "./scenario"
 import { Step, StepTypes } from "./step"
 
 export class GherkinParser {
@@ -10,6 +12,10 @@ export class GherkinParser {
 
     private currentScenarioIndex: number = -1
 
+    private lastScenarioOutline: ScenarioOutline | null = null
+
+    private currentExample : Example | null = null
+
     public addLine (line: string) {
         if (line.includes(`Feature:`)) {
             this.currentFeatureIndex++
@@ -19,6 +25,41 @@ export class GherkinParser {
             const feature = new Feature(featureName)
 
             this.features.push(feature)
+        }  else if (line.includes(`Scenario Outline:`)) {
+            this.currentScenarioIndex++
+
+            const scenarioName = this.getTextAfterKeyword(line, `Scenario Outline`)
+            const scneario = new ScenarioOutline(scenarioName)
+
+            this.currentFeature.scenarii.push(scneario)
+
+            this.lastScenarioOutline = scneario
+        } else if (line.includes(`Examples:`)) {
+            this.currentExample = {}
+        } else if (line.trim().startsWith(`|`)) {
+            if (this.currentExample === null) {
+                this.currentExample = {}
+            }
+
+            const exampleVariables = line
+                .trim().split(`|`)
+                .filter((n) => n.length > 0)
+                .map((n) => n.trim())
+            
+            if (Object.keys(this.currentExample).length > 0) {
+                exampleVariables.forEach((varoanle, index) => {
+                    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                    this.currentExample![
+                        Object.keys(this.currentExample!)[index]
+                    ].push(varoanle)
+                })
+            } else {
+                exampleVariables.forEach((varoanle) => {
+                    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                    this.currentExample![varoanle] = []
+                })
+            }
+
         } else if (line.includes(`Scenario:`)) {
             this.currentScenarioIndex++
 
@@ -32,10 +73,20 @@ export class GherkinParser {
             const newStep = new Step(stepType, stepDetails)
 
             this.currentScenario.steps.push(newStep)
+        } else if (this.currentExample) {
+            if (this.lastScenarioOutline) {
+                this.lastScenarioOutline.examples = JSON.parse(JSON.stringify(this.currentExample))
+            }
+
+            this.currentExample = null
         }
     }
 
     public finish (): Feature[] {
+        if (this.lastScenarioOutline && this.currentExample) {
+            this.lastScenarioOutline.examples = JSON.parse(JSON.stringify(this.currentExample))
+        }
+
         return this.features
     }
 
