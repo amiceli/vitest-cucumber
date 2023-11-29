@@ -1,4 +1,4 @@
-import { loadFeature } from '../load-feature'
+import { loadFeature, loadFeatures } from '../load-feature'
 import { describeFeature } from '../describe-feature'
 import {
     expect, vi, test, beforeEach,
@@ -92,9 +92,63 @@ test(`Scenario steps(s) validation`, () => {
     ).toThrowError(`And I know which steps are missing was not called`)
 })
 
+test(`ScenarioOutline with missing validation in step`, async () => {
+    const [
+        missingExamples,
+        missingVariablesInSteps,
+    ] = await loadFeatures(`src/vitest/__tests__/scenario-outline.feature`)
+
+    expect(
+        () => describeFeature(missingExamples, ({ ScenarioOutline }) => {
+            ScenarioOutline(`Scenario without examples`, ({ Given, And, Then }) => {
+                Given(`I run this scenario outline`, () => {})
+                And(`I forgot to add examples`, () => {})
+                Then(`I have an error`, () => {})
+            })
+        }),
+    ).toThrowError(`ScenarioOutline: Scenario without examples has no examples`)
+    
+    expect(
+        () => describeFeature(missingVariablesInSteps, ({ ScenarioOutline }) => {
+            ScenarioOutline(`Missing examples variables in steps`, ({ Given, And, Then }) => {
+                Given(`I run this scenario outline`, () => {})
+                And(`I add only <foo>`, () => {})
+                Then(`I have an error`, () => {})
+            })
+        }),
+    ).toThrowError(`ScenarioOutline: Missing examples variables in steps missing bar in step`)
+})
+
+test(`Check scenario type`, async () => {
+    const [
+        missingExamples,
+    ] = await loadFeatures(`src/vitest/__tests__/scenario-outline.feature`)
+
+    expect(
+        () => describeFeature(missingExamples, ({ Scenario }) => {
+            Scenario(`Scenario without examples`, ({ Given, And, Then } ) => {
+                Given(`I run this scenario outline`, () => {})
+                And(`I forgot to add examples`, () => {})
+                Then(`I have an error`, () => {})
+            })
+        }),
+    ).toThrowError(`Scenario without examples is an outlin`)
+
+    expect(
+        () => describeFeature(feature, ({ ScenarioOutline }) => {
+            
+            ScenarioOutline(`Forgot a scenario`, ({ Given, When, Then }) => {
+                Given(`Developer using vitest-cucumber`, () => { })
+                When(`I forgot a scenario`, () => {})
+                Then(`vitest-cucumber throw an error`, () => {})
+            })
+        }),
+    ).not.toThrowError(`Error: Forgot a scenario is not an outline`)
+})
+
 test(`Everything is ok`, () => {
     expect(
-        () => describeFeature(feature, ({ Scenario }) => {
+        () => describeFeature(feature, ({ Scenario, ScenarioOutline }) => {
             
             Scenario(`Forgot a scenario`, ({ Given, When, Then }) => {
                 Given(`Developer using vitest-cucumber`, () => { })
@@ -114,6 +168,21 @@ test(`Everything is ok`, () => {
                 Then(`vitest-cucumber throw an error`, () => {})
                 And(`I know which steps are missing`, () => {})
             })
+
+            ScenarioOutline(`Run scenario outline with exemples`, ({ Given, When, Then, And }, variables) => {                
+                Given(`Developer one more time vitest-cucumber`, () => {})
+                When(`I run a scenario outline for a <framework>`, () => {})
+                And(`I use it for a <language>`, () => {})
+                Then(`I can use variables in my tests`, () => {
+                    expect(variables?.framework).toEqual(
+                        expect.arrayContaining([`Vue`]),
+                    )
+                    expect(variables?.language).toEqual(
+                        expect.arrayContaining([`Typescript`]),
+                    )
+                })
+            })
+
         }),
 
     ).not.toThrowError()

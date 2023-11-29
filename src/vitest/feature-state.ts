@@ -1,5 +1,5 @@
 import { Step } from "../parser/step"
-import { Scenario } from "../parser/scenario"
+import { Scenario, ScenarioOutline } from "../parser/scenario"
 import { Feature } from "../parser/feature"
 
 export class FeatureStateDetector {
@@ -74,6 +74,27 @@ export class ScenarioStateDetector {
             ].join(`\n`)
 
             throw errorMessage
+        }
+    }
+
+    public checkExemples () {
+        if (this.scenario instanceof ScenarioOutline) {
+            const { examples } = this.scenario
+            const examplesKeys = Object.keys(examples)
+            const stepsDetails = this.scenario.steps
+                .map((s) => s.details)
+
+            const missingVariables = examplesKeys.find((v) => {
+                return stepsDetails.filter((s) => s.includes(v)).length === 0
+            })
+
+            if (missingVariables) {
+                throw new Error(`ScenarioOutline: ${this.scenario.description} missing ${missingVariables} in step`)
+            }
+
+            if (examplesKeys.length === 0) {
+                throw `ScenarioOutline: ${this.scenario.description} has no examples`
+            }
         }
     }
 
