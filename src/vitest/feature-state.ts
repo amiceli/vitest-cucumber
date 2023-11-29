@@ -81,6 +81,15 @@ export class ScenarioStateDetector {
         if (this.scenario instanceof ScenarioOutline) {
             const { examples } = this.scenario
             const examplesKeys = Object.keys(examples)
+
+            const missingValues = examplesKeys.find((s) => {
+                return examples[s].length === 0
+            })
+
+            if (missingValues) {
+                throw new Error(`ScenarioOutline: ${this.scenario.description} missing ${missingValues} value in Examples`)
+            }
+
             const stepsDetails = this.scenario.steps
                 .map((s) => s.details)
 

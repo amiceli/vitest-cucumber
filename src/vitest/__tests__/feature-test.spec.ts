@@ -92,10 +92,11 @@ test(`Scenario steps(s) validation`, () => {
     ).toThrowError(`And I know which steps are missing was not called`)
 })
 
-test(`ScenarioOutline with missing validation in step`, async () => {
+test(`ScenarioOutline with missing variables in step`, async () => {
     const [
         missingExamples,
         missingVariablesInSteps,
+        lastFeatureForVariablesValues,
     ] = await loadFeatures(`src/vitest/__tests__/scenario-outline.feature`)
 
     expect(
@@ -117,6 +118,17 @@ test(`ScenarioOutline with missing validation in step`, async () => {
             })
         }),
     ).toThrowError(`ScenarioOutline: Missing examples variables in steps missing bar in step`)
+
+    expect(
+        () => describeFeature(lastFeatureForVariablesValues, ({ ScenarioOutline }) => {
+            ScenarioOutline(`Missing value for variables in Examples`, ({ Given, And, Then, But }) => {
+                Given(`I run this scenario outline`, () => {})
+                And(`I add <foo>, <bar> variables`, () => {})
+                But(`I forgot to set values`, () => {})
+                Then(`I have an error`, () => {})
+            })
+        }),
+    ).toThrowError(`ScenarioOutline: Missing value for variables in Examples missing foo value in Examples`)
 })
 
 test(`Check scenario type`, async () => {
