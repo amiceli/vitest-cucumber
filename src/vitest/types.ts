@@ -17,6 +17,7 @@ export type StepTest = {
 
 export type FeatureDescriibeCallbackParams = { 
     Scenario: ScenarioTest,
+    ScenarioOutline: ScenarioOutlineTest,
     BeforeAllScenarios : (fn : () => MaybePromise) => void
     AfterAllScenarios : (fn : () => MaybePromise) => void
     BeforeEachScenario : (fn : () => MaybePromise) => void
@@ -28,6 +29,11 @@ export type FeatureDescribeCallback = (
 ) => MaybePromise
 
 export type ScenarioTest = (
+    scenarioDescription : string, 
+    fn : (options : StepTest) => MaybePromise
+) => void
+
+export type ScenarioOutlineTest = (
     scenarioDescription : string, 
     fn : (options : StepTest, examples? : Example) => MaybePromise
 ) => void
