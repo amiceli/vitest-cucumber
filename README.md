@@ -108,8 +108,16 @@ describeFeature(feature, ({ ScenarioOutline }) => {
         })
     })
 })
-~~~
 
+Variables in an array with values extracted from `Examples : ` : 
+
+~~~json
+{
+    "width": ["100", "100"],
+    "height": ["100", "200"],
+    "ratio": ["1", "2"]
+}
+~~~
 
 ### Scenario hooks
 
