@@ -186,10 +186,10 @@ test(`Everything is ok`, () => {
                 When(`I run a scenario outline for a <framework>`, () => {})
                 And(`I use it for a <language>`, () => {})
                 Then(`I can use variables in my tests`, () => {
-                    expect(variables?.framework).toEqual(
+                    expect(variables.framework).toEqual(
                         expect.arrayContaining([`Vue`]),
                     )
-                    expect(variables?.language).toEqual(
+                    expect(variables.language).toEqual(
                         expect.arrayContaining([`Typescript`]),
                     )
                 })
