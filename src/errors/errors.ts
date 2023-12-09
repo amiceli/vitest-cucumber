@@ -1,5 +1,6 @@
 import { Feature } from '../parser/feature'
 import { Scenario, ScenarioOutline } from '../parser/scenario'
+import { Step } from '../parser/step'
 
 export class NotScenarioOutlineError extends Error {
 
@@ -32,7 +33,7 @@ export class ScenarioNotCalledError extends Error {
 export class ScenarioOutlineVariableNotCalledInStepsError extends Error {
 
     public constructor (scenario : ScenarioOutline, variableName : string) {
-        super(`ScenarioOutline:${scenario.description} \n ${variableName} was not called in steps`)
+        super(`ScenarioOutline: ${scenario.description} \n ${variableName} was not called in steps`)
     }
 
 }
@@ -40,7 +41,15 @@ export class ScenarioOutlineVariableNotCalledInStepsError extends Error {
 export class ScenarioOulineWithoutExamplesError extends Error {
 
     public constructor (scenario : ScenarioOutline) {
-        super(`ScenarioOutline:${scenario.description} \n has no examples`)
+        super(`ScenarioOutline: ${scenario.description} \n has an empty examples`)
+    }
+
+}
+
+export class ScenarioOutlineVariablesDeclaredWithoutExamplesError extends Error {
+
+    public constructor (scenario : ScenarioOutline) {
+        super(`ScenarioOutline:${scenario.description} \n variables declarated without Examples`)
     }
 
 }
@@ -65,6 +74,27 @@ export class HookCalledAfterScenarioError extends Error {
 
     public constructor (feature : Feature, hookName : string) {
         super(`Feature: ${feature.name} \n ${hookName} hook was called after Scenario()`)
+    }
+
+}
+
+export class ScenarioUnknowStepError extends Error {
+
+    public constructor (scenario : Scenario, step : Step) {
+        super(`Scenario: ${scenario.description} \n ${step.type} ${step.details} doesn't exist`)
+    }
+
+}
+
+export class ScenarioStepsNotCalledError extends Error {
+
+    public constructor (scenario : Scenario) {
+        const steps = scenario
+            .getNoCalledSteps()
+            .map((s: Step) =>  `\n ${s.type} ${s.details} was not called`)
+            .join(``)
+
+        super(`Scenario: ${scenario.description}  ${steps}`)
     }
 
 }

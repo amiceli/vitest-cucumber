@@ -5,12 +5,13 @@ import {
 } from 'vitest'
 import {
     FeatureUknowScenarioError,
-    IsScenarioOutlineError, MissingScenarioOutlineVariableValueError, NotScenarioOutlineError, ScenarioNotCalledError, ScenarioOulineWithoutExamplesError, ScenarioOutlineVariableNotCalledInStepsError, 
+    IsScenarioOutlineError, MissingScenarioOutlineVariableValueError, NotScenarioOutlineError, ScenarioNotCalledError, ScenarioOulineWithoutExamplesError, ScenarioOutlineVariableNotCalledInStepsError, ScenarioOutlineVariablesDeclaredWithoutExamplesError, ScenarioStepsNotCalledError, ScenarioUnknowStepError, 
 } from '../../errors/errors'
 import { 
     Scenario as ScenarioModel, 
     ScenarioOutline as ScenarioOutlineModel, 
 } from '../../parser/scenario'
+import { Step, StepTypes } from '../../parser/step'
 
 const feature = await loadFeature(`src/vitest/__tests__/index.feature`)
 
@@ -80,10 +81,20 @@ test(`Bad step name`, () => {
             })
 
         }),
-    ).toThrowError(`Given Developer using vitest-gherkin doesn't exist in your Scenario`)
+    ).toThrowError(
+        new ScenarioUnknowStepError(
+            new ScenarioModel(`Forgot a scenario`),
+            new Step(StepTypes.GIVEN, `Developer using vitest-gherkin`),
+        ),
+    )
 })
 
 test(`Scenario steps(s) validation`, () => {
+    const fakeScenario = new ScenarioModel(`Scenario steps(s) validation`)
+    fakeScenario.steps.push(
+        new Step(StepTypes.AND, `I know which steps are missing`),
+    )
+
     expect(
         () => describeFeature(feature, ({ Scenario }) => {
             
@@ -106,7 +117,11 @@ test(`Scenario steps(s) validation`, () => {
             })
         }),
 
-    ).toThrowError(`And I know which steps are missing was not called`)
+    ).toThrowError(
+        new ScenarioStepsNotCalledError(
+            fakeScenario,
+        ),
+    )
 })
 
 test(`ScenarioOutline with missing variables in step`, async () => {
@@ -170,7 +185,11 @@ test(`ScenarioOutline with missing variables in step`, async () => {
                 Then(`I have an error`, () => {})
             })
         }),
-    ).toThrowError(`ScenarioOutline: Scenario without examples keyword missing Examples keyword`)
+    ).toThrowError(
+        new ScenarioOutlineVariablesDeclaredWithoutExamplesError(
+            new ScenarioOutlineModel(`Scenario without examples keyword`),
+        ),
+    )
 })
 
 test(`Check scenario type`, async () => {

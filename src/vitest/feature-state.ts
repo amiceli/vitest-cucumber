@@ -1,10 +1,10 @@
-import { Step } from "../parser/step"
+import { Step, StepTypes } from "../parser/step"
 import { Scenario, ScenarioOutline } from "../parser/scenario"
 import { Feature } from "../parser/feature"
 import {
     FeatureUknowScenarioError,
     HookCalledAfterScenarioError,
-    MissingScenarioOutlineVariableValueError, ScenarioNotCalledError, ScenarioOulineWithoutExamplesError, ScenarioOutlineVariableNotCalledInStepsError, 
+    MissingScenarioOutlineVariableValueError, ScenarioNotCalledError, ScenarioOulineWithoutExamplesError, ScenarioOutlineVariableNotCalledInStepsError, ScenarioOutlineVariablesDeclaredWithoutExamplesError, ScenarioStepsNotCalledError, ScenarioUnknowStepError, 
 } from "../errors/errors"
 
 export class FeatureStateDetector {
@@ -63,13 +63,16 @@ export class ScenarioStateDetector {
         return new ScenarioStateDetector(scenario)
     }
 
-    public checkIfStepExists (stepType: string, stepDetails: string, scenarioDescription: string) {
+    public checkIfStepExists (stepType: string, stepDetails: string) {
         const foundStep = this.scenario.findStepByTypeAndDetails(
             stepType, stepDetails,
         )
 
         if (!foundStep) {
-            throw `${stepType} ${stepDetails} doesn't exist in your Scenario:${scenarioDescription}`
+            throw new ScenarioUnknowStepError(
+                this.scenario,
+                new Step(stepType as StepTypes, stepDetails),
+            )
         }
 
         return foundStep
@@ -77,14 +80,9 @@ export class ScenarioStateDetector {
 
     public checkIfStepWasCalled () {
         if (this.scenario.hasUnCalledSteps()) {
-            const errorMessage = [
-                `\n`,
-                ...this.scenario
-                    .getNoCalledSteps()
-                    .map((s: Step) => `${s.type} ${s.details} was not called`),
-            ].join(`\n`)
-
-            throw errorMessage
+            throw new ScenarioStepsNotCalledError(
+                this.scenario,
+            )
         }
     }
 
@@ -134,7 +132,9 @@ export class ScenarioStateDetector {
     public checkExemples () {
         if (this.scenario instanceof ScenarioOutline) {
             if (this.scenario.missingExamplesKeyword) {
-                throw new Error(`ScenarioOutline: ${this.scenario.description} missing Examples keyword`)
+                throw new ScenarioOutlineVariablesDeclaredWithoutExamplesError(
+                    this.scenario as ScenarioOutline,
+                )
             }
             this.checkIfScenarioHasNoExample()
             this.detectMissingVariableInSteps()
