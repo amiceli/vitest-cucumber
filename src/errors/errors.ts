@@ -5,7 +5,7 @@ import { Step } from '../parser/step'
 export class NotScenarioOutlineError extends Error {
 
     public constructor (scenario : Scenario) {
-        super(`Scenario:${scenario.description} is not a ScenarioOutline`)
+        super(`Scenario: ${scenario.description} is not a ScenarioOutline`)
     }
 
 }
@@ -13,7 +13,7 @@ export class NotScenarioOutlineError extends Error {
 export class IsScenarioOutlineError extends Error {
 
     public constructor (scenario : Scenario) {
-        super(`Scenario:${scenario.description} is a ScenarioOutline`)
+        super(`Scenario: ${scenario.description} is a ScenarioOutline`)
     }
 
 }
@@ -41,7 +41,7 @@ export class ScenarioOutlineVariableNotCalledInStepsError extends Error {
 export class ScenarioOulineWithoutExamplesError extends Error {
 
     public constructor (scenario : ScenarioOutline) {
-        super(`ScenarioOutline: ${scenario.description} \n has an empty examples`)
+        super(`ScenarioOutline: ${scenario.description} \n has an empty Examples`)
     }
 
 }
@@ -49,7 +49,7 @@ export class ScenarioOulineWithoutExamplesError extends Error {
 export class ScenarioOutlineVariablesDeclaredWithoutExamplesError extends Error {
 
     public constructor (scenario : ScenarioOutline) {
-        super(`ScenarioOutline:${scenario.description} \n variables declarated without Examples`)
+        super(`ScenarioOutline: ${scenario.description} \n variables declarated without Examples`)
     }
 
 }
@@ -57,7 +57,7 @@ export class ScenarioOutlineVariablesDeclaredWithoutExamplesError extends Error 
 export class MissingScenarioOutlineVariableValueError extends Error {
 
     public constructor (scenario : ScenarioOutline, variableName : string) {
-        super(`ScenarioOutline:${scenario.description} \n missing ${variableName} value in Excamples`)
+        super(`ScenarioOutline: ${scenario.description} \n missing ${variableName} value in Excamples`)
     }
 
 }
