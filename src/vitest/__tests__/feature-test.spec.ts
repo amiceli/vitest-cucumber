@@ -97,6 +97,7 @@ test(`ScenarioOutline with missing variables in step`, async () => {
         missingExamples,
         missingVariablesInSteps,
         lastFeatureForVariablesValues,
+        outlineWithoutKeyword,
     ] = await loadFeatures(`src/vitest/__tests__/scenario-outline.feature`)
 
     expect(
@@ -123,12 +124,22 @@ test(`ScenarioOutline with missing variables in step`, async () => {
         () => describeFeature(lastFeatureForVariablesValues, ({ ScenarioOutline }) => {
             ScenarioOutline(`Missing value for variables in Examples`, ({ Given, And, Then, But }) => {
                 Given(`I run this scenario outline`, () => {})
-                And(`I add <foo>, <bar> variables`, () => {})
+                And(`I add <test>, <again> variables`, () => {})
                 But(`I forgot to set values`, () => {})
                 Then(`I have an error`, () => {})
             })
         }),
-    ).toThrowError(`ScenarioOutline: Missing value for variables in Examples missing foo value in Examples`)
+    ).toThrowError(`ScenarioOutline: Missing value for variables in Examples missing test value in Examples`)
+
+    expect(
+        () => describeFeature(outlineWithoutKeyword, ({ ScenarioOutline }) => {
+            ScenarioOutline(`Scenario without examples keyword`, ({ Given, And, Then }) => {
+                Given(`I run this scenario outline`, () => {})
+                And(`I forgot Examples keyword before variables`, () => {})
+                Then(`I have an error`, () => {})
+            })
+        }),
+    ).toThrowError(`ScenarioOutline: Scenario without examples keyword missing Examples keyword`)
 })
 
 test(`Check scenario type`, async () => {
@@ -181,20 +192,34 @@ test(`Everything is ok`, () => {
                 And(`I know which steps are missing`, () => {})
             })
 
+            const fn = vi.fn()
+
             ScenarioOutline(`Run scenario outline with exemples`, ({ Given, When, Then, And }, variables) => {                
-                Given(`Developer one more time vitest-cucumber`, () => {})
-                When(`I run a scenario outline for a <framework>`, () => {})
-                And(`I use it for a <language>`, () => {})
+                Given(`Developer one more time vitest-cucumber`, () => {
+                    expect(variables).not.toBeNull()
+                    fn()
+                })
+                When(`I run a scenario outline for a <framework>`, () => {
+                    expect(
+                        [`Vue`, `Stencil`].includes(variables.framework),
+                    )
+                })
+                And(`I use it for a <language>`, () => {
+                    expect(
+                        [`Javascript`, `Typescript`].includes(variables.framework),
+                    )
+                })
                 Then(`I can use variables in my tests`, () => {
-                    expect(variables.framework).toEqual(
-                        expect.arrayContaining([`Vue`]),
-                    )
-                    expect(variables.language).toEqual(
-                        expect.arrayContaining([`Typescript`]),
-                    )
+                    if (variables.framework === `Vue`) {
+                        expect(variables.language).toBe(`Javascript`)
+                    }
+                    if (variables.framework === `Stencil`) {
+                        expect(variables.language).toBe(`Typescript`)
+                    }
                 })
             })
 
+            expect(fn).toHaveBeenCalledTimes(2)
         }),
 
     ).not.toThrowError()

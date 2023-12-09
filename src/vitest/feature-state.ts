@@ -32,7 +32,7 @@ export class FeatureStateDetector {
         return foundScenario
     }
 
-    public alreadyCalledScenarioAtStart (hook : string) {
+    public alreadyCalledScenarioAtStart (hook: string) {
         if (this.feature.haveAlreadyCalledScenario()) {
             throw `${hook}() should be called before Scenario()`
         }
@@ -52,7 +52,7 @@ export class ScenarioStateDetector {
         return new ScenarioStateDetector(scenario)
     }
 
-    public checkIfStepExists (stepType: string, stepDetails: string, scenarioDescription : string) {
+    public checkIfStepExists (stepType: string, stepDetails: string, scenarioDescription: string) {
         const foundStep = this.scenario.findStepByTypeAndDetails(
             stepType, stepDetails,
         )
@@ -77,33 +77,51 @@ export class ScenarioStateDetector {
         }
     }
 
+    private checkIfScenarioHasNoExample () {
+        const { examples } = this.scenario as ScenarioOutline
+
+        if (examples.length === 0) {
+            throw `ScenarioOutline: ${this.scenario.description} has no examples`
+        }
+    }
+
+    private detectMissingVariableInSteps () {
+        const { examples } = this.scenario as ScenarioOutline
+        const examplesKeys = Object.keys(examples[0])
+        const missingVariable = examplesKeys.find((v) => {
+            return this.scenario.steps
+                .map((s) => s.details).join(``)
+                .includes(`<${v}>`) === false
+        })
+
+        if (missingVariable) {
+            throw new Error(`ScenarioOutline: ${this.scenario.description} missing ${missingVariable} in steps`)
+        }
+    }
+
+    private detectMissingVariableValue () {
+        const { examples } = this.scenario as ScenarioOutline
+        const examplesKeys = Object.keys(examples[0])
+
+        const missingVariable = examplesKeys.find((v) => {
+            return examples.filter((values) => {
+                return values[v] === undefined || values[v] === null
+            }).length > 0
+        })
+
+        if (missingVariable) {
+            throw new Error(`ScenarioOutline: ${this.scenario.description} missing ${missingVariable} value in Examples`)
+        }
+    }
+
     public checkExemples () {
         if (this.scenario instanceof ScenarioOutline) {
-            const { examples } = this.scenario
-            const examplesKeys = Object.keys(examples)
-
-            const missingValues = examplesKeys.find((s) => {
-                return examples[s].length === 0
-            })
-
-            if (missingValues) {
-                throw new Error(`ScenarioOutline: ${this.scenario.description} missing ${missingValues} value in Examples`)
+            if (this.scenario.missingExamplesKeyword) {
+                throw new Error(`ScenarioOutline: ${this.scenario.description} missing Examples keyword`)
             }
-
-            const stepsDetails = this.scenario.steps
-                .map((s) => s.details)
-
-            const missingVariables = examplesKeys.find((v) => {
-                return stepsDetails.filter((s) => s.includes(v)).length === 0
-            })
-
-            if (missingVariables) {
-                throw new Error(`ScenarioOutline: ${this.scenario.description} missing ${missingVariables} in step`)
-            }
-
-            if (examplesKeys.length === 0) {
-                throw `ScenarioOutline: ${this.scenario.description} has no examples`
-            }
+            this.checkIfScenarioHasNoExample()
+            this.detectMissingVariableInSteps()
+            this.detectMissingVariableValue()
         }
     }
 
