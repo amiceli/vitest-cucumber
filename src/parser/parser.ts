@@ -16,6 +16,10 @@ export class GherkinParser {
 
     private currentExample : Example | null = null
 
+    private currentExampleLine : number = -1
+
+    private exampleKeys : string[] = []
+
     public addLine (line: string) {
         if (line.includes(`Feature:`)) {
             this.currentFeatureIndex++
@@ -35,31 +39,10 @@ export class GherkinParser {
 
             this.lastScenarioOutline = scneario
         } else if (line.includes(`Examples:`)) {
-            this.currentExample = {}
+            this.currentExample = []
         } else if (line.trim().startsWith(`|`)) {
-            if (this.currentExample === null) {
-                this.currentExample = {}
-            }
-
-            const exampleVariables = line
-                .trim().split(`|`)
-                .filter((n) => n.length > 0)
-                .map((n) => n.trim())
-            
-            if (Object.keys(this.currentExample).length > 0) {
-                exampleVariables.forEach((varoanle, index) => {
-                    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                    this.currentExample![
-                        Object.keys(this.currentExample!)[index]
-                    ].push(varoanle)
-                })
-            } else {
-                exampleVariables.forEach((varoanle) => {
-                    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                    this.currentExample![varoanle] = []
-                })
-            }
-
+            this.detectMissingExamplesKeyword()
+            this.updateScenarioExamples(line)
         } else if (line.includes(`Scenario:`)) {
             this.currentScenarioIndex++
 
@@ -73,21 +56,56 @@ export class GherkinParser {
             const newStep = new Step(stepType, stepDetails)
 
             this.currentScenario.steps.push(newStep)
-        } else if (this.currentExample) {
+        } else if (this.currentExample !== null) {
+            if (this.currentExample.length === 0) {
+                this.currentExample.push( this.getEmptyExamplesValues() )
+            }
             if (this.lastScenarioOutline) {
                 this.lastScenarioOutline.examples = JSON.parse(JSON.stringify(this.currentExample))
             }
 
             this.currentExample = null
+            this.currentExampleLine = -1
         }
     }
 
     public finish (): Feature[] {
         if (this.lastScenarioOutline && this.currentExample) {
+            if (this.currentExample.length === 0) {
+                this.currentExample.push( this.getEmptyExamplesValues() )
+            }
+
             this.lastScenarioOutline.examples = JSON.parse(JSON.stringify(this.currentExample))
         }
 
         return this.features
+    }
+
+    private getVariablesFromLine (line : string) {
+        const exampleVariables = line
+            .trim()
+            .split(`|`)
+            .filter((n) => n.length > 0)
+            .map((n) => n.trim())
+
+        return exampleVariables
+    }
+
+    private getObjectWithValuesFromLine (line : string) {
+        const exampleVariables = this.getVariablesFromLine(line)
+        const res = exampleVariables.reduce((acc : any, cur, index) => {
+            return acc[this.exampleKeys[index]] = cur, acc
+        }, {})
+
+        return res
+    }
+
+    private getEmptyExamplesValues () {
+        const res = this.exampleKeys.reduce((acc : any, cur, index) => {
+            return acc[this.exampleKeys[index]] = null, acc
+        }, {})
+
+        return res
     }
 
     private getTextAfterKeyword (line: string, key: string): string {
@@ -113,6 +131,26 @@ export class GherkinParser {
 
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         return foundStep!
+    }
+
+    private detectMissingExamplesKeyword () {
+        if (this.currentExample === null && this.lastScenarioOutline) {
+            this.lastScenarioOutline.missingExamplesKeyword = true
+        }
+    }
+
+    private updateScenarioExamples (line : string) {
+        if (this.currentExample) {
+            this.currentExampleLine++
+
+            if (this.currentExampleLine === 0) {
+                this.exampleKeys = this.getVariablesFromLine(line)
+            } else {
+                this.currentExample.push(
+                    this.getObjectWithValuesFromLine(line),
+                )
+            }
+        }
     }
 
     public get currentFeature (): Feature {

@@ -101,7 +101,7 @@ describe(`GherkinParser`, () => {
         expect(currentScenario.description).toEqual(scenarioTitile)
         expect(currentScenario.isCalled).toBeFalsy()
         expect(currentScenario instanceof ScenarioOutline).toBeTruthy()
-        expect((currentScenario as ScenarioOutline).examples).toEqual({})
+        expect((currentScenario as ScenarioOutline).examples).toEqual([])
     })
 
     it(`should be able to read Examples`, () => {
@@ -118,10 +118,16 @@ describe(`GherkinParser`, () => {
 
         expect(
             (currentScenario as ScenarioOutline).examples,
-        ).toEqual({
-            framework : [`Vue`, `Stencil`],
-            language : [`Javascript`, `Typescript`],
-        })
+        ).toEqual([
+            {
+                framework : `Vue`,
+                language : `Javascript`,
+            },
+            {
+                framework : `Stencil`,
+                language : `Typescript`,
+            },
+        ])
     })
 
     it(`should check Examples at finish parse`, () => {
@@ -129,23 +135,29 @@ describe(`GherkinParser`, () => {
         const currentFeature = getCurrentFeaut(parser)
         const currentScenario = currentFeature.getScenarioByName(scenarioTitile) as ScenarioOutline
 
-        currentScenario.examples = {}
+        currentScenario.examples = []
 
         parser.addLine(`Examples:`)
         parser.addLine(`| framework | language   |`)
         parser.addLine(`| Vue       | Javascript |`)
         parser.addLine(`| Stencil   | Typescript |`)
 
-        expect(currentScenario.examples).toEqual({})
+        expect(currentScenario.examples).toEqual([])
 
         parser.finish()
 
         expect(
             currentScenario.examples,
-        ).toEqual({
-            framework : [`Vue`, `Stencil`],
-            language : [`Javascript`, `Typescript`],
-        })
+        ).toEqual([
+            {
+                framework : `Vue`,
+                language : `Javascript`,
+            },
+            {
+                framework : `Stencil`,
+                language : `Typescript`,
+            },
+        ])
     })
 
 })
