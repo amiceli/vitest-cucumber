@@ -1,6 +1,9 @@
 import { Step } from "../parser/step"
 import { Scenario, ScenarioOutline } from "../parser/scenario"
 import { Feature } from "../parser/feature"
+import {
+    MissingScenarioOutlineVariableValueError, ScenarioOulineWithoutExamplesError, ScenarioOutlineVariableNotCalledInStepsError, 
+} from "../errors/errors"
 
 export class FeatureStateDetector {
 
@@ -81,7 +84,7 @@ export class ScenarioStateDetector {
         const { examples } = this.scenario as ScenarioOutline
 
         if (examples.length === 0) {
-            throw `ScenarioOutline: ${this.scenario.description} has no examples`
+            throw new ScenarioOulineWithoutExamplesError(this.scenario as ScenarioOutline)
         }
     }
 
@@ -95,7 +98,10 @@ export class ScenarioStateDetector {
         })
 
         if (missingVariable) {
-            throw new Error(`ScenarioOutline: ${this.scenario.description} missing ${missingVariable} in steps`)
+            throw new ScenarioOutlineVariableNotCalledInStepsError(
+                this.scenario as ScenarioOutline,
+                missingVariable,
+            )
         }
     }
 
@@ -110,7 +116,10 @@ export class ScenarioStateDetector {
         })
 
         if (missingVariable) {
-            throw new Error(`ScenarioOutline: ${this.scenario.description} missing ${missingVariable} value in Examples`)
+            throw new MissingScenarioOutlineVariableValueError(
+                this.scenario as ScenarioOutline,
+                missingVariable,
+            )
         }
     }
 

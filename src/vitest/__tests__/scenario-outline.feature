@@ -1,6 +1,6 @@
 Feature: Scenario Outline without examples
 
-    Scenario Outline: Scenario without examples
+    Scenario Outline: scenario outline without examples
         Given I run this scenario outline
         And   I forgot to add examples
         Then  I have an error

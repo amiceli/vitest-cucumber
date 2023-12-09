@@ -8,7 +8,8 @@ import {
     FeatureDescribeCallback,
     FeatureDescriibeCallbackParams,
 } from './types'
-import { Example } from "../parser/scenario"
+import { Example, Scenario } from "../parser/scenario"
+import { NotScenarioOutlineError, IsScenarioOutlineError } from '../errors/errors'
 
 function initializeHook (
     feature : Feature, 
@@ -77,7 +78,7 @@ export function describeFeature (
                 }
 
                 if (feature.isOutline(scenarioDescription)) {
-                    throw new Error(`${scenarioDescription} is an outline`)
+                    throw new IsScenarioOutlineError(new Scenario(scenarioDescription))
                 } else {
                     scenarioTestCallback(scenarioStepsCallback)
                 }
@@ -147,7 +148,7 @@ export function describeFeature (
                         })
                     }
                 } else {
-                    throw new Error(`${scenarioDescription} is not an outline`)
+                    throw new NotScenarioOutlineError(new Scenario(scenarioDescription))
                 }
             }).on(`afterAll`, () => {
                 foundScenario.isCalled = true

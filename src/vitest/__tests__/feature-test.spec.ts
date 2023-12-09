@@ -3,6 +3,13 @@ import { describeFeature } from '../describe-feature'
 import {
     expect, vi, test, beforeEach,
 } from 'vitest'
+import {
+    IsScenarioOutlineError, MissingScenarioOutlineVariableValueError, ScenarioOulineWithoutExamplesError, ScenarioOutlineVariableNotCalledInStepsError, 
+} from '../../errors/errors'
+import { 
+    Scenario as ScenarioModel, 
+    ScenarioOutline as ScenarioOutlineModel, 
+} from '../../parser/scenario'
 
 const feature = await loadFeature(`src/vitest/__tests__/index.feature`)
 
@@ -102,13 +109,17 @@ test(`ScenarioOutline with missing variables in step`, async () => {
 
     expect(
         () => describeFeature(missingExamples, ({ ScenarioOutline }) => {
-            ScenarioOutline(`Scenario without examples`, ({ Given, And, Then }) => {
+            ScenarioOutline(`scenario outline without examples`, ({ Given, And, Then }) => {
                 Given(`I run this scenario outline`, () => {})
                 And(`I forgot to add examples`, () => {})
                 Then(`I have an error`, () => {})
             })
         }),
-    ).toThrowError(`ScenarioOutline: Scenario without examples has no examples`)
+    ).toThrowError(
+        new ScenarioOulineWithoutExamplesError(
+            new ScenarioOutlineModel(`scenario outline without examples`),
+        ),
+    )
     
     expect(
         () => describeFeature(missingVariablesInSteps, ({ ScenarioOutline }) => {
@@ -118,7 +129,12 @@ test(`ScenarioOutline with missing variables in step`, async () => {
                 Then(`I have an error`, () => {})
             })
         }),
-    ).toThrowError(`ScenarioOutline: Missing examples variables in steps missing bar in step`)
+    ).toThrowError(
+        new ScenarioOutlineVariableNotCalledInStepsError(
+            new ScenarioOutlineModel(`Missing examples variables in steps`),
+            `bar`,
+        ),
+    )
 
     expect(
         () => describeFeature(lastFeatureForVariablesValues, ({ ScenarioOutline }) => {
@@ -129,7 +145,12 @@ test(`ScenarioOutline with missing variables in step`, async () => {
                 Then(`I have an error`, () => {})
             })
         }),
-    ).toThrowError(`ScenarioOutline: Missing value for variables in Examples missing test value in Examples`)
+    ).toThrowError(
+        new MissingScenarioOutlineVariableValueError(
+            new ScenarioOutlineModel(`Missing value for variables in Examples`),
+            `test`,
+        ),
+    )
 
     expect(
         () => describeFeature(outlineWithoutKeyword, ({ ScenarioOutline }) => {
@@ -149,13 +170,15 @@ test(`Check scenario type`, async () => {
 
     expect(
         () => describeFeature(missingExamples, ({ Scenario }) => {
-            Scenario(`Scenario without examples`, ({ Given, And, Then } ) => {
+            Scenario(`scenario outline without examples`, ({ Given, And, Then } ) => {
                 Given(`I run this scenario outline`, () => {})
                 And(`I forgot to add examples`, () => {})
                 Then(`I have an error`, () => {})
             })
         }),
-    ).toThrowError(`Scenario without examples is an outlin`)
+    ).toThrowError(
+        new IsScenarioOutlineError(new ScenarioModel(`scenario outline without examples`)),
+    )
 
     expect(
         () => describeFeature(feature, ({ ScenarioOutline }) => {
