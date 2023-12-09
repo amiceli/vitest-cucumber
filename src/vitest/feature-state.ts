@@ -2,7 +2,9 @@ import { Step } from "../parser/step"
 import { Scenario, ScenarioOutline } from "../parser/scenario"
 import { Feature } from "../parser/feature"
 import {
-    MissingScenarioOutlineVariableValueError, ScenarioOulineWithoutExamplesError, ScenarioOutlineVariableNotCalledInStepsError, 
+    FeatureUknowScenarioError,
+    HookCalledAfterScenarioError,
+    MissingScenarioOutlineVariableValueError, ScenarioNotCalledError, ScenarioOulineWithoutExamplesError, ScenarioOutlineVariableNotCalledInStepsError, 
 } from "../errors/errors"
 
 export class FeatureStateDetector {
@@ -21,7 +23,7 @@ export class FeatureStateDetector {
         const noCalledScenario = this.feature.getFirstNotCalledScenario()
 
         if (noCalledScenario) {
-            throw `Scenario: ${noCalledScenario.description} was not called`
+            throw new ScenarioNotCalledError(noCalledScenario)
         }
     }
 
@@ -29,15 +31,21 @@ export class FeatureStateDetector {
         const foundScenario = this.feature.getScenarioByName(scenarioDescription)
 
         if (!foundScenario) {
-            throw `Scenario: ${scenarioDescription} doesn't exist in your Feature`
+            throw new FeatureUknowScenarioError(
+                this.feature,
+                new Scenario(scenarioDescription),
+            )
         }
 
         return foundScenario
     }
 
-    public alreadyCalledScenarioAtStart (hook: string) {
+    public alreadyCalledScenarioAtStart (hook: string) { // A tester
         if (this.feature.haveAlreadyCalledScenario()) {
-            throw `${hook}() should be called before Scenario()`
+            throw new HookCalledAfterScenarioError(
+                this.feature,
+                hook,
+            )
         }
     }
 

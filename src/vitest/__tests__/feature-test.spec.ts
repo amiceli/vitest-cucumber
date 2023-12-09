@@ -4,7 +4,8 @@ import {
     expect, vi, test, beforeEach,
 } from 'vitest'
 import {
-    IsScenarioOutlineError, MissingScenarioOutlineVariableValueError, ScenarioOulineWithoutExamplesError, ScenarioOutlineVariableNotCalledInStepsError, 
+    FeatureUknowScenarioError,
+    IsScenarioOutlineError, MissingScenarioOutlineVariableValueError, NotScenarioOutlineError, ScenarioNotCalledError, ScenarioOulineWithoutExamplesError, ScenarioOutlineVariableNotCalledInStepsError, 
 } from '../../errors/errors'
 import { 
     Scenario as ScenarioModel, 
@@ -43,7 +44,11 @@ test(`Forgot a scenario`, () => {
         () => describeFeature(feature, () => {
             // 
         }),
-    ).toThrowError(`Scenario: Forgot a scenario was not called`)
+    ).toThrowError(
+        new ScenarioNotCalledError(
+            new ScenarioModel(`Forgot a scenario`),
+        ),
+    )
 })
 
 test(`Bad scenario name`, () => {
@@ -58,7 +63,12 @@ test(`Bad scenario name`, () => {
 
             Scenario(`wrong name`, () => {})
         }),
-    ).toThrowError(`Scenario: wrong name doesn't exist in your Feature`)
+    ).toThrowError(
+        new FeatureUknowScenarioError(
+            feature,
+            new ScenarioModel(`wrong name`),
+        ),
+    )
 })
 
 test(`Bad step name`, () => {
@@ -189,7 +199,11 @@ test(`Check scenario type`, async () => {
                 Then(`vitest-cucumber throw an error`, () => {})
             })
         }),
-    ).not.toThrowError(`Error: Forgot a scenario is not an outline`)
+    ).toThrowError(
+        new NotScenarioOutlineError(
+            new ScenarioModel(`Forgot a scenario`),
+        ),
+    )
 })
 
 test(`Everything is ok`, () => {

@@ -4,6 +4,7 @@ import {
     expect, vi, test, beforeEach,
 } from 'vitest'
 import { Feature } from '../../parser/feature'
+import { HookCalledAfterScenarioError } from '../../errors/errors'
 
 let feature: Feature
 
@@ -82,7 +83,12 @@ test(`BeforeEachScenario should be called before Scenario`, () => {
                 },
             )
         },
-    ).toThrowError(`BeforeEachScenario() should be called before Scenario()`)
+    ).toThrowError(
+        new HookCalledAfterScenarioError(
+            feature,
+            `BeforeEachScenario`,
+        ),
+    )
 })
 
 // 
@@ -127,7 +133,12 @@ test(`BeforeAllScenarios should be called before Scenario`, () => {
                 },
             )
         },
-    ).toThrowError(`BeforeAllScenarios() should be called before Scenario()`)
+    ).toThrowError(
+        new HookCalledAfterScenarioError(
+            feature,
+            `BeforeAllScenarios`,
+        ),
+    )
 })
 
 // 
@@ -172,7 +183,12 @@ test(`AfterEachScenario should be called before Scenario`, () => {
                 },
             )
         },
-    ).toThrowError(`AfterEachScenario() should be called before Scenario()`)
+    ).toThrowError(
+        new HookCalledAfterScenarioError(
+            feature,
+            `AfterEachScenario`,
+        ),
+    )
 })
 
 // 
@@ -221,7 +237,12 @@ test(`AfterAllScenarios should be called before Scenario`, () => {
                 },
             )
         },
-    ).toThrowError(`AfterAllScenarios() should be called before Scenario()`)
+    ).toThrowError(
+        new HookCalledAfterScenarioError(
+            feature,
+            `AfterAllScenarios`,
+        ),
+    )
 })
 
 // 

@@ -33,7 +33,7 @@ export class Feature {
         return null
     }
 
-    public getFirstNotCalledScenario () : Scenario | undefined {
+    public getFirstNotCalledScenario () : Scenario | ScenarioOutline | undefined {
         return this.scenarii.find((scenario : Scenario) => {
             return scenario.isCalled === false
         })
