@@ -95,7 +95,7 @@ export function describeFeature (
         },
         ScenarioOutline : (
             scenarioDescription: string, 
-            scenarioTestCallback: (op: StepTest, variables? : Example) => MaybePromise,
+            scenarioTestCallback: (op: StepTest, variables : Example[0]) => MaybePromise,
         ) => {
             const foundScenario = getScenario(feature, scenarioDescription)
 
@@ -142,7 +142,9 @@ export function describeFeature (
                     const example = feature.getScenarioExample(scenarioDescription)
 
                     if (example)  {
-                        scenarioTestCallback(scenarioStepsCallback, example)
+                        example.forEach((exampleVariables) => {
+                            scenarioTestCallback(scenarioStepsCallback, exampleVariables)
+                        })
                     }
                 } else {
                     throw new Error(`${scenarioDescription} is not an outline`)
