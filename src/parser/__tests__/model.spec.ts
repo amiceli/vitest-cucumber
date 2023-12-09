@@ -56,7 +56,9 @@ describe(`Models`, () => {
             const scenario = new Scenario(`test`)
             const outline = new ScenarioOutline(`outline`)
 
-            outline.examples = { test : [`yes`, `no`] }
+            expect(outline.missingExamplesKeyword).toBeFalsy()
+            expect(outline.examples).toEqual([])
+            outline.examples = [{ test : [`yes`, `no`] }]
 
             feature.scenarii.push(scenario)
             feature.scenarii.push(outline)
@@ -108,7 +110,7 @@ describe(`Models`, () => {
         test(`Scenario can be outline`, () => {
             const scenarioOutline = new ScenarioOutline(`outline`)
 
-            expect(scenarioOutline.examples).toEqual({})
+            expect(scenarioOutline.examples).toEqual([])
         })
     })
     

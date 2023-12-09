@@ -35,6 +35,6 @@ export type ScenarioTest = (
 
 export type ScenarioOutlineTest = (
     scenarioDescription : string, 
-    fn : (options : StepTest, examples : Example) => MaybePromise
+    fn : (options : StepTest, examples : Example[0]) => MaybePromise
 ) => void
 

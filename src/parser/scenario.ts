@@ -6,7 +6,7 @@ export class Scenario {
 
     public steps: Step[] = []
 
-    public readonly description : string
+    public description : string
 
     public constructor (description : string) {
         this.description = description
@@ -29,11 +29,14 @@ export class Scenario {
 }
 
 export type Example = {
-    [key: string]: any[]
-}
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    [key: string]: any
+}[]
 
 export class ScenarioOutline extends Scenario {
 
-    public examples : Example = {}
+    public examples : Example = []
+
+    public missingExamplesKeyword : boolean = false
 
 }
