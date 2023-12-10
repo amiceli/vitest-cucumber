@@ -2,7 +2,7 @@ import { Feature } from "../feature"
 import {
     describe, test, expect, 
 } from "vitest"
-import { Scenario } from "../scenario"
+import { Scenario, ScenarioOutline } from "../scenario"
 import { Step, StepTypes } from "../step"
 
 describe(`Models`, () => {
@@ -37,6 +37,34 @@ describe(`Models`, () => {
             scenario.isCalled = true
 
             expect(feature.haveAlreadyCalledScenario()).toBeTruthy()
+        })
+
+        test(`Check if a scenario is an outline`, () => {
+            const feature = new Feature(`Awesome`)
+            const scenario = new Scenario(`test`)
+            const outline = new ScenarioOutline(`outline`)
+
+            feature.scenarii.push(scenario)
+            feature.scenarii.push(outline)
+
+            expect(feature.isOutline(`test`)).toBeFalsy()
+            expect(feature.isOutline(`outline`)).toBeTruthy()
+        })
+
+        test(`Get scenario outline examples`, () => {
+            const feature = new Feature(`Awesome`)
+            const scenario = new Scenario(`test`)
+            const outline = new ScenarioOutline(`outline`)
+
+            expect(outline.missingExamplesKeyword).toBeFalsy()
+            expect(outline.examples).toEqual([])
+            outline.examples = [{ test : [`yes`, `no`] }]
+
+            feature.scenarii.push(scenario)
+            feature.scenarii.push(outline)
+
+            expect(feature.getScenarioExample(`outline`)).toEqual(outline.examples)
+            expect(feature.getScenarioExample(`test`)).toBeNull()
         })
     })
 
@@ -77,6 +105,12 @@ describe(`Models`, () => {
             expect(
                 scenario.findStepByTypeAndDetails(`Given`, `test`),
             ).toBeUndefined()
+        })
+
+        test(`Scenario can be outline`, () => {
+            const scenarioOutline = new ScenarioOutline(`outline`)
+
+            expect(scenarioOutline.examples).toEqual([])
         })
     })
     

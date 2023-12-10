@@ -51,12 +51,14 @@ describeFeature(feature, ({ Scenario }) => {
 })
 ~~~
 
-When you will run your test with vitest, **vitest-cucumber** will : 
+When you will run your test with vitest, **vitest-cucumber** will check : 
 
-- detect if your forget a Scenario
-- check if you use correct Scenario description
-- check if your forgot a Scenario step
-- check if you use a wrong Scenario step type
+- if you forget a Scenario or a Scenario Outline
+- if you use correct Scenario description
+- if you forgot a Scenario step
+- if you use a wrong Scenario step type
+- missing variables value in Scenario Outline
+- missing variables name in Scenario Outline steps
 
 For example, if you forgot to write : 
 
@@ -67,6 +69,56 @@ When('I run my unit tests', () => {
 ~~~
 
 It will throw **When I run my unit tests was not called**.
+
+### Scenario Outline and Examples
+
+An example of feature file with Scenario Outline and Examples : 
+
+~~~
+Feature: Detect image ratio from width and height
+
+    Scenario Outline: Detect image ratio when upload image
+        Given As a user in an awesome project
+        When  I upload an image <width>px on <height>px
+        Then  I see my image <ratio>
+
+        Examples:
+            | width | height | ratio |
+            | 100   | 100    | 1     |
+            | 100   | 200    | 2     |
+
+~~~
+
+You can use variables in your Scenario steps : 
+
+~~~typescript
+describeFeature(feature, ({ ScenarioOutline }) => {
+
+    ScenarioOutline(`Detect image ratio when upload image`, ({ Given, When, Then }, variables) =>{
+        Given(`As a user in an awesome project`, () => {})
+        When(` I upload an image <width>px on <height>px`, () => {
+            expect(variables.width[0]).toEqual(100)
+            expect(variables.height[0]).toEqual(100)
+            expect(variables.ratio[0]).toEqual(100)
+        })
+        Then(`I see my image <ratio>`, () => {
+            expect(variables.ratio[1]).toEqual(
+                variables.height[1] / variables.width[1]
+            )
+        })
+    })
+})
+~~~
+
+Variables in an array with values extracted from `Examples : ` : 
+
+~~~json
+{
+    "width": ["100", "100"],
+    "height": ["100", "200"],
+    "ratio": ["1", "2"]
+}
+~~~
 
 ### Scenario hooks
 

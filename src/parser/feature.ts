@@ -1,4 +1,6 @@
-import { Scenario } from './scenario'
+import {
+    Example, Scenario, ScenarioOutline, 
+} from './scenario'
 
 export class Feature {
 
@@ -16,7 +18,22 @@ export class Feature {
         })
     }
 
-    public getFirstNotCalledScenario () : Scenario | undefined {
+    public isOutline (name : string) : boolean {
+        const scenario = this.getScenarioByName(name)
+        return scenario instanceof ScenarioOutline
+    }
+
+    public getScenarioExample (name : string) : Example | null {
+        const scenario = this.getScenarioByName(name)
+
+        if (scenario instanceof ScenarioOutline) {
+            return scenario.examples
+        }
+
+        return null
+    }
+
+    public getFirstNotCalledScenario () : Scenario | ScenarioOutline | undefined {
         return this.scenarii.find((scenario : Scenario) => {
             return scenario.isCalled === false
         })

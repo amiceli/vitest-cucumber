@@ -6,7 +6,7 @@ export class Scenario {
 
     public steps: Step[] = []
 
-    public readonly description : string
+    public description : string
 
     public constructor (description : string) {
         this.description = description
@@ -25,5 +25,18 @@ export class Scenario {
     public getNoCalledSteps () : Step[] {
         return this.steps.filter((s) => s.isCalled === false)
     }
+
+}
+
+export type Example = {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    [key: string]: any
+}[]
+
+export class ScenarioOutline extends Scenario {
+
+    public examples : Example = []
+
+    public missingExamplesKeyword : boolean = false
 
 }
