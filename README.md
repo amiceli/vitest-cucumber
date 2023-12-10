@@ -99,7 +99,7 @@ describeFeature(feature, ({ ScenarioOutline }) => {
         Given(`As a user in an awesome project`, () => {})
         When(` I upload an image <width>px on <height>px`, () => {
             // varaibles.width can be 100 or 150
-            // varaibles.height can be 100 or 200
+            // varaibles.height can be 100 or 300
             // varaibles.ratio can be 1 or 2
         })
         Then(`I see my image <ratio>`, () => { })
