@@ -85,11 +85,12 @@ Feature: Detect image ratio from width and height
         Examples:
             | width | height | ratio |
             | 100   | 100    | 1     |
-            | 100   | 200    | 2     |
+            | 150   | 300    | 2     |
 
 ~~~
 
-You can use variables in your Scenario steps : 
+You can use variables in your ScenarioOutline callback.
+A ScenarioOutline is executed X times according to X variables.
 
 ~~~typescript
 describeFeature(feature, ({ ScenarioOutline }) => {
@@ -97,28 +98,35 @@ describeFeature(feature, ({ ScenarioOutline }) => {
     ScenarioOutline(`Detect image ratio when upload image`, ({ Given, When, Then }, variables) =>{
         Given(`As a user in an awesome project`, () => {})
         When(` I upload an image <width>px on <height>px`, () => {
-            expect(variables.width[0]).toEqual(100)
-            expect(variables.height[0]).toEqual(100)
-            expect(variables.ratio[0]).toEqual(100)
+            // varaibles.width can be 100 or 150
+            // varaibles.height can be 100 or 200
+            // varaibles.ratio can be 1 or 2
         })
-        Then(`I see my image <ratio>`, () => {
-            expect(variables.ratio[1]).toEqual(
-                variables.height[1] / variables.width[1]
-            )
-        })
+        Then(`I see my image <ratio>`, () => { })
     })
 })
 ~~~
 
-Variables in an array with values extracted from `Examples : ` : 
+For example, first time variables are : 
 
 ~~~json
 {
-    "width": ["100", "100"],
-    "height": ["100", "200"],
-    "ratio": ["1", "2"]
+    "width": 100,
+    "height": 100,
+    "ratio": 1,
 }
 ~~~
+
+And next test : 
+
+~~~json
+{
+    "width": 150,
+    "height": 300,
+    "ratio": 2,
+}
+~~~
+
 
 ### Scenario hooks
 
