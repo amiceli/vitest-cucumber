@@ -39,18 +39,6 @@ describe(`Models`, () => {
             expect(feature.haveAlreadyCalledScenario()).toBeTruthy()
         })
 
-        test(`Check if a scenario is an outline`, () => {
-            const feature = new Feature(`Awesome`)
-            const scenario = new Scenario(`test`)
-            const outline = new ScenarioOutline(`outline`)
-
-            feature.scenarii.push(scenario)
-            feature.scenarii.push(outline)
-
-            expect(feature.isOutline(`test`)).toBeFalsy()
-            expect(feature.isOutline(`outline`)).toBeTruthy()
-        })
-
         test(`Get scenario outline examples`, () => {
             const feature = new Feature(`Awesome`)
             const scenario = new Scenario(`test`)

@@ -7,8 +7,14 @@ import { Step, StepTypes } from "../../parser/step"
 import { FeatureStateDetector, ScenarioStateDetector } from "../feature-state"
 import { describeFeature } from '../describe-feature'
 import {
+    IsScenarioOutlineError,
     MissingScenarioOutlineVariableValueError,
-    ScenarioNotCalledError, ScenarioOulineWithoutExamplesError, ScenarioOutlineVariableNotCalledInStepsError, ScenarioOutlineVariablesDeclaredWithoutExamplesError, ScenarioStepsNotCalledError, WrongScenarioTypeError, 
+    NotScenarioOutlineError,
+    ScenarioNotCalledError, 
+    ScenarioOulineWithoutExamplesError, 
+    ScenarioOutlineVariableNotCalledInStepsError, 
+    ScenarioOutlineVariablesDeclaredWithoutExamplesError, 
+    ScenarioStepsNotCalledError,
 } from "../../errors/errors"
 
 (() => {
@@ -237,7 +243,7 @@ import {
 
             test(`Developer should use ScenarioOutline instead of Scenario`, () => {
                 expect(e).toEqual(
-                    new WrongScenarioTypeError(
+                    new IsScenarioOutlineError(
                         scenarioOutline,
                     ),
                 )
@@ -254,7 +260,7 @@ import {
 
             test(`Developer should use Scenario instead of ScenarioOutline`, () => {
                 expect(e).toEqual(
-                    new WrongScenarioTypeError(
+                    new NotScenarioOutlineError(
                         scenario,
                     ),
                 )
