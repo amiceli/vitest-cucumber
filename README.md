@@ -176,30 +176,30 @@ An example Scenario :
 
 ~~~ts
 describeFeature(feature, ({ Scenario }) => {
-        Scenario(`Run steps sequentially`, ({ Given, And, When, Then }) => {
-            let count = 0
-            Given(`Count equals 0`, () => {
-                expect(count).toBe(0)
-            })
-            And(`I increase the count by 1 in a promise`, async  () => {
-                await new Promise((resolve) => {
-                    count++
-                    resolve(null)
-                })
-            })
-            When(`I use a timeout to increase`, async () => {
-                await new Promise((resolve) => {
-                    setTimeout(() => {
-                        count++
-                        resolve(null)
-                    }, 1000)
-                })
-            })
-            Then(`At end count should be 2`, () => {
-                expect(count).toBe(2)
+    Scenario(`Run steps sequentially`, ({ Given, And, When, Then }) => {
+        let count = 0
+        Given(`Count equals 0`, () => {
+            expect(count).toBe(0)
+        })
+        And(`I increase the count by 1 in a promise`, async () => {
+            await new Promise((resolve) => {
+                count++
+                resolve(null)
             })
         })
+        When(`I use a timeout to increase`, async () => {
+            await new Promise((resolve) => {
+                setTimeout(() => {
+                    count++
+                    resolve(null)
+                }, 1000)
+            })
+        })
+        Then(`At end count should be 2`, () => {
+            expect(count).toBe(2)
+        })
     })
+})
 ~~~
 
 ### Many Feature(s)
