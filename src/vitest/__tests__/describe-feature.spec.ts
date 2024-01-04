@@ -11,7 +11,7 @@ import {
     ScenarioNotCalledError, ScenarioOulineWithoutExamplesError, ScenarioOutlineVariableNotCalledInStepsError, ScenarioOutlineVariablesDeclaredWithoutExamplesError, ScenarioStepsNotCalledError, WrongScenarioTypeError, 
 } from "../../errors/errors"
 
-function callScenarioTest () {
+(() => {
     const feature = new Feature(`Feature with a scenario`)
     const scenario = new ScenarioType(`This scenario will be called`)
     const step = new Step(StepTypes.GIVEN, `I have one step`)
@@ -27,9 +27,9 @@ function callScenarioTest () {
         })
     
     })
-}
+})();
 
-function handleForgotScenario () {
+(() => {
     const currentFeature = new Feature(`Handle forgotten scenario`)
     const goodScenario = new ScenarioType(`Good Scenario`)
     const forgottenScenario = new ScenarioType(`Forgotten Scenario`)
@@ -74,9 +74,9 @@ function handleForgotScenario () {
             Given(`This scenario is called`, () => {})
         })
     })
-}
+})();
 
-function scnearioStepNotCalled () {
+(() => {
     const currentFeature = new Feature(`Handle scenario step not called`)
     const scenario = new ScenarioType(`Step not called`)
 
@@ -120,9 +120,9 @@ function scnearioStepNotCalled () {
             Given(`A simple step`, () => {})
         })
     })
-}
+})();
 
-function scenarioStepOneAfterOne () {
+(() => {
     const feature = new Feature(`Handle scenario step one after one`)
     const scenario = new ScenarioType(`Step one after one`)
 
@@ -159,9 +159,9 @@ function scenarioStepOneAfterOne () {
             })
         })
     })
-}
+})();
 
-function checkScenarioHooks () {
+(() => {
     const feature = new Feature(`Check scenario hooks`)
     const first = new ScenarioType(`First scenario`)
     const second = new ScenarioType(`Second scenario`)
@@ -216,9 +216,9 @@ function checkScenarioHooks () {
             })
         },
     )
-}
+})();
 
-function detectWrongScenarioType () {
+(() => {
     const feature = new Feature(`Detect wrong scenario type`)
     const scenarioOutline = new ScenarioOutlineType(`I'm an outline scenario`)
     const scenario = new ScenarioType(`I'm a scenario`)
@@ -261,9 +261,9 @@ function detectWrongScenarioType () {
             })
         }
     })
-}
+})();
 
-function checkScenarioOutlineExamples () {
+(() => {
     const feature = new Feature(`Use ScenarioOutline with examples`)
     const scenarioOutline = new ScenarioOutlineType(`I use variables`)
     
@@ -313,9 +313,9 @@ function checkScenarioOutlineExamples () {
             })
         })
     })
-}
+})();
 
-function detectScenarioOutlineWithoutExamples () {
+(() => {
     const feature = new Feature(`Use ScenarioOutline without examples`)
     const scenario = new ScenarioOutlineType(`I forgot Examples`)
 
@@ -343,9 +343,9 @@ function detectScenarioOutlineWithoutExamples () {
             })
         }
     })
-}
+})();
 
-function detectScenarioOutlineWithEmptyExamples () {
+(() => {
     const feature = new Feature(`Use ScenarioOutline with empty examples`)
     const scenario = new ScenarioOutlineType(`I forgot Examples`)
 
@@ -372,9 +372,9 @@ function detectScenarioOutlineWithEmptyExamples () {
             })
         }
     })
-}
+})();
 
-function detectExampleNotUseInStep () {
+(() => {
     const feature = new Feature(`Use ScenarioOutline without variable in step`)
     const scenario = new ScenarioOutlineType(`I forgot Examples in step`)
 
@@ -407,9 +407,9 @@ function detectExampleNotUseInStep () {
             })
         }
     })
-}
+})();
 
-function detectMissingVariablesInExample () {
+(() => {
     const feature = new Feature(`Use ScenarioOutline without variable in Examples`)
     const scenario = new ScenarioOutlineType(`I forgot Examples variables name`)
 
@@ -440,16 +440,4 @@ function detectMissingVariablesInExample () {
             })
         }
     })
-}
-
-callScenarioTest()
-handleForgotScenario()
-scnearioStepNotCalled()
-scenarioStepOneAfterOne()
-checkScenarioHooks()
-detectWrongScenarioType()
-checkScenarioOutlineExamples()
-detectScenarioOutlineWithoutExamples()
-detectScenarioOutlineWithEmptyExamples()
-detectExampleNotUseInStep()
-detectMissingVariablesInExample()
+})()
