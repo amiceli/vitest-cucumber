@@ -1,194 +1,203 @@
-import { describe, test } from "vitest"
+import {
+    describe, test, afterAll, beforeAll,
+} from "vitest"
 import { FeatureStateDetector, ScenarioStateDetector } from './feature-state'
 import { Feature } from "../parser/feature"
-import { 
+import {
     StepCallbackDefinition,
     StepTest,
     MaybePromise,
     FeatureDescribeCallback,
     FeatureDescriibeCallbackParams,
 } from './types'
-import { Example, Scenario } from "../parser/scenario"
-import { NotScenarioOutlineError, IsScenarioOutlineError } from '../errors/errors'
+import { Example, ScenarioOutline } from "../parser/scenario"
+import { Step } from "../parser/step"
 
-function initializeHook (
-    feature : Feature, 
-    hook : string, 
-) {
-    FeatureStateDetector  
-        .forFeature(feature)
-        .alreadyCalledScenarioAtStart(hook)
-}
-
-function getScenario (feature : Feature, scenarioDescription : string) {
-    return FeatureStateDetector
-        .forFeature(feature)
-        .checkIfScenarioExists(scenarioDescription)
+type ScenarioSteps = {
+    key : string
+    fn : () => MaybePromise
+    step : Step       
 }
 
 export function describeFeature (
     feature: Feature,
     featureFn: FeatureDescribeCallback,
 ) {
-    let beforeAllHook : (() => void) | null = null
-    let beforeEachHook : (() => void) | null = null
-    let afterAllHook : (() => void) | null = null
-    let afterEachHook : (() => void) | null = null
+    let beforeAllScenarioHook : () => MaybePromise = () => {}
+    let beforeEachScenarioHook :() => MaybePromise = () => {}
+    let afterAllScenarioHook : () => MaybePromise = () => {}
+    let afterEachScenarioHook : () => MaybePromise = () => {}
+
+    const scenarioToRun : Array< () => void> = []
 
     const descibeFeatureParams : FeatureDescriibeCallbackParams = {
         Scenario : (
             scenarioDescription: string, 
             scenarioTestCallback: (op: StepTest) => MaybePromise,
         ) => {
-            const foundScenario = getScenario(feature, scenarioDescription)
+            const foundScenario = FeatureStateDetector
+                .forFeature(feature)
+                .checkIfScenarioExists(scenarioDescription)
+            const scenarioStepsToRun : ScenarioSteps[]  = []
 
-            describe(scenarioDescription, () => {
-                const createScenarioStepCallback = (stepType: string): StepCallbackDefinition => {
-                    return (
-                        stepDetails: string, 
-                        scenarioStepCallback: () => void,
-                    ) => {
-                        const foundStep = ScenarioStateDetector
+            const createScenarioStepCallback = (stepType: string): StepCallbackDefinition => {
+                return (
+                    stepDetails: string, 
+                    scenarioStepCallback: () => void,
+                ) => {
+                    const foundStep = ScenarioStateDetector
+                        .forScenario(foundScenario)
+                        .checkIfStepExists(stepType, stepDetails)
+ 
+                    scenarioStepsToRun.push({
+                        key : `${stepType} ${stepDetails}`,
+                        fn : scenarioStepCallback,
+                        step : foundStep,
+                    })
+                }
+            }
+
+            const scenarioStepsCallback: StepTest = {
+                Given : createScenarioStepCallback(`Given`),
+                When : createScenarioStepCallback(`When`),
+                And : createScenarioStepCallback(`And`),
+                Then : createScenarioStepCallback(`Then`),
+                But : createScenarioStepCallback(`But`),
+            }
+
+            FeatureStateDetector
+                .forFeature(feature)
+                .scenarioShouldNotBeOutline(foundScenario)
+            
+            scenarioTestCallback(scenarioStepsCallback)
+
+            scenarioToRun.push(() => {
+                describe(scenarioDescription, () => {
+                    beforeAll(() => {
+                        beforeEachScenarioHook()
+                    })
+
+                    afterAll(() => {
+                        ScenarioStateDetector 
                             .forScenario(foundScenario)
-                            .checkIfStepExists(stepType, stepDetails)
+                            .checkIfStepWasCalled()
+    
+                        foundScenario.isCalled = true
 
-                        test(`${stepType} ${stepDetails}`, () => {
-                            scenarioStepCallback()
+                        afterEachScenarioHook()
+                    })
 
-                            foundStep.isCalled = true
-                        })
-                    }
-                }
-
-                const scenarioStepsCallback: StepTest = {
-                    Given : createScenarioStepCallback(`Given`),
-                    When : createScenarioStepCallback(`When`),
-                    And : createScenarioStepCallback(`And`),
-                    Then : createScenarioStepCallback(`Then`),
-                    But : createScenarioStepCallback(`But`),
-                }
-
-                if (beforeAllHook) {
-                    beforeAllHook()
-                    beforeAllHook = null
-                }
-
-                if (beforeEachHook) {
-                    beforeEachHook()
-                }
-
-                if (feature.isOutline(scenarioDescription)) {
-                    throw new IsScenarioOutlineError(new Scenario(scenarioDescription))
-                } else {
-                    scenarioTestCallback(scenarioStepsCallback)
-                }
-            }).on(`afterAll`, () => {
-                foundScenario.isCalled = true
-                
-                if (afterEachHook) {
-                    afterEachHook()
-                }
-
-                ScenarioStateDetector 
-                    .forScenario(foundScenario)
-                    .checkIfStepWasCalled()
+                    test.each(scenarioStepsToRun)(`$key`, async (scenarioStep) => {
+                        await scenarioStep.fn()
+                        scenarioStep.step.isCalled = true
+                    })
+                })
             })
         },
         ScenarioOutline : (
             scenarioDescription: string, 
             scenarioTestCallback: (op: StepTest, variables : Example[0]) => MaybePromise,
         ) => {
-            const foundScenario = getScenario(feature, scenarioDescription)
+            const foundScenario = FeatureStateDetector
+                .forFeature(feature)
+                .checkIfScenarioExists<ScenarioOutline>(scenarioDescription)
+            let scenarioStepsToRun : ScenarioSteps[]  = []
 
-            describe(scenarioDescription, () => {
-                const createScenarioStepCallback = (stepType: string): StepCallbackDefinition => {
-                    return (
-                        stepDetails: string, 
-                        scenarioStepCallback: () => void,
-                    ) => {
-                        const foundStep = ScenarioStateDetector
-                            .forScenario(foundScenario)
-                            .checkIfStepExists(stepType, stepDetails)
-
-                        test(`${stepType} ${stepDetails}`, () => {
-                            scenarioStepCallback()
-
-                            foundStep.isCalled = true
-                        })
-                    }
+            const createScenarioStepCallback = (stepType: string): StepCallbackDefinition => {
+                return (
+                    stepDetails: string, 
+                    scenarioStepCallback: () => void,
+                ) => {
+                    const foundStep = ScenarioStateDetector
+                        .forScenario(foundScenario)
+                        .checkIfStepExists(stepType, stepDetails)
+ 
+                    scenarioStepsToRun.push({
+                        key : `${stepType} ${stepDetails}`,
+                        fn : scenarioStepCallback,
+                        step : foundStep,
+                    })
+                    
                 }
+            }
 
-                const scenarioStepsCallback: StepTest = {
-                    Given : createScenarioStepCallback(`Given`),
-                    When : createScenarioStepCallback(`When`),
-                    And : createScenarioStepCallback(`And`),
-                    Then : createScenarioStepCallback(`Then`),
-                    But : createScenarioStepCallback(`But`),
-                }
+            const scenarioStepsCallback: StepTest = {
+                Given : createScenarioStepCallback(`Given`),
+                When : createScenarioStepCallback(`When`),
+                And : createScenarioStepCallback(`And`),
+                Then : createScenarioStepCallback(`Then`),
+                But : createScenarioStepCallback(`But`),
+            }
 
-                ScenarioStateDetector
-                    .forScenario(foundScenario)
-                    .checkExemples()
+            FeatureStateDetector
+                .forFeature(feature)
+                .scenarioShouldBeOutline(foundScenario)
 
-                if (beforeAllHook) {
-                    beforeAllHook()
-                    beforeAllHook = null
-                }
-
-                if (beforeEachHook) {
-                    beforeEachHook()
-                }
-
-                if (feature.isOutline(scenarioDescription)) {
-                    const example = feature.getScenarioExample(scenarioDescription)
-
-                    if (example)  {
-                        example.forEach((exampleVariables) => {
-                            scenarioTestCallback(scenarioStepsCallback, exampleVariables)
-                        })
-                    }
-                } else {
-                    throw new NotScenarioOutlineError(new Scenario(scenarioDescription))
-                }
-            }).on(`afterAll`, () => {
-                foundScenario.isCalled = true
+            ScenarioStateDetector
+                .forScenario(foundScenario)
+                .checkExemples()
+            
+            const example = feature.getScenarioExample(scenarioDescription)
                 
-                if (afterEachHook) {
-                    afterEachHook()
-                }
+            if (example)  {
+                example.forEach((exampleVariables) => {
+                    scenarioStepsToRun = []
+                    scenarioTestCallback(scenarioStepsCallback, exampleVariables)
 
-                ScenarioStateDetector 
-                    .forScenario(foundScenario)
-                    .checkIfStepWasCalled()
-            })
+                    scenarioToRun.push(() => {
+                        describe(scenarioDescription, () => {
+                            beforeAll(() => {
+                                beforeEachScenarioHook()
+                            })
+            
+                            afterAll(() => {
+                                ScenarioStateDetector 
+                                    .forScenario(foundScenario)
+                                    .checkIfStepWasCalled()
+                
+                                foundScenario.isCalled = true
+            
+                                afterEachScenarioHook()
+                            })
+            
+                            test.each(scenarioStepsToRun)(`$key`, async (scenarioStep) => {
+                                await scenarioStep.fn()
+                                scenarioStep.step.isCalled = true
+                            })
+                        })
+                    })
+                })
+            }
         },
         BeforeEachScenario : (fn : () => MaybePromise) => {
-            initializeHook(feature, `BeforeEachScenario`)
-            beforeEachHook = fn
+            beforeEachScenarioHook = fn
         },
         BeforeAllScenarios : (fn : () => MaybePromise) => {
-            initializeHook(feature, `BeforeAllScenarios`)
-            beforeAllHook = fn
+            beforeAllScenarioHook = fn
         },
         AfterAllScenarios : (fn : () => MaybePromise) => {
-            initializeHook(feature, `AfterAllScenarios`)
-            afterAllHook = fn
+            afterAllScenarioHook = fn
         },
         AfterEachScenario : (fn : () => MaybePromise) => {
-            initializeHook(feature, `AfterEachScenario`)
-            afterEachHook = fn
+            afterEachScenarioHook = fn
         },
     }
 
-    describe(feature.name, () => {
-        featureFn(descibeFeatureParams)
-    }).on(`afterAll`, () => {
-        if (afterAllHook) {
-            afterAllHook()
-        }
+    describe(feature.name, async () => {
+        await featureFn(descibeFeatureParams)
 
-        FeatureStateDetector
-            .forFeature(feature)
-            .checkNotCalledScenario()
+        beforeAll(() => {
+            beforeAllScenarioHook()
+        })
+
+        afterAll(() => {
+            FeatureStateDetector
+                .forFeature(feature)
+                .checkNotCalledScenario()
+            
+            afterAllScenarioHook()
+        })
+
+        scenarioToRun.forEach((scenario) => scenario())
     })
 }

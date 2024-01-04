@@ -12,15 +12,10 @@ export class Feature {
         this.name = name
     }
 
-    public getScenarioByName (name : string) : Scenario | undefined {
+    public getScenarioByName (name : string) : Scenario | ScenarioOutline | undefined {
         return this.scenarii.find((s : Scenario) => {
             return s.description === name
         })
-    }
-
-    public isOutline (name : string) : boolean {
-        const scenario = this.getScenarioByName(name)
-        return scenario instanceof ScenarioOutline
     }
 
     public getScenarioExample (name : string) : Example | null {

@@ -4,7 +4,15 @@ import { Feature } from "../parser/feature"
 import {
     FeatureUknowScenarioError,
     HookCalledAfterScenarioError,
-    MissingScenarioOutlineVariableValueError, ScenarioNotCalledError, ScenarioOulineWithoutExamplesError, ScenarioOutlineVariableNotCalledInStepsError, ScenarioOutlineVariablesDeclaredWithoutExamplesError, ScenarioStepsNotCalledError, ScenarioUnknowStepError, 
+    IsScenarioOutlineError,
+    MissingScenarioOutlineVariableValueError, 
+    NotScenarioOutlineError, 
+    ScenarioNotCalledError, 
+    ScenarioOulineWithoutExamplesError, 
+    ScenarioOutlineVariableNotCalledInStepsError, 
+    ScenarioOutlineVariablesDeclaredWithoutExamplesError, 
+    ScenarioStepsNotCalledError, 
+    ScenarioUnknowStepError, 
 } from "../errors/errors"
 
 export class FeatureStateDetector {
@@ -27,7 +35,7 @@ export class FeatureStateDetector {
         }
     }
 
-    public checkIfScenarioExists (scenarioDescription: string) {
+    public checkIfScenarioExists<T = Scenario> (scenarioDescription: string) : T {
         const foundScenario = this.feature.getScenarioByName(scenarioDescription)
 
         if (!foundScenario) {
@@ -37,7 +45,7 @@ export class FeatureStateDetector {
             )
         }
 
-        return foundScenario
+        return foundScenario as T
     }
 
     public alreadyCalledScenarioAtStart (hook: string) { // A tester
@@ -46,6 +54,18 @@ export class FeatureStateDetector {
                 this.feature,
                 hook,
             )
+        }
+    }
+
+    public scenarioShouldNotBeOutline (scenario: Scenario) {
+        if (scenario instanceof ScenarioOutline) {
+            throw new IsScenarioOutlineError(scenario)
+        }
+    }
+
+    public scenarioShouldBeOutline (scenario: Scenario | ScenarioOutline) {
+        if (!(scenario instanceof ScenarioOutline)) {
+            throw new NotScenarioOutlineError(scenario)
         }
     }
 
