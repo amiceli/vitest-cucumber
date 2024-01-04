@@ -1,3 +1,4 @@
+import path from 'path'
 import { defineConfig, configDefaults } from 'vitest/config'
 
 export default defineConfig({
@@ -9,6 +10,11 @@ export default defineConfig({
                 '.eslintrc.js',
                 'commitlint.config.js',
             ]
+        },
+    },
+    resolve: {
+        alias: {
+            '@': path.resolve(__dirname, './src')
         },
     },
 })
