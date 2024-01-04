@@ -11,7 +11,6 @@ import {
     FeatureDescriibeCallbackParams,
 } from './types'
 import { Example, ScenarioOutline } from "../parser/scenario"
-import { ScenarioUnknowStepError } from '../errors/errors'
 import { Step } from "../parser/step"
 
 type ScenarioSteps = {
@@ -29,7 +28,6 @@ export function describeFeature (
     let afterAllScenarioHook : () => MaybePromise = () => {}
     let afterEachScenarioHook : () => MaybePromise = () => {}
 
-    let errorDuringFeatureRun : Error | null = null
     const scenarioToRun : Array< () => void> = []
 
     const descibeFeatureParams : FeatureDescriibeCallbackParams = {
@@ -47,19 +45,15 @@ export function describeFeature (
                     stepDetails: string, 
                     scenarioStepCallback: () => void,
                 ) => {
-                    try {
-                        const foundStep = ScenarioStateDetector
-                            .forScenario(foundScenario)
-                            .checkIfStepExists(stepType, stepDetails)
+                    const foundStep = ScenarioStateDetector
+                        .forScenario(foundScenario)
+                        .checkIfStepExists(stepType, stepDetails)
  
-                        scenarioStepsToRun.push({
-                            key : `${stepType} ${stepDetails}`,
-                            fn : scenarioStepCallback,
-                            step : foundStep,
-                        })
-                    } catch (e) {
-                        errorDuringFeatureRun = e as ScenarioUnknowStepError
-                    }
+                    scenarioStepsToRun.push({
+                        key : `${stepType} ${stepDetails}`,
+                        fn : scenarioStepCallback,
+                        step : foundStep,
+                    })
                 }
             }
 
@@ -84,10 +78,6 @@ export function describeFeature (
                     })
 
                     afterAll(() => {
-                        if (errorDuringFeatureRun) {
-                            throw errorDuringFeatureRun
-                        }
-
                         ScenarioStateDetector 
                             .forScenario(foundScenario)
                             .checkIfStepWasCalled()
@@ -118,19 +108,16 @@ export function describeFeature (
                     stepDetails: string, 
                     scenarioStepCallback: () => void,
                 ) => {
-                    try {
-                        const foundStep = ScenarioStateDetector
-                            .forScenario(foundScenario)
-                            .checkIfStepExists(stepType, stepDetails)
+                    const foundStep = ScenarioStateDetector
+                        .forScenario(foundScenario)
+                        .checkIfStepExists(stepType, stepDetails)
  
-                        scenarioStepsToRun.push({
-                            key : `${stepType} ${stepDetails}`,
-                            fn : scenarioStepCallback,
-                            step : foundStep,
-                        })
-                    } catch (e) {
-                        errorDuringFeatureRun = e as ScenarioUnknowStepError
-                    }
+                    scenarioStepsToRun.push({
+                        key : `${stepType} ${stepDetails}`,
+                        fn : scenarioStepCallback,
+                        step : foundStep,
+                    })
+                    
                 }
             }
 
@@ -164,10 +151,6 @@ export function describeFeature (
                             })
             
                             afterAll(() => {
-                                if (errorDuringFeatureRun) {
-                                    throw errorDuringFeatureRun
-                                }
-            
                                 ScenarioStateDetector 
                                     .forScenario(foundScenario)
                                     .checkIfStepWasCalled()
@@ -208,10 +191,6 @@ export function describeFeature (
         })
 
         afterAll(() => {
-            if (errorDuringFeatureRun) {
-                throw errorDuringFeatureRun
-            }
-
             FeatureStateDetector
                 .forFeature(feature)
                 .checkNotCalledScenario()

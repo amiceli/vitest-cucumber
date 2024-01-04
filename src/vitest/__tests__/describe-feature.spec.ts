@@ -7,6 +7,7 @@ import { Step, StepTypes } from "../../parser/step"
 import { FeatureStateDetector, ScenarioStateDetector } from "../feature-state"
 import { describeFeature } from '../describe-feature'
 import {
+    FeatureUknowScenarioError,
     IsScenarioOutlineError,
     MissingScenarioOutlineVariableValueError,
     NotScenarioOutlineError,
@@ -15,6 +16,7 @@ import {
     ScenarioOutlineVariableNotCalledInStepsError, 
     ScenarioOutlineVariablesDeclaredWithoutExamplesError, 
     ScenarioStepsNotCalledError,
+    ScenarioUnknowStepError,
 } from "../../errors/errors"
 
 (() => {
@@ -441,6 +443,53 @@ import {
                 expect(e).toEqual(
                     new MissingScenarioOutlineVariableValueError(
                         scenario, `height`,
+                    ),
+                )
+            })
+        }
+    })
+})();
+
+(() => {
+    const featire = new Feature(`Check if step exists [checkIfScenarioExists]`)
+    const scenario = new ScenarioType(`Example `)
+
+    scenario.steps.push(
+        new Step(StepTypes.WHEN, `Simple when`),
+    )
+    featire.scenarii.push(scenario)
+
+    describeFeature(featire, ({ Scenario }) => {
+        Scenario(scenario.description, ({ When, But }) => {
+            try {
+                When(`Simple when`, () => {})
+                But(`I use bad step`, () => {})
+            } catch (e) {
+                test(`[checkIfScenarioExists] handle step not in scenario`, () => {
+                    expect(e).toEqual(
+                        new ScenarioUnknowStepError(
+                            scenario, 
+                            new Step(StepTypes.BUT, `I use bad step`),
+                        ),
+                    )
+                })
+            }
+        })
+    })
+})();
+
+(() => {
+    const feature = new Feature(`Check scenario exists [scenarioShouldNotBeOutline]`)
+    
+    describeFeature(feature, ({ Scenario }) => {
+        try {
+            Scenario(`Not in my featyre`, () => { })
+        } catch (e) {
+            test(`[scenarioShouldNotBeOutline] detect scenario not in feature`, () => {
+                expect(e).toEqual(
+                    new FeatureUknowScenarioError(
+                        feature,
+                        new ScenarioType(`Not in my featyre`),
                     ),
                 )
             })
