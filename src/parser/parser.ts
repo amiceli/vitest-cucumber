@@ -21,6 +21,9 @@ export class GherkinParser {
     private exampleKeys : string[] = []
 
     public addLine (line: string) {
+        if (line.trim().startsWith(`#`)) {
+            return
+        } 
         if (line.includes(`Feature:`)) {
             this.currentFeatureIndex++
             this.currentScenarioIndex = -1

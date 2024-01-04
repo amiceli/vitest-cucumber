@@ -160,4 +160,15 @@ describe(`GherkinParser`, () => {
         ])
     })
 
+    it(`should handle commented line`, () => {
+        const featureTitle = `Awesome unit tests`
+        const newParser = new GherkinParser()
+
+        newParser.addLine(`# Feature: ${featureTitle}`)
+
+        const currentFeature = newParser.finish()
+
+        expect(currentFeature.length).toEqual(0)
+    })
+
 })
