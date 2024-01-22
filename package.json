@@ -23,7 +23,7 @@
     "@amiceli/eslint-config-typescript": "^1.0.0",
     "@commitlint/cli": "^18.4.3",
     "@commitlint/config-conventional": "^18.4.3",
-    "@types/node": "^20.4.5",
+    "@types/node": "^20.11.5",
     "@vitest/coverage-v8": "^1.0.3",
     "eslint-plugin-import": "^2.28.0",
     "husky": "^8.0.0",
