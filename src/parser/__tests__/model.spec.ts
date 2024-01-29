@@ -1,4 +1,5 @@
 import { Feature } from "../feature"
+import { Rule } from "../Rule"
 import {
     describe, test, expect, 
 } from "vitest"
@@ -53,6 +54,92 @@ describe(`Models`, () => {
 
             expect(feature.getScenarioExample(`outline`)).toEqual(outline.examples)
             expect(feature.getScenarioExample(`test`)).toBeNull()
+        })
+
+        test(`Get rule by name`, () => {
+            const feature = new Feature(`Awesome`)
+            const rule = new Rule(`rule`)
+
+            feature.rules.push(rule)
+
+            expect(feature.getRuleByName(`rule`)).toEqual(rule)
+        })
+
+        test(`Get first rule not called`, () => {
+            const feature = new Feature(`Awesome`)
+            const rule = new Rule(`rule`)
+            rule.isCalled = true
+            const secondRule = new Rule(`second rule`)
+            secondRule.isCalled = false
+
+            feature.rules.push(rule)
+            expect(feature.getFirstRuleNotCalled()).toBeUndefined()
+            
+            feature.rules.push(secondRule)
+            expect(feature.getFirstRuleNotCalled()).toEqual(secondRule)
+        })
+
+        test(`Check if have already called rule`, () => {
+            const feature = new Feature(`Awesome`)
+            const rule = new Rule(`rule`)
+            rule.isCalled = false
+            const secondRule = new Rule(`second rule`)
+            secondRule.isCalled = true
+
+            feature.rules.push(rule)
+            expect(feature.haveAlreadyCalledRule()).toBeFalsy()
+
+            feature.rules.push(secondRule)
+            expect(feature.haveAlreadyCalledRule()).toBeTruthy()
+        })
+    })
+
+    describe(`Rule`, () => {
+        test(`Rule initialize`, () => {
+            const rule = new Rule(`Awesome`)
+    
+            expect(rule.name).toEqual(`Awesome`)
+            expect(rule.scenarii.length).toEqual(0)
+        })
+    
+        test(`Find Rule scneario by name`, () => {
+            const rule = new Rule(`Awesome`)
+            const scenario = new Scenario(`test`)
+    
+            rule.scenarii.push(scenario)
+    
+            expect(
+                rule.getScenarioByName(`test`),
+            ).toEqual(scenario)
+        })
+
+        test(`Check already called scenario`, () => {
+            const rule = new Rule(`Awesome`)
+            const scenario = new Scenario(`test`)
+
+            rule.scenarii.push(scenario)
+            
+            expect(rule.haveAlreadyCalledScenario()).toBeFalsy()
+
+            scenario.isCalled = true
+
+            expect(rule.haveAlreadyCalledScenario()).toBeTruthy()
+        })
+
+        test(`Get scenario outline examples`, () => {
+            const rule = new Rule(`Awesome`)
+            const scenario = new Scenario(`test`)
+            const outline = new ScenarioOutline(`outline`)
+
+            expect(outline.missingExamplesKeyword).toBeFalsy()
+            expect(outline.examples).toEqual([])
+            outline.examples = [{ test : [`yes`, `no`] }]
+
+            rule.scenarii.push(scenario)
+            rule.scenarii.push(outline)
+
+            expect(rule.getScenarioExample(`outline`)).toEqual(outline.examples)
+            expect(rule.getScenarioExample(`test`)).toBeNull()
         })
     })
 

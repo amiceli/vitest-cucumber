@@ -1,43 +1,27 @@
-import {
-    Example, Scenario, ScenarioOutline, 
-} from './scenario'
+import { ScenarioParent } from './ScenarioParent'
+import { Rule } from './Rule'
 
-export class Feature {
+export class Feature extends ScenarioParent {
 
-    public readonly name : string
+    public readonly name: string
 
-    public readonly scenarii : Scenario[] = []
+    public readonly rules: Rule[] = []
 
-    public constructor (name : string) {
+    public constructor (name: string) {
+        super()
         this.name = name
     }
 
-    public getScenarioByName (name : string) : Scenario | ScenarioOutline | undefined {
-        return this.scenarii.find((s : Scenario) => {
-            return s.description === name
-        })
+    public getRuleByName (name: string): Rule | undefined {
+        return this.rules.find((rule) => rule.name === name)
     }
 
-    public getScenarioExample (name : string) : Example | null {
-        const scenario = this.getScenarioByName(name)
-
-        if (scenario instanceof ScenarioOutline) {
-            return scenario.examples
-        }
-
-        return null
+    public getFirstRuleNotCalled (): Rule | undefined {
+        return this.rules.find((rule) => !rule.isCalled)
     }
 
-    public getFirstNotCalledScenario () : Scenario | ScenarioOutline | undefined {
-        return this.scenarii.find((scenario : Scenario) => {
-            return scenario.isCalled === false
-        })
-    }
-
-    public haveAlreadyCalledScenario () : boolean {
-        return this.scenarii
-            .filter((scenario : Scenario) => scenario.isCalled === true)
-            .length > 0
+    public haveAlreadyCalledRule (): boolean {
+        return this.rules.some((rule) => rule.isCalled === true)
     }
 
 }
