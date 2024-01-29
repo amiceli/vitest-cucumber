@@ -24,7 +24,7 @@
     "@commitlint/cli": "^18.4.3",
     "@commitlint/config-conventional": "^18.4.4",
     "@types/node": "^20.4.5",
-    "@vitest/coverage-v8": "^1.0.3",
+    "@vitest/coverage-v8": "^1.2.2",
     "eslint-plugin-import": "^2.29.1",
     "husky": "^8.0.0",
     "lint-staged": "^15.2.0",
