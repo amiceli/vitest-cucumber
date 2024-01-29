@@ -12,7 +12,7 @@ It's enough you don't to add or update a config file.
 
 ## Examples
 
-In [examples]() folder you can read tests using `vitest-cucumber` in a Vue project.
+In [examples](https://github.com/amiceli/vitest-cucumber/tree/docs/add-examples/examples) folder you can read tests using `vitest-cucumber` in a Vue project.
 
 `vitest-cucumber` isn't only for Vue, it's just an example ;).
 
