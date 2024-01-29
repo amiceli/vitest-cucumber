@@ -11,6 +11,9 @@ export default defineConfig({
                 'commitlint.config.js',
             ]
         },
+        exclude : [
+            'examples/vue-example.spec.ts',
+        ]
     },
     resolve: {
         alias: {
