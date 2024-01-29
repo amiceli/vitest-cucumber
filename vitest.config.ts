@@ -13,6 +13,7 @@ export default defineConfig({
         },
         exclude : [
             'examples/vue-example.spec.ts',
+            'node_modules',
         ]
     },
     resolve: {
