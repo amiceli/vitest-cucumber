@@ -54,7 +54,6 @@ export function describeFeature (
             scenarioToRun.push(
                 ...describeScenarioOutline({
                     scenario,
-                    feature,
                     scenarioTestCallback,
                     beforeEachScenarioHook,
                     afterEachScenarioHook,
