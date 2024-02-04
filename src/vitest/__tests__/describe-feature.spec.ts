@@ -495,4 +495,40 @@ import {
             })
         }
     })
+})();
+
+(() => {
+    const feature = new Feature(`test`)
+    const scenario = new ScenarioOutlineType(`out line baby`)
+
+    scenario.steps.push(
+        new Step(StepTypes.GIVEN, `I check <width>`),
+        new Step(StepTypes.AND, `I check <height>`),
+    )
+
+    scenario.examples.push(
+        { width : 100, height : 200 },
+        { width : 200, height : 400 },
+    )
+
+    feature.scenarii.push(scenario)
+    let examplesStepCount = 0
+
+    describeFeature(feature, ({ ScenarioOutline, AfterEachScenario }) => {
+        AfterEachScenario(() => {
+            examplesStepCount++
+        })
+        ScenarioOutline(`out line baby`, ({ Given, And }, variables) => {
+            Given(`I check <width>`, () => {
+                expect(
+                    variables.width,
+                ).toEqual(scenario.examples[examplesStepCount].width)
+            })
+            And(`I check <height>`, () => {
+                expect(
+                    variables.height,
+                ).toEqual(scenario.examples[examplesStepCount].height)
+            })
+        })
+    })
 })()
