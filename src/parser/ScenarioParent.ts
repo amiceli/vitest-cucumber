@@ -4,7 +4,13 @@ import {
 
 export abstract class ScenarioParent {
 
+    public readonly name: string
+
     public readonly scenarii : Scenario[] = []
+
+    protected constructor (name : string) {
+        this.name = name
+    }
 
     public getScenarioByName (name : string) : Scenario | ScenarioOutline | undefined {
         return this.scenarii.find((s : Scenario) => {

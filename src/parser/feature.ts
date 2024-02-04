@@ -3,13 +3,10 @@ import { Rule } from './Rule'
 
 export class Feature extends ScenarioParent {
 
-    public readonly name: string
-
     public readonly rules: Rule[] = []
 
     public constructor (name: string) {
-        super()
-        this.name = name
+        super(name)
     }
 
     public getRuleByName (name: string): Rule | undefined {
