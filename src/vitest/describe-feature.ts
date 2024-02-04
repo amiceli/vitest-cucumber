@@ -144,7 +144,7 @@ export function describeFeature (
                     scenarioStepsToRun = []
                     scenarioTestCallback(scenarioStepsCallback, exampleVariables)
 
-                    scenarioToRun.push(() => {
+                    scenarioToRun.push(((steps) => () => {
                         describe(scenarioDescription, () => {
                             beforeAll(() => {
                                 beforeEachScenarioHook()
@@ -160,12 +160,12 @@ export function describeFeature (
                                 afterEachScenarioHook()
                             })
             
-                            test.each(scenarioStepsToRun)(`$key`, async (scenarioStep) => {
+                            test.each(steps)(`$key`, async (scenarioStep) => {
                                 await scenarioStep.fn()
                                 scenarioStep.step.isCalled = true
                             })
                         })
-                    })
+                    })([...scenarioStepsToRun]))
                 })
             }
         },
