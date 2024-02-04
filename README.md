@@ -8,9 +8,17 @@ Goal is to write unit test using Gherkin feature file and checking scenario name
 
     npm install @amiceli/vitest-cucumber -D
 
+It's enough you don't to add or update a config file.
+
+## Examples
+
+In [examples](https://github.com/amiceli/vitest-cucumber/tree/docs/add-examples/examples) folder you can read tests using `vitest-cucumber` in a Vue project.
+
+`vitest-cucumber` isn't only for Vue, it's just an example ;).
+
 ## Usage
 
-First write your feature like. By example : 
+First write your `feature` file. By example : 
 
 ~~~feature
 Feature: Improve my unit tests
@@ -51,7 +59,7 @@ describeFeature(feature, ({ Scenario }) => {
 })
 ~~~
 
-When you will run your test with vitest, **vitest-cucumber** will check : 
+When you run your test with vitest, **vitest-cucumber** will check : 
 
 - if you forget a Scenario or a Scenario Outline
 - if you use correct Scenario description
@@ -72,7 +80,7 @@ It will throw **When I run my unit tests was not called**.
 
 ### Scenario Outline and Examples
 
-An example of feature file with Scenario Outline and Examples : 
+An example of feature file with `Scenario Outline` and `Examples` : 
 
 ~~~
 Feature: Detect image ratio from width and height
@@ -89,8 +97,8 @@ Feature: Detect image ratio from width and height
 
 ~~~
 
-You can use variables in your ScenarioOutline callback.
-A ScenarioOutline is executed X times according to X variables.
+You can use variables in your `ScenarioOutline` callback.
+A `ScenarioOutline` is executed X times according to X variables.
 
 ~~~typescript
 describeFeature(feature, ({ ScenarioOutline }) => {
