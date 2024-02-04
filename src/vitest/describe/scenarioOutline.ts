@@ -9,43 +9,43 @@ import {
 import { ScenarioStateDetector } from "../state-detectors/ScenarioStateDetector"
 
 type DescribeScenarioArgs = {
-    scenario : ScenarioOutline,
-    scenarioTestCallback: (op: StepTest, variables : Example[0]) => MaybePromise,
-    beforeEachScenarioHook : () => MaybePromise
-    afterEachScenarioHook : () => MaybePromise
+    scenario: ScenarioOutline,
+    scenarioTestCallback: (op: StepTest, variables: Example[0]) => MaybePromise,
+    beforeEachScenarioHook: () => MaybePromise
+    afterEachScenarioHook: () => MaybePromise
 }
 
 type ScenarioSteps = {
-    key : string
-    fn : () => MaybePromise
-    step : Step
+    key: string
+    fn: () => MaybePromise
+    step: Step
 }
 
 export function describeScenarioOutline (
-    { 
+    {
         scenario,
-        scenarioTestCallback, 
+        scenarioTestCallback,
         afterEachScenarioHook,
         beforeEachScenarioHook,
-    } : DescribeScenarioArgs,
-) : Array<() => void> {
-    let scenarioStepsToRun : ScenarioSteps[]  = []
+    }: DescribeScenarioArgs,
+): Array<() => void> {
+    let scenarioStepsToRun: ScenarioSteps[] = []
 
     const createScenarioStepCallback = (stepType: string): StepCallbackDefinition => {
         return (
-            stepDetails: string, 
+            stepDetails: string,
             scenarioStepCallback: () => void,
         ) => {
             const foundStep = ScenarioStateDetector
                 .forScenario(scenario)
                 .checkIfStepExists(stepType, stepDetails)
- 
+
             scenarioStepsToRun.push({
                 key : `${stepType} ${stepDetails}`,
                 fn : scenarioStepCallback,
                 step : foundStep,
             })
-                    
+
         }
     }
 
@@ -56,36 +56,38 @@ export function describeScenarioOutline (
         Then : createScenarioStepCallback(`Then`),
         But : createScenarioStepCallback(`But`),
     }
-            
+
     const example = scenario.examples
-           
+
     if (example) {
         return example?.map((exampleVariables) => {
             scenarioStepsToRun = []
             scenarioTestCallback(scenarioStepsCallback, exampleVariables)
 
-            return function () {
-                describe(scenario.description, () => {
-                    beforeAll(() => {
-                        beforeEachScenarioHook()
+            return (
+                (steps) => () => {
+                    describe(scenario.description, () => {
+                        beforeAll(() => {
+                            beforeEachScenarioHook()
+                        })
+
+                        afterAll(() => {
+                            ScenarioStateDetector
+                                .forScenario(scenario)
+                                .checkIfStepWasCalled()
+
+                            scenario.isCalled = true
+
+                            afterEachScenarioHook()
+                        })
+
+                        test.each(steps)(`$key`, async (scenarioStep) => {
+                            await scenarioStep.fn()
+                            scenarioStep.step.isCalled = true
+                        })
                     })
-            
-                    afterAll(() => {
-                        ScenarioStateDetector 
-                            .forScenario(scenario)
-                            .checkIfStepWasCalled()
-                
-                        scenario.isCalled = true
-            
-                        afterEachScenarioHook()
-                    })
-            
-                    test.each(scenarioStepsToRun)(`$key`, async (scenarioStep) => {
-                        await scenarioStep.fn()
-                        scenarioStep.step.isCalled = true
-                    })
-                })
-            }
+                }
+            )([...scenarioStepsToRun])
         })
     } else {
         return []

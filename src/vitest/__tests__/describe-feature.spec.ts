@@ -10,10 +10,10 @@ import {
     IsScenarioOutlineError,
     MissingScenarioOutlineVariableValueError,
     NotScenarioOutlineError,
-    ScenarioNotCalledError, 
-    ScenarioOulineWithoutExamplesError, 
-    ScenarioOutlineVariableNotCalledInStepsError, 
-    ScenarioOutlineVariablesDeclaredWithoutExamplesError, 
+    ScenarioNotCalledError,
+    ScenarioOulineWithoutExamplesError,
+    ScenarioOutlineVariableNotCalledInStepsError,
+    ScenarioOutlineVariablesDeclaredWithoutExamplesError,
     ScenarioStepsNotCalledError,
     ScenarioUnknowStepError,
 } from "../../errors/errors"
@@ -35,7 +35,7 @@ import { ScenarioStateDetector } from "../state-detectors/ScenarioStateDetector"
                 expect(true).toBe(true)
             })
         })
-    
+
     })
 })();
 
@@ -49,12 +49,12 @@ import { ScenarioStateDetector } from "../state-detectors/ScenarioStateDetector"
     currentFeature.scenarii.push(forgottenScenario)
 
     const detector = FeatureStateDetector.forFeature(currentFeature)
-    let checkNotCalledScenario : MockInstance
-    let expectThrownEroor : Error | null = null
+    let checkNotCalledScenario: MockInstance
+    let expectThrownEroor: Error | null = null
 
     describeFeature(currentFeature, ({ BeforeAllScenarios, AfterAllScenarios, Scenario }) => {
-    
-        BeforeAllScenarios(()  => {
+
+        BeforeAllScenarios(() => {
             vi.spyOn(FeatureStateDetector, `forFeature`).mockImplementation(() => {
                 try {
                     detector.checkNotCalledScenario()
@@ -64,11 +64,11 @@ import { ScenarioStateDetector } from "../state-detectors/ScenarioStateDetector"
                 checkNotCalledScenario = vi
                     .spyOn(detector, `checkNotCalledScenario`)
                     .mockImplementation(() => { })
-        
+
                 return detector
             })
         })
-    
+
         AfterAllScenarios(() => {
             expect(checkNotCalledScenario).toHaveBeenCalled()
             expect(expectThrownEroor).toEqual(
@@ -79,9 +79,9 @@ import { ScenarioStateDetector } from "../state-detectors/ScenarioStateDetector"
 
             vi.restoreAllMocks()
         })
-    
+
         Scenario(`Good Scenario`, ({ Given }) => {
-            Given(`This scenario is called`, () => {})
+            Given(`This scenario is called`, () => { })
         })
     })
 })();
@@ -95,12 +95,12 @@ import { ScenarioStateDetector } from "../state-detectors/ScenarioStateDetector"
     currentFeature.scenarii.push(scenario)
 
     const detector = ScenarioStateDetector.forScenario(scenario)
-    let checkIfStepWasCalled : MockInstance
-    let expectThrownEroor : Error | null = null
+    let checkIfStepWasCalled: MockInstance
+    let expectThrownEroor: Error | null = null
 
     describeFeature(currentFeature, ({ BeforeAllScenarios, AfterAllScenarios, Scenario }) => {
-    
-        BeforeAllScenarios(()  => {
+
+        BeforeAllScenarios(() => {
             vi.spyOn(ScenarioStateDetector, `forScenario`).mockImplementation(() => {
                 try {
                     detector.checkIfStepWasCalled()
@@ -110,11 +110,11 @@ import { ScenarioStateDetector } from "../state-detectors/ScenarioStateDetector"
                 checkIfStepWasCalled = vi
                     .spyOn(detector, `checkIfStepWasCalled`)
                     .mockImplementation(() => { })
-        
+
                 return detector
             })
         })
-    
+
         AfterAllScenarios(() => {
             expect(checkIfStepWasCalled).toHaveBeenCalled()
             expect(expectThrownEroor).toEqual(
@@ -125,9 +125,9 @@ import { ScenarioStateDetector } from "../state-detectors/ScenarioStateDetector"
 
             vi.restoreAllMocks()
         })
-    
+
         Scenario(`Step not called`, ({ Given }) => {
-            Given(`A simple step`, () => {})
+            Given(`A simple step`, () => { })
         })
     })
 })();
@@ -150,7 +150,7 @@ import { ScenarioStateDetector } from "../state-detectors/ScenarioStateDetector"
             Given(`I start a count to 0`, () => {
                 expect(count).toBe(0)
             })
-            And(`I increase the count by 1 in a promise`, async  () => {
+            And(`I increase the count by 1 in a promise`, async () => {
                 await new Promise((resolve) => {
                     count++
                     resolve(null)
@@ -189,7 +189,7 @@ import { ScenarioStateDetector } from "../state-detectors/ScenarioStateDetector"
     feature.scenarii.push(first, second)
 
     describeFeature(
-        feature, 
+        feature,
         ({ Scenario, BeforeEachScenario, AfterEachScenario, AfterAllScenarios, BeforeAllScenarios }) => {
             const spyBeforeEachScenario = vi.fn()
             const spyBeforeAllScenarios = vi.fn()
@@ -237,10 +237,10 @@ import { ScenarioStateDetector } from "../state-detectors/ScenarioStateDetector"
     scenario.steps.push(new Step(StepTypes.GIVEN, `A simple step`))
 
     feature.scenarii.push(scenarioOutline, scenario)
-    
+
     describeFeature(feature, ({ Scenario, ScenarioOutline }) => {
         try {
-            Scenario(`I'm an outline scenario`, () => {} )
+            Scenario(`I'm an outline scenario`, () => { })
             test.fails(`Should not continue with wrong scenario type`)
         } catch (e) {
             scenarioOutline.isCalled = true
@@ -276,13 +276,13 @@ import { ScenarioStateDetector } from "../state-detectors/ScenarioStateDetector"
 (() => {
     const feature = new Feature(`Use ScenarioOutline with examples`)
     const scenarioOutline = new ScenarioOutlineType(`I use variables`)
-    
+
     scenarioOutline.examples.push(
         {
-            width : 100, height : 200, sum : 300, 
+            width : 100, height : 200, sum : 300,
         },
         {
-            width : 200, height : 400, sum : 600, 
+            width : 200, height : 400, sum : 600,
         },
     )
 
@@ -293,7 +293,7 @@ import { ScenarioStateDetector } from "../state-detectors/ScenarioStateDetector"
     )
 
     feature.scenarii.push(scenarioOutline)
-    
+
     describeFeature(feature, ({ ScenarioOutline, AfterEachScenario, AfterAllScenarios }) => {
         let scenarioOutlineCount = 0
 
@@ -427,7 +427,7 @@ import { ScenarioStateDetector } from "../state-detectors/ScenarioStateDetector"
         new Step(StepTypes.GIVEN, `I love <height>`),
     )
 
-    scenario.examples.push( { height : undefined } )
+    scenario.examples.push({ height : undefined })
 
     feature.scenarii.push(scenario)
 
@@ -464,13 +464,13 @@ import { ScenarioStateDetector } from "../state-detectors/ScenarioStateDetector"
     describeFeature(featire, ({ Scenario }) => {
         Scenario(scenario.description, ({ When, But }) => {
             try {
-                When(`Simple when`, () => {})
-                But(`I use bad step`, () => {})
+                When(`Simple when`, () => { })
+                But(`I use bad step`, () => { })
             } catch (e) {
                 test(`[checkIfScenarioExists] handle step not in scenario`, () => {
                     expect(e).toEqual(
                         new ScenarioUnknowStepError(
-                            scenario, 
+                            scenario,
                             new Step(StepTypes.BUT, `I use bad step`),
                         ),
                     )
@@ -482,7 +482,7 @@ import { ScenarioStateDetector } from "../state-detectors/ScenarioStateDetector"
 
 (() => {
     const feature = new Feature(`Check scenario exists [scenarioShouldNotBeOutline]`)
-    
+
     describeFeature(feature, ({ Scenario }) => {
         try {
             Scenario(`Not in my featyre`, () => { })
@@ -515,8 +515,85 @@ import { ScenarioStateDetector } from "../state-detectors/ScenarioStateDetector"
     describeFeature(feature, ({ Rule }) => {
         Rule(`Awesome rule`, ({ RuleScenario }) => {
             RuleScenario(`test`, ({ Given, Then }) => {
-                Given(`I have a rule`, () => {})
-                Then(`All scenario are run`, () => {})
+                Given(`I have a rule`, () => { })
+                Then(`All scenario are run`, () => { })
+            })
+        })
+    })
+})();
+
+(() => {
+    const feature = new Feature(`test`)
+    const scenario = new ScenarioOutlineType(`out line baby`)
+
+    scenario.steps.push(
+        new Step(StepTypes.GIVEN, `I check <width>`),
+        new Step(StepTypes.AND, `I check <height>`),
+    )
+
+    scenario.examples.push(
+        { width : 100, height : 200 },
+        { width : 200, height : 400 },
+    )
+
+    feature.scenarii.push(scenario)
+    let examplesStepCount = 0
+
+    describeFeature(feature, ({ ScenarioOutline, AfterEachScenario }) => {
+        AfterEachScenario(() => {
+            examplesStepCount++
+        })
+        ScenarioOutline(`out line baby`, ({ Given, And }, variables) => {
+            Given(`I check <width>`, () => {
+                expect(
+                    variables.width,
+                ).toEqual(scenario.examples[examplesStepCount].width)
+            })
+            And(`I check <height>`, () => {
+                expect(
+                    variables.height,
+                ).toEqual(scenario.examples[examplesStepCount].height)
+            })
+        })
+    })
+})();
+
+(() => {
+    const feature = new Feature(`test`)
+    const scenario = new ScenarioOutlineType(`out line baby`)
+
+    scenario.steps.push(
+        new Step(StepTypes.GIVEN, `I check <width>`),
+        new Step(StepTypes.AND, `I check <height>`),
+    )
+
+    scenario.examples.push(
+        { width : 100, height : 200 },
+        { width : 200, height : 400 },
+    )
+
+    const rule = new RuleType(`Example rule`)
+    rule.scenarii.push(scenario)
+    feature.rules.push(rule)
+
+    let examplesStepCount = 0
+
+    describeFeature(feature, ({ Rule, AfterEachScenario }) => {
+        AfterEachScenario(() => {
+            examplesStepCount++
+        })
+        Rule(`Example rule`, ({ RuleScenarioOutline }) => {
+            RuleScenarioOutline(`out line baby`, ({ Given, And }, variables) => {
+                Given(`I check <width>`, () => {
+                    expect(
+                        variables.width,
+                    ).toEqual(scenario.examples[examplesStepCount].width)
+                })
+                And(`I check <height>`, () => {
+                    expect(
+                        variables.height,
+                    ).toEqual(scenario.examples[examplesStepCount].height)
+                })
             })
         })
     })
