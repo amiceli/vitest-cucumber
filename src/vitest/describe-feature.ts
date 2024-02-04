@@ -70,7 +70,7 @@ export function describeFeature (
                 .checkIfRuleExists(ruleName)
 
             await ruleCallback({
-                Scenario : (
+                RuleScenario : (
                     scenarioDescription: string,
                     scenarioTestCallback: (op: StepTest) => MaybePromise,
                 ) => {
@@ -85,7 +85,7 @@ export function describeFeature (
                         }),
                     )
                 },
-                ScenarioOutline : (
+                RuleScenarioOutline : (
                     scenarioDescription: string,
                     scenarioTestCallback: (op: StepTest, variables: Example[0]) => MaybePromise,
                 ) => {

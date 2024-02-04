@@ -17,7 +17,7 @@ import {
     ScenarioStepsNotCalledError,
     ScenarioUnknowStepError,
 } from "../../errors/errors"
-import { Rule } from "../../parser/Rule"
+import { Rule as RuleType } from "../../parser/Rule"
 import { FeatureStateDetector } from "../state-detectors/FeatureStateDetector"
 import { ScenarioStateDetector } from "../state-detectors/ScenarioStateDetector"
 
@@ -501,7 +501,7 @@ import { ScenarioStateDetector } from "../state-detectors/ScenarioStateDetector"
 
 (() => {
     const feature = new Feature(`Run feature rules and scenarii`)
-    const rule = new Rule(`Awesome rule`)
+    const rule = new RuleType(`Awesome rule`)
     const scenario = new ScenarioType(`test`)
 
     scenario.steps.push(
@@ -512,9 +512,9 @@ import { ScenarioStateDetector } from "../state-detectors/ScenarioStateDetector"
     rule.scenarii.push(scenario)
     feature.rules.push(rule)
 
-    describeFeature(feature, ({ Rule : RuleDescribe }) => {
-        RuleDescribe(`Awesome rule`, ({ Scenario : scenarioCallback }) => {
-            scenarioCallback(`test`, ({ Given, Then }) => {
+    describeFeature(feature, ({ Rule }) => {
+        Rule(`Awesome rule`, ({ RuleScenario }) => {
+            RuleScenario(`test`, ({ Given, Then }) => {
                 Given(`I have a rule`, () => {})
                 Then(`All scenario are run`, () => {})
             })
