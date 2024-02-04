@@ -1,75 +1,8 @@
-import { Step, StepTypes } from "../parser/step"
-import { Scenario, ScenarioOutline } from "../parser/scenario"
-import { Feature } from "../parser/feature"
 import {
-    FeatureUknowScenarioError,
-    HookCalledAfterScenarioError,
-    IsScenarioOutlineError,
-    MissingScenarioOutlineVariableValueError, 
-    NotScenarioOutlineError, 
-    ScenarioNotCalledError, 
-    ScenarioOulineWithoutExamplesError, 
-    ScenarioOutlineVariableNotCalledInStepsError, 
-    ScenarioOutlineVariablesDeclaredWithoutExamplesError, 
-    ScenarioStepsNotCalledError, 
-    ScenarioUnknowStepError, 
-} from "../errors/errors"
-
-export class FeatureStateDetector {
-
-    private readonly feature: Feature
-
-    private constructor (feature: Feature) {
-        this.feature = feature
-    }
-
-    public static forFeature (feature: Feature) {
-        return new FeatureStateDetector(feature)
-    }
-
-    public checkNotCalledScenario () {
-        const noCalledScenario = this.feature.getFirstNotCalledScenario()
-
-        if (noCalledScenario) {
-            throw new ScenarioNotCalledError(noCalledScenario)
-        }
-    }
-
-    public checkIfScenarioExists<T = Scenario> (scenarioDescription: string) : T {
-        const foundScenario = this.feature.getScenarioByName(scenarioDescription)
-
-        if (!foundScenario) {
-            throw new FeatureUknowScenarioError(
-                this.feature,
-                new Scenario(scenarioDescription),
-            )
-        }
-
-        return foundScenario as T
-    }
-
-    public alreadyCalledScenarioAtStart (hook: string) { // A tester
-        if (this.feature.haveAlreadyCalledScenario()) {
-            throw new HookCalledAfterScenarioError(
-                this.feature,
-                hook,
-            )
-        }
-    }
-
-    public scenarioShouldNotBeOutline (scenario: Scenario) {
-        if (scenario instanceof ScenarioOutline) {
-            throw new IsScenarioOutlineError(scenario)
-        }
-    }
-
-    public scenarioShouldBeOutline (scenario: Scenario | ScenarioOutline) {
-        if (!(scenario instanceof ScenarioOutline)) {
-            throw new NotScenarioOutlineError(scenario)
-        }
-    }
-
-}
+    ScenarioUnknowStepError, ScenarioStepsNotCalledError, ScenarioOulineWithoutExamplesError, ScenarioOutlineVariableNotCalledInStepsError, MissingScenarioOutlineVariableValueError, ScenarioOutlineVariablesDeclaredWithoutExamplesError, 
+} from "../../errors/errors"
+import { Scenario, ScenarioOutline } from "../../parser/scenario"
+import { Step, StepTypes } from "../../parser/step"
 
 export class ScenarioStateDetector {
 
