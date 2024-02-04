@@ -1,6 +1,6 @@
 # vitest-cucumber
 
-vitest-cucumber is a [vitest](https://vitest.dev/) tools inspired by [jest-cucumber](https://github.com/bencompton/jest-cucumber).
+vitest-cucumber is a [vitest](https://vitest.dev/) **tools** (not a plugin) inspired by [jest-cucumber](https://github.com/bencompton/jest-cucumber).
 
 Goal is to write unit test using Gherkin feature file and checking scenario name, missing scenario step etc.
 
@@ -127,6 +127,57 @@ And next test :
 }
 ~~~
 
+### Rule
+
+Since `3.0.0` version, **vitest-cucumber** allow to use `Rule`.
+
+A feature file example with rules : 
+
+~~~feature
+Feature: Run tests with Rule
+    Scenario: I'm feature's scenario
+        Given I use vitest-cucumber
+        Then  It know I come from a Feature
+
+    Rule: I've specific Scenario
+        Scenario: I'm rule's scenario
+            Given I use vitest-cucumber
+            Then  It know I come from a Rule
+~~~
+
+And you can use it in your test : 
+
+~~~typescript
+describeFeature(feature, ({ Rule, Scenario }) => {
+    Scenario("I'm feature's scenario", () => {
+        // ...
+    })
+    Rule(`I've specific Scenario`, ({ RuleScenario, RuleScenarioOutline }) =>{
+        RuleScenario("I'm rule's scenario", () => {
+            // ...
+        })
+    })
+})
+~~~
+
+**IMPORTANT**: in your feature file, your feature `Scenario` must be written before rule `Scenario`.
+
+If you write like this : 
+
+~~~feature
+Feature: Run tests with Rule
+    Rule: I've specific Scenario
+        Scenario: I'm rule's scenario
+            Given I use vitest-cucumber
+            Then  It know I come from a Rule
+    Scenario: I'm feature's scenario
+        Given I use vitest-cucumber
+        Then  It know I come from a Feature
+~~~
+
+**vitest-cucumber** doesn't use indentation, is too complex for a little bring.
+
+So In this case *I'm feature's scenario* `Scenario` is added to your Rule.
 
 ### Scenario hooks
 
