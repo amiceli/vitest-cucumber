@@ -13,7 +13,7 @@ export class GherkinParser {
 
     private currentScenarioIndex: number = -1
 
-    private currentRukenIndex: number = -1
+    private currentRulenIndex: number = -1
 
     private lastScenarioOutline: ScenarioOutline | null = null
 
@@ -30,13 +30,18 @@ export class GherkinParser {
         if (line.includes(`Feature:`)) {
             this.currentFeatureIndex++
             this.currentScenarioIndex = -1
+            this.currentRulenIndex = -1
+            this.currentExampleLine = -1
 
             const featureName = this.getTextAfterKeyword(line, `Feature`)
             const feature = new Feature(featureName)
 
             this.features.push(feature)
         }  else if (line.includes(`Rule:`)) {
-            this.currentRukenIndex++
+            this.currentExampleLine = -1
+            this.currentScenarioIndex = -1
+
+            this.currentRulenIndex++
 
             const ruleName = this.getTextAfterKeyword(line, `Rule`)
             const rule = new Rule(ruleName)
@@ -175,7 +180,7 @@ export class GherkinParser {
     }
 
     public get currentRule (): Rule | undefined {
-        return this.currentFeature.rules[this.currentRukenIndex]
+        return this.currentFeature.rules[this.currentRulenIndex]
     }
 
     public get currentFeature (): Feature {
@@ -183,7 +188,11 @@ export class GherkinParser {
     }
 
     public get currentScenario (): Scenario {
-        return this.currentFeature.scenarii[this.currentScenarioIndex]
+        if (this.currentRule) {
+            return this.currentRule.scenarii[this.currentScenarioIndex]
+        } else {
+            return this.currentFeature.scenarii[this.currentScenarioIndex]
+        }
     }
 
 }

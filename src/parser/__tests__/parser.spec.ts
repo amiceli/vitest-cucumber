@@ -254,4 +254,37 @@ describe(`GherkinParser`, () => {
         ])
     })
 
+    it(`can add Scneario to Feature and Scenario to Rule`, async () => {
+        parser.addLine(`Feature: test scenario for fule and feature`)
+        parser.addLine(`Scenario: first scenario for the feature`)
+        parser.addLine(`Scenario Outline: first scenario outline for the feature`)
+        parser.addLine(`Rule: I have two scenarii`)
+        parser.addLine(`Scenario: first scenario`)
+        parser.addLine(`Scenario: second scenario`)
+
+        const currentFeature = getCurrentFeaut(parser)
+        const [rule] = currentFeature.rules
+
+        expect(
+            currentFeature.scenarii.map((s) => s.description),
+        ).toContain(
+            `first scenario for the feature`,
+        )
+        expect(
+            currentFeature.scenarii.map((s) => s.description),
+        ).toContain(
+            `first scenario outline for the feature`,
+        )
+
+        expect(
+            rule.scenarii.map((s) => s.description),
+        ).toContain(
+            `first scenario`,
+        )
+        expect(
+            rule.scenarii.map((s) => s.description),
+        ).toContain(
+            `second scenario`,
+        )
+    })
 })
