@@ -4,7 +4,6 @@ import {
 import { Feature } from "../../parser/feature"
 import { ScenarioOutline as ScenarioOutlineType, Scenario as ScenarioType } from "../../parser/scenario"
 import { Step, StepTypes } from "../../parser/step"
-import { FeatureStateDetector, ScenarioStateDetector } from "../feature-state"
 import { describeFeature } from '../describe-feature'
 import {
     FeatureUknowScenarioError,
@@ -18,6 +17,9 @@ import {
     ScenarioStepsNotCalledError,
     ScenarioUnknowStepError,
 } from "../../errors/errors"
+import { Rule } from "../../parser/Rule"
+import { FeatureStateDetector } from "../state-detectors/FeatureStateDetector"
+import { ScenarioStateDetector } from "../state-detectors/ScenarioStateDetector"
 
 (() => {
     const feature = new Feature(`Feature with a scenario`)
@@ -495,4 +497,28 @@ import {
             })
         }
     })
+})();
+
+(() => {
+    const feature = new Feature(`Run feature rules and scenarii`)
+    const rule = new Rule(`Awesome rule`)
+    const scenario = new ScenarioType(`test`)
+
+    scenario.steps.push(
+        new Step(StepTypes.GIVEN, `I have a rule`),
+        new Step(StepTypes.THEN, `All scenario are run`),
+    )
+
+    rule.scenarii.push(scenario)
+    feature.rules.push(rule)
+
+    describeFeature(feature, ({ Rule : RuleDescribe }) => {
+        RuleDescribe(`Awesome rule`, ({ Scenario : scenarioCallback }) => {
+            scenarioCallback(`test`, ({ Given, Then }) => {
+                Given(`I have a rule`, () => {})
+                Then(`All scenario are run`, () => {})
+            })
+        })
+    })
 })()
+
