@@ -1,3 +1,5 @@
+import { Rule } from '../parser/Rule'
+import { ScenarioParent } from '../parser/ScenarioParent'
 import { Feature } from '../parser/feature'
 import { Scenario, ScenarioOutline } from '../parser/scenario'
 import { Step } from '../parser/step'
@@ -64,7 +66,7 @@ export class MissingScenarioOutlineVariableValueError extends Error {
 
 export class FeatureUknowScenarioError extends Error {
 
-    public constructor (feature : Feature, scenario : Scenario) {
+    public constructor (feature : ScenarioParent, scenario : Scenario) {
         super(`Scenario: ${scenario.description} doesn't exist in \n Feature: ${feature.name}`)
     }
 
@@ -72,7 +74,7 @@ export class FeatureUknowScenarioError extends Error {
 
 export class HookCalledAfterScenarioError extends Error {
 
-    public constructor (feature : Feature, hookName : string) {
+    public constructor (feature : ScenarioParent, hookName : string) {
         super(`Feature: ${feature.name} \n ${hookName} hook was called after Scenario()`)
     }
 
@@ -95,6 +97,32 @@ export class ScenarioStepsNotCalledError extends Error {
             .join(``)
 
         super(`Scenario: ${scenario.description}  ${steps}`)
+    }
+
+}
+
+// for rules
+
+export class RuleNotCalledError extends Error {
+
+    public constructor (rule : Rule) {
+        super(`Rule: ${rule.name} was not called`)
+    }
+
+}
+
+export class FeatureUknowRuleError extends Error {
+
+    public constructor (feature : Feature, rule : Rule) {
+        super(`Rule: ${rule.name} doesn't exist in \n Feature: ${feature.name}`)
+    }
+
+}
+
+export class HookCalledAfterRuleError extends Error {
+
+    public constructor (feature : Feature, hookName : string) {
+        super(`Feature: ${feature.name} \n ${hookName} hook was called after Rule()`)
     }
 
 }
