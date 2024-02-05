@@ -73,18 +73,18 @@ export function describeFeature (
 
             scenarioToRun.push(() => {
                 describe(scenarioDescription, () => {
-                    beforeAll(() => {
-                        beforeEachScenarioHook()
+                    beforeAll(async () => {
+                        await beforeEachScenarioHook()
                     })
 
-                    afterAll(() => {
+                    afterAll(async () => {
                         ScenarioStateDetector 
                             .forScenario(foundScenario)
                             .checkIfStepWasCalled()
     
                         foundScenario.isCalled = true
 
-                        afterEachScenarioHook()
+                        await afterEachScenarioHook()
                     })
 
                     test.each(scenarioStepsToRun)(`$key`, async (scenarioStep) => {
@@ -146,18 +146,18 @@ export function describeFeature (
 
                     scenarioToRun.push(((steps) => () => {
                         describe(scenarioDescription, () => {
-                            beforeAll(() => {
-                                beforeEachScenarioHook()
+                            beforeAll(async () => {
+                                await beforeEachScenarioHook()
                             })
             
-                            afterAll(() => {
+                            afterAll(async () => {
                                 ScenarioStateDetector 
                                     .forScenario(foundScenario)
                                     .checkIfStepWasCalled()
                 
                                 foundScenario.isCalled = true
             
-                                afterEachScenarioHook()
+                                await afterEachScenarioHook()
                             })
             
                             test.each(steps)(`$key`, async (scenarioStep) => {
@@ -186,16 +186,16 @@ export function describeFeature (
     describe(feature.name, async () => {
         await featureFn(descibeFeatureParams)
 
-        beforeAll(() => {
-            beforeAllScenarioHook()
+        beforeAll(async () => {
+            await beforeAllScenarioHook()
         })
 
-        afterAll(() => {
+        afterAll(async () => {
             FeatureStateDetector
                 .forFeature(feature)
                 .checkNotCalledScenario()
             
-            afterAllScenarioHook()
+            await afterAllScenarioHook()
         })
 
         scenarioToRun.forEach((scenario) => scenario())
