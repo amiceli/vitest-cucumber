@@ -11,10 +11,10 @@ import {
     IsScenarioOutlineError,
     MissingScenarioOutlineVariableValueError,
     NotScenarioOutlineError,
-    ScenarioNotCalledError, 
-    ScenarioOulineWithoutExamplesError, 
-    ScenarioOutlineVariableNotCalledInStepsError, 
-    ScenarioOutlineVariablesDeclaredWithoutExamplesError, 
+    ScenarioNotCalledError,
+    ScenarioOulineWithoutExamplesError,
+    ScenarioOutlineVariableNotCalledInStepsError,
+    ScenarioOutlineVariablesDeclaredWithoutExamplesError,
     ScenarioStepsNotCalledError,
     ScenarioUnknowStepError,
 } from "../../errors/errors"
@@ -33,7 +33,7 @@ import {
                 expect(true).toBe(true)
             })
         })
-    
+
     })
 })();
 
@@ -47,12 +47,12 @@ import {
     currentFeature.scenarii.push(forgottenScenario)
 
     const detector = FeatureStateDetector.forFeature(currentFeature)
-    let checkNotCalledScenario : MockInstance
-    let expectThrownEroor : Error | null = null
+    let checkNotCalledScenario: MockInstance
+    let expectThrownEroor: Error | null = null
 
     describeFeature(currentFeature, ({ BeforeAllScenarios, AfterAllScenarios, Scenario }) => {
-    
-        BeforeAllScenarios(()  => {
+
+        BeforeAllScenarios(() => {
             vi.spyOn(FeatureStateDetector, `forFeature`).mockImplementation(() => {
                 try {
                     detector.checkNotCalledScenario()
@@ -62,11 +62,11 @@ import {
                 checkNotCalledScenario = vi
                     .spyOn(detector, `checkNotCalledScenario`)
                     .mockImplementation(() => { })
-        
+
                 return detector
             })
         })
-    
+
         AfterAllScenarios(() => {
             expect(checkNotCalledScenario).toHaveBeenCalled()
             expect(expectThrownEroor).toEqual(
@@ -77,9 +77,9 @@ import {
 
             vi.restoreAllMocks()
         })
-    
+
         Scenario(`Good Scenario`, ({ Given }) => {
-            Given(`This scenario is called`, () => {})
+            Given(`This scenario is called`, () => { })
         })
     })
 })();
@@ -93,12 +93,12 @@ import {
     currentFeature.scenarii.push(scenario)
 
     const detector = ScenarioStateDetector.forScenario(scenario)
-    let checkIfStepWasCalled : MockInstance
-    let expectThrownEroor : Error | null = null
+    let checkIfStepWasCalled: MockInstance
+    let expectThrownEroor: Error | null = null
 
     describeFeature(currentFeature, ({ BeforeAllScenarios, AfterAllScenarios, Scenario }) => {
-    
-        BeforeAllScenarios(()  => {
+
+        BeforeAllScenarios(() => {
             vi.spyOn(ScenarioStateDetector, `forScenario`).mockImplementation(() => {
                 try {
                     detector.checkIfStepWasCalled()
@@ -108,11 +108,11 @@ import {
                 checkIfStepWasCalled = vi
                     .spyOn(detector, `checkIfStepWasCalled`)
                     .mockImplementation(() => { })
-        
+
                 return detector
             })
         })
-    
+
         AfterAllScenarios(() => {
             expect(checkIfStepWasCalled).toHaveBeenCalled()
             expect(expectThrownEroor).toEqual(
@@ -123,9 +123,9 @@ import {
 
             vi.restoreAllMocks()
         })
-    
+
         Scenario(`Step not called`, ({ Given }) => {
-            Given(`A simple step`, () => {})
+            Given(`A simple step`, () => { })
         })
     })
 })();
@@ -148,7 +148,7 @@ import {
             Given(`I start a count to 0`, () => {
                 expect(count).toBe(0)
             })
-            And(`I increase the count by 1 in a promise`, async  () => {
+            And(`I increase the count by 1 in a promise`, async () => {
                 await new Promise((resolve) => {
                     count++
                     resolve(null)
@@ -187,7 +187,7 @@ import {
     feature.scenarii.push(first, second)
 
     describeFeature(
-        feature, 
+        feature,
         ({ Scenario, BeforeEachScenario, AfterEachScenario, AfterAllScenarios, BeforeAllScenarios }) => {
             const spyBeforeEachScenario = vi.fn()
             const spyBeforeAllScenarios = vi.fn()
@@ -235,10 +235,10 @@ import {
     scenario.steps.push(new Step(StepTypes.GIVEN, `A simple step`))
 
     feature.scenarii.push(scenarioOutline, scenario)
-    
+
     describeFeature(feature, ({ Scenario, ScenarioOutline }) => {
         try {
-            Scenario(`I'm an outline scenario`, () => {} )
+            Scenario(`I'm an outline scenario`, () => { })
             test.fails(`Should not continue with wrong scenario type`)
         } catch (e) {
             scenarioOutline.isCalled = true
@@ -274,13 +274,13 @@ import {
 (() => {
     const feature = new Feature(`Use ScenarioOutline with examples`)
     const scenarioOutline = new ScenarioOutlineType(`I use variables`)
-    
+
     scenarioOutline.examples.push(
         {
-            width : 100, height : 200, sum : 300, 
+            width : 100, height : 200, sum : 300,
         },
         {
-            width : 200, height : 400, sum : 600, 
+            width : 200, height : 400, sum : 600,
         },
     )
 
@@ -291,7 +291,7 @@ import {
     )
 
     feature.scenarii.push(scenarioOutline)
-    
+
     describeFeature(feature, ({ ScenarioOutline, AfterEachScenario, AfterAllScenarios }) => {
         let scenarioOutlineCount = 0
 
@@ -425,7 +425,7 @@ import {
         new Step(StepTypes.GIVEN, `I love <height>`),
     )
 
-    scenario.examples.push( { height : undefined } )
+    scenario.examples.push({ height : undefined })
 
     feature.scenarii.push(scenario)
 
@@ -462,13 +462,13 @@ import {
     describeFeature(featire, ({ Scenario }) => {
         Scenario(scenario.description, ({ When, But }) => {
             try {
-                When(`Simple when`, () => {})
-                But(`I use bad step`, () => {})
+                When(`Simple when`, () => { })
+                But(`I use bad step`, () => { })
             } catch (e) {
                 test(`[checkIfScenarioExists] handle step not in scenario`, () => {
                     expect(e).toEqual(
                         new ScenarioUnknowStepError(
-                            scenario, 
+                            scenario,
                             new Step(StepTypes.BUT, `I use bad step`),
                         ),
                     )
@@ -480,7 +480,7 @@ import {
 
 (() => {
     const feature = new Feature(`Check scenario exists [scenarioShouldNotBeOutline]`)
-    
+
     describeFeature(feature, ({ Scenario }) => {
         try {
             Scenario(`Not in my featyre`, () => { })
@@ -528,6 +528,77 @@ import {
                 expect(
                     variables.height,
                 ).toEqual(scenario.examples[examplesStepCount].height)
+            })
+        })
+    })
+})();
+
+(() => {
+    const feature = new Feature(`Async scenario hook`)
+    const scenario = new ScenarioType(`A simple Scenario`)
+
+    scenario.steps.push(
+        new Step(StepTypes.GIVEN, `Hooks are async`),
+        new Step(StepTypes.THEN, `I wait hooks are finished`),
+    )
+
+    feature.scenarii.push(scenario)
+
+    type ResolveArgs = (
+        resolve: (value: void | PromiseLike<void>) => void
+    ) => void
+
+    function delayPromise (fn: ResolveArgs): Promise<void> {
+        return new Promise((resolve) => {
+            setTimeout(() => { fn(resolve) }, 400)
+        })
+    }
+
+    let beforeEachScenarioHookFinished = false
+    let beforeAllScenarioHookFinished = false
+    let afterEachScenarioHookFinished = false
+
+    describeFeature(feature, ({ BeforeEachScenario, AfterEachScenario, BeforeAllScenarios, AfterAllScenarios, Scenario }) => {
+        BeforeAllScenarios(async () => {
+            await delayPromise((resolve) => {
+                beforeAllScenarioHookFinished = true
+                resolve()
+            })
+        })
+        BeforeEachScenario(async () => {
+            expect(beforeAllScenarioHookFinished).toBe(true)
+
+            await delayPromise((resolve) => {
+                beforeEachScenarioHookFinished = true
+                resolve()
+            })
+        })
+        AfterEachScenario(async () => {
+            expect(beforeEachScenarioHookFinished).toBe(true)
+            expect(beforeAllScenarioHookFinished).toBe(true)
+
+            await delayPromise((resolve) => {
+                afterEachScenarioHookFinished = true
+                resolve()
+            })
+        })
+        AfterAllScenarios(async () => {
+            await delayPromise((resolve) => {
+                expect(beforeEachScenarioHookFinished).toBe(true)
+                expect(beforeAllScenarioHookFinished).toBe(true)
+                expect(afterEachScenarioHookFinished).toBe(true)
+            
+                // I don't find a way to test AfterAllScenarios is done
+                // It use afterAll so test afterAll after all is like a snake ^^
+                resolve()
+            })
+        })
+        Scenario(`A simple Scenario`, ({ Given, Then }) => {
+            Given(`Hooks are async`, () => {
+                expect(beforeEachScenarioHookFinished).toBeTruthy()
+            })
+            Then(`I wait hooks are finished`, () => {
+                expect(beforeAllScenarioHookFinished).toBeTruthy()
             })
         })
     })
