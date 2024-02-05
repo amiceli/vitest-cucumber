@@ -102,7 +102,6 @@ A `ScenarioOutline` is executed X times according to X variables.
 
 ~~~typescript
 describeFeature(feature, ({ ScenarioOutline }) => {
-
     ScenarioOutline(`Detect image ratio when upload image`, ({ Given, When, Then }, variables) =>{
         Given(`As a user in an awesome project`, () => {})
         When(` I upload an image <width>px on <height>px`, () => {
@@ -186,6 +185,13 @@ Feature: Run tests with Rule
 **vitest-cucumber** doesn't use indentation, is too complex for a little bring.
 
 So In this case *I'm feature's scenario* `Scenario` is added to your Rule.
+### For async and await
+
+Steps can be asynchronous because they are executed sequentially.
+
+But `Scenario` and `ScenarioOutline` are not asynchronous.
+
+Depending on what you need to do you can use scenario hooks. 
 
 ### Scenario hooks
 

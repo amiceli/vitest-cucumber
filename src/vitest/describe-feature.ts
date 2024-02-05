@@ -104,15 +104,15 @@ export function describeFeature (
 
             rulesToRun.push(() => {
                 describe(`Rule: ${ruleName}`, () => {
-                    beforeAll(() => {
-                        beforeAllScenarioHook()
+                    beforeAll(async () => {
+                        await beforeAllScenarioHook()
                     })
-                    afterAll(() => {
+                    afterAll(async () => {
                         RuleStateDetector
                             .forRule(currentRule)
                             .checkNotCalledScenario()
             
-                        afterAllScenarioHook()
+                        await afterAllScenarioHook()
                     })
                     rulesScenarios.forEach((scenario) => scenario())
                 })
@@ -135,16 +135,16 @@ export function describeFeature (
     describe(feature.name, async () => {
         await featureFn(descibeFeatureParams)
 
-        beforeAll(() => {
-            beforeAllScenarioHook()
+        beforeAll(async () => {
+            await beforeAllScenarioHook()
         })
 
-        afterAll(() => {
+        afterAll(async () => {
             FeatureStateDetector
                 .forFeature(feature)
                 .checkNotCalledScenario()
 
-            afterAllScenarioHook()
+            await afterAllScenarioHook()
         })
 
         scenarioToRun.forEach((scenario) => scenario())

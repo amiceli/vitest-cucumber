@@ -597,5 +597,76 @@ import { ScenarioStateDetector } from "../state-detectors/ScenarioStateDetector"
             })
         })
     })
+})();
+
+(() => {
+    const feature = new Feature(`Async scenario hook`)
+    const scenario = new ScenarioType(`A simple Scenario`)
+
+    scenario.steps.push(
+        new Step(StepTypes.GIVEN, `Hooks are async`),
+        new Step(StepTypes.THEN, `I wait hooks are finished`),
+    )
+
+    feature.scenarii.push(scenario)
+
+    type ResolveArgs = (
+        resolve: (value: void | PromiseLike<void>) => void
+    ) => void
+
+    function delayPromise (fn: ResolveArgs): Promise<void> {
+        return new Promise((resolve) => {
+            setTimeout(() => { fn(resolve) }, 400)
+        })
+    }
+
+    let beforeEachScenarioHookFinished = false
+    let beforeAllScenarioHookFinished = false
+    let afterEachScenarioHookFinished = false
+
+    describeFeature(feature, ({ BeforeEachScenario, AfterEachScenario, BeforeAllScenarios, AfterAllScenarios, Scenario }) => {
+        BeforeAllScenarios(async () => {
+            await delayPromise((resolve) => {
+                beforeAllScenarioHookFinished = true
+                resolve()
+            })
+        })
+        BeforeEachScenario(async () => {
+            expect(beforeAllScenarioHookFinished).toBe(true)
+
+            await delayPromise((resolve) => {
+                beforeEachScenarioHookFinished = true
+                resolve()
+            })
+        })
+        AfterEachScenario(async () => {
+            expect(beforeEachScenarioHookFinished).toBe(true)
+            expect(beforeAllScenarioHookFinished).toBe(true)
+
+            await delayPromise((resolve) => {
+                afterEachScenarioHookFinished = true
+                resolve()
+            })
+        })
+        AfterAllScenarios(async () => {
+            await delayPromise((resolve) => {
+                expect(beforeEachScenarioHookFinished).toBe(true)
+                expect(beforeAllScenarioHookFinished).toBe(true)
+                expect(afterEachScenarioHookFinished).toBe(true)
+            
+                // I don't find a way to test AfterAllScenarios is done
+                // It use afterAll so test afterAll after all is like a snake ^^
+                resolve()
+            })
+        })
+        Scenario(`A simple Scenario`, ({ Given, Then }) => {
+            Given(`Hooks are async`, () => {
+                expect(beforeEachScenarioHookFinished).toBeTruthy()
+            })
+            Then(`I wait hooks are finished`, () => {
+                expect(beforeAllScenarioHookFinished).toBeTruthy()
+            })
+        })
+    })
 })()
 

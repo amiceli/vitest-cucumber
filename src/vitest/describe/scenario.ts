@@ -60,18 +60,18 @@ export function describeScenario (
 
     return function () {
         describe(scenario.description, () => {
-            beforeAll(() => {
-                beforeEachScenarioHook()
+            beforeAll(async () => {
+                await beforeEachScenarioHook()
             })
 
-            afterAll(() => {
+            afterAll(async () => {
                 ScenarioStateDetector 
                     .forScenario(scenario)
                     .checkIfStepWasCalled()
     
                 scenario.isCalled = true
 
-                afterEachScenarioHook()
+                await afterEachScenarioHook()
             })
 
             test.each(scenarioStepsToRun)(`$key`, async (scenarioStep) => {
