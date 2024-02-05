@@ -232,6 +232,12 @@ describeFeature(
 )
 ~~~
 
+If you use `Rule`, hooks are runned also in your `Rule`.
+
+For example if you have a `Feature` with 2 `Rule`, `BeforeAllScenarios` is executed three times.
+
+Currently I don't know if it's useful to split `Feature` hooks and `Rule` hooks ;).
+
 ### Steps are run sequentially
 
 Since v2.0.0 `vitest-cucumber` use `test.each` instead of `test`.
