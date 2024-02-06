@@ -1,12 +1,16 @@
 import {
     test, expect, vi,
 } from "vitest"
-import { detectUnCalledScenarioAndRules } from "../../describe/teardowns"
+import { 
+    detectUnCalledScenarioAndRules,
+    detectNotCalledRuleScenario,
+} from "../../describe/teardowns"
 import { Feature } from "../../../parser/feature"
 import { Rule } from "../../../parser/Rule"
 import { RuleNotCalledError, ScenarioNotCalledError } from "../../../errors/errors"
 import { Scenario } from "../../../parser/scenario"
 import { FeatureStateDetector } from "../../state-detectors/FeatureStateDetector"
+import { RuleStateDetector } from "../../state-detectors/RuleStateDetector"
 
 test(`should check not called rules`, async () => {
     const spyDetector = vi.spyOn(FeatureStateDetector, `forFeature`)
@@ -42,4 +46,21 @@ test(`should check not called scenario`, async () => {
         new ScenarioNotCalledError(secondScenario),
     )
     expect(spyDetector).toHaveBeenCalledWith(feature)
+})
+
+test(`should detect rule not called scenario`, () => {
+    const spyDetector = vi.spyOn(RuleStateDetector, `forRule`)
+    const rule = new Rule(`I am a rule`)
+    const scenario = new Scenario(`called scenario`)
+    const secondScenario = new Scenario(`uncalled scenario`)
+
+    scenario.isCalled = true
+    rule.scenarii.push(scenario, secondScenario)
+
+    expect(() => {
+        detectNotCalledRuleScenario(rule)
+    }).toThrowError(
+        new ScenarioNotCalledError(secondScenario),
+    )
+    expect(spyDetector).toHaveBeenCalledWith(rule)
 })
