@@ -1,3 +1,4 @@
+import { Rule } from "./Rule"
 import { Feature } from "./feature"
 import {
     Example, Scenario, ScenarioOutline, 
@@ -11,6 +12,8 @@ export class GherkinParser {
     private currentFeatureIndex: number = -1
 
     private currentScenarioIndex: number = -1
+
+    private currentRulenIndex: number = -1
 
     private lastScenarioOutline: ScenarioOutline | null = null
 
@@ -27,18 +30,34 @@ export class GherkinParser {
         if (line.includes(`Feature:`)) {
             this.currentFeatureIndex++
             this.currentScenarioIndex = -1
+            this.currentRulenIndex = -1
+            this.currentExampleLine = -1
 
             const featureName = this.getTextAfterKeyword(line, `Feature`)
             const feature = new Feature(featureName)
 
             this.features.push(feature)
-        }  else if (line.includes(`Scenario Outline:`)) {
+        }  else if (line.includes(`Rule:`)) {
+            this.currentExampleLine = -1
+            this.currentScenarioIndex = -1
+
+            this.currentRulenIndex++
+
+            const ruleName = this.getTextAfterKeyword(line, `Rule`)
+            const rule = new Rule(ruleName)
+
+            this.currentFeature.rules.push(rule)
+        } else if (line.includes(`Scenario Outline:`)) {
             this.currentScenarioIndex++
 
             const scenarioName = this.getTextAfterKeyword(line, `Scenario Outline`)
             const scneario = new ScenarioOutline(scenarioName)
 
-            this.currentFeature.scenarii.push(scneario)
+            if (this.currentRule) {
+                this.currentRule.scenarii.push(scneario)
+            } else {
+                this.currentFeature.scenarii.push(scneario)
+            }
 
             this.lastScenarioOutline = scneario
         } else if (line.includes(`Examples:`)) {
@@ -52,7 +71,11 @@ export class GherkinParser {
             const scenarioName = this.getTextAfterKeyword(line, `Scenario`)
             const scneario = new Scenario(scenarioName)
 
-            this.currentFeature.scenarii.push(scneario)
+            if (this.currentRule) {
+                this.currentRule.scenarii.push(scneario)
+            } else {
+                this.currentFeature.scenarii.push(scneario)
+            }
         } else if (this.isStep(line)) {
             const stepType = this.findStepType(line)
             const stepDetails = this.findStepDetails(line, stepType)
@@ -156,12 +179,20 @@ export class GherkinParser {
         }
     }
 
+    public get currentRule (): Rule | undefined {
+        return this.currentFeature.rules[this.currentRulenIndex]
+    }
+
     public get currentFeature (): Feature {
         return this.features[this.currentFeatureIndex]
     }
 
     public get currentScenario (): Scenario {
-        return this.currentFeature.scenarii[this.currentScenarioIndex]
+        if (this.currentRule) {
+            return this.currentRule.scenarii[this.currentScenarioIndex]
+        } else {
+            return this.currentFeature.scenarii[this.currentScenarioIndex]
+        }
     }
 
 }

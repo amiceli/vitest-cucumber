@@ -22,11 +22,22 @@ export type FeatureDescriibeCallbackParams = {
     AfterAllScenarios : (fn : () => MaybePromise) => void
     BeforeEachScenario : (fn : () => MaybePromise) => void
     AfterEachScenario : (fn : () => MaybePromise) => void
+    Rule : RuleTest
 }
 
 export type FeatureDescribeCallback = (
     scenarioCallback: FeatureDescriibeCallbackParams
 ) => MaybePromise
+
+export type RuleOptions = {
+    RuleScenario: ScenarioTest,
+    RuleScenarioOutline: ScenarioOutlineTest,
+}
+
+export type RuleTest = (
+    ruleName : string,
+    fn : (options :  RuleOptions) => MaybePromise
+) => void
 
 export type ScenarioTest = (
     scenarioDescription : string, 

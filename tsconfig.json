@@ -1,6 +1,6 @@
 {
     "include": [
-        "src/module.ts"
+        "src/**/*.ts",
     ],
     "exclude": [
         "./src/**/*.spec.ts",
