@@ -7,6 +7,7 @@ import {
 import { Step } from "../../parser/step"
 import { Scenario } from "../../parser/scenario"
 import { ScenarioStateDetector } from "../state-detectors/ScenarioStateDetector"
+import { detectUncalledScenarioStep } from "./teardowns"
 
 type DescribeScenarioArgs = {
     scenario : Scenario,
@@ -65,9 +66,7 @@ export function describeScenario (
             })
 
             afterAll(async () => {
-                ScenarioStateDetector 
-                    .forScenario(scenario)
-                    .checkIfStepWasCalled()
+                detectUncalledScenarioStep(scenario)
     
                 scenario.isCalled = true
 

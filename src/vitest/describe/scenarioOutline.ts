@@ -7,6 +7,7 @@ import {
     StepTest, MaybePromise, StepCallbackDefinition,
 } from "../types"
 import { ScenarioStateDetector } from "../state-detectors/ScenarioStateDetector"
+import { detectUncalledScenarioStep } from "./teardowns"
 
 type DescribeScenarioArgs = {
     scenario: ScenarioOutline,
@@ -72,9 +73,7 @@ export function describeScenarioOutline (
                         })
 
                         afterAll(async () => {
-                            ScenarioStateDetector
-                                .forScenario(scenario)
-                                .checkIfStepWasCalled()
+                            detectUncalledScenarioStep(scenario)
 
                             scenario.isCalled = true
 
