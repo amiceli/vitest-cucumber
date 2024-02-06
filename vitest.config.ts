@@ -9,6 +9,7 @@ export default defineConfig({
                 'src/module.ts',
                 '.eslintrc.js',
                 'commitlint.config.js',
+                'src/vitest/types.ts',
             ]
         },
         exclude : [
