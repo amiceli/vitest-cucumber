@@ -12,10 +12,10 @@ import { Example } from "../parser/scenario"
 import { describeScenario } from "./describe/scenario"
 import { describeScenarioOutline } from "./describe/scenarioOutline"
 import {
-    checkScenarioInFeature, checkScenarioInRule, checkScenarioOutlineInFeature, checkScenarioOutlineInRule, 
+    checkScenarioInFeature, checkScenarioInRule, checkScenarioOutlineInFeature, checkScenarioOutlineInRule,
 } from "./state-detectors"
 import { FeatureStateDetector } from "./state-detectors/FeatureStateDetector"
-import { RuleStateDetector } from "./state-detectors/RuleStateDetector"
+import { detectNotCalledRuleScenario, detectUnCalledScenarioAndRules } from "./describe/teardowns"
 
 export function describeFeature (
     feature: Feature,
@@ -108,10 +108,9 @@ export function describeFeature (
                         await beforeAllScenarioHook()
                     })
                     afterAll(async () => {
-                        RuleStateDetector
-                            .forRule(currentRule)
-                            .checkNotCalledScenario()
-            
+                        detectNotCalledRuleScenario(currentRule)
+                        currentRule.isCalled = true
+
                         await afterAllScenarioHook()
                     })
                     rulesScenarios.forEach((scenario) => scenario())
@@ -140,9 +139,7 @@ export function describeFeature (
         })
 
         afterAll(async () => {
-            FeatureStateDetector
-                .forFeature(feature)
-                .checkNotCalledScenario()
+            detectUnCalledScenarioAndRules(feature)
 
             await afterAllScenarioHook()
         })
