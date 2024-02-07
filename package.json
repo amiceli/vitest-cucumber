@@ -27,7 +27,7 @@
     "@vitest/coverage-v8": "^1.0.3",
     "eslint-plugin-import": "^2.29.1",
     "husky": "^8.0.0",
-    "lint-staged": "^15.2.0",
+    "lint-staged": "^15.2.1",
     "typescript": "^5.1.6"
   },
   "dependencies": {
