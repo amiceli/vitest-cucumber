@@ -17,14 +17,21 @@ import {
 import { FeatureStateDetector } from "./state-detectors/FeatureStateDetector"
 import { detectNotCalledRuleScenario, detectUnCalledScenarioAndRules } from "./describe/teardowns"
 
+export type DescribeFeatureOptions = {
+    excludeTags? : string[]
+}
+
 export function describeFeature (
     feature: Feature,
     featureFn: FeatureDescribeCallback,
+    describeOptions? : DescribeFeatureOptions,
 ) {
     let beforeAllScenarioHook: () => MaybePromise = () => { }
     let beforeEachScenarioHook: () => MaybePromise = () => { }
     let afterAllScenarioHook: () => MaybePromise = () => { }
     let afterEachScenarioHook: () => MaybePromise = () => { }
+
+    const describeDefaultOptions = { excludeTags : describeOptions?.excludeTags || [] }
 
     const scenarioToRun: Array<() => void> = []
     const rulesToRun: Array<() => void> = []
@@ -35,6 +42,10 @@ export function describeFeature (
             scenarioTestCallback: (op: StepTest) => MaybePromise,
         ) => {
             const scenario = checkScenarioInFeature(scenarioDescription, feature)
+
+            if (describeDefaultOptions.excludeTags.some((tag) => scenario.tags.includes(tag))) {
+                return
+            }
 
             scenarioToRun.push(
                 describeScenario({
@@ -50,6 +61,10 @@ export function describeFeature (
             scenarioTestCallback: (op: StepTest, variables: Example[0]) => MaybePromise,
         ) => {
             const scenario = checkScenarioOutlineInFeature(scenarioDescription, feature)
+
+            if (describeDefaultOptions.excludeTags.some((tag) => scenario.tags.includes(tag))) {
+                return
+            }
 
             scenarioToRun.push(
                 ...describeScenarioOutline({
@@ -69,12 +84,20 @@ export function describeFeature (
                 .forFeature(feature)
                 .checkIfRuleExists(ruleName)
 
+            if (describeDefaultOptions.excludeTags.some((tag) => currentRule.tags.includes(tag))) {
+                return
+            }
+                
             await ruleCallback({
                 RuleScenario : (
                     scenarioDescription: string,
                     scenarioTestCallback: (op: StepTest) => MaybePromise,
                 ) => {
                     const scenario = checkScenarioInRule(scenarioDescription, currentRule)
+
+                    if (describeDefaultOptions.excludeTags.some((tag) => scenario.tags.includes(tag))) {
+                        return
+                    }
 
                     rulesScenarios.push(
                         describeScenario({
@@ -90,6 +113,10 @@ export function describeFeature (
                     scenarioTestCallback: (op: StepTest, variables: Example[0]) => MaybePromise,
                 ) => {
                     const scenario = checkScenarioOutlineInRule(scenarioDescription, currentRule)
+
+                    if (describeDefaultOptions.excludeTags.some((tag) => scenario.tags.includes(tag))) {
+                        return
+                    }
 
                     rulesScenarios.push(
                         ...describeScenarioOutline({
