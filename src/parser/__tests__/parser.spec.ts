@@ -287,4 +287,56 @@ describe(`GherkinParser`, () => {
             `second scenario`,
         )
     })
+
+    it(`should be able to add tag to scenario`, () => {
+        parser.addLine(`Feature: test scenario for fule and feature`)
+        parser.addLine(`@example`)
+        parser.addLine(`Scenario: with one tag`)
+        parser.addLine(`@example`)
+        parser.addLine(`@awesome`)
+        parser.addLine(`@again`)
+        parser.addLine(`Scenario Outline: with many tags`)
+        parser.addLine(`@example @awesome @again`)
+        parser.addLine(`Scenario Outline: another scenario with many tags`)
+        parser.addLine(``)
+
+        const currentFeature = getCurrentFeaut(parser)
+        const [oneTag, manyLineTags, oneLineTags] = currentFeature.scenarii
+
+        expect(
+            oneTag.tags,
+        ).toContain(`example`)
+        expect(manyLineTags.tags).toEqual([
+            `example`, `awesome`, `again`,
+        ])
+        expect(oneLineTags.tags).toEqual([
+            `example`, `awesome`, `again`,
+        ])
+    })
+
+    it(`should ignore tags without @`, () => {
+        parser.addLine(`Feature: test scenario for fule and feature`)
+        parser.addLine(`example`)
+        parser.addLine(`Scenario: with one tag`)
+        parser.addLine(`@example awesome @again`)
+        parser.addLine(`Scenario Outline: another scenario with many tags`)
+        parser.addLine(``)
+
+        const currentFeature = getCurrentFeaut(parser)
+        const [noTag, twoTags] = currentFeature.scenarii
+
+        expect(noTag.tags.length).toBe(0)
+        expect(twoTags.tags).toEqual([`example`, `again`])
+    })
+
+    it(`should be able to add tag to Feature`, () => {
+        parser.addLine(`@example`)
+        parser.addLine(`Feature: test scenario for fule and feature`)
+        parser.addLine(`Scenario: with one tag`)
+
+        const currentFeature = getCurrentFeaut(parser)
+
+        expect(currentFeature.tags).toContain(`example`)
+    })
+
 })
