@@ -1,14 +1,16 @@
+import { Taggable } from './Taggable'
 import {
     Example, Scenario, ScenarioOutline, 
 } from './scenario'
 
-export abstract class ScenarioParent {
+export abstract class ScenarioParent extends Taggable {
 
     public readonly name: string
 
     public readonly scenarii : Scenario[] = []
 
     protected constructor (name : string) {
+        super()
         this.name = name
     }
 
