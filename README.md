@@ -78,6 +78,39 @@ When('I run my unit tests', () => {
 
 It will throw **When I run my unit tests was not called**.
 
+### describeFeature options
+
+`describeFeature` allow optionnal options to ignore `Scenario`, `Scenario Outline`, `Rule` according a tag.
+
+Gherkin example : 
+
+~~~
+Feature: detect uncalled rules
+    @awesome
+    Scenario: Me I am executed
+        Given vitest-cucumber is running
+        Then I am executed
+    @another-tag
+    Rule: executed rule
+        Scenario: I am also executed
+            Given vitest-cucumber is running
+            Then  my parent rule is called
+        @custom
+        Scenario: Ignored scenario
+            Given vitest-cucumber is running
+            Then  I am ignored
+~~~
+
+An example, ignore Rule with `@another-tag` : 
+
+~~~typescript
+describeFeature(feautre, () => {
+    // ...
+}, { excludeTags : ['another-tag']}) // you can use many tags
+~~~
+
+This will ignore `Rule` and its `Scenario` / `Scenario Outline`.
+
 ### Scenario Outline and Examples
 
 An example of feature file with `Scenario Outline` and `Examples` : 

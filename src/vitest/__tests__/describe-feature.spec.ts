@@ -395,10 +395,10 @@ describe(`ScenarioOutline with Examples`, () => {
 
     scenarioOutline.examples.push(
         {
-            width : 100, height : 200, sum : 300, 
+            width : 100, height : 200, sum : 300,
         },
         {
-            width : 200, height : 400, sum : 600, 
+            width : 200, height : 400, sum : 600,
         },
     )
 
@@ -542,20 +542,20 @@ describe(`Scenario steps are executed one after one`, () => {
 })
 
 describe(`teardowns to detect uncalled scenario and/or rule`, async () => {
-    let featureTeardownSoy : MockInstance
-    let ruleTeardownSpy : MockInstance
-    let scenarioTeardownSpy : MockInstance
+    let featureTeardownSoy: MockInstance
+    let ruleTeardownSpy: MockInstance
+    let scenarioTeardownSpy: MockInstance
 
-    beforeAll(() =>{
+    beforeAll(() => {
         featureTeardownSoy = vi
             .spyOn(teardowns, `detectUnCalledScenarioAndRules`)
-            .mockImplementation(() => {})
+            .mockImplementation(() => { })
         ruleTeardownSpy = vi
             .spyOn(teardowns, `detectNotCalledRuleScenario`)
-            .mockImplementation(() => {})
+            .mockImplementation(() => { })
         scenarioTeardownSpy = vi
             .spyOn(teardowns, `detectUncalledScenarioStep`)
-            .mockImplementation(() => {})
+            .mockImplementation(() => { })
     })
 
     const gherkin = `
@@ -584,14 +584,128 @@ describe(`teardowns to detect uncalled scenario and/or rule`, async () => {
 
     describeFeature(feature, ({ Rule, Scenario }) => {
         Scenario(`Simple scenario`, ({ Given, Then }) => {
-            Given(`vitest-cucumber is running`,  () => { })
-            Then(`check if I am called`, () => {})
+            Given(`vitest-cucumber is running`, () => { })
+            Then(`check if I am called`, () => { })
         })
         Rule(`I am called`, ({ RuleScenario }) => {
             RuleScenario(`My parent rule is called`, ({ Given, Then }) => {
-                Given(`vitest-cucumber is running`,  () => { })
-                Then(`my parent rule is called`, () => {})
+                Given(`vitest-cucumber is running`, () => { })
+                Then(`my parent rule is called`, () => { })
             })
         })
     })
+})
+
+describe(`Ignore scenario with a tag`, async () => {
+    const gherkin = `
+        Feature: detect uncalled rules
+            @awesome
+            Scenario: Simple scenario
+                Given vitest-cucumber is running
+                Then  check if I am called
+            @normal
+            Scenario: My parent rule is called
+                Given vitest-cucumber is running
+                Then  my parent rule is called
+
+    `
+    await fs.writeFile(`./rules.feature`, gherkin)
+
+    const feature = await loadFeature(`./rules.feature`)
+    let calledScenarioCount = 0
+
+    describeFeature(feature, ({ Scenario, BeforeEachScenario, AfterAllScenarios }) => {
+        BeforeEachScenario(() => {
+            calledScenarioCount++
+        })
+        AfterAllScenarios(() => {
+            expect(calledScenarioCount).toEqual(1)
+        })
+        Scenario(`My parent rule is called`, ({ Given, Then }) => {
+            Given(`vitest-cucumber is running`, () => {
+                expect(true).toBeTruthy()
+            })
+            Then(`my parent rule is called`, () => { })
+        })
+    }, { excludeTags : [`awesome`] })
+})
+
+describe(`Ignore rule with a tag`, async () => {
+    const gherkin = `
+        Feature: detect uncalled rules
+            @awesome
+            Scenario: Simple scenario
+                Given vitest-cucumber is running
+                Then  check if I am called
+            @normal
+            Rule: ignored rule
+                Scenario: My parent rule is called
+                    Given vitest-cucumber is running
+                    Then  my parent rule is called
+
+    `
+    await fs.writeFile(`./rules.feature`, gherkin)
+
+    const feature = await loadFeature(`./rules.feature`)
+    let calledScenarioCount = 0
+
+    describeFeature(feature, ({ Scenario, BeforeEachScenario, AfterAllScenarios }) => {
+        BeforeEachScenario(() => {
+            calledScenarioCount++
+        })
+        AfterAllScenarios(() => {
+            expect(calledScenarioCount).toEqual(1)
+        })
+        Scenario(`Simple scenario`, ({ Given, Then }) => {
+            Given(`vitest-cucumber is running`, () => {
+                expect(true).toBeTruthy()
+            })
+            Then(`check if I am called`, () => { })
+        })
+    }, { excludeTags : [`normal`] })
+})
+
+describe(`Ignore scenario in rule with a tag`, async () => {
+    const gherkin = `
+        Feature: detect uncalled rules
+            @awesome
+            Scenario: Me I am executed
+                Given vitest-cucumber is running
+                Then I am executed
+            Rule: rule with ignored scenario
+                @inside
+                Scenario: I am also executed
+                    Given vitest-cucumber is running
+                    Then  my parent rule is called
+                @ignored
+                Scenario: Simple scenario
+                    Given vitest-cucumber is running
+                    Then  I am ignored
+
+    `
+    await fs.writeFile(`./rules.feature`, gherkin)
+
+    const feature = await loadFeature(`./rules.feature`)
+    let calledScenarioCount = 0
+
+    describeFeature(feature, ({ Scenario, Rule, BeforeEachScenario, AfterAllScenarios }) => {
+        BeforeEachScenario(() => {
+            calledScenarioCount++
+        })
+        AfterAllScenarios(() => {
+            expect(calledScenarioCount).toEqual(2)
+        })
+        Scenario(`Me I am executed`, ({ Given, Then }) => {
+            Given(`vitest-cucumber is running`, () => { })
+            Then(`I am executed`, () => { })
+        })
+        Rule(`rule with ignored scenario`, ({ RuleScenario }) => {
+            RuleScenario(`I am also executed`, ({ Given, Then }) => {
+                Given(`vitest-cucumber is running`, () => {
+                    expect(true).toBeTruthy()
+                })
+                Then(`my parent rule is called`, () => { })
+            })
+        })
+    }, { excludeTags : [`ignored`] })
 })

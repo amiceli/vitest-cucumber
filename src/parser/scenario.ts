@@ -1,6 +1,7 @@
+import { Taggable } from './Taggable'
 import { Step } from './step'
 
-export class Scenario {
+export class Scenario extends Taggable {
 
     public isCalled : boolean = false
 
@@ -9,6 +10,7 @@ export class Scenario {
     public description : string
 
     public constructor (description : string) {
+        super()
         this.description = description
     }
 

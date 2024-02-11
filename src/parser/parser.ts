@@ -1,7 +1,8 @@
 import { Rule } from "./Rule"
+import { Taggable } from "./Taggable"
 import { Feature } from "./feature"
 import {
-    Example, Scenario, ScenarioOutline, 
+    Example, Scenario, ScenarioOutline,
 } from "./scenario"
 import { Step, StepTypes } from "./step"
 
@@ -23,6 +24,8 @@ export class GherkinParser {
 
     private exampleKeys : string[] = []
 
+    private lastTags : string[] = []
+
     public addLine (line: string) {
         if (line.trim().startsWith(`#`)) {
             return
@@ -37,6 +40,8 @@ export class GherkinParser {
             const feature = new Feature(featureName)
 
             this.features.push(feature)
+
+            this.addTagToParent(feature)
         }  else if (line.includes(`Rule:`)) {
             this.currentExampleLine = -1
             this.currentScenarioIndex = -1
@@ -60,6 +65,7 @@ export class GherkinParser {
             }
 
             this.lastScenarioOutline = scneario
+            this.addTagToParent(scneario)
         } else if (line.includes(`Examples:`)) {
             this.currentExample = []
         } else if (line.trim().startsWith(`|`)) {
@@ -76,6 +82,15 @@ export class GherkinParser {
             } else {
                 this.currentFeature.scenarii.push(scneario)
             }
+
+            this.addTagToParent(scneario)
+        } else if (line.startsWith(`@`)) {
+            this.lastTags.push(
+                ...line
+                    .split(` `)
+                    .filter((l) => l.startsWith(`@`))
+                    .map((l) => l.replace(`@`, ``)),
+            )
         } else if (this.isStep(line)) {
             const stepType = this.findStepType(line)
             const stepDetails = this.findStepDetails(line, stepType)
@@ -124,6 +139,15 @@ export class GherkinParser {
         }, {})
 
         return res
+    }
+
+    private addTagToParent (parent : Taggable) {
+        if (this.lastTags.length > 0) {
+            parent.tags.push(
+                ...this.lastTags,
+            )
+            this.lastTags = []
+        }
     }
 
     private getEmptyExamplesValues () {
