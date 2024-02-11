@@ -673,7 +673,7 @@ describe(`Ignore scenario in rule with a tag`, async () => {
                 Given vitest-cucumber is running
                 Then I am executed
             Rule: rule with ignored scenario
-                @awesome
+                @inside
                 Scenario: I am also executed
                     Given vitest-cucumber is running
                     Then  my parent rule is called
