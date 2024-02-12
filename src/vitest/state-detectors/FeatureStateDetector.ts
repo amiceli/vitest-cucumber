@@ -9,17 +9,17 @@ export class FeatureStateDetector extends ScenarioParentStatsDetector<Feature> {
 
     private readonly feature: Feature
 
-    private constructor (feature: Feature) {
-        super(feature)
+    private constructor (feature: Feature, excludeTags : string[]) {
+        super(feature, excludeTags)
         this.feature = feature
     }
 
-    public static forFeature (feature: Feature) {
-        return new FeatureStateDetector(feature)
+    public static forFeature (feature: Feature, excludeTags : string[]) {
+        return new FeatureStateDetector(feature, excludeTags)
     }
 
     public checkNotCalledRule () {
-        const notCalledRule = this.scenarioParent.getFirstRuleNotCalled()
+        const notCalledRule = this.scenarioParent.getFirstRuleNotCalled(this.excludeTags)
 
         if (notCalledRule) {
             throw new RuleNotCalledError(notCalledRule)
