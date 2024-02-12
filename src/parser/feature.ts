@@ -13,8 +13,8 @@ export class Feature extends ScenarioParent {
         return this.rules.find((rule) => rule.name === name)
     }
 
-    public getFirstRuleNotCalled (): Rule | undefined {
-        return this.rules.find((rule) => !rule.isCalled)
+    public getFirstRuleNotCalled (tags : string[]): Rule | undefined {
+        return this.rules.find((rule) => rule.isCalled === false && rule.matchTags(tags) === false)
     }
 
     public haveAlreadyCalledRule (): boolean {

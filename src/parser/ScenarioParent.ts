@@ -30,9 +30,9 @@ export abstract class ScenarioParent extends Taggable {
         return null
     }
 
-    public getFirstNotCalledScenario () : Scenario | ScenarioOutline | undefined {
+    public getFirstNotCalledScenario (tags : string[]) : Scenario | ScenarioOutline | undefined {
         return this.scenarii.find((scenario : Scenario) => {
-            return scenario.isCalled === false
+            return scenario.isCalled === false && scenario.matchTags(tags) === false
         })
     }
 
