@@ -51,6 +51,7 @@ export class GherkinParser {
             const ruleName = this.getTextAfterKeyword(line, `Rule`)
             const rule = new Rule(ruleName)
 
+            this.addTagToParent(rule)
             this.currentFeature.rules.push(rule)
         } else if (line.includes(`Scenario Outline:`)) {
             this.currentScenarioIndex++
@@ -84,7 +85,7 @@ export class GherkinParser {
             }
 
             this.addTagToParent(scneario)
-        } else if (line.startsWith(`@`)) {
+        } else if (line.trim().startsWith(`@`)) {
             this.lastTags.push(
                 ...line
                     .split(` `)

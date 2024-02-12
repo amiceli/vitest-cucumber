@@ -290,7 +290,7 @@ describe(`GherkinParser`, () => {
 
     it(`should be able to add tag to scenario`, () => {
         parser.addLine(`Feature: test scenario for fule and feature`)
-        parser.addLine(`@example`)
+        parser.addLine(`    @example`)
         parser.addLine(`Scenario: with one tag`)
         parser.addLine(`@example`)
         parser.addLine(`@awesome`)
