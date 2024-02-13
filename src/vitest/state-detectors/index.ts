@@ -1,29 +1,36 @@
 import { Rule } from "../../parser/Rule"
+import { ScenarioParent } from "../../parser/ScenarioParent"
 import { Feature } from "../../parser/feature"
 import { Scenario, ScenarioOutline } from "../../parser/scenario"
 import { FeatureStateDetector } from "./FeatureStateDetector"
 import { RuleStateDetector } from "./RuleStateDetector"
 import { ScenarioStateDetector } from "./ScenarioStateDetector"
 
-export function checkScenarioInFeature (scenarioDescription : string, feature : Feature) : Scenario {
+type CheckScenarioArgs<T extends ScenarioParent> = {
+    scenarioDescription : string,
+    parent : T,
+    excludeTags : string []
+}
+
+export function checkScenarioInFeature (args : CheckScenarioArgs<Feature>) : Scenario {
     const scenario = FeatureStateDetector
-        .forFeature(feature)
-        .checkIfScenarioExists(scenarioDescription)
+        .forFeature(args.parent, args.excludeTags)
+        .checkIfScenarioExists(args.scenarioDescription)
 
     FeatureStateDetector
-        .forFeature(feature)
+        .forFeature(args.parent, args.excludeTags)
         .scenarioShouldNotBeOutline(scenario)
 
     return scenario
 }
 
-export function checkScenarioOutlineInFeature (scenarioDescription : string, feature : Feature) : ScenarioOutline {
+export function checkScenarioOutlineInFeature (args : CheckScenarioArgs<Feature>) : ScenarioOutline {
     const scenario = FeatureStateDetector
-        .forFeature(feature)
-        .checkIfScenarioExists<ScenarioOutline>(scenarioDescription)
+        .forFeature(args.parent, args.excludeTags)
+        .checkIfScenarioExists<ScenarioOutline>(args.scenarioDescription)
 
     FeatureStateDetector
-        .forFeature(feature)
+        .forFeature(args.parent, args.excludeTags)
         .scenarioShouldBeOutline(scenario)
 
     ScenarioStateDetector
@@ -33,25 +40,25 @@ export function checkScenarioOutlineInFeature (scenarioDescription : string, fea
     return scenario
 }
 
-export function checkScenarioInRule (scenarioDescription : string, rule : Rule) : Scenario {
+export function checkScenarioInRule (args : CheckScenarioArgs<Rule>) : Scenario {
     const scenario = RuleStateDetector
-        .forRule(rule)
-        .checkIfScenarioExists(scenarioDescription)
+        .forRule(args.parent, args.excludeTags)
+        .checkIfScenarioExists(args.scenarioDescription)
 
     RuleStateDetector
-        .forRule(rule)
+        .forRule(args.parent, args.excludeTags)
         .scenarioShouldNotBeOutline(scenario)
 
     return scenario
 }
 
-export function checkScenarioOutlineInRule (scenarioDescription : string, rule : Rule) : ScenarioOutline {
+export function checkScenarioOutlineInRule (args : CheckScenarioArgs<Rule>) : ScenarioOutline {
     const scenario = RuleStateDetector
-        .forRule(rule)
-        .checkIfScenarioExists<ScenarioOutline>(scenarioDescription)
+        .forRule(args.parent, args.excludeTags)
+        .checkIfScenarioExists<ScenarioOutline>(args.scenarioDescription)
 
     RuleStateDetector
-        .forRule(rule)
+        .forRule(args.parent, args.excludeTags)
         .scenarioShouldBeOutline(scenario)
 
     ScenarioStateDetector
