@@ -19,7 +19,6 @@ export abstract class ScenarioParentStatsDetector<U extends ScenarioParent> {
         const noCalledScenario = this.scenarioParent.getFirstNotCalledScenario(this.excludeTags)
 
         if (noCalledScenario) {
-            console.debug(`merde`)
             throw new ScenarioNotCalledError(noCalledScenario)
         }
     }
