@@ -39,7 +39,11 @@ export function describeFeature (
             scenarioDescription: string,
             scenarioTestCallback: (op: StepTest) => MaybePromise,
         ) => {
-            const scenario = checkScenarioInFeature(scenarioDescription, feature)
+            const scenario = checkScenarioInFeature({
+                scenarioDescription,
+                parent : feature,
+                excludeTags : describeOptions?.excludeTags || [],
+            })
 
             scenarioToRun.push(
                 describeScenario({
@@ -54,7 +58,11 @@ export function describeFeature (
             scenarioDescription: string,
             scenarioTestCallback: (op: StepTest, variables: Example[0]) => MaybePromise,
         ) => {
-            const scenario = checkScenarioOutlineInFeature(scenarioDescription, feature)
+            const scenario = checkScenarioOutlineInFeature({
+                scenarioDescription,
+                parent : feature,
+                excludeTags : describeOptions?.excludeTags || [],
+            })
 
             scenarioToRun.push(
                 ...describeScenarioOutline({
@@ -71,7 +79,7 @@ export function describeFeature (
         ) => {
             const rulesScenarios: Array<() => void> = []
             const currentRule = FeatureStateDetector
-                .forFeature(feature)
+                .forFeature(feature, describeOptions?.excludeTags || [])
                 .checkIfRuleExists(ruleName)
                 
             await ruleCallback({
@@ -79,7 +87,11 @@ export function describeFeature (
                     scenarioDescription: string,
                     scenarioTestCallback: (op: StepTest) => MaybePromise,
                 ) => {
-                    const scenario = checkScenarioInRule(scenarioDescription, currentRule)
+                    const scenario = checkScenarioInRule({
+                        scenarioDescription,
+                        parent : currentRule,
+                        excludeTags : describeOptions?.excludeTags || [],
+                    })
 
                     rulesScenarios.push(
                         describeScenario({
@@ -94,7 +106,11 @@ export function describeFeature (
                     scenarioDescription: string,
                     scenarioTestCallback: (op: StepTest, variables: Example[0]) => MaybePromise,
                 ) => {
-                    const scenario = checkScenarioOutlineInRule(scenarioDescription, currentRule)
+                    const scenario = checkScenarioOutlineInRule({
+                        scenarioDescription,
+                        parent : currentRule,
+                        excludeTags : describeOptions?.excludeTags || [],
+                    })
 
                     rulesScenarios.push(
                         ...describeScenarioOutline({
