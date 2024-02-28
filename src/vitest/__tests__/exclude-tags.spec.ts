@@ -52,9 +52,13 @@ describe(`Ignore rule with a tag`, async () => {
                     Then  my parent rule is called
 
     `
-    await fs.writeFile(`./rules.feature`, gherkin)
+    await fs.writeFile(`./rules-1.feature`, gherkin)
 
-    const feature = await loadFeature(`./rules.feature`)
+    const feature = await loadFeature(`./rules-1.feature`)
+
+    afterAll(async () => {
+        await fs.unlink(`./rules-1.feature`)
+    })
 
     describeFeature(feature, ({ Scenario, AfterAllScenarios }) => {
         AfterAllScenarios(() => {
@@ -92,9 +96,13 @@ describe(`Ignore scenario in rule with a tag`, async () => {
                     Then  I am ignored
 
     `
-    await fs.writeFile(`./rules.feature`, gherkin)
+    await fs.writeFile(`./rules-2.feature`, gherkin)
 
-    const feature = await loadFeature(`./rules.feature`)
+    const feature = await loadFeature(`./rules-2.feature`)
+
+    afterAll(async () => {
+        await fs.unlink(`./rules-2.feature`)
+    })
 
     describeFeature(feature, ({ Scenario, Rule, AfterAllScenarios }) => {
         AfterAllScenarios(() => {

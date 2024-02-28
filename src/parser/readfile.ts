@@ -2,6 +2,7 @@ import { Feature } from "./feature"
 import fs from 'fs'
 import readline from 'readline'
 import { GherkinParser } from "./parser"
+import { FeatureFileNotFoundError } from "../errors/errors"
 
 export class FeatureFileReader {
 
@@ -19,7 +20,12 @@ export class FeatureFileReader {
     }
 
     public async parseFile (): Promise<Feature[]> {
+        if (!fs.existsSync(this.path)) {
+            throw (new FeatureFileNotFoundError(this.path)).message
+        }
+
         const fileStream = fs.createReadStream(this.path)
+
         const rl = readline.createInterface({
             input : fileStream,
             crlfDelay : Infinity,

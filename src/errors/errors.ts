@@ -126,3 +126,11 @@ export class HookCalledAfterRuleError extends Error {
     }
 
 }
+
+export class FeatureFileNotFoundError extends Error {
+
+    public constructor (path : string) {
+        super(`feature file ${path} doesn't exist`)
+    }
+
+}

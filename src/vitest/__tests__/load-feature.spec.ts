@@ -1,5 +1,6 @@
 import { test, expect } from 'vitest'
 import { loadFeature, loadFeatures } from '../load-feature'
+import { FeatureFileNotFoundError } from '../../errors/errors'
 
 test(`should be able to load feature file`, async () => {
     const feature = await loadFeature(`src/vitest/__tests__/example.feature`)
@@ -23,4 +24,14 @@ test(`should be able to load features file`, async () => {
     expect(features.length).toBe(2)
     expect(firstFeature.name).toBe(`vitest-cucumber`)
     expect(secondFeature.name).toBe(`another vitest-cucumber feature`)
+})
+
+test(`Check if feature file exists`, async () => {
+    try {
+        await loadFeature(`example.feature`)
+    } catch (e) {
+        expect(e).toEqual(
+            new FeatureFileNotFoundError(`example.feature`).message,
+        )
+    }
 })
