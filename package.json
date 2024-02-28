@@ -9,6 +9,7 @@
     "lint:staged": "eslint -c .eslintrc.js",
     "lint:fix": "eslint -c .eslintrc.js src/ --fix",
     "build": "npx tsc --declaration --project tsconfig.json",
+    "build:common": "npx tsc --declaration --project tsconfig.common.json",
     "test:unit": "vitest --run",
     "prepare": "husky install"
   },
