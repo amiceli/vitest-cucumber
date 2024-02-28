@@ -11,7 +11,8 @@ module.exports = {
         '@amiceli/eslint-config-typescript'
     ],
     ignorePatterns : [
-        "**/*.feature"
+        "**/*.feature",
+        'scripts/cli-generate.cjs',
     ],
     rules: {
         '@typescript-eslint/no-throw-literal': 'off',
