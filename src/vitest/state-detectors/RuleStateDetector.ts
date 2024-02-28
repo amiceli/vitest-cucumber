@@ -5,13 +5,13 @@ export class RuleStateDetector extends ScenarioParentStatsDetector<Rule> {
 
     private readonly rule: Rule
 
-    private constructor (rule: Rule) {
-        super(rule)
+    private constructor (rule: Rule, excludeTags : string[]) {
+        super(rule, excludeTags)
         this.rule = rule
     }
 
-    public static forRule (rule: Rule) {
-        return new RuleStateDetector(rule)
+    public static forRule (rule: Rule, excludeTags : string[]) {
+        return new RuleStateDetector(rule, excludeTags)
     }
 
 }

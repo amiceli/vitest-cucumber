@@ -8,12 +8,15 @@ export abstract class ScenarioParentStatsDetector<U extends ScenarioParent> {
 
     public readonly scenarioParent : U
 
-    protected constructor (scenarioParent: U) {
+    protected readonly excludeTags : string[]
+
+    protected constructor (scenarioParent: U, excludeTags : string[]) {
         this.scenarioParent = scenarioParent
+        this.excludeTags = excludeTags
     }
 
     public checkNotCalledScenario () {
-        const noCalledScenario = this.scenarioParent.getFirstNotCalledScenario()
+        const noCalledScenario = this.scenarioParent.getFirstNotCalledScenario(this.excludeTags)
 
         if (noCalledScenario) {
             throw new ScenarioNotCalledError(noCalledScenario)

@@ -5,7 +5,7 @@ module.exports = {
         '@typescript-eslint',
     ],
     parserOptions: {
-        project: './tsconfig.eslint.json'
+        project: './tsconfig.vitest.json'
     },
     extends: [
         '@amiceli/eslint-config-typescript'

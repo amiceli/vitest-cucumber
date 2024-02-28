@@ -3,6 +3,7 @@ import { defineConfig, configDefaults } from 'vitest/config'
 
 export default defineConfig({
     test: {
+        globals : true,
         coverage: {
             provider: 'v8',
             exclude : [
@@ -15,7 +16,10 @@ export default defineConfig({
         exclude : [
             'examples/vue-example.spec.ts',
             'node_modules',
-        ]
+        ],
+        typecheck : {
+            tsconfig : 'tsconfig.vitest.json',
+        }
     },
     resolve: {
         alias: {

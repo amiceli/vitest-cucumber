@@ -31,8 +31,6 @@ export function describeFeature (
     let afterAllScenarioHook: () => MaybePromise = () => { }
     let afterEachScenarioHook: () => MaybePromise = () => { }
 
-    const describeDefaultOptions = { excludeTags : describeOptions?.excludeTags || [] }
-
     const scenarioToRun: Array<() => void> = []
     const rulesToRun: Array<() => void> = []
 
@@ -41,11 +39,11 @@ export function describeFeature (
             scenarioDescription: string,
             scenarioTestCallback: (op: StepTest) => MaybePromise,
         ) => {
-            const scenario = checkScenarioInFeature(scenarioDescription, feature)
-
-            if (describeDefaultOptions.excludeTags.some((tag) => scenario.tags.includes(tag))) {
-                return
-            }
+            const scenario = checkScenarioInFeature({
+                scenarioDescription,
+                parent : feature,
+                excludeTags : describeOptions?.excludeTags || [],
+            })
 
             scenarioToRun.push(
                 describeScenario({
@@ -60,11 +58,11 @@ export function describeFeature (
             scenarioDescription: string,
             scenarioTestCallback: (op: StepTest, variables: Example[0]) => MaybePromise,
         ) => {
-            const scenario = checkScenarioOutlineInFeature(scenarioDescription, feature)
-
-            if (describeDefaultOptions.excludeTags.some((tag) => scenario.tags.includes(tag))) {
-                return
-            }
+            const scenario = checkScenarioOutlineInFeature({
+                scenarioDescription,
+                parent : feature,
+                excludeTags : describeOptions?.excludeTags || [],
+            })
 
             scenarioToRun.push(
                 ...describeScenarioOutline({
@@ -81,23 +79,19 @@ export function describeFeature (
         ) => {
             const rulesScenarios: Array<() => void> = []
             const currentRule = FeatureStateDetector
-                .forFeature(feature)
+                .forFeature(feature, describeOptions?.excludeTags || [])
                 .checkIfRuleExists(ruleName)
-
-            if (describeDefaultOptions.excludeTags.some((tag) => currentRule.tags.includes(tag))) {
-                return
-            }
                 
             await ruleCallback({
                 RuleScenario : (
                     scenarioDescription: string,
                     scenarioTestCallback: (op: StepTest) => MaybePromise,
                 ) => {
-                    const scenario = checkScenarioInRule(scenarioDescription, currentRule)
-
-                    if (describeDefaultOptions.excludeTags.some((tag) => scenario.tags.includes(tag))) {
-                        return
-                    }
+                    const scenario = checkScenarioInRule({
+                        scenarioDescription,
+                        parent : currentRule,
+                        excludeTags : describeOptions?.excludeTags || [],
+                    })
 
                     rulesScenarios.push(
                         describeScenario({
@@ -112,11 +106,11 @@ export function describeFeature (
                     scenarioDescription: string,
                     scenarioTestCallback: (op: StepTest, variables: Example[0]) => MaybePromise,
                 ) => {
-                    const scenario = checkScenarioOutlineInRule(scenarioDescription, currentRule)
-
-                    if (describeDefaultOptions.excludeTags.some((tag) => scenario.tags.includes(tag))) {
-                        return
-                    }
+                    const scenario = checkScenarioOutlineInRule({
+                        scenarioDescription,
+                        parent : currentRule,
+                        excludeTags : describeOptions?.excludeTags || [],
+                    })
 
                     rulesScenarios.push(
                         ...describeScenarioOutline({
@@ -135,7 +129,7 @@ export function describeFeature (
                         await beforeAllScenarioHook()
                     })
                     afterAll(async () => {
-                        detectNotCalledRuleScenario(currentRule)
+                        detectNotCalledRuleScenario(currentRule, describeOptions?.excludeTags || [])
                         currentRule.isCalled = true
 
                         await afterAllScenarioHook()
@@ -166,7 +160,7 @@ export function describeFeature (
         })
 
         afterAll(async () => {
-            detectUnCalledScenarioAndRules(feature)
+            detectUnCalledScenarioAndRules(feature, describeOptions?.excludeTags || [])
 
             await afterAllScenarioHook()
         })

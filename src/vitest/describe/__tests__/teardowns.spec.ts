@@ -27,11 +27,11 @@ test(`should check not called rules`, async () => {
     feature.rules.push(rule, secondRule)
 
     expect(() => {
-        detectUnCalledScenarioAndRules(feature)
+        detectUnCalledScenarioAndRules(feature, [])
     }).toThrowError(
         new RuleNotCalledError(secondRule),
     )
-    expect(spyDetector).toHaveBeenCalledWith(feature)
+    expect(spyDetector).toHaveBeenCalledWith(feature, [])
 })
 
 test(`should check not called scenario`, async () => {
@@ -45,11 +45,11 @@ test(`should check not called scenario`, async () => {
     feature.scenarii.push(scenario, secondScenario)
 
     expect(() => {
-        detectUnCalledScenarioAndRules(feature)
+        detectUnCalledScenarioAndRules(feature, [`test`])
     }).toThrowError(
         new ScenarioNotCalledError(secondScenario),
     )
-    expect(spyDetector).toHaveBeenCalledWith(feature)
+    expect(spyDetector).toHaveBeenCalledWith(feature, [`test`])
 })
 
 test(`should detect rule not called scenario`, () => {
@@ -62,11 +62,11 @@ test(`should detect rule not called scenario`, () => {
     rule.scenarii.push(scenario, secondScenario)
 
     expect(() => {
-        detectNotCalledRuleScenario(rule)
+        detectNotCalledRuleScenario(rule, [`ignored`])
     }).toThrowError(
         new ScenarioNotCalledError(secondScenario),
     )
-    expect(spyDetector).toHaveBeenCalledWith(rule)
+    expect(spyDetector).toHaveBeenCalledWith(rule, [`ignored`])
 })
 
 test(`should detect uncalled scenario step`, () => {
