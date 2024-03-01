@@ -76,7 +76,7 @@ loadFeature(filePath).then(async (feature) => {
     if (feature.scenarii.some((s) => s.examples === undefined)) {
         describeFeatureArgs.push('Scenario')
     }
-    if(feature.rules.length > 0) {
+    if (feature.rules.length > 0) {
         describeFeatureArgs.push('Rule')
     }
 

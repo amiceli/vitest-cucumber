@@ -1,8 +1,9 @@
 {
   "name": "@amiceli/vitest-cucumber",
-  "version": "3.2.1",
+  "version": "3.2.2-beta.4",
   "description": "vitest tools to use Gherkin feature in unit tests",
   "main": "dist/module.js",
+  "files": ["dist", "dist-common", "scripts"],
   "scripts": {
     "lint": "eslint -c .eslintrc.js src/",
     "test:coverage": "vitest run --coverage",
@@ -10,6 +11,7 @@
     "lint:fix": "eslint -c .eslintrc.js src/ --fix",
     "build": "npx tsc --declaration --project tsconfig.json",
     "build:common": "npx tsc --declaration --project tsconfig.common.json",
+    "build:all": "npm run build && npm run build:common",
     "test:unit": "vitest --run",
     "prepare": "husky install"
   },
