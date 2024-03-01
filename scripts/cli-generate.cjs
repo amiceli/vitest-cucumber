@@ -6,25 +6,25 @@ const [filePath, outPath] = process.argv.slice(2)
 function generateScenarii(scenarii, forRule = false) {
     const fileContent = [""]
 
-    scenarii.forEach((s) => {
+    scenarii.forEach((scenario) => {
         const scenarioStepTypes = [
             'Given', 'When', 'Then', 'And', 'But'
-        ].filter((item) => s.steps.map((st) => st.type).includes(item))
+        ].filter((step) => scenario.steps.map((scenarioSteps) => scenarioSteps.type).includes(step))
         let scenarioType = 'Scenario'
 
-        if (s.examples) {
+        if (scenario.examples) {
             scenarioType = forRule ? 'RuleScenarioOutline' : 'ScenarioOutline'
         } else {
             scenarioType = forRule ? 'RuleScenario' : 'Scenario'
         }
 
-        if (s.examples) {
-            fileContent.push(`  ${scenarioType}(\`${s.description}\`, ({ ${scenarioStepTypes.join(', ')} }, variables) => {`)
+        if (scenario.examples) {
+            fileContent.push(`  ${scenarioType}(\`${scenario.description}\`, ({ ${scenarioStepTypes.join(', ')} }, variables) => {`)
         } else {
-            fileContent.push(`  ${scenarioType}(\`${s.description}\`, ({ ${scenarioStepTypes.join(', ')} }) => {`)
+            fileContent.push(`  ${scenarioType}(\`${scenario.description}\`, ({ ${scenarioStepTypes.join(', ')} }) => {`)
         }
 
-        s.steps.forEach((step) => {
+        scenario.steps.forEach((step) => {
             fileContent.push(`      ${step.type}(\`${step.details}\`, () => { })`)
         })
         fileContent.push(`  })`)
