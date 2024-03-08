@@ -3,7 +3,11 @@
   "version": "3.2.2c",
   "description": "vitest tools to use Gherkin feature in unit tests",
   "main": "dist/module.js",
-  "files": ["dist", "dist-common", "scripts"],
+  "files": [
+    "dist",
+    "dist-common",
+    "scripts"
+  ],
   "scripts": {
     "lint": "eslint -c .eslintrc.js src/",
     "test:coverage": "vitest run --coverage",
@@ -34,6 +38,7 @@
     "typescript": "^5.1.6"
   },
   "dependencies": {
+    "callsites": "^4.1.0",
     "vitest": "^1.0.3"
   },
   "repository": {
