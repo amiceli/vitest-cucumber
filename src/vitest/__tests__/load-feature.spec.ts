@@ -28,10 +28,16 @@ test(`should be able to load features file`, async () => {
 
 test(`Check if feature file exists`, async () => {
     try {
-        await loadFeature(`example.feature`)
+        await loadFeature(`wrong-path.feature`)
     } catch (e) {
         expect(e).toEqual(
-            new FeatureFileNotFoundError(`example.feature`).message,
+            new FeatureFileNotFoundError(`wrong-path.feature`).message,
         )
     }
+})
+
+test(`should be able to load file from relative path`, async () => {
+    expect(async () => {
+        await loadFeature(`./example.feature`)
+    }).not.toThrowError()
 })
