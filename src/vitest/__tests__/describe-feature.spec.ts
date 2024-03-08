@@ -305,7 +305,7 @@ describe(`teardowns to detect uncalled scenario and/or rule`, async () => {
                     Then  my parent rule is called
 
     `
-    await fs.writeFile(`./rules.feature`, gherkin)
+    await fs.writeFile(`${__dirname}/rules.feature`, gherkin)
 
     const feature = await loadFeature(`./rules.feature`)
 
@@ -315,7 +315,7 @@ describe(`teardowns to detect uncalled scenario and/or rule`, async () => {
         expect(scenarioTeardownSpy).toHaveBeenCalledWith(feature.rules[0].scenarii[0])
         expect(scenarioTeardownSpy).toHaveBeenCalledWith(feature.scenarii[0])
 
-        await fs.unlink(`./rules.feature`)
+        await fs.unlink(`${__dirname}/rules.feature`)
     })
 
     describeFeature(feature, ({ Rule, Scenario }) => {
