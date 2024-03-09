@@ -27,14 +27,14 @@
   "author": "amiceli",
   "license": "ISC",
   "devDependencies": {
-    "@amiceli/eslint-config-typescript": "^1.0.0",
-    "@commitlint/cli": "^18.4.3",
-    "@commitlint/config-conventional": "^18.4.4",
+    "@amiceli/eslint-config-typescript": "^1.0.1",
+    "@commitlint/cli": "^19.0.3",
+    "@commitlint/config-conventional": "^19.0.3",
     "@types/node": "^20.4.5",
     "@vitest/coverage-v8": "^1.0.3",
     "eslint-plugin-import": "^2.29.1",
-    "husky": "^9.0.10",
-    "lint-staged": "^15.2.1",
+    "husky": "^9.0.11",
+    "lint-staged": "^15.2.2",
     "typescript": "^5.1.6"
   },
   "dependencies": {
