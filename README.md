@@ -78,6 +78,8 @@ When('I run my unit tests', () => {
 
 It will throw **When I run my unit tests was not called**.
 
+**NB** : `loadFeature` and `loadFeatures` allow to use relative path since `3.2.3` version ;).
+
 ### Generate spec file from feature file
 
 Since `3.2.2` vitest-cucumber provide a script to generate spec file from feature file.
