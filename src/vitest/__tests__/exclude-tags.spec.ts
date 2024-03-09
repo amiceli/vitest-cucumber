@@ -14,12 +14,12 @@ describe(`Ignore scenario with a tag`, async () => {
                 Then  Don't check if I am called
 
     `
-    await fs.writeFile(`./ignored-scenario.feature`, gherkin)
+    await fs.writeFile(`${__dirname}/ignored-scenario.feature`, gherkin)
 
     const feature = await loadFeature(`./ignored-scenario.feature`)
 
     afterAll(async () => {
-        await fs.unlink(`./ignored-scenario.feature`)
+        await fs.unlink(`${__dirname}/ignored-scenario.feature`)
     })
 
     describeFeature(feature, ({ Scenario, AfterAllScenarios }) => {
@@ -52,12 +52,12 @@ describe(`Ignore rule with a tag`, async () => {
                     Then  my parent rule is called
 
     `
-    await fs.writeFile(`./rules-1.feature`, gherkin)
+    await fs.writeFile(`${__dirname}/rules-1.feature`, gherkin)
 
     const feature = await loadFeature(`./rules-1.feature`)
 
     afterAll(async () => {
-        await fs.unlink(`./rules-1.feature`)
+        await fs.unlink(`${__dirname}/rules-1.feature`)
     })
 
     describeFeature(feature, ({ Scenario, AfterAllScenarios }) => {
@@ -96,12 +96,12 @@ describe(`Ignore scenario in rule with a tag`, async () => {
                     Then  I am ignored
 
     `
-    await fs.writeFile(`./rules-2.feature`, gherkin)
+    await fs.writeFile(`${__dirname}/rules-2.feature`, gherkin)
 
     const feature = await loadFeature(`./rules-2.feature`)
 
     afterAll(async () => {
-        await fs.unlink(`./rules-2.feature`)
+        await fs.unlink(`${__dirname}/rules-2.feature`)
     })
 
     describeFeature(feature, ({ Scenario, Rule, AfterAllScenarios }) => {

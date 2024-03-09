@@ -10,13 +10,24 @@ export class FeatureFileReader {
 
     private readonly parser: GherkinParser
 
-    public static fromPath (path: string) {
-        return new FeatureFileReader(path)
+    private readonly callerFilePath : string | null
+
+    public static fromPath (path: string, callerFilePath : string | null = null) {
+        return new FeatureFileReader(path, callerFilePath)
     }
 
-    private constructor (path: string) {
-        this.path = path
+    private constructor (path: string, callerFilePath : string | null) {
+        this.callerFilePath = callerFilePath
+        this.path = this.handleFeatureFilePath(path)
         this.parser = new GherkinParser()
+    }
+
+    private handleFeatureFilePath (featureFilePath : string) : string {
+        if (featureFilePath.match(/\.\/[\w-]+(\.[\w-]+)*$/)) {
+            return `${this.callerFilePath}/${featureFilePath}`
+        }
+
+        return featureFilePath
     }
 
     public async parseFile (): Promise<Feature[]> {

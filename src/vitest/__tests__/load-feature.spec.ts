@@ -1,6 +1,7 @@
 import { test, expect } from 'vitest'
 import { loadFeature, loadFeatures } from '../load-feature'
 import { FeatureFileNotFoundError } from '../../errors/errors'
+import fs from 'fs/promises'
 
 test(`should be able to load feature file`, async () => {
     const feature = await loadFeature(`src/vitest/__tests__/example.feature`)
@@ -28,10 +29,36 @@ test(`should be able to load features file`, async () => {
 
 test(`Check if feature file exists`, async () => {
     try {
-        await loadFeature(`example.feature`)
+        await loadFeature(`wrong-path.feature`)
     } catch (e) {
         expect(e).toEqual(
-            new FeatureFileNotFoundError(`example.feature`).message,
+            new FeatureFileNotFoundError(`wrong-path.feature`).message,
         )
     }
+})
+
+test(`should be able to load file from relative path`, async () => {
+    expect(async () => {
+        await loadFeature(`./example.feature`)
+    }).not.toThrowError()
+})
+
+test(`should be able to load file from relative path another example`, async () => {
+    const content = `
+        Feature: another relative feature file
+            Scenario: Detect relative path
+                Given I use relative path 
+                When  I use vitest-cucumber
+                Then  It can load me
+
+    `
+    const featureFilePaht = `${__dirname}/../../another.feature`
+
+    await fs.writeFile(featureFilePaht, content)
+
+    expect(async () => {
+        await loadFeature(`../../another.feature`)
+    }).not.toThrowError()
+
+    await fs.unlink(featureFilePaht)
 })
