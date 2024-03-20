@@ -49,3 +49,9 @@ export type ScenarioOutlineTest = (
     fn : (options : StepTest, examples : Example[0]) => MaybePromise
 ) => void
 
+export type BackgroundStepTest = Pick<StepTest, 'Given' | 'And'>
+
+export type BackgroundTest = (
+    fn : (options : BackgroundStepTest) => MaybePromise
+) => void
+
