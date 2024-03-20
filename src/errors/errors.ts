@@ -2,7 +2,7 @@ import { Rule } from '../parser/Rule'
 import { ScenarioParent } from '../parser/ScenarioParent'
 import { Feature } from '../parser/feature'
 import { Scenario, ScenarioOutline } from '../parser/scenario'
-import { Step } from '../parser/step'
+import { Step, StepTypes } from '../parser/step'
 
 export class NotScenarioOutlineError extends Error {
 
@@ -131,6 +131,14 @@ export class FeatureFileNotFoundError extends Error {
 
     public constructor (path : string) {
         super(`feature file ${path} doesn't exist`)
+    }
+
+}
+
+export class NotAllowedBackgroundStepTypeError extends Error {
+
+    public constructor (type : StepTypes) {
+        super(`${type} step isn't allow in Background`)
     }
 
 }
