@@ -39,7 +39,7 @@
   },
   "dependencies": {
     "callsites": "^4.1.0",
-    "vitest": "^1.0.3"
+    "vitest": "^1.4.0"
   },
   "repository": {
     "type": "git",
