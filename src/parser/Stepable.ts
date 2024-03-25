@@ -1,7 +1,7 @@
 import { Taggable } from "./Taggable"
 import { Step } from "./step"
 
-export class StepAble extends Taggable {
+export abstract class StepAble extends Taggable {
 
     public isCalled : boolean = false
 

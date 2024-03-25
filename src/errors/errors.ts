@@ -142,3 +142,11 @@ export class NotAllowedBackgroundStepTypeError extends Error {
     }
 
 }
+
+export class TwiceBackgroundError extends Error {
+
+    public constructor () {
+        super(`A background already exists`)
+    }
+
+}
