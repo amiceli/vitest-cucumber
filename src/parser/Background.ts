@@ -8,11 +8,9 @@ const BackgroundAllowedSteps = [
 
 export class Background extends StepAble {
 
-    public isCalled : boolean = false
-
     public addStep (step : Step) {
         if (BackgroundAllowedSteps.includes(step.type)) {
-            this.steps.push(step)
+            super.addStep(step)
         } else {
             throw new NotAllowedBackgroundStepTypeError(step.type)
         }

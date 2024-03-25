@@ -2,8 +2,6 @@ import { StepAble } from './Stepable'
 
 export class Scenario extends StepAble {
 
-    public isCalled : boolean = false
-
     public description : string
 
     public constructor (description : string) {

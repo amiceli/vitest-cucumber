@@ -3,6 +3,8 @@ import { Step } from "./step"
 
 export class StepAble extends Taggable {
 
+    public isCalled : boolean = false
+
     public steps: Step[] = []
 
     public findStepByTypeAndDetails (type : string, details : string) : Step | undefined {
@@ -17,6 +19,10 @@ export class StepAble extends Taggable {
 
     public getNoCalledSteps () : Step[] {
         return this.steps.filter((s) => s.isCalled === false)
+    }
+
+    public addStep (step : Step) {
+        this.steps.push(step)
     }
 
 }
