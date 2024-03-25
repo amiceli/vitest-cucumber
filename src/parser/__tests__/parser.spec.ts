@@ -4,6 +4,7 @@ import {
 } from 'vitest'
 import { StepTypes } from "../step"
 import { ScenarioOutline } from "../scenario"
+import { TwiceBackgroundError } from "../../errors/errors"
 
 describe(`GherkinParser`, () => {
 
@@ -13,14 +14,14 @@ describe(`GherkinParser`, () => {
         parser = new GherkinParser()
     })
 
-    function getCurrentFeaut (p : GherkinParser) {
+    function getCurrentFeaut (p: GherkinParser) {
         const { features } = p
         const [firstFeature] = features
 
         return firstFeature
     }
 
-    function getCurrentScenario (p : GherkinParser) {
+    function getCurrentScenario (p: GherkinParser) {
         const feature = getCurrentFeaut(p)
         const [scenario] = feature.scenarii
 
@@ -48,7 +49,7 @@ describe(`GherkinParser`, () => {
 
         const currentFeature = getCurrentFeaut(parser)
         const currentScenario = getCurrentScenario(parser)
-        
+
         expect(currentFeature.scenarii.length).toEqual(1)
         expect(currentScenario.description).toEqual(scenarioTitile)
         expect(currentScenario.steps.length).toEqual(0)
@@ -113,7 +114,7 @@ describe(`GherkinParser`, () => {
         if (!currentScenario) {
             expect.fail(`Scenario shoutl exists`)
         }
-        
+
         expect(currentScenario.description).toEqual(scenarioTitile)
         expect(currentScenario.isCalled).toBeFalsy()
         expect(currentScenario instanceof ScenarioOutline).toBeTruthy()
@@ -158,7 +159,7 @@ describe(`GherkinParser`, () => {
         const currentScenario = currentFeature.getScenarioByName(scenarioTitile) as ScenarioOutline
 
         currentScenario.examples = []
-        
+
         parser.addLine(`Examples:`)
         parser.addLine(`| framework | language   |`)
         parser.addLine(`| Vue       | Javascript |`)
@@ -337,6 +338,87 @@ describe(`GherkinParser`, () => {
         const currentFeature = getCurrentFeaut(parser)
 
         expect(currentFeature.tags).toContain(`example`)
+    })
+
+    describe(`Background`, () => {
+        it(`should be able to parse Background for Feature`, () => {
+            parser.addLine(`Feature: I use background`)
+            parser.addLine(`    Background:`)
+            parser.addLine(`        Given I use backgroun`)
+            parser.addLine(`        And I love it`)
+            parser.addLine(``)
+
+            const currentFeature = getCurrentFeaut(parser)
+            const { background } = currentFeature
+
+            expect(background).not.toBeNull()
+            expect(background?.steps.length).toBe(2)
+        })
+
+        it(`should be able to parse Background for Rule`, () => {
+            parser.addLine(`Feature: I use background`)
+            parser.addLine(`    Background:`)
+            parser.addLine(`        Given I use backgroun`)
+            parser.addLine(`        And I love it`)
+            parser.addLine(`    Rule: I need a background`)
+            parser.addLine(`        Background:`)
+            parser.addLine(`            Given I use also backgroun`)
+            parser.addLine(`            And I love it`)
+            parser.addLine(`            And I love forever`)
+            parser.addLine(``)
+
+            const currentFeature = getCurrentFeaut(parser)
+            const { background, rules } = currentFeature
+
+            expect(background).not.toBeNull()
+            expect(background?.steps.length).toBe(2)
+            expect(rules[0].background).not.toBeNull()
+            expect(rules[0].background?.steps.length).toBe(3)
+        })
+
+        it(`should prevent twice backgrounds in Feature`, () => {
+            expect(() => {
+                parser.addLine(`Feature: I use background`)
+                parser.addLine(`    Background:`)
+                parser.addLine(`        Given I use backgroun`)
+                parser.addLine(`        And I love it`)
+                parser.addLine(`    Background:`)
+                parser.addLine(`        Given I want another background`)
+                parser.addLine(``)
+            }).toThrowError(
+                new TwiceBackgroundError(),
+            )
+        })
+
+        it(`should prevent twice backgrounds in Rule`, () => {
+            expect(() => {
+                parser.addLine(`Feature: I use background`)
+                parser.addLine(`    Background:`)
+                parser.addLine(`        Given I use backgroun`)
+                parser.addLine(`        And I love it`)
+                parser.addLine(`    Rule: with background`)
+                parser.addLine(`        Background:`)
+                parser.addLine(`            Given I want another background`)
+                parser.addLine(`        Background:`)
+                parser.addLine(`            Given I want another background`)
+                parser.addLine(``)
+            }).toThrowError(
+                new TwiceBackgroundError(),
+            )
+            expect(() => {
+                parser.addLine(`Feature: I use background`)
+                parser.addLine(`    Background:`)
+                parser.addLine(`        Given I use backgroun`)
+                parser.addLine(`        And I love it`)
+                parser.addLine(`    Rule: with background`)
+                parser.addLine(`        Background:`)
+                parser.addLine(`            Given I want another background`)
+                parser.addLine(`    Rule: with background again`)
+                parser.addLine(`        Background:`)
+                parser.addLine(`            Given I want another background`)
+                parser.addLine(``)
+            }).not.toThrowError()
+        })
     })
 
 })

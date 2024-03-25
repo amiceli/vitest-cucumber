@@ -1,4 +1,7 @@
+import { TwiceBackgroundError } from "../errors/errors"
+import { Background } from "./Background"
 import { Rule } from "./Rule"
+import { StepAble } from "./Stepable"
 import { Taggable } from "./Taggable"
 import { Feature } from "./feature"
 import {
@@ -6,6 +9,7 @@ import {
 } from "./scenario"
 import { Step, StepTypes } from "./step"
 
+type SteppableName = 'Scenario' | 'ScenarioOutline' | 'Background'
 export class GherkinParser {
 
     public readonly features: Feature[] = []
@@ -25,6 +29,8 @@ export class GherkinParser {
     private exampleKeys : string[] = []
 
     private lastTags : string[] = []
+
+    private lastSteppableTag : SteppableName | null = null
 
     public addLine (line: string) {
         if (line.trim().startsWith(`#`)) {
@@ -57,16 +63,13 @@ export class GherkinParser {
             this.currentScenarioIndex++
 
             const scenarioName = this.getTextAfterKeyword(line, `Scenario Outline`)
-            const scneario = new ScenarioOutline(scenarioName)
+            const scenario = new ScenarioOutline(scenarioName)
 
-            if (this.currentRule) {
-                this.currentRule.scenarii.push(scneario)
-            } else {
-                this.currentFeature.scenarii.push(scneario)
-            }
+            this.lastScenarioOutline = scenario
+            this.lastSteppableTag = `ScenarioOutline`
 
-            this.lastScenarioOutline = scneario
-            this.addTagToParent(scneario)
+            this.addScenarioToParent(scenario)
+            this.addTagToParent(scenario)
         } else if (line.includes(`Examples:`)) {
             this.currentExample = []
         } else if (line.trim().startsWith(`|`)) {
@@ -76,15 +79,22 @@ export class GherkinParser {
             this.currentScenarioIndex++
 
             const scenarioName = this.getTextAfterKeyword(line, `Scenario`)
-            const scneario = new Scenario(scenarioName)
+            const scenario = new Scenario(scenarioName)
 
-            if (this.currentRule) {
-                this.currentRule.scenarii.push(scneario)
-            } else {
-                this.currentFeature.scenarii.push(scneario)
+            this.lastSteppableTag = `Scenario`
+
+            this.addScenarioToParent(scenario)
+            this.addTagToParent(scenario)
+        } else if (line.includes(`Background:`)) {
+            if (this.currentBackground) {
+                throw new TwiceBackgroundError()
             }
 
-            this.addTagToParent(scneario)
+            const background = new Background()
+            this.lastSteppableTag = `Background`
+
+            this.addBackgroundToParent(background)
+            this.addTagToParent(background)
         } else if (line.trim().startsWith(`@`)) {
             this.lastTags.push(
                 ...line
@@ -97,7 +107,7 @@ export class GherkinParser {
             const stepDetails = this.findStepDetails(line, stepType)
             const newStep = new Step(stepType, stepDetails)
 
-            this.currentScenario.steps.push(newStep)
+            this.currentScenario.addStep(newStep)
         } else if (this.currentExample !== null) {
             if (this.currentExample.length === 0) {
                 this.currentExample.push( this.getEmptyExamplesValues() )
@@ -108,6 +118,22 @@ export class GherkinParser {
 
             this.currentExample = null
             this.currentExampleLine = -1
+        }
+    }
+
+    private addBackgroundToParent (background : Background) {
+        if (this.currentRule) {
+            this.currentRule.background = background
+        } else {
+            this.currentFeature.background = background
+        }
+    }
+
+    private addScenarioToParent (scenario : Scenario) {
+        if (this.currentRule) {
+            this.currentRule.scenarii.push(scenario)
+        } else {
+            this.currentFeature.scenarii.push(scenario)
         }
     }
 
@@ -204,6 +230,14 @@ export class GherkinParser {
         }
     }
 
+    public get currentBackground () : Background | null {
+        if (this.currentRule) {
+            return this.currentRule.background
+        } else {
+            return this.currentFeature.background
+        }
+    }
+
     public get currentRule (): Rule | undefined {
         return this.currentFeature.rules[this.currentRulenIndex]
     }
@@ -212,8 +246,10 @@ export class GherkinParser {
         return this.features[this.currentFeatureIndex]
     }
 
-    public get currentScenario (): Scenario {
-        if (this.currentRule) {
+    public get currentScenario (): StepAble {
+        if (this.lastSteppableTag === `Background` && this.currentBackground) {
+            return this.currentBackground
+        } else if (this.currentRule) {
             return this.currentRule.scenarii[this.currentScenarioIndex]
         } else {
             return this.currentFeature.scenarii[this.currentScenarioIndex]
