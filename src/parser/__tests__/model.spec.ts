@@ -5,6 +5,8 @@ import {
 } from "vitest"
 import { Scenario, ScenarioOutline } from "../scenario"
 import { Step, StepTypes } from "../step"
+import { Background } from "../Background"
+import { NotAllowedBackgroundStepTypeError } from "../../errors/errors"
 
 describe(`Models`, () => {
 
@@ -14,6 +16,7 @@ describe(`Models`, () => {
     
             expect(feature.name).toEqual(`Awesome`)
             expect(feature.scenarii.length).toEqual(0)
+            expect(feature.background).toBeNull()
         })
     
         test(`Find Feature scneario by name`, () => {
@@ -100,6 +103,7 @@ describe(`Models`, () => {
     
             expect(rule.name).toEqual(`Awesome`)
             expect(rule.scenarii.length).toEqual(0)
+            expect(rule.background).toBeNull()
         })
     
         test(`Find Rule scneario by name`, () => {
@@ -143,6 +147,40 @@ describe(`Models`, () => {
         })
     })
 
+    describe(`Background`, () => {
+        test(`Background initialize`, () => {
+            const background = new Background()
+
+            expect(background.steps.length).toEqual(0)
+            expect(background.isCalled).toBeFalsy()
+        })
+
+        test(`Backgorund allowed step type`, () => {
+            const background = new Background()
+
+            expect(() => {
+                background.addStep(new Step(StepTypes.GIVEN, `test`)) 
+                background.addStep(new Step(StepTypes.AND, `test`))
+            }).not.toThrowError()
+
+            expect(() => {
+                background.addStep(new Step(StepTypes.WHEN, `test`)) 
+            }).toThrowError(
+                new NotAllowedBackgroundStepTypeError(StepTypes.WHEN),
+            )
+            expect(() => {
+                background.addStep(new Step(StepTypes.THEN, `test`)) 
+            }).toThrowError(
+                new NotAllowedBackgroundStepTypeError(StepTypes.THEN),
+            )
+            expect(() => {
+                background.addStep(new Step(StepTypes.BUT, `test`)) 
+            }).toThrowError(
+                new NotAllowedBackgroundStepTypeError(StepTypes.BUT),
+            )
+        })
+    })
+
     describe(`Scenario`, () => {
         test(`Scenario initialize`, () => {
             const scenario = new Scenario(`First`)
@@ -158,7 +196,7 @@ describe(`Models`, () => {
 
             expect(scenario.hasUnCalledSteps()).toBeFalsy()
 
-            scenario.steps.push(step)
+            scenario.addStep(step)
 
             expect(scenario.hasUnCalledSteps()).toBeTruthy()
 
@@ -171,7 +209,7 @@ describe(`Models`, () => {
             const scenario = new Scenario(`test`)
             const step = new Step(StepTypes.AND, `test`)
 
-            scenario.steps.push(step)
+            scenario.addStep(step)
             
             expect(
                 scenario.findStepByTypeAndDetails(`And`, `test`),
@@ -186,9 +224,9 @@ describe(`Models`, () => {
             const scenarioOutline = new ScenarioOutline(`outline`)
 
             expect(scenarioOutline.examples).toEqual([])
+            expect(scenarioOutline.missingExamplesKeyword).toBeFalsy()
         })
     })
-    
 
     test(`Step initialize`, () => {
         const step = new Step(StepTypes.GIVEN, `I trye`)

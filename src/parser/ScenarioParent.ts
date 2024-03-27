@@ -1,3 +1,4 @@
+import { Background } from './Background'
 import { Taggable } from './Taggable'
 import {
     Example, Scenario, ScenarioOutline, 
@@ -8,6 +9,8 @@ export abstract class ScenarioParent extends Taggable {
     public readonly name: string
 
     public readonly scenarii : Scenario[] = []
+
+    public background : Background | null = null
 
     protected constructor (name : string) {
         super()
