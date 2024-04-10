@@ -343,6 +343,7 @@ describe(`GherkinParser`, () => {
     describe(`Background`, () => {
         it(`should be able to parse Background for Feature`, () => {
             parser.addLine(`Feature: I use background`)
+            parser.addLine(`    @awesome`)
             parser.addLine(`    Background:`)
             parser.addLine(`        Given I use backgroun`)
             parser.addLine(`        And I love it`)
@@ -353,6 +354,7 @@ describe(`GherkinParser`, () => {
 
             expect(background).not.toBeNull()
             expect(background?.steps.length).toBe(2)
+            expect(background?.tags).toContain(`awesome`)
         })
 
         it(`should be able to parse Background for Rule`, () => {
