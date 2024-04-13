@@ -4,7 +4,7 @@ import { Step, StepTypes } from "../../parser/step"
 import { describeFeature } from '../describe-feature'
 import {
     FeatureUknowScenarioError,
-    IsScenarioOutlineError, NotScenarioOutlineError, ScenarioUnknowStepError,
+    IsScenarioOutlineError, NotScenarioOutlineError, StepAbleUnknowStepError,
 } from "../../errors/errors"
 import fs from 'fs/promises'
 import { loadFeature } from '../load-feature'
@@ -72,7 +72,7 @@ describe(`Check if scenario step exists`, () => {
             } catch (e) {
                 test(`[checkIfScenarioExists] handle step not in scenario`, () => {
                     expect(e).toEqual(
-                        new ScenarioUnknowStepError(
+                        new StepAbleUnknowStepError(
                             scenario,
                             new Step(StepTypes.BUT, `I use bad step`),
                         ),
@@ -329,5 +329,75 @@ describe(`teardowns to detect uncalled scenario and/or rule`, async () => {
                 Then(`my parent rule is called`, () => { })
             })
         })
+    })
+})
+
+describe(`Background run before scenario`, async () => {
+    const gherkin = `
+        Feature: Background run before scenario tests
+            Background:
+                Given I'm a background
+            Scenario: Simple scenario
+                Given I'm a scenario
+                Then  background is run before me
+            Rule: background in rule
+                Background:
+                    Given I'm a background in a rule
+                Scenario: Simple rule scenario
+                    Given I'm a rule scenario
+                    Then  rule background is run before me
+
+    `
+    await fs.writeFile(`${__dirname}/background.feature`, gherkin)
+
+    const feature = await loadFeature(`./background.feature`)
+
+    describeFeature(feature, ({ Background, Scenario, Rule }) => {
+        let callCount = 0
+
+        Background(({ Given }) => {
+            Given(`I'm a background`,  async () => {
+                await new Promise((resolve) => {
+                    setTimeout(() => {
+                        callCount += 1
+                        resolve(null)
+                    }, 1000)
+                })
+            })
+        })
+
+        Scenario(`Simple scenario`, ({ Given, Then }) => {
+            Given(`I'm a scenario`, () => {
+                console.debug(`scenario given`)
+                expect(callCount).toEqual(1)
+                callCount += 1
+            })
+            Then(`background is run before me`, () => {
+                expect(callCount).toEqual(2)
+            })
+        })
+
+        Rule(`background in rule`, ({ RuleBackground, RuleScenario }) => {
+            let ruleCall = 0
+            RuleBackground(({ Given }) => {
+                Given(`I'm a background in a rule`, () => {
+                    expect(ruleCall).toEqual(0)
+                    ruleCall += 1
+                })
+            })
+            RuleScenario(`Simple rule scenario`, ({ Given, Then }) => {
+                Given(`I'm a rule scenario`, () => {
+                    expect(ruleCall).toEqual(1)
+                    ruleCall += 1
+                })
+                Then(`rule background is run before me`, () => {
+                    expect(ruleCall).toEqual(2)
+                })
+            })
+        })
+    })
+
+    afterAll(async () => {
+        await fs.unlink(`${__dirname}/background.feature`)
     })
 })

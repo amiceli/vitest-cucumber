@@ -7,19 +7,27 @@ import {
     MaybePromise,
     FeatureDescribeCallback,
     FeatureDescriibeCallbackParams,
+    BackgroundStepTest,
 } from './types'
 import { Example } from "../parser/scenario"
 import { describeScenario } from "./describe/scenario"
 import { describeScenarioOutline } from "./describe/scenarioOutline"
 import {
+    checkIfBackgroundExistInParent,
     checkScenarioInFeature, checkScenarioInRule, checkScenarioOutlineInFeature, checkScenarioOutlineInRule,
 } from "./state-detectors"
 import { FeatureStateDetector } from "./state-detectors/FeatureStateDetector"
 import { detectNotCalledRuleScenario, detectUnCalledScenarioAndRules } from "./describe/teardowns"
+import { describeBackground } from "./describe/background"
 
 export type DescribeFeatureOptions = {
     excludeTags? : string[]
 }
+
+type ScenariiToRun = Array<{
+    type : string,
+    fn : () => void
+}>
 
 export function describeFeature (
     feature: Feature,
@@ -31,10 +39,26 @@ export function describeFeature (
     let afterAllScenarioHook: () => MaybePromise = () => { }
     let afterEachScenarioHook: () => MaybePromise = () => { }
 
-    const scenarioToRun: Array<() => void> = []
+    const scenarioToRun: ScenariiToRun = []
     const rulesToRun: Array<() => void> = []
 
     const descibeFeatureParams: FeatureDescriibeCallbackParams = {
+        Background : (
+            backgroundCallback: (op: BackgroundStepTest) => MaybePromise,
+        ) => {
+            const background = checkIfBackgroundExistInParent({
+                parent : feature,
+                excludeTags : describeOptions?.excludeTags || [],
+            })
+
+            scenarioToRun.unshift({
+                type : `Background`,
+                fn : describeBackground({
+                    background,
+                    backgroundCallback,
+                }),
+            })
+        },
         Scenario : (
             scenarioDescription: string,
             scenarioTestCallback: (op: StepTest) => MaybePromise,
@@ -45,14 +69,15 @@ export function describeFeature (
                 excludeTags : describeOptions?.excludeTags || [],
             })
 
-            scenarioToRun.push(
-                describeScenario({
+            scenarioToRun.push({
+                type : `Scenario`,
+                fn : describeScenario({
                     scenario,
                     scenarioTestCallback,
                     beforeEachScenarioHook,
                     afterEachScenarioHook,
                 }),
-            )
+            })
         },
         ScenarioOutline : (
             scenarioDescription: string,
@@ -70,19 +95,35 @@ export function describeFeature (
                     scenarioTestCallback,
                     beforeEachScenarioHook,
                     afterEachScenarioHook,
-                }),
+                }).map((t) => ({ type : `ScenarioOutline`, fn : t })),
             )
         },
         Rule : async (
             ruleName: string,
             ruleCallback,
         ) => {
-            const rulesScenarios: Array<() => void> = []
+            const rulesScenarios: ScenariiToRun = []
             const currentRule = FeatureStateDetector
                 .forFeature(feature, describeOptions?.excludeTags || [])
                 .checkIfRuleExists(ruleName)
-                
+
             await ruleCallback({
+                RuleBackground : (
+                    backgroundCallback: (op: BackgroundStepTest) => MaybePromise,
+                ) => {
+                    const background = checkIfBackgroundExistInParent({
+                        parent : currentRule,
+                        excludeTags : describeOptions?.excludeTags || [],
+                    })
+
+                    rulesScenarios.unshift({
+                        type : `Scenario`,
+                        fn : describeBackground({
+                            background,
+                            backgroundCallback,
+                        }),
+                    })
+                },
                 RuleScenario : (
                     scenarioDescription: string,
                     scenarioTestCallback: (op: StepTest) => MaybePromise,
@@ -93,14 +134,15 @@ export function describeFeature (
                         excludeTags : describeOptions?.excludeTags || [],
                     })
 
-                    rulesScenarios.push(
-                        describeScenario({
+                    rulesScenarios.push({
+                        type : `Scenario`,
+                        fn : describeScenario({
                             scenario,
                             scenarioTestCallback,
                             beforeEachScenarioHook,
                             afterEachScenarioHook,
                         }),
-                    )
+                    })
                 },
                 RuleScenarioOutline : (
                     scenarioDescription: string,
@@ -118,7 +160,7 @@ export function describeFeature (
                             scenarioTestCallback,
                             beforeEachScenarioHook,
                             afterEachScenarioHook,
-                        }),
+                        }).map((t) => ({ type : `ScenarioOutline`, fn : t })),
                     )
                 },
             })
@@ -134,7 +176,8 @@ export function describeFeature (
 
                         await afterAllScenarioHook()
                     })
-                    rulesScenarios.forEach((scenario) => scenario())
+
+                    describe.each(rulesScenarios)(`$type`, ({ fn }) => { fn() })
                 })
             })
         },
@@ -165,7 +208,7 @@ export function describeFeature (
             await afterAllScenarioHook()
         })
 
-        scenarioToRun.forEach((scenario) => scenario())
+        describe.each(scenarioToRun)(`$type`, ({ fn }) => { fn() })
         rulesToRun.forEach((rule) => rule())
     })
 }
