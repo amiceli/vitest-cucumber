@@ -1,3 +1,4 @@
+import { Background } from '../parser/Background'
 import { Rule } from '../parser/Rule'
 import { ScenarioParent } from '../parser/ScenarioParent'
 import { Feature } from '../parser/feature'
@@ -80,23 +81,31 @@ export class HookCalledAfterScenarioError extends Error {
 
 }
 
-export class ScenarioUnknowStepError extends Error {
+export class StepAbleUnknowStepError extends Error {
 
-    public constructor (scenario : Scenario, step : Step) {
-        super(`Scenario: ${scenario.description} \n ${step.type} ${step.details} doesn't exist`)
+    public constructor (stepable : Scenario | Background, step : Step) {
+        if (stepable instanceof Scenario) {
+            super(`Scenario: ${stepable.description} \n ${step.type} ${step.details} doesn't exist`)
+        } else {
+            super(`Background:\n ${step.type} ${step.details} doesn't exist`)
+        }
     }
 
 }
 
-export class ScenarioStepsNotCalledError extends Error {
+export class StepAbleStepsNotCalledError extends Error {
 
-    public constructor (scenario : Scenario) {
-        const steps = scenario
+    public constructor (stepable : Scenario | Background) {
+        const steps = stepable
             .getNoCalledSteps()
             .map((s: Step) =>  `\n ${s.type} ${s.details} was not called`)
             .join(``)
 
-        super(`Scenario: ${scenario.description}  ${steps}`)
+        if (stepable instanceof Background) {
+            super(`Background: ${steps}`)
+        } else {
+            super(`Scenario: ${stepable.description}  ${steps}`)
+        }
     }
 
 }

@@ -9,7 +9,7 @@ import {
 import { Feature } from "../../../parser/feature"
 import { Rule } from "../../../parser/Rule"
 import {
-    RuleNotCalledError, ScenarioNotCalledError, ScenarioStepsNotCalledError, 
+    RuleNotCalledError, ScenarioNotCalledError, StepAbleStepsNotCalledError, 
 } from "../../../errors/errors"
 import { Scenario } from "../../../parser/scenario"
 import { FeatureStateDetector } from "../../state-detectors/FeatureStateDetector"
@@ -79,6 +79,6 @@ test(`should detect uncalled scenario step`, () => {
     expect(() => {
         detectUncalledScenarioStep(scenario)
     }).toThrowError(
-        new ScenarioStepsNotCalledError(scenario),
+        new StepAbleStepsNotCalledError(scenario),
     )
 })
