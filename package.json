@@ -29,7 +29,7 @@
   "devDependencies": {
     "@amiceli/eslint-config-typescript": "^1.0.1",
     "@commitlint/cli": "^19.2.1",
-    "@commitlint/config-conventional": "^19.1.0",
+    "@commitlint/config-conventional": "^19.2.2",
     "@types/node": "^20.4.5",
     "@vitest/coverage-v8": "^1.0.3",
     "eslint-plugin-import": "^2.29.1",
