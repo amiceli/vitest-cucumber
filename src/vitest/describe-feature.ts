@@ -40,7 +40,8 @@ export function describeFeature (
     let afterEachScenarioHook: () => MaybePromise = () => { }
 
     const scenarioToRun: ScenariiToRun = []
-    const rulesToRun: Array<() => void> = []
+    const rulesToRun: ScenariiToRun = []
+    let featureBackground : ScenariiToRun[0] | null = null
 
     const descibeFeatureParams: FeatureDescriibeCallbackParams = {
         Background : (
@@ -51,13 +52,13 @@ export function describeFeature (
                 excludeTags : describeOptions?.excludeTags || [],
             })
 
-            scenarioToRun.unshift({
+            featureBackground = {
                 type : `Background`,
                 fn : describeBackground({
                     background,
                     backgroundCallback,
                 }),
-            })
+            }
         },
         Scenario : (
             scenarioDescription: string,
@@ -106,6 +107,8 @@ export function describeFeature (
             const currentRule = FeatureStateDetector
                 .forFeature(feature, describeOptions?.excludeTags || [])
                 .checkIfRuleExists(ruleName)
+            
+            let ruleBackground : ScenariiToRun[0] | null = null
 
             await ruleCallback({
                 RuleBackground : (
@@ -116,13 +119,13 @@ export function describeFeature (
                         excludeTags : describeOptions?.excludeTags || [],
                     })
 
-                    rulesScenarios.unshift({
-                        type : `Scenario`,
+                    ruleBackground = {
+                        type : `RuleBackground`,
                         fn : describeBackground({
                             background,
                             backgroundCallback,
                         }),
-                    })
+                    }
                 },
                 RuleScenario : (
                     scenarioDescription: string,
@@ -165,20 +168,37 @@ export function describeFeature (
                 },
             })
 
-            rulesToRun.push(() => {
-                describe(`Rule: ${ruleName}`, () => {
-                    beforeAll(async () => {
-                        await beforeAllScenarioHook()
-                    })
-                    afterAll(async () => {
-                        detectNotCalledRuleScenario(currentRule, describeOptions?.excludeTags || [])
-                        currentRule.isCalled = true
+            rulesToRun.push({
+                type : `Rule`,
+                fn : () => {
+                    describe(`Rule: ${ruleName}`, () => {
+                        beforeAll(async () => {
+                            await beforeAllScenarioHook()
+                        })
+                        afterAll(async () => {
+                            detectNotCalledRuleScenario(currentRule, describeOptions?.excludeTags || [])
+                            currentRule.isCalled = true
 
-                        await afterAllScenarioHook()
-                    })
+                            await afterAllScenarioHook()
+                        })
 
-                    describe.each(rulesScenarios)(`$type`, ({ fn }) => { fn() })
-                })
+                        const everythingRule : ScenariiToRun = []
+
+                        rulesScenarios.forEach((ruleScenario) => {
+                            if (featureBackground) {
+                                everythingRule.push(featureBackground)
+                            }
+                            if (ruleBackground) {
+                                everythingRule.push(ruleBackground)
+                            }
+                            everythingRule.push(ruleScenario)
+                        })
+
+                        console.debug(`everything rule : `, everythingRule)
+
+                        describe.each(everythingRule)(`$type`, ({ fn }) => {fn()})
+                    })
+                },
             })
         },
         BeforeEachScenario : (fn: () => MaybePromise) => {
@@ -208,7 +228,20 @@ export function describeFeature (
             await afterAllScenarioHook()
         })
 
-        describe.each(scenarioToRun)(`$type`, ({ fn }) => { fn() })
-        rulesToRun.forEach((rule) => rule())
+        let everything : ScenariiToRun = []
+
+        scenarioToRun.forEach((featureScenario) => {
+            if (featureBackground) {
+                everything.push(featureBackground)
+            }
+
+            everything.push(featureScenario)
+        })
+
+        everything = everything.concat(rulesToRun)
+
+        console.debug(`everything : `, everything)
+
+        describe.each(everything)(`$type`, ({ fn }) => {fn()})
     })
 }

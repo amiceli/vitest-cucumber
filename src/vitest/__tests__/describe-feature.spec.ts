@@ -346,6 +346,7 @@ describe(`Background run before scenario`, async () => {
                 Scenario: Simple rule scenario
                     Given I'm a rule scenario
                     Then  rule background is run before me
+                    And   feature background is run before me
 
     `
     await fs.writeFile(`${__dirname}/background.feature`, gherkin)
@@ -353,45 +354,49 @@ describe(`Background run before scenario`, async () => {
     const feature = await loadFeature(`./background.feature`)
 
     describeFeature(feature, ({ Background, Scenario, Rule }) => {
-        let callCount = 0
+        let featureBackgroundSpy = -1
 
         Background(({ Given }) => {
             Given(`I'm a background`,  async () => {
-                await new Promise((resolve) => {
-                    setTimeout(() => {
-                        callCount += 1
-                        resolve(null)
-                    }, 1000)
-                })
+                console.debug(`Feature Background`)
+                featureBackgroundSpy = 0
             })
         })
 
         Scenario(`Simple scenario`, ({ Given, Then }) => {
             Given(`I'm a scenario`, () => {
-                console.debug(`scenario given`)
-                expect(callCount).toEqual(1)
-                callCount += 1
+                console.debug(`Feature Scenario`)
+
+                expect(featureBackgroundSpy).toEqual(0)
+                featureBackgroundSpy += 1
             })
             Then(`background is run before me`, () => {
-                expect(callCount).toEqual(2)
+                expect(featureBackgroundSpy).toEqual(1)
             })
         })
 
         Rule(`background in rule`, ({ RuleBackground, RuleScenario }) => {
-            let ruleCall = 0
-            RuleBackground(({ Given }) => {
+            let ruleBackgroundSpy = -1
+
+            RuleBackground( ({ Given }) => {
                 Given(`I'm a background in a rule`, () => {
-                    expect(ruleCall).toEqual(0)
-                    ruleCall += 1
+                    console.debug(`Rule Background`)
+
+                    ruleBackgroundSpy = 0
                 })
             })
-            RuleScenario(`Simple rule scenario`, ({ Given, Then }) => {
+            RuleScenario(`Simple rule scenario`, ({ Given, Then, And }) => {
                 Given(`I'm a rule scenario`, () => {
-                    expect(ruleCall).toEqual(1)
-                    ruleCall += 1
+                    console.debug(`Rule Scenario`)
+                    expect(ruleBackgroundSpy).toEqual(0)
+                    ruleBackgroundSpy += 1
                 })
                 Then(`rule background is run before me`, () => {
-                    expect(ruleCall).toEqual(2)
+                    expect(ruleBackgroundSpy).toEqual(1)
+                })
+                And(`feature background is run before me`, () => {
+                    expect(ruleBackgroundSpy).toEqual(1)
+                    expect(featureBackgroundSpy).toEqual(0)
                 })
             })
         })
