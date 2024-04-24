@@ -194,8 +194,6 @@ export function describeFeature (
                             everythingRule.push(ruleScenario)
                         })
 
-                        console.debug(`everything rule : `, everythingRule)
-
                         describe.each(everythingRule)(`$type`, ({ fn }) => {fn()})
                     })
                 },
@@ -239,8 +237,6 @@ export function describeFeature (
         })
 
         everything = everything.concat(rulesToRun)
-
-        console.debug(`everything : `, everything)
 
         describe.each(everything)(`$type`, ({ fn }) => {fn()})
     })
