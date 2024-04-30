@@ -1,6 +1,6 @@
 {
   "name": "@amiceli/vitest-cucumber",
-  "version": "3.2.3",
+  "version": "3.2.4",
   "description": "vitest tools to use Gherkin feature in unit tests",
   "main": "dist/module.js",
   "files": [
@@ -31,7 +31,7 @@
     "@commitlint/cli": "^19.3.0",
     "@commitlint/config-conventional": "^19.2.2",
     "@types/node": "^20.4.5",
-    "@vitest/coverage-v8": "^1.0.3",
+    "@vitest/coverage-v8": "^1.5.3",
     "eslint-plugin-import": "^2.29.1",
     "husky": "^9.0.11",
     "lint-staged": "^15.2.2",
@@ -39,7 +39,7 @@
   },
   "dependencies": {
     "callsites": "^4.1.0",
-    "vitest": "^1.0.3"
+    "vitest": "^1.5.3"
   },
   "repository": {
     "type": "git",
