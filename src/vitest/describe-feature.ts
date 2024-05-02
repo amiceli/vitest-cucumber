@@ -152,7 +152,7 @@ export function describeFeature (
         },
     }
 
-    describe(feature.name, async () => {
+    describe(`Feature: ${feature.name}`, async () => {
         await featureFn(descibeFeatureParams)
 
         beforeAll(async () => {

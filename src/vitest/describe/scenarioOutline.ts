@@ -42,7 +42,7 @@ export function describeScenarioOutline (
                 .checkIfStepExists(stepType, stepDetails)
 
             scenarioStepsToRun.push({
-                key : `${stepType} ${stepDetails}`,
+                key : `${stepType}: ${stepDetails}`,
                 fn : scenarioStepCallback,
                 step : foundStep,
             })
@@ -67,7 +67,7 @@ export function describeScenarioOutline (
 
             return (
                 (steps) => () => {
-                    describe(scenario.description, () => {
+                    describe(`Scenario Outline: ${scenario.description}`, () => {
                         beforeAll(async () => {
                             await beforeEachScenarioHook()
                         })
@@ -80,7 +80,14 @@ export function describeScenarioOutline (
                             await afterEachScenarioHook()
                         })
 
-                        test.each(steps)(`$key`, async (scenarioStep) => {
+                        test.each(
+                            steps.map((s) => {
+                                return [
+                                    s.key,
+                                    s,
+                                ]
+                            }),
+                        )(`%s`, async (_, scenarioStep) => {
                             await scenarioStep.fn()
                             scenarioStep.step.isCalled = true
                         })
