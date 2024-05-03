@@ -42,7 +42,7 @@ export function describeScenario (
                 .checkIfStepExists(stepType, stepDetails)
  
             scenarioStepsToRun.push({
-                key : `${stepType}: ${stepDetails}`,
+                key : `${stepType} ${stepDetails}`,
                 fn : scenarioStepCallback,
                 step : foundStep,
             })
