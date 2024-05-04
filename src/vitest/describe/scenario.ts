@@ -60,7 +60,7 @@ export function describeScenario (
     scenarioTestCallback(scenarioStepsCallback)
 
     return function () {
-        describe(scenario.description, () => {
+        describe(`Scenario: ${scenario.description}`, () => {
             beforeAll(async () => {
                 await beforeEachScenarioHook()
             })
@@ -73,7 +73,14 @@ export function describeScenario (
                 await afterEachScenarioHook()
             })
 
-            test.each(scenarioStepsToRun)(`$key`, async (scenarioStep) => {
+            test.each(
+                scenarioStepsToRun.map((s) => {
+                    return [
+                        s.key,
+                        s,
+                    ]
+                }),
+            )(`%s`, async (_, scenarioStep) => {
                 await scenarioStep.fn()
                 scenarioStep.step.isCalled = true
             })
