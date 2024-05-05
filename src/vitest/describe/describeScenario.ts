@@ -1,5 +1,5 @@
 import {
-    beforeAll, afterAll, describe, test,
+    beforeAll, afterAll, test,
 } from "vitest"
 import {
     StepTest, MaybePromise, StepCallbackDefinition,
@@ -59,31 +59,29 @@ export function createScenarioDescribeHandler (
             
     scenarioTestCallback(scenarioStepsCallback)
 
-    return function () {
-        describe(`Scenario: ${scenario.description}`, () => {
-            beforeAll(async () => {
-                await beforeEachScenarioHook()
-            })
+    return function scenarioDescribe () {
+        beforeAll(async () => {
+            await beforeEachScenarioHook()
+        })
 
-            afterAll(async () => {
-                detectUncalledScenarioStep(scenario)
-    
-                scenario.isCalled = true
+        afterAll(async () => {
+            detectUncalledScenarioStep(scenario)
 
-                await afterEachScenarioHook()
-            })
+            scenario.isCalled = true
 
-            test.each(
-                scenarioStepsToRun.map((s) => {
-                    return [
-                        s.key,
-                        s,
-                    ]
-                }),
-            )(`%s`, async (_, scenarioStep) => {
-                await scenarioStep.fn()
-                scenarioStep.step.isCalled = true
-            })
+            await afterEachScenarioHook()
+        })
+
+        test.each(
+            scenarioStepsToRun.map((s) => {
+                return [
+                    s.key,
+                    s,
+                ]
+            }),
+        )(`%s`, async (_, scenarioStep) => {
+            await scenarioStep.fn()
+            scenarioStep.step.isCalled = true
         })
     }
 }
