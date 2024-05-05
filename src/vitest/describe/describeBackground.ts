@@ -1,8 +1,6 @@
+import { afterAll, test } from "vitest"
 import {
-    afterAll, describe, test, 
-} from "vitest"
-import {
-    MaybePromise, StepCallbackDefinition, BackgroundStepTest, 
+    MaybePromise, StepCallbackDefinition, BackgroundStepTest,
 } from "../types"
 import { Step } from "../../parser/step"
 import { ScenarioStateDetector } from "../state-detectors/ScenarioStateDetector"
@@ -26,7 +24,7 @@ export function createBackgroundDescribeHandler (
         backgroundCallback, 
     } : DescribeScenarioArgs,
 ) : () => void {
-    const scenarioStepsToRun : ScenarioSteps[]  = []
+    const backgroundStepsToRun : ScenarioSteps[]  = []
 
     const createScenarioStepCallback = (stepType: string): StepCallbackDefinition => {
         return (
@@ -37,7 +35,7 @@ export function createBackgroundDescribeHandler (
                 .forScenario(background)
                 .checkIfStepExists(stepType, stepDetails)
  
-            scenarioStepsToRun.push({
+            backgroundStepsToRun.push({
                 key : `${stepType} ${stepDetails}`,
                 fn : scenarioStepCallback,
                 step : foundStep,
@@ -53,17 +51,22 @@ export function createBackgroundDescribeHandler (
     backgroundCallback(scenarioStepsCallback)
 
     return function backgroundDescribe () {
-        describe(`Background`, () => {
-            afterAll(async () => {
-                detectUncalledScenarioStep(background)
-    
-                background.isCalled = true
-            })
+        afterAll(async () => {
+            detectUncalledScenarioStep(background)
 
-            test.each(scenarioStepsToRun)(`$key`, async (scenarioStep) => {
-                await scenarioStep.fn()
-                scenarioStep.step.isCalled = true
-            })
+            background.isCalled = true
+        })
+
+        test.each(
+            backgroundStepsToRun.map((s) => {
+                return [
+                    s.key,
+                    s,
+                ]
+            }),
+        )(`%s`, async (_, scenarioStep) => {
+            await scenarioStep.fn()
+            scenarioStep.step.isCalled = true
         })
     }
 }
