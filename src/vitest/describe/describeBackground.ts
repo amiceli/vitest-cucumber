@@ -20,7 +20,7 @@ type ScenarioSteps = {
     step : Step
 }
 
-export function describeBackground (
+export function createBackgroundDescribeHandler (
     { 
         background,
         backgroundCallback, 

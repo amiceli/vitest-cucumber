@@ -10,15 +10,15 @@ import {
     BackgroundStepTest,
 } from './types'
 import { Example } from "../parser/scenario"
-import { describeScenario } from "./describe/scenario"
-import { describeScenarioOutline } from "./describe/scenarioOutline"
+import { createScenarioDescribeHandler } from "./describe/describeScenario"
+import { createScenarioOutlineDescribeHandler } from "./describe/describeScenarioOutline"
 import {
     checkIfBackgroundExistInParent,
     checkScenarioInFeature, checkScenarioInRule, checkScenarioOutlineInFeature, checkScenarioOutlineInRule,
 } from "./state-detectors"
 import { FeatureStateDetector } from "./state-detectors/FeatureStateDetector"
 import { detectNotCalledRuleScenario, detectUnCalledScenarioAndRules } from "./describe/teardowns"
-import { describeBackground } from "./describe/background"
+import { createBackgroundDescribeHandler } from "./describe/describeBackground"
 
 export type DescribeFeatureOptions = {
     excludeTags? : string[]
@@ -54,7 +54,7 @@ export function describeFeature (
 
             featureBackground = {
                 type : `Background`,
-                fn : describeBackground({
+                fn : createBackgroundDescribeHandler({
                     background,
                     backgroundCallback,
                 }),
@@ -72,7 +72,7 @@ export function describeFeature (
 
             scenarioToRun.push({
                 type : `Scenario`,
-                fn : describeScenario({
+                fn : createScenarioDescribeHandler({
                     scenario,
                     scenarioTestCallback,
                     beforeEachScenarioHook,
@@ -91,7 +91,7 @@ export function describeFeature (
             })
 
             scenarioToRun.push(
-                ...describeScenarioOutline({
+                ...createScenarioOutlineDescribeHandler({
                     scenario,
                     scenarioTestCallback,
                     beforeEachScenarioHook,
@@ -121,7 +121,7 @@ export function describeFeature (
 
                     ruleBackground = {
                         type : `RuleBackground`,
-                        fn : describeBackground({
+                        fn : createBackgroundDescribeHandler({
                             background,
                             backgroundCallback,
                         }),
@@ -139,7 +139,7 @@ export function describeFeature (
 
                     rulesScenarios.push({
                         type : `Scenario`,
-                        fn : describeScenario({
+                        fn : createScenarioDescribeHandler({
                             scenario,
                             scenarioTestCallback,
                             beforeEachScenarioHook,
@@ -158,7 +158,7 @@ export function describeFeature (
                     })
 
                     rulesScenarios.push(
-                        ...describeScenarioOutline({
+                        ...createScenarioOutlineDescribeHandler({
                             scenario,
                             scenarioTestCallback,
                             beforeEachScenarioHook,

@@ -22,7 +22,7 @@ type ScenarioSteps = {
     step : Step
 }
 
-export function describeScenario (
+export function createScenarioDescribeHandler (
     { 
         scenario,
         scenarioTestCallback, 

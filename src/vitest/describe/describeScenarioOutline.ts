@@ -22,7 +22,7 @@ type ScenarioSteps = {
     step: Step
 }
 
-export function describeScenarioOutline (
+export function createScenarioOutlineDescribeHandler (
     {
         scenario,
         scenarioTestCallback,
