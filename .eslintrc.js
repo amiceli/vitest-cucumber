@@ -12,7 +12,7 @@ module.exports = {
     ],
     ignorePatterns : [
         "**/*.feature",
-        'scripts/cli-generate.cjs',
+        'scripts/cli-generate.ts',
     ],
     rules: {
         '@typescript-eslint/no-throw-literal': 'off',
