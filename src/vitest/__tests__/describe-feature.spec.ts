@@ -3,8 +3,9 @@ import { ScenarioOutline as ScenarioOutlineType, Scenario as ScenarioType } from
 import { Step, StepTypes } from "../../parser/step"
 import { describeFeature } from '../describe-feature'
 import {
+    BackgroundNotExistsError,
     FeatureUknowScenarioError,
-    IsScenarioOutlineError, NotScenarioOutlineError, ScenarioUnknowStepError,
+    IsScenarioOutlineError, NotScenarioOutlineError, StepAbleUnknowStepError,
 } from "../../errors/errors"
 import fs from 'fs/promises'
 import { loadFeature } from '../load-feature'
@@ -72,7 +73,7 @@ describe(`Check if scenario step exists`, () => {
             } catch (e) {
                 test(`[checkIfScenarioExists] handle step not in scenario`, () => {
                     expect(e).toEqual(
-                        new ScenarioUnknowStepError(
+                        new StepAbleUnknowStepError(
                             scenario,
                             new Step(StepTypes.BUT, `I use bad step`),
                         ),
@@ -329,5 +330,145 @@ describe(`teardowns to detect uncalled scenario and/or rule`, async () => {
                 Then(`my parent rule is called`, () => { })
             })
         })
+    })
+})
+
+describe(`Background run before scenario`, async () => {
+    const gherkin = `
+        Feature: Background run before scenario tests
+            Background:
+                Given I'm a background
+            Scenario: Simple scenario
+                Given I'm a scenario
+                Then  background is run before me
+            Rule: background in rule
+                Background:
+                    Given I'm a background in a rule
+                Scenario: Simple rule scenario
+                    Given I'm a rule scenario
+                    Then  rule background is run before me
+                    And   feature background is run before me
+
+    `
+    await fs.writeFile(`${__dirname}/background.feature`, gherkin)
+
+    const feature = await loadFeature(`./background.feature`)
+
+    describeFeature(feature, ({ Background, Scenario, Rule }) => {
+        let featureBackgroundSpy = -1
+
+        Background(({ Given }) => {
+            Given(`I'm a background`,  async () => {
+                console.debug(`Feature Background`)
+                featureBackgroundSpy = 0
+            })
+        })
+
+        Scenario(`Simple scenario`, ({ Given, Then }) => {
+            Given(`I'm a scenario`, () => {
+                console.debug(`Feature Scenario`)
+
+                expect(featureBackgroundSpy).toEqual(0)
+                featureBackgroundSpy += 1
+            })
+            Then(`background is run before me`, () => {
+                expect(featureBackgroundSpy).toEqual(1)
+            })
+        })
+
+        Rule(`background in rule`, ({ RuleBackground, RuleScenario }) => {
+            let ruleBackgroundSpy = -1
+
+            RuleBackground( ({ Given }) => {
+                Given(`I'm a background in a rule`, () => {
+                    console.debug(`Rule Background`)
+
+                    ruleBackgroundSpy = 0
+                })
+            })
+            RuleScenario(`Simple rule scenario`, ({ Given, Then, And }) => {
+                Given(`I'm a rule scenario`, () => {
+                    console.debug(`Rule Scenario`)
+                    expect(ruleBackgroundSpy).toEqual(0)
+                    ruleBackgroundSpy += 1
+                })
+                Then(`rule background is run before me`, () => {
+                    expect(ruleBackgroundSpy).toEqual(1)
+                })
+                And(`feature background is run before me`, () => {
+                    expect(ruleBackgroundSpy).toEqual(1)
+                    expect(featureBackgroundSpy).toEqual(0)
+                })
+            })
+        })
+    })
+
+    afterAll(async () => {
+        await fs.unlink(`${__dirname}/background.feature`)
+    })
+})
+
+describe(`Detect if feature contains background`, async () => {
+    const gherkin = `
+        Feature: Without background
+            Scenario: Simple scenario
+                Given I'm a scenario
+                Then  background is run before me
+    `
+    await fs.writeFile(`${__dirname}/no-background.feature`, gherkin)
+
+    const feature = await loadFeature(`./no-background.feature`)
+
+    describeFeature(feature, ({ Background, Scenario }) => {
+        expect(() => {
+            Background(({ Given }) => {
+                Given(`I'm a background`,  () => {})
+            })
+        }).toThrowError(
+            new BackgroundNotExistsError(feature),
+        )
+
+        Scenario(`Simple scenario`, ({ Given, Then }) => {
+            Given(`I'm a scenario`, () => {})
+            Then(`background is run before me`, () => {})
+        })
+    })
+
+    afterAll(async () => {
+        await fs.unlink(`${__dirname}/no-background.feature`)
+    })
+})
+
+describe(`Detect if rule contains background`, async () => {
+    const gherkin = `
+        Feature: Without background
+            Rule: example rule
+                Scenario: Simple scenario
+                    Given I'm a scenario
+                    Then  background is run before me
+    `
+    await fs.writeFile(`${__dirname}/rule-no-background.feature`, gherkin)
+
+    const feature = await loadFeature(`./rule-no-background.feature`)
+
+    describeFeature(feature, ({ Rule }) => {
+        Rule(`example rule`, ({ RuleBackground, RuleScenario }) => {
+            expect(() => {
+                RuleBackground(({ Given }) => {
+                    Given(`I'm a background`,  () => {})
+                })
+            }).toThrowError(
+                new BackgroundNotExistsError(feature.rules[0]),
+            )
+    
+            RuleScenario(`Simple scenario`, ({ Given, Then }) => {
+                Given(`I'm a scenario`, () => {})
+                Then(`background is run before me`, () => {})
+            })
+        })
+    })
+
+    afterAll(async () => {
+        await fs.unlink(`${__dirname}/rule-no-background.feature`)
     })
 })

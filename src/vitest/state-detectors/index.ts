@@ -1,3 +1,5 @@
+import { BackgroundNotExistsError } from "../../errors/errors"
+import { Background } from "../../parser/Background"
 import { Rule } from "../../parser/Rule"
 import { ScenarioParent } from "../../parser/ScenarioParent"
 import { Feature } from "../../parser/feature"
@@ -9,6 +11,11 @@ import { ScenarioStateDetector } from "./ScenarioStateDetector"
 type CheckScenarioArgs<T extends ScenarioParent> = {
     scenarioDescription : string,
     parent : T,
+    excludeTags : string []
+}
+
+type CheckBackgroundArgs = {
+    parent : ScenarioParent,
     excludeTags : string []
 }
 
@@ -66,4 +73,16 @@ export function checkScenarioOutlineInRule (args : CheckScenarioArgs<Rule>) : Sc
         .checkExemples()
 
     return scenario
+}
+
+export function checkIfBackgroundExistInParent (
+    args : CheckBackgroundArgs,
+) : Background {
+    const { background } = args.parent
+
+    if (!background) {
+        throw new BackgroundNotExistsError(args.parent)
+    }
+
+    return background
 }

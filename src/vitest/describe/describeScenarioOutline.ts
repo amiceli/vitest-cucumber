@@ -1,5 +1,5 @@
 import {
-    beforeAll, afterAll, describe, test,
+    beforeAll, afterAll, test,
 } from "vitest"
 import { Example, ScenarioOutline } from "../../parser/scenario"
 import { Step } from "../../parser/step"
@@ -22,7 +22,7 @@ type ScenarioSteps = {
     step: Step
 }
 
-export function describeScenarioOutline (
+export function createScenarioOutlineDescribeHandler (
     {
         scenario,
         scenarioTestCallback,
@@ -66,31 +66,29 @@ export function describeScenarioOutline (
             scenarioTestCallback(scenarioStepsCallback, exampleVariables)
 
             return (
-                (steps) => () => {
-                    describe(`Scenario Outline: ${scenario.description}`, () => {
-                        beforeAll(async () => {
-                            await beforeEachScenarioHook()
-                        })
+                (steps) => function scenarioOutlineDescribe () {
+                    beforeAll(async () => {
+                        await beforeEachScenarioHook()
+                    })
 
-                        afterAll(async () => {
-                            detectUncalledScenarioStep(scenario)
+                    afterAll(async () => {
+                        detectUncalledScenarioStep(scenario)
 
-                            scenario.isCalled = true
+                        scenario.isCalled = true
 
-                            await afterEachScenarioHook()
-                        })
+                        await afterEachScenarioHook()
+                    })
 
-                        test.each(
-                            steps.map((s) => {
-                                return [
-                                    s.key,
-                                    s,
-                                ]
-                            }),
-                        )(`%s`, async (_, scenarioStep) => {
-                            await scenarioStep.fn()
-                            scenarioStep.step.isCalled = true
-                        })
+                    test.each(
+                        steps.map((s) => {
+                            return [
+                                s.key,
+                                s,
+                            ]
+                        }),
+                    )(`%s`, async (_, scenarioStep) => {
+                        await scenarioStep.fn()
+                        scenarioStep.step.isCalled = true
                     })
                 }
             )([...scenarioStepsToRun])

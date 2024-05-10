@@ -1,8 +1,9 @@
+import { Background } from '../parser/Background'
 import { Rule } from '../parser/Rule'
 import { ScenarioParent } from '../parser/ScenarioParent'
 import { Feature } from '../parser/feature'
 import { Scenario, ScenarioOutline } from '../parser/scenario'
-import { Step } from '../parser/step'
+import { Step, StepTypes } from '../parser/step'
 
 export class NotScenarioOutlineError extends Error {
 
@@ -80,23 +81,31 @@ export class HookCalledAfterScenarioError extends Error {
 
 }
 
-export class ScenarioUnknowStepError extends Error {
+export class StepAbleUnknowStepError extends Error {
 
-    public constructor (scenario : Scenario, step : Step) {
-        super(`Scenario: ${scenario.description} \n ${step.type} ${step.details} doesn't exist`)
+    public constructor (stepable : Scenario | Background, step : Step) {
+        if (stepable instanceof Scenario) {
+            super(`Scenario: ${stepable.description} \n ${step.type} ${step.details} doesn't exist`)
+        } else {
+            super(`Background:\n ${step.type} ${step.details} doesn't exist`)
+        }
     }
 
 }
 
-export class ScenarioStepsNotCalledError extends Error {
+export class StepAbleStepsNotCalledError extends Error {
 
-    public constructor (scenario : Scenario) {
-        const steps = scenario
+    public constructor (stepable : Scenario | Background) {
+        const steps = stepable
             .getNoCalledSteps()
             .map((s: Step) =>  `\n ${s.type} ${s.details} was not called`)
             .join(``)
 
-        super(`Scenario: ${scenario.description}  ${steps}`)
+        if (stepable instanceof Background) {
+            super(`Background: ${steps}`)
+        } else {
+            super(`Scenario: ${stepable.description}  ${steps}`)
+        }
     }
 
 }
@@ -131,6 +140,34 @@ export class FeatureFileNotFoundError extends Error {
 
     public constructor (path : string) {
         super(`feature file ${path} doesn't exist`)
+    }
+
+}
+
+export class NotAllowedBackgroundStepTypeError extends Error {
+
+    public constructor (type : StepTypes) {
+        super(`${type} step isn't allow in Background`)
+    }
+
+}
+
+export class TwiceBackgroundError extends Error {
+
+    public constructor () {
+        super(`A background already exists`)
+    }
+
+}
+
+export class BackgroundNotExistsError extends Error {
+
+    public constructor (parent: ScenarioParent) {
+        if (parent instanceof Feature) {
+            super(`Feature: ${parent.name} hasn't background`)
+        } else {
+            super(`Rule: ${parent.name} hasn't background`)
+        }
     }
 
 }

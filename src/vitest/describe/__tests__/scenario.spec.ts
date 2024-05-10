@@ -3,8 +3,8 @@ import {
 } from 'vitest'
 import { Scenario, ScenarioOutline } from '../../../parser/scenario'
 import { Step, StepTypes } from '../../../parser/step'
-import { describeScenario } from '../scenario'
-import { describeScenarioOutline } from '../scenarioOutline'
+import { createScenarioDescribeHandler } from '../describeScenario'
+import { createScenarioOutlineDescribeHandler } from '../describeScenarioOutline'
 
 describe(`describeScenario`, () => {
 
@@ -14,7 +14,7 @@ describe(`describeScenario`, () => {
         new Step(StepTypes.GIVEN, `given`),
     )
 
-    const scenarioTest = describeScenario({
+    const scenarioTest = createScenarioDescribeHandler({
         scenario,
         scenarioTestCallback : ({ Given }) => {
             Given(`given`, () => {})
@@ -51,7 +51,7 @@ describe(`describeScenarioOutline`, () => {
         new Step(StepTypes.GIVEN, `given <test>`),
     )
 
-    const scenarioTest = describeScenarioOutline({
+    const scenarioTest = createScenarioOutlineDescribeHandler({
         scenario,
         scenarioTestCallback : ({ Given }) => {
             Given(`given <test>`, () => {})
