@@ -16,9 +16,9 @@ It's enough you don't to add or update a config file.
 
 ## Examples
 
-In [examples](https://github.com/amiceli/vitest-cucumber/tree/docs/add-examples/examples) folder you can read tests using `vitest-cucumber` in a Vue project.
+You can take a look on [vitest-cucumber-example](https://github.com/amiceli/vitest-cucumber-example).
 
-`vitest-cucumber` isn't only for Vue, it's just an example ;).
+It's a Vue example project using **vitest-cucumber**.
 
 ## Usage
 
