@@ -1,6 +1,6 @@
 # vitest-cucumber
 
-### I'm working on it but you can take a look on [docs website](https://vitest-cucumber.miceli.click/).
+###  [docs website](https://vitest-cucumber.miceli.click/).
 
 ---
 
@@ -94,7 +94,7 @@ You can use it like this :
 
 An example : 
 
-    node node_modules/@amiceli/vitest-cucumber/scripts/cli-generate.cjs features/example.feature src/__tests__/example.spec.ts
+    node node_modules/@amiceli/vitest-cucumber/dist/cli-generate.js  features/example.feature src/__tests__/example.spec.ts
 
 You just have to format spec file after this script ;).
 
