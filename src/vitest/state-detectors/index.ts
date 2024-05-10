@@ -1,3 +1,4 @@
+import { BackgroundNotExistsError } from "../../errors/errors"
 import { Background } from "../../parser/Background"
 import { Rule } from "../../parser/Rule"
 import { ScenarioParent } from "../../parser/ScenarioParent"
@@ -80,7 +81,7 @@ export function checkIfBackgroundExistInParent (
     const { background } = args.parent
 
     if (!background) {
-        throw `empty`
+        throw new BackgroundNotExistsError(args.parent)
     }
 
     return background

@@ -3,6 +3,7 @@ import { ScenarioOutline as ScenarioOutlineType, Scenario as ScenarioType } from
 import { Step, StepTypes } from "../../parser/step"
 import { describeFeature } from '../describe-feature'
 import {
+    BackgroundNotExistsError,
     FeatureUknowScenarioError,
     IsScenarioOutlineError, NotScenarioOutlineError, StepAbleUnknowStepError,
 } from "../../errors/errors"
@@ -404,5 +405,70 @@ describe(`Background run before scenario`, async () => {
 
     afterAll(async () => {
         await fs.unlink(`${__dirname}/background.feature`)
+    })
+})
+
+describe(`Detect if feature contains background`, async () => {
+    const gherkin = `
+        Feature: Without background
+            Scenario: Simple scenario
+                Given I'm a scenario
+                Then  background is run before me
+    `
+    await fs.writeFile(`${__dirname}/no-background.feature`, gherkin)
+
+    const feature = await loadFeature(`./no-background.feature`)
+
+    describeFeature(feature, ({ Background, Scenario }) => {
+        expect(() => {
+            Background(({ Given }) => {
+                Given(`I'm a background`,  () => {})
+            })
+        }).toThrowError(
+            new BackgroundNotExistsError(feature),
+        )
+
+        Scenario(`Simple scenario`, ({ Given, Then }) => {
+            Given(`I'm a scenario`, () => {})
+            Then(`background is run before me`, () => {})
+        })
+    })
+
+    afterAll(async () => {
+        await fs.unlink(`${__dirname}/no-background.feature`)
+    })
+})
+
+describe(`Detect if rule contains background`, async () => {
+    const gherkin = `
+        Feature: Without background
+            Rule: example rule
+                Scenario: Simple scenario
+                    Given I'm a scenario
+                    Then  background is run before me
+    `
+    await fs.writeFile(`${__dirname}/rule-no-background.feature`, gherkin)
+
+    const feature = await loadFeature(`./rule-no-background.feature`)
+
+    describeFeature(feature, ({ Rule }) => {
+        Rule(`example rule`, ({ RuleBackground, RuleScenario }) => {
+            expect(() => {
+                RuleBackground(({ Given }) => {
+                    Given(`I'm a background`,  () => {})
+                })
+            }).toThrowError(
+                new BackgroundNotExistsError(feature.rules[0]),
+            )
+    
+            RuleScenario(`Simple scenario`, ({ Given, Then }) => {
+                Given(`I'm a scenario`, () => {})
+                Then(`background is run before me`, () => {})
+            })
+        })
+    })
+
+    afterAll(async () => {
+        await fs.unlink(`${__dirname}/rule-no-background.feature`)
     })
 })
