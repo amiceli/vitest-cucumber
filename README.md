@@ -90,7 +90,7 @@ Since `3.2.2` vitest-cucumber provide a script to generate spec file from featur
 
 You can use it like this : 
 
-    node node_modules/@amiceli/vitest-cucumber/scripts/cli-generate.cjs <path-to-feature> <path-to-spec>
+    node node_modules/@amiceli/vitest-cucumber/dist/cli-generate.js <path-to-feature> <path-to-spec>
 
 An example : 
 
@@ -188,6 +188,10 @@ And next test :
     "ratio": 2,
 }
 ~~~
+
+### Background
+
+Take a look for [background doc](https://vitest-cucumber.miceli.click/features/background).
 
 ### Rule
 
