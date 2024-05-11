@@ -1,6 +1,7 @@
 import { Rule } from "../../parser/Rule"
 import { StepAble } from "../../parser/Stepable"
 import { Feature } from "../../parser/feature"
+import { Step } from "../../parser/step"
 import { FeatureStateDetector } from "../state-detectors/FeatureStateDetector"
 import { RuleStateDetector } from "../state-detectors/RuleStateDetector"
 import { ScenarioStateDetector } from "../state-detectors/ScenarioStateDetector"
@@ -27,8 +28,8 @@ export function detectNotCalledRuleScenario (
         .checkNotCalledScenario()
 }
 
-export function detectUncalledScenarioStep (scenario : StepAble) {
+export function detectUncalledScenarioStep (scenario : StepAble, steps : Step[]) {
     ScenarioStateDetector
         .forScenario(scenario)
-        .checkIfStepWasCalled()
+        .checkIfStepWasCalled(steps)
 }

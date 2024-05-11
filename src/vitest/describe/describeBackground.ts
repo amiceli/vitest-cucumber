@@ -48,10 +48,13 @@ export function createBackgroundDescribeHandler (
             
     backgroundCallback(scenarioStepsCallback)
 
-    return function backgroundDescribe () {
-        afterAll(async () => {
-            detectUncalledScenarioStep(background)
+    detectUncalledScenarioStep(
+        background,
+        backgroundStepsToRun.map((s) => s.step),
+    )
 
+    return function backgroundDescribe () {
+        afterAll(() => {
             background.isCalled = true
         })
 

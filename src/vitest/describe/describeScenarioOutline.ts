@@ -63,6 +63,11 @@ export function createScenarioOutlineDescribeHandler (
             scenarioStepsToRun = []
             scenarioTestCallback(scenarioStepsCallback, exampleVariables)
 
+            detectUncalledScenarioStep(
+                scenario,
+                scenarioStepsToRun.map((s) => s.step),
+            )
+
             return (
                 (steps) => function scenarioOutlineDescribe () {
                     beforeAll(async () => {
@@ -70,8 +75,6 @@ export function createScenarioOutlineDescribeHandler (
                     })
 
                     afterAll(async () => {
-                        detectUncalledScenarioStep(scenario)
-
                         scenario.isCalled = true
 
                         await afterEachScenarioHook()

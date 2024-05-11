@@ -5,6 +5,9 @@ import { Scenario, ScenarioOutline } from '../../../parser/scenario'
 import { Step, StepTypes } from '../../../parser/step'
 import { createScenarioDescribeHandler } from '../describeScenario'
 import { createScenarioOutlineDescribeHandler } from '../describeScenarioOutline'
+import { createBackgroundDescribeHandler } from '../describeBackground'
+import { StepAbleStepsNotCalledError } from '../../../errors/errors'
+import { Background } from '../../../parser/Background'
 
 describe(`describeScenario`, () => {
 
@@ -73,4 +76,69 @@ describe(`describeScenarioOutline`, () => {
     scenarioTest.forEach((cb) => {
         cb()
     })
+})
+
+test(`describeScenario - detect steps not called`, () => {
+    const scenario = new Scenario(`test`)
+    const givenStep = new Step(StepTypes.GIVEN, `given`)
+    const thenStep = new Step(StepTypes.THEN, `then`)
+
+    scenario.addStep(givenStep)
+    scenario.addStep(thenStep)
+
+    expect(() => {
+        createScenarioDescribeHandler({
+            scenario,
+            scenarioTestCallback : ({ Then }) => {
+                Then(`then`, () => {})
+            },
+            beforeEachScenarioHook : () => {},
+            afterEachScenarioHook : () => {},
+        })
+    }).toThrowError(
+        new StepAbleStepsNotCalledError(scenario),
+    )
+})
+
+test(`describeBackground - detect steps not called`, () => {
+    const background = new Background()
+    const givenStep = new Step(StepTypes.GIVEN, `given`)
+    const andStep = new Step(StepTypes.AND, `and`)
+
+    background.addStep(givenStep)
+    background.addStep(andStep)
+
+    expect(() => {
+        createBackgroundDescribeHandler({
+            background,
+            backgroundCallback : ({ Given }) => {
+                Given(`given`, () => {})
+            },
+            // beforeEachScenarioHook : () => {},
+            // afterEachScenarioHook : () => {},
+        })
+    }).toThrowError(
+        new StepAbleStepsNotCalledError(background),
+    )
+})
+
+test(`describeScenarioOutline - detect steps not called`, () => {
+    const scenario = new ScenarioOutline(`test`)
+    scenario.examples.push(
+        { test : `test` },
+        { test : `test 2` },
+    )
+    const givenStep = new Step(StepTypes.GIVEN, `given <test>`)
+    scenario.addStep(givenStep)
+
+    expect(() => {
+        createScenarioOutlineDescribeHandler({
+            scenario,
+            scenarioTestCallback : () => {},
+            beforeEachScenarioHook : () => {},
+            afterEachScenarioHook : () => {},
+        })
+    }).toThrowError(
+        new StepAbleStepsNotCalledError(scenario),
+    )
 })
