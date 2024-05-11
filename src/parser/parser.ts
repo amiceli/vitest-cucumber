@@ -131,9 +131,9 @@ export class GherkinParser {
 
     private addScenarioToParent (scenario : Scenario) {
         if (this.currentRule) {
-            this.currentRule.scenarii.push(scenario)
+            this.currentRule.addScenario(scenario)
         } else {
-            this.currentFeature.scenarii.push(scenario)
+            this.currentFeature.addScenario(scenario)
         }
     }
 

@@ -16,7 +16,7 @@ describe(`state detector utils`, () => {
             const feature = new Feature(`example`)
             const scenario = new Scenario(`good`)
     
-            feature.scenarii.push(scenario)
+            feature.addScenario(scenario)
     
             expect(() => {
                 checkScenarioInFeature({
@@ -44,8 +44,8 @@ describe(`state detector utils`, () => {
             const scenarioOutline = new ScenarioOutline(`outline`)
             const scenario = new Scenario(`scenario`)
     
-            feature.scenarii.push(scenarioOutline)
-            feature.scenarii.push(scenario)
+            feature.addScenario(scenarioOutline)
+            feature.addScenario(scenario)
     
             expect(() => {
                 checkScenarioInFeature({
@@ -76,7 +76,7 @@ describe(`state detector utils`, () => {
             scenario.examples.push({ test : `ok ` })
             scenario.addStep(new Step(StepTypes.GIVEN, `awesome <test>`))
     
-            feature.scenarii.push(scenario)
+            feature.addScenario(scenario)
     
             expect(() => {
                 checkScenarioOutlineInFeature({
@@ -107,8 +107,8 @@ describe(`state detector utils`, () => {
             scenarioOutline.examples.push({ test : `ok ` })
             scenarioOutline.addStep(new Step(StepTypes.GIVEN, `awesome <test>`))
     
-            feature.scenarii.push(scenarioOutline)
-            feature.scenarii.push(scenario)
+            feature.addScenario(scenarioOutline)
+            feature.addScenario(scenario)
     
             expect(() => {
                 checkScenarioOutlineInFeature({
@@ -145,9 +145,10 @@ describe(`state detector utils`, () => {
             missingVariablesValue.addStep(new Step(StepTypes.GIVEN, `awesome <test>`))
             perfectOutline.addStep(new Step(StepTypes.GIVEN, `awesome <test>`))
 
-            feature.scenarii.push(
-                withoutExample, missingExampleInStep, perfectOutline, missingVariablesValue,
-            )
+            feature.addScenario(withoutExample)
+            feature.addScenario(missingExampleInStep)
+            feature.addScenario(perfectOutline)
+            feature.addScenario(missingVariablesValue)
     
             expect(() => {
                 checkScenarioOutlineInFeature({

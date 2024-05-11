@@ -8,7 +8,7 @@ export abstract class ScenarioParent extends Taggable {
 
     public readonly name: string
 
-    public readonly scenarii : Scenario[] = []
+    public readonly _scenarii : Scenario[] = []
 
     public background : Background | null = null
 
@@ -43,6 +43,14 @@ export abstract class ScenarioParent extends Taggable {
         return this.scenarii
             .filter((scenario : Scenario) => scenario.isCalled === true)
             .length > 0
+    }
+
+    public get scenarii (): Readonly<Scenario[]> {
+        return this._scenarii
+    }
+
+    public addScenario (scenario: Scenario) {
+        this._scenarii.push(scenario)
     }
 
 }

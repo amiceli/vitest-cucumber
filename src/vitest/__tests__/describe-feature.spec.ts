@@ -20,7 +20,8 @@ describe(`Scenario with bad type`, () => {
     scenarioOutline.addStep(new Step(StepTypes.GIVEN, `A simple step`))
     scenario.addStep(new Step(StepTypes.GIVEN, `A simple step`))
 
-    feature.scenarii.push(scenarioOutline, scenario)
+    feature.addScenario(scenarioOutline)
+    feature.addScenario(scenario)
 
     describeFeature(feature, ({ Scenario, ScenarioOutline }) => {
         try {
@@ -62,7 +63,7 @@ describe(`Check if scenario step exists`, () => {
     const scenario = new ScenarioType(`Example `)
 
     scenario.addStep(new Step(StepTypes.WHEN, `Simple when`))
-    featire.scenarii.push(scenario)
+    featire.addScenario(scenario)
 
     describeFeature(featire, ({ Scenario }) => {
         Scenario(scenario.description, ({ When, But }) => {
@@ -109,7 +110,7 @@ describe(`Async scenario hooks`, () => {
     scenario.addStep(new Step(StepTypes.GIVEN, `Hooks are async`))
     scenario.addStep(new Step(StepTypes.THEN, `I wait hooks are finished`))
 
-    feature.scenarii.push(scenario)
+    feature.addScenario(scenario)
 
     type ResolveArgs = (
         resolve: (value: void | PromiseLike<void>) => void
@@ -188,7 +189,8 @@ describe(`Scneario hooks`, () => {
     second.addStep(new Step(StepTypes.THEN, `AfterEachScenario should be called`))
     second.addStep(new Step(StepTypes.AND, `AfterAllScenarios should not  be called`))
 
-    feature.scenarii.push(first, second)
+    feature.addScenario(first)
+    feature.addScenario(second)
 
     const spyBeforeEachScenario = vi.fn()
     const spyBeforeAllScenarios = vi.fn()
@@ -243,7 +245,7 @@ describe(`Scenario steps are executed one after one`, () => {
     scenario.addStep(new Step(StepTypes.WHEN, `I use a timeout`))
     scenario.addStep(new Step(StepTypes.THEN, `The count should be 2`))
 
-    feature.scenarii.push(scenario)
+    feature.addScenario(scenario)
 
     describeFeature(feature, ({ Scenario }) => {
         Scenario(`Step one after one`, ({ Given, And, When, Then }) => {

@@ -17,7 +17,7 @@ describe(`ScenarioOutline without variables in step`, () => {
         { height : 100 },
     )
 
-    feature.scenarii.push(scenario)
+    feature.addScenario(scenario)
 
     describeFeature(feature, ({ ScenarioOutline }) => {
         try {
@@ -46,7 +46,7 @@ describe(`ScenarioOutline with empty examples`, () => {
 
     scenario.addStep(new Step(StepTypes.GIVEN, `I forgot to see examples`))
 
-    feature.scenarii.push(scenario)
+    feature.addScenario(scenario)
 
     describeFeature(feature, ({ ScenarioOutline }) => {
         try {
@@ -76,7 +76,7 @@ describe(`ScnearioOutline without variables`, () => {
 
     scenario.examples.push({ height : undefined })
 
-    feature.scenarii.push(scenario)
+    feature.addScenario(scenario)
 
     describeFeature(feature, ({ ScenarioOutline }) => {
         try {
@@ -112,7 +112,7 @@ describe(`ScnearioOutline examples use N times in Rule`, () => {
     )
 
     const rule = new RuleType(`Example rule`)
-    rule.scenarii.push(scenario)
+    rule.addScenario(scenario)
     feature.rules.push(rule)
 
     let examplesStepCount = 0
@@ -150,7 +150,7 @@ describe(`ScenarioOutline examples use N times`, () => {
         { width : 200, height : 400 },
     )
 
-    feature.scenarii.push(scenario)
+    feature.addScenario(scenario)
     let examplesStepCount = 0
 
     describeFeature(feature, ({ ScenarioOutline, AfterEachScenario }) => {
@@ -179,7 +179,7 @@ describe(`ScenarioOutline without Examples`, () => {
     scenario.addStep(new Step(StepTypes.GIVEN, `I forgot to see examples`))
     scenario.missingExamplesKeyword = true
 
-    feature.scenarii.push(scenario)
+    feature.addScenario(scenario)
 
     describeFeature(feature, ({ ScenarioOutline }) => {
         try {
@@ -219,7 +219,7 @@ describe(`ScenarioOutline with Examples`, () => {
     scenarioOutline.addStep(new Step(StepTypes.THEN, `I can make a <sum>`))
 
 
-    feature.scenarii.push(scenarioOutline)
+    feature.addScenario(scenarioOutline)
 
     describeFeature(feature, ({ ScenarioOutline, AfterEachScenario, AfterAllScenarios }) => {
         let scenarioOutlineCount = 0

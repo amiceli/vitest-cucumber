@@ -42,7 +42,8 @@ test(`should check not called scenario`, async () => {
     const secondScenario = new Scenario(`Me I am uncalled`)
 
     scenario.isCalled = true
-    feature.scenarii.push(scenario, secondScenario)
+    feature.addScenario(scenario)
+    feature.addScenario(secondScenario)
 
     expect(() => {
         detectUnCalledScenarioAndRules(feature, [`test`])
@@ -59,7 +60,8 @@ test(`should detect rule not called scenario`, () => {
     const secondScenario = new Scenario(`uncalled scenario`)
 
     scenario.isCalled = true
-    rule.scenarii.push(scenario, secondScenario)
+    rule.addScenario(scenario)
+    rule.addScenario(secondScenario)
 
     expect(() => {
         detectNotCalledRuleScenario(rule, [`ignored`])

@@ -24,7 +24,7 @@ describe(`Models`, () => {
             const feature = new Feature(`Awesome`)
             const scenario = new Scenario(`test`)
     
-            feature.scenarii.push(scenario)
+            feature.addScenario(scenario)
     
             expect(
                 feature.getScenarioByName(`test`),
@@ -35,7 +35,7 @@ describe(`Models`, () => {
             const feature = new Feature(`Awesome`)
             const scenario = new Scenario(`test`)
 
-            feature.scenarii.push(scenario)
+            feature.addScenario(scenario)
             
             expect(feature.haveAlreadyCalledScenario()).toBeFalsy()
 
@@ -53,8 +53,8 @@ describe(`Models`, () => {
             expect(outline.examples).toEqual([])
             outline.examples = [{ test : [`yes`, `no`] }]
 
-            feature.scenarii.push(scenario)
-            feature.scenarii.push(outline)
+            feature.addScenario(scenario)
+            feature.addScenario(outline)
 
             expect(feature.getScenarioExample(`outline`)).toEqual(outline.examples)
             expect(feature.getScenarioExample(`test`)).toBeNull()
@@ -111,7 +111,7 @@ describe(`Models`, () => {
             const rule = new Rule(`Awesome`)
             const scenario = new Scenario(`test`)
     
-            rule.scenarii.push(scenario)
+            rule.addScenario(scenario)
     
             expect(
                 rule.getScenarioByName(`test`),
@@ -122,7 +122,7 @@ describe(`Models`, () => {
             const rule = new Rule(`Awesome`)
             const scenario = new Scenario(`test`)
 
-            rule.scenarii.push(scenario)
+            rule.addScenario(scenario)
             
             expect(rule.haveAlreadyCalledScenario()).toBeFalsy()
 
@@ -140,8 +140,8 @@ describe(`Models`, () => {
             expect(outline.examples).toEqual([])
             outline.examples = [{ test : [`yes`, `no`] }]
 
-            rule.scenarii.push(scenario)
-            rule.scenarii.push(outline)
+            rule.addScenario(scenario)
+            rule.addScenario(outline)
 
             expect(rule.getScenarioExample(`outline`)).toEqual(outline.examples)
             expect(rule.getScenarioExample(`test`)).toBeNull()
