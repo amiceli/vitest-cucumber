@@ -24,7 +24,9 @@ export abstract class StepAble extends Taggable {
         return this._steps.filter((s) => s.isCalled === false)
     }
 
-    public addStep (step : Step) {
+    public addStep (step: Step) {
+        step.setParent(this)
+
         this._steps.push(step)
     }
 
@@ -32,12 +34,8 @@ export abstract class StepAble extends Taggable {
         return this._steps
     }
 
-    public get parent () : ScenarioParent {
-        if (this._parent) {
-            return this._parent
-        }
-
-        throw new Error(`StepAble parent is undefined`)
+    public get parent () : ScenarioParent | undefined {
+        return this._parent
     }
 
     public setParent (parent: ScenarioParent) {

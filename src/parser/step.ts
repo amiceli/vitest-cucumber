@@ -1,3 +1,4 @@
+import { StepAble } from "./Stepable"
 
 export enum StepTypes {
     THEN = `Then`,
@@ -14,11 +15,21 @@ export class Step {
     public readonly details : string
 
     public isCalled : boolean
+    
+    private _parent : StepAble | undefined = undefined
 
     public constructor (type : StepTypes, details : string) {
         this.details = details
         this.type = type
         this.isCalled = false
+    }
+
+    public setParent (parent: StepAble) {
+        this._parent = parent
+    }
+
+    public get parent (): StepAble | undefined {
+        return this._parent
     }
 
 }

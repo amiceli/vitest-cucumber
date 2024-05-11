@@ -1,7 +1,7 @@
 import { Feature } from "../feature"
 import { Rule } from "../Rule"
 import {
-    describe, test, expect, 
+    describe, test, expect,
 } from "vitest"
 import { Scenario, ScenarioOutline } from "../scenario"
 import { Step, StepTypes } from "../step"
@@ -17,7 +17,25 @@ describe(`Models`, () => {
     
             expect(feature.name).toEqual(`Awesome`)
             expect(feature.scenarii.length).toEqual(0)
-            expect(feature.background).toBeNull()
+            expect(feature.rules.length).toEqual(0)
+            expect(feature.background).toBeUndefined()
+        })
+
+        test(`Add StepAble to Feature`, () => {
+            const feature = new Feature(`Awesome`)
+
+            const scenario = new Scenario(`test`)
+            const scenarioOutline = new ScenarioOutline(`outline`)
+            const background = new Background()
+
+            feature.addScenario(scenario)
+            feature.addScenario(scenarioOutline)
+            feature.setBackground(background)
+
+            expect(feature.scenarii.length).toBe(2)
+            expect(scenario.parent).toEqual(feature)
+            expect(scenarioOutline.parent).toEqual(feature)
+            expect(background.parent).toEqual(feature)
         })
     
         test(`Find Feature scneario by name`, () => {
@@ -60,11 +78,21 @@ describe(`Models`, () => {
             expect(feature.getScenarioExample(`test`)).toBeNull()
         })
 
+        test(`Add Rule to Feature`, () => {
+            const feature = new Feature(`Awesome`)
+            const rule = new Rule(`rule`)
+
+            feature.addRule(rule)
+
+            expect(rule.parent).toEqual(feature)
+            expect(feature.rules.length).toBe(1)
+        })
+
         test(`Get rule by name`, () => {
             const feature = new Feature(`Awesome`)
             const rule = new Rule(`rule`)
 
-            feature.rules.push(rule)
+            feature.addRule(rule)
 
             expect(feature.getRuleByName(`rule`)).toEqual(rule)
         })
@@ -76,10 +104,10 @@ describe(`Models`, () => {
             const secondRule = new Rule(`second rule`)
             secondRule.isCalled = false
 
-            feature.rules.push(rule)
+            feature.addRule(rule)
             expect(feature.getFirstRuleNotCalled([])).toBeUndefined()
             
-            feature.rules.push(secondRule)
+            feature.addRule(secondRule)
             expect(feature.getFirstRuleNotCalled([])).toEqual(secondRule)
         })
 
@@ -90,10 +118,10 @@ describe(`Models`, () => {
             const secondRule = new Rule(`second rule`)
             secondRule.isCalled = true
 
-            feature.rules.push(rule)
+            feature.addRule(rule)
             expect(feature.haveAlreadyCalledRule()).toBeFalsy()
 
-            feature.rules.push(secondRule)
+            feature.addRule(secondRule)
             expect(feature.haveAlreadyCalledRule()).toBeTruthy()
         })
     })
@@ -101,10 +129,16 @@ describe(`Models`, () => {
     describe(`Rule`, () => {
         test(`Rule initialize`, () => {
             const rule = new Rule(`Awesome`)
+            const feature = new Feature(`awesome`)
     
             expect(rule.name).toEqual(`Awesome`)
             expect(rule.scenarii.length).toEqual(0)
-            expect(rule.background).toBeNull()
+            expect(rule.background).toBeUndefined()
+            expect(rule.parent).toBeUndefined()
+
+            rule.setParent(feature)
+
+            expect(rule.parent).toEqual(feature)
         })
     
         test(`Find Rule scneario by name`, () => {
@@ -152,12 +186,21 @@ describe(`Models`, () => {
         test(`StepAble parent`, () => {
             const stepable : StepAble = new Background()
 
-            expect(() => {
-                console.debug(stepable.parent.name)
-            }).toThrowError(new Error(`StepAble parent is undefined`))
+            expect(stepable.parent).toBeUndefined()
 
             stepable.setParent(new Feature(`test`))
-            expect(stepable.parent.name).toEqual(`test`)
+            expect(stepable.parent?.name).toEqual(`test`)
+        })
+        test(`Add step to StepAble`, () => {
+            const stepable: StepAble = new Scenario(`test`)
+            const step = new Step(StepTypes.GIVEN, `test`)
+
+            expect(step.parent).toBeUndefined()
+
+            stepable.addStep(step)
+
+            expect(stepable.steps.length).toBe(1)
+            expect(step.parent).toBe(stepable)
         })
     })
 

@@ -113,7 +113,7 @@ describe(`ScnearioOutline examples use N times in Rule`, () => {
 
     const rule = new RuleType(`Example rule`)
     rule.addScenario(scenario)
-    feature.rules.push(rule)
+    feature.addRule(rule)
 
     let examplesStepCount = 0
 

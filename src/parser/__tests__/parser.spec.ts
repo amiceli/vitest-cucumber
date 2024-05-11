@@ -423,4 +423,34 @@ describe(`GherkinParser`, () => {
         })
     })
 
+    test(`Models parent`, () => {
+        parser.addLine(`Feature: I use background`)
+        parser.addLine(`    Background:`)
+        parser.addLine(`        Given I use backgroun`)
+        parser.addLine(`        And I love it`)
+        parser.addLine(`    Rule: I need a background`)
+        parser.addLine(`        Scenario: test`)
+        parser.addLine(`            Given I use also backgroun`)
+        parser.addLine(`            And I love it`)
+        parser.addLine(`            And I love forever`)
+        parser.addLine(``)
+
+        const currentFeature = getCurrentFeaut(parser)
+
+        const { background } = currentFeature
+        const backgroundGiven = background?.steps[0]
+
+        const [rule] = currentFeature.rules
+        const [ruleScenario] = rule.scenarii
+        const [ruleScenarioGiven] = ruleScenario.steps
+        
+
+        expect(background?.parent).toBe(currentFeature)
+        expect(backgroundGiven?.parent).toBe(background)
+
+        expect(rule.parent).toBe(currentFeature)
+        expect(ruleScenario.parent).toBe(rule)
+        expect(ruleScenarioGiven.parent).toBe(ruleScenario)
+    })
+
 })

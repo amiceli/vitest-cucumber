@@ -10,7 +10,7 @@ export abstract class ScenarioParent extends Taggable {
 
     public readonly _scenarii : Scenario[] = []
 
-    public background : Background | null = null
+    private _background : Background | undefined = undefined
 
     protected constructor (name : string) {
         super()
@@ -50,7 +50,18 @@ export abstract class ScenarioParent extends Taggable {
     }
 
     public addScenario (scenario: Scenario) {
+        scenario.setParent(this)
+
         this._scenarii.push(scenario)
+    }
+
+    public get background (): Background | undefined {
+        return this._background
+    }
+
+    public setBackground (background: Background) {
+        this._background = background
+        this._background.setParent(this)
     }
 
 }

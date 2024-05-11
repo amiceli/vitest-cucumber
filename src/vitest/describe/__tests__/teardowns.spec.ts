@@ -24,7 +24,8 @@ test(`should check not called rules`, async () => {
     const secondRule = new Rule(`Me I am uncalled`)
 
     rule.isCalled = true
-    feature.rules.push(rule, secondRule)
+    feature.addRule(rule)
+    feature.addRule(secondRule)
 
     expect(() => {
         detectUnCalledScenarioAndRules(feature, [])

@@ -58,7 +58,7 @@ export class GherkinParser {
             const rule = new Rule(ruleName)
 
             this.addTagToParent(rule)
-            this.currentFeature.rules.push(rule)
+            this.currentFeature.addRule(rule)
         } else if (line.includes(`Scenario Outline:`)) {
             this.currentScenarioIndex++
 
@@ -123,9 +123,9 @@ export class GherkinParser {
 
     private addBackgroundToParent (background : Background) {
         if (this.currentRule) {
-            this.currentRule.background = background
+            this.currentRule.setBackground(background)
         } else {
-            this.currentFeature.background = background
+            this.currentFeature.setBackground(background)
         }
     }
 
@@ -230,7 +230,7 @@ export class GherkinParser {
         }
     }
 
-    public get currentBackground () : Background | null {
+    public get currentBackground () : Background | undefined {
         if (this.currentRule) {
             return this.currentRule.background
         } else {
