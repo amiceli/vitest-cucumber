@@ -11,6 +11,7 @@
     "test:coverage": "vitest run --coverage",
     "lint:staged": "eslint -c .eslintrc.js",
     "lint:fix": "eslint -c .eslintrc.js src/ --fix",
+    "check:types": "npx tsc --noEmit --project tsconfig.vitest.json",
     "build": "npx tsc --declaration --project tsconfig.json",
     "build:script": "esbuild scripts/cli-generate.ts --bundle --platform=node > dist/cli-generate.js",
     "build:all": "npm run build && npm run build:script",
