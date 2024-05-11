@@ -28,6 +28,10 @@ export class Step {
         this._parent = parent
     }
 
+    public toString () : string {
+        return `${this.type} ${this.details}`
+    }
+
     public get parent (): StepAble | undefined {
         return this._parent
     }

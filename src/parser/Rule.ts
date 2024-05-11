@@ -19,4 +19,8 @@ export class Rule extends ScenarioParent {
         return this._parent
     }
 
+    public toString (): string {
+        return `Rule: ${this.name}`
+    }
+
 }

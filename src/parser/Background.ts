@@ -16,4 +16,8 @@ export class Background extends StepAble {
         }
     }
 
+    public toString (): string {
+        return `Background:`
+    }
+
 }

@@ -64,4 +64,6 @@ export abstract class ScenarioParent extends Taggable {
         this._background.setParent(this)
     }
 
+    public abstract toString () : string
+
 }

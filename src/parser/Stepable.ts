@@ -42,4 +42,6 @@ export abstract class StepAble extends Taggable {
         this._parent = parent
     }
 
+    public abstract toString () : string
+
 }

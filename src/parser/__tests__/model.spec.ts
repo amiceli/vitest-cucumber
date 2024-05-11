@@ -19,6 +19,7 @@ describe(`Models`, () => {
             expect(feature.scenarii.length).toEqual(0)
             expect(feature.rules.length).toEqual(0)
             expect(feature.background).toBeUndefined()
+            expect(feature.toString()).toBe(`Feature: Awesome`)
         })
 
         test(`Add StepAble to Feature`, () => {
@@ -135,6 +136,7 @@ describe(`Models`, () => {
             expect(rule.scenarii.length).toEqual(0)
             expect(rule.background).toBeUndefined()
             expect(rule.parent).toBeUndefined()
+            expect(rule.toString()).toEqual(`Rule: Awesome`)
 
             rule.setParent(feature)
 
@@ -210,6 +212,7 @@ describe(`Models`, () => {
 
             expect(background.steps.length).toEqual(0)
             expect(background.isCalled).toBeFalsy()
+            expect(background.toString()).toBe(`Background:`)
         })
 
         test(`Backgorund allowed step type`, () => {
@@ -245,6 +248,7 @@ describe(`Models`, () => {
             expect(scenario.description).toEqual(`First`)
             expect(scenario.steps.length).toEqual(0)
             expect(scenario.isCalled).toBeFalsy()
+            expect(scenario.toString()).toBe(`Scenario: First`)
         })
 
         test(`Scenaio check uncalled steps`, () => {
@@ -282,14 +286,16 @@ describe(`Models`, () => {
 
             expect(scenarioOutline.examples).toEqual([])
             expect(scenarioOutline.missingExamplesKeyword).toBeFalsy()
+            expect(scenarioOutline.toString()).toBe(`Scenario Outline: First`)
         })
     })
 
     test(`Step initialize`, () => {
-        const step = new Step(StepTypes.GIVEN, `I trye`)
+        const step = new Step(StepTypes.GIVEN, `I test`)
 
         expect(step.type).toEqual(`Given`)
-        expect(step.details).toEqual(`I trye`)
+        expect(step.details).toEqual(`I test`)
+        expect(step.toString()).toBe(`Given I test`)
     })
 
 })

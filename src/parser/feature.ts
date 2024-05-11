@@ -30,4 +30,8 @@ export class Feature extends ScenarioParent {
         return this._rules
     }
 
+    public toString (): string {
+        return `Feature: ${this.name}`
+    }
+
 }
