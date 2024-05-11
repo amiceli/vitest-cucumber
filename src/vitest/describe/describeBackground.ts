@@ -13,7 +13,6 @@ type DescribeScenarioArgs = {
 }
 
 type ScenarioSteps = {
-    key : string
     fn : () => MaybePromise
     step : Step
 }
@@ -36,7 +35,6 @@ export function createBackgroundDescribeHandler (
                 .checkIfStepExists(stepType, stepDetails)
  
             backgroundStepsToRun.push({
-                key : `${stepType} ${stepDetails}`,
                 fn : scenarioStepCallback,
                 step : foundStep,
             })
@@ -60,7 +58,7 @@ export function createBackgroundDescribeHandler (
         test.each(
             backgroundStepsToRun.map((s) => {
                 return [
-                    s.key,
+                    s.step.toString(),
                     s,
                 ]
             }),

@@ -286,7 +286,7 @@ describe(`Models`, () => {
 
             expect(scenarioOutline.examples).toEqual([])
             expect(scenarioOutline.missingExamplesKeyword).toBeFalsy()
-            expect(scenarioOutline.toString()).toBe(`Scenario Outline: First`)
+            expect(scenarioOutline.toString()).toBe(`Scenario Outline: outline`)
         })
     })
 

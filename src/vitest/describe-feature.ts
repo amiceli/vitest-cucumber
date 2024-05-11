@@ -53,7 +53,7 @@ export function describeFeature (
             })
 
             featureBackground = {
-                describeTitle : `Background`,
+                describeTitle : background.toString(),
                 describeHandler : createBackgroundDescribeHandler({
                     background,
                     backgroundCallback,
@@ -71,7 +71,7 @@ export function describeFeature (
             })
 
             scenarioToRun.push({
-                describeTitle : `Scenario: ${scenario.description}`,
+                describeTitle : scenario.toString(),
                 describeHandler : createScenarioDescribeHandler({
                     scenario,
                     scenarioTestCallback,
@@ -97,7 +97,7 @@ export function describeFeature (
                     beforeEachScenarioHook,
                     afterEachScenarioHook,
                 }).map((t) => ({
-                    describeTitle : `Scenario Outline: ${scenario.description}`,
+                    describeTitle : scenario.toString(),
                     describeHandler : t,
                 })),
             )
@@ -123,7 +123,7 @@ export function describeFeature (
                     })
 
                     ruleBackground = {
-                        describeTitle : `Background`,
+                        describeTitle : background.toString(),
                         describeHandler : createBackgroundDescribeHandler({
                             background,
                             backgroundCallback,
@@ -141,7 +141,7 @@ export function describeFeature (
                     })
 
                     rulesScenarios.push({
-                        describeTitle : `Scenario: ${scenario.description}`,
+                        describeTitle : scenario.toString(),
                         describeHandler : createScenarioDescribeHandler({
                             scenario,
                             scenarioTestCallback,
@@ -167,7 +167,7 @@ export function describeFeature (
                             beforeEachScenarioHook,
                             afterEachScenarioHook,
                         }).map((t) => ({
-                            describeTitle : `Scenario Outline: ${scenario.description}`,
+                            describeTitle : scenario.toString(),
                             describeHandler : t,
                         })),
                     )
@@ -175,7 +175,7 @@ export function describeFeature (
             })
 
             rulesToRun.push({
-                describeTitle : `Rule: ${ruleName}`,
+                describeTitle : currentRule.toString(),
                 describeHandler : function describeRule () {
                     beforeAll(async () => {
                         await beforeAllScenarioHook()
@@ -224,7 +224,7 @@ export function describeFeature (
         },
     }
 
-    describe(`Feature: ${feature.name}`, async () => {
+    describe(feature.toString(), async () => {
         await featureFn(descibeFeatureParams)
 
         beforeAll(async () => {

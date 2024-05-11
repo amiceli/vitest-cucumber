@@ -10,23 +10,24 @@ describe(`describeScenario`, () => {
 
     const each = vi.spyOn(test, `each`)
     const scenario = new Scenario(`test`)
-    scenario.addStep(new Step(StepTypes.GIVEN, `given`))
+    const thenStep = new Step(StepTypes.THEN, `then`)
+
+    scenario.addStep(thenStep)
 
     const scenarioTest = createScenarioDescribeHandler({
         scenario,
-        scenarioTestCallback : ({ Given }) => {
-            Given(`given`, () => {})
+        scenarioTestCallback : ({ Then }) => {
+            Then(`then`, () => {})
         },
         beforeEachScenarioHook : () => {},
         afterEachScenarioHook : () => {
             expect(each).toHaveBeenCalledWith(
                 [
                     expect.arrayContaining([
-                        `Given given`,
+                        thenStep.toString(),
                         expect.objectContaining({
                             fn : expect.any(Function),
-                            key : `Given given`,
-                            step : expect.any(Step),
+                            step : thenStep,
                         }),
                     ]),
                 ],
@@ -45,7 +46,8 @@ describe(`describeScenarioOutline`, () => {
         { test : `test` },
         { test : `test 2` },
     )
-    scenario.addStep(new Step(StepTypes.GIVEN, `given <test>`))
+    const givenStep = new Step(StepTypes.GIVEN, `given <test>`)
+    scenario.addStep(givenStep)
 
     const scenarioTest = createScenarioOutlineDescribeHandler({
         scenario,
@@ -57,11 +59,10 @@ describe(`describeScenarioOutline`, () => {
             expect(each).toHaveBeenCalledWith(
                 [
                     expect.arrayContaining([
-                        `Given given <test>`,
+                        givenStep.toString(),
                         expect.objectContaining({
                             fn : expect.any(Function),
-                            key : `Given given <test>`,
-                            step : expect.any(Step),
+                            step : givenStep,
                         }),
                     ]),
                 ],

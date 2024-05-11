@@ -17,7 +17,6 @@ type DescribeScenarioArgs = {
 }
 
 type ScenarioSteps = {
-    key: string
     fn: () => MaybePromise
     step: Step
 }
@@ -42,7 +41,6 @@ export function createScenarioOutlineDescribeHandler (
                 .checkIfStepExists(stepType, stepDetails)
 
             scenarioStepsToRun.push({
-                key : `${stepType} ${stepDetails}`,
                 fn : scenarioStepCallback,
                 step : foundStep,
             })
@@ -82,7 +80,7 @@ export function createScenarioOutlineDescribeHandler (
                     test.each(
                         steps.map((s) => {
                             return [
-                                s.key,
+                                s.step.toString(),
                                 s,
                             ]
                         }),
