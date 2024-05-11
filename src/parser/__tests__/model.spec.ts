@@ -7,6 +7,7 @@ import { Scenario, ScenarioOutline } from "../scenario"
 import { Step, StepTypes } from "../step"
 import { Background } from "../Background"
 import { NotAllowedBackgroundStepTypeError } from "../../errors/errors"
+import { StepAble } from "../Stepable"
 
 describe(`Models`, () => {
 
@@ -144,6 +145,19 @@ describe(`Models`, () => {
 
             expect(rule.getScenarioExample(`outline`)).toEqual(outline.examples)
             expect(rule.getScenarioExample(`test`)).toBeNull()
+        })
+    })
+
+    describe(`StepAble`, () => {
+        test(`StepAble parent`, () => {
+            const stepable : StepAble = new Background()
+
+            expect(() => {
+                console.debug(stepable.parent.name)
+            }).toThrowError(new Error(`StepAble parent is undefined`))
+
+            stepable.setParent(new Feature(`test`))
+            expect(stepable.parent.name).toEqual(`test`)
         })
     })
 
