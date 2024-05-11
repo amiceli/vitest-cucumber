@@ -74,7 +74,8 @@ test(`should detect uncalled scenario step`, () => {
     const step = new Step(StepTypes.GIVEN, `I am called`)
     const secondStep = new Step(StepTypes.THEN, `I am uncalled`)
 
-    scenario.steps.push(step, secondStep)
+    scenario.addStep(step)
+    scenario.addStep(secondStep)
 
     expect(() => {
         detectUncalledScenarioStep(scenario)

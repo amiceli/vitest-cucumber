@@ -77,10 +77,10 @@ describe(`Models`, () => {
             secondRule.isCalled = false
 
             feature.rules.push(rule)
-            expect(feature.getFirstRuleNotCalled()).toBeUndefined()
+            expect(feature.getFirstRuleNotCalled([])).toBeUndefined()
             
             feature.rules.push(secondRule)
-            expect(feature.getFirstRuleNotCalled()).toEqual(secondRule)
+            expect(feature.getFirstRuleNotCalled([])).toEqual(secondRule)
         })
 
         test(`Check if have already called rule`, () => {

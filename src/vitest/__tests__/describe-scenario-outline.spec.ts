@@ -11,9 +11,7 @@ describe(`ScenarioOutline without variables in step`, () => {
     const feature = new Feature(`Use ScenarioOutline without variable in step`)
     const scenario = new ScenarioOutlineType(`I forgot Examples in step`)
 
-    scenario.steps.push(
-        new Step(StepTypes.GIVEN, `I forgot to use variable`),
-    )
+    scenario.addStep(new Step(StepTypes.GIVEN, `I forgot to use variable`))
 
     scenario.examples.push(
         { height : 100 },
@@ -46,9 +44,7 @@ describe(`ScenarioOutline with empty examples`, () => {
     const feature = new Feature(`Use ScenarioOutline with empty examples`)
     const scenario = new ScenarioOutlineType(`I forgot Examples`)
 
-    scenario.steps.push(
-        new Step(StepTypes.GIVEN, `I forgot to see examples`),
-    )
+    scenario.addStep(new Step(StepTypes.GIVEN, `I forgot to see examples`))
 
     feature.scenarii.push(scenario)
 
@@ -76,9 +72,7 @@ describe(`ScnearioOutline without variables`, () => {
     const feature = new Feature(`Use ScenarioOutline without variable in Examples`)
     const scenario = new ScenarioOutlineType(`I forgot Examples variables name`)
 
-    scenario.steps.push(
-        new Step(StepTypes.GIVEN, `I love <height>`),
-    )
+    scenario.addStep(new Step(StepTypes.GIVEN, `I love <height>`))
 
     scenario.examples.push({ height : undefined })
 
@@ -109,10 +103,8 @@ describe(`ScnearioOutline examples use N times in Rule`, () => {
     const feature = new Feature(`test`)
     const scenario = new ScenarioOutlineType(`out line baby`)
 
-    scenario.steps.push(
-        new Step(StepTypes.GIVEN, `I check <width>`),
-        new Step(StepTypes.AND, `I check <height>`),
-    )
+    scenario.addStep(new Step(StepTypes.GIVEN, `I check <width>`))
+    scenario.addStep(new Step(StepTypes.AND, `I check <height>`))
 
     scenario.examples.push(
         { width : 100, height : 200 },
@@ -150,10 +142,8 @@ describe(`ScenarioOutline examples use N times`, () => {
     const feature = new Feature(`test`)
     const scenario = new ScenarioOutlineType(`out line baby`)
 
-    scenario.steps.push(
-        new Step(StepTypes.GIVEN, `I check <width>`),
-        new Step(StepTypes.AND, `I check <height>`),
-    )
+    scenario.addStep(new Step(StepTypes.GIVEN, `I check <width>`))
+    scenario.addStep(new Step(StepTypes.AND, `I check <height>`))
 
     scenario.examples.push(
         { width : 100, height : 200 },
@@ -186,9 +176,7 @@ describe(`ScenarioOutline without Examples`, () => {
     const feature = new Feature(`Use ScenarioOutline without examples`)
     const scenario = new ScenarioOutlineType(`I forgot Examples`)
 
-    scenario.steps.push(
-        new Step(StepTypes.GIVEN, `I forgot to see examples`),
-    )
+    scenario.addStep(new Step(StepTypes.GIVEN, `I forgot to see examples`))
     scenario.missingExamplesKeyword = true
 
     feature.scenarii.push(scenario)
@@ -225,11 +213,11 @@ describe(`ScenarioOutline with Examples`, () => {
         },
     )
 
-    scenarioOutline.steps.push(
-        new Step(StepTypes.GIVEN, `I know <width> value`),
-        new Step(StepTypes.AND, `I know <height> value`),
-        new Step(StepTypes.THEN, `I can make a <sum>`),
-    )
+
+    scenarioOutline.addStep(new Step(StepTypes.GIVEN, `I know <width> value`))
+    scenarioOutline.addStep(new Step(StepTypes.AND, `I know <height> value`))
+    scenarioOutline.addStep(new Step(StepTypes.THEN, `I can make a <sum>`))
+
 
     feature.scenarii.push(scenarioOutline)
 

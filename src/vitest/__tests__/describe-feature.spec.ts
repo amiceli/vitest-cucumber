@@ -10,14 +10,15 @@ import {
 import fs from 'fs/promises'
 import { loadFeature } from '../load-feature'
 import * as teardowns from "../describe/teardowns"
+import { MockInstance } from "vitest"
 
 describe(`Scenario with bad type`, () => {
     const feature = new Feature(`Detect wrong scenario type`)
     const scenarioOutline = new ScenarioOutlineType(`I'm an outline scenario`)
     const scenario = new ScenarioType(`I'm a scenario`)
 
-    scenarioOutline.steps.push(new Step(StepTypes.GIVEN, `A simple step`))
-    scenario.steps.push(new Step(StepTypes.GIVEN, `A simple step`))
+    scenarioOutline.addStep(new Step(StepTypes.GIVEN, `A simple step`))
+    scenario.addStep(new Step(StepTypes.GIVEN, `A simple step`))
 
     feature.scenarii.push(scenarioOutline, scenario)
 
@@ -60,9 +61,7 @@ describe(`Check if scenario step exists`, () => {
     const featire = new Feature(`Check if step exists [checkIfScenarioExists]`)
     const scenario = new ScenarioType(`Example `)
 
-    scenario.steps.push(
-        new Step(StepTypes.WHEN, `Simple when`),
-    )
+    scenario.addStep(new Step(StepTypes.WHEN, `Simple when`))
     featire.scenarii.push(scenario)
 
     describeFeature(featire, ({ Scenario }) => {
@@ -107,10 +106,8 @@ describe(`Async scenario hooks`, () => {
     const feature = new Feature(`Async scenario hook`)
     const scenario = new ScenarioType(`A simple Scenario`)
 
-    scenario.steps.push(
-        new Step(StepTypes.GIVEN, `Hooks are async`),
-        new Step(StepTypes.THEN, `I wait hooks are finished`),
-    )
+    scenario.addStep(new Step(StepTypes.GIVEN, `Hooks are async`))
+    scenario.addStep(new Step(StepTypes.THEN, `I wait hooks are finished`))
 
     feature.scenarii.push(scenario)
 
@@ -183,16 +180,14 @@ describe(`Scneario hooks`, () => {
     const first = new ScenarioType(`First scenario`)
     const second = new ScenarioType(`Second scenario`)
 
-    first.steps.push(
-        new Step(StepTypes.THEN, `BeforeEachScenario should be called`),
-        new Step(StepTypes.AND, `BeforeAllScenarios should be called`),
-        new Step(StepTypes.BUT, `AfterEachScenario should not be called`),
-        new Step(StepTypes.AND, `AfterAllScenarios should not be called`),
-    )
-    second.steps.push(
-        new Step(StepTypes.THEN, `AfterEachScenario should be called`),
-        new Step(StepTypes.AND, `AfterAllScenarios should not  be called`),
-    )
+    first.addStep(new Step(StepTypes.THEN, `BeforeEachScenario should be called`))
+    first.addStep(new Step(StepTypes.AND, `BeforeAllScenarios should be called`))
+    first.addStep(new Step(StepTypes.BUT, `AfterEachScenario should not be called`))
+    first.addStep(new Step(StepTypes.AND, `AfterAllScenarios should not be called`))
+
+    second.addStep(new Step(StepTypes.THEN, `AfterEachScenario should be called`))
+    second.addStep(new Step(StepTypes.AND, `AfterAllScenarios should not  be called`))
+
     feature.scenarii.push(first, second)
 
     const spyBeforeEachScenario = vi.fn()
@@ -243,12 +238,11 @@ describe(`Scenario steps are executed one after one`, () => {
     const feature = new Feature(`Handle scenario step one after one`)
     const scenario = new ScenarioType(`Step one after one`)
 
-    scenario.steps.push(
-        new Step(StepTypes.GIVEN, `I start a count to 0`),
-        new Step(StepTypes.AND, `I increase the count by 1 in a promise`),
-        new Step(StepTypes.WHEN, `I use a timeout`),
-        new Step(StepTypes.THEN, `The count should be 2`),
-    )
+    scenario.addStep(new Step(StepTypes.GIVEN, `I start a count to 0`))
+    scenario.addStep(new Step(StepTypes.AND, `I increase the count by 1 in a promise`))
+    scenario.addStep(new Step(StepTypes.WHEN, `I use a timeout`))
+    scenario.addStep(new Step(StepTypes.THEN, `The count should be 2`))
+
     feature.scenarii.push(scenario)
 
     describeFeature(feature, ({ Scenario }) => {

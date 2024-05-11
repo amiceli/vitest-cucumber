@@ -6,12 +6,12 @@ export abstract class StepAble extends Taggable {
 
     public isCalled : boolean = false
 
-    public steps: Step[] = []
+    private readonly _steps: Step[] = []
 
     private _parent : ScenarioParent | undefined
 
     public findStepByTypeAndDetails (type : string, details : string) : Step | undefined {
-        return this.steps.find((step : Step) => {
+        return this._steps.find((step : Step) => {
             return step.type === type && step.details === details
         })
     }
@@ -21,11 +21,15 @@ export abstract class StepAble extends Taggable {
     }
 
     public getNoCalledSteps () : Step[] {
-        return this.steps.filter((s) => s.isCalled === false)
+        return this._steps.filter((s) => s.isCalled === false)
     }
 
     public addStep (step : Step) {
-        this.steps.push(step)
+        this._steps.push(step)
+    }
+
+    public get steps (): Readonly<Step[]> {
+        return this._steps
     }
 
     public get parent () : ScenarioParent {

@@ -74,7 +74,7 @@ describe(`state detector utils`, () => {
             const scenario = new ScenarioOutline(`good`)
 
             scenario.examples.push({ test : `ok ` })
-            scenario.steps.push(new Step(StepTypes.GIVEN, `awesome <test>`))
+            scenario.addStep(new Step(StepTypes.GIVEN, `awesome <test>`))
     
             feature.scenarii.push(scenario)
     
@@ -105,7 +105,7 @@ describe(`state detector utils`, () => {
             const scenario = new Scenario(`scenario`)
 
             scenarioOutline.examples.push({ test : `ok ` })
-            scenarioOutline.steps.push(new Step(StepTypes.GIVEN, `awesome <test>`))
+            scenarioOutline.addStep(new Step(StepTypes.GIVEN, `awesome <test>`))
     
             feature.scenarii.push(scenarioOutline)
             feature.scenarii.push(scenario)
@@ -142,12 +142,8 @@ describe(`state detector utils`, () => {
             missingVariablesValue.examples.push({ test : undefined })
 
 
-            missingVariablesValue.steps.push(
-                new Step(StepTypes.GIVEN, `awesome <test>`),
-            )
-            perfectOutline.steps.push(
-                new Step(StepTypes.GIVEN, `awesome <test>`),
-            )
+            missingVariablesValue.addStep(new Step(StepTypes.GIVEN, `awesome <test>`))
+            perfectOutline.addStep(new Step(StepTypes.GIVEN, `awesome <test>`))
 
             feature.scenarii.push(
                 withoutExample, missingExampleInStep, perfectOutline, missingVariablesValue,
