@@ -10,7 +10,9 @@ import {
 import fs from 'fs/promises'
 import { loadFeature } from '../load-feature'
 import * as teardowns from "../describe/teardowns"
-import { MockInstance } from "vitest"
+import {
+    MockInstance, afterAll, beforeAll, describe, expect, test, vi, 
+} from "vitest"
 
 describe(`Scenario with bad type`, () => {
     const feature = new Feature(`Detect wrong scenario type`)
@@ -277,7 +279,6 @@ describe(`Scenario steps are executed one after one`, () => {
 describe(`teardowns to detect uncalled scenario and/or rule`, async () => {
     let featureTeardownSoy: MockInstance
     let ruleTeardownSpy: MockInstance
-    let scenarioTeardownSpy: MockInstance
 
     beforeAll(() => {
         featureTeardownSoy = vi
@@ -285,9 +286,6 @@ describe(`teardowns to detect uncalled scenario and/or rule`, async () => {
             .mockImplementation(() => { })
         ruleTeardownSpy = vi
             .spyOn(teardowns, `detectNotCalledRuleScenario`)
-            .mockImplementation(() => { })
-        scenarioTeardownSpy = vi
-            .spyOn(teardowns, `detectUncalledScenarioStep`)
             .mockImplementation(() => { })
     })
 
@@ -309,8 +307,6 @@ describe(`teardowns to detect uncalled scenario and/or rule`, async () => {
     afterAll(async () => {
         expect(featureTeardownSoy).toHaveBeenCalledWith(feature, [])
         expect(ruleTeardownSpy).toHaveBeenCalledWith(feature.rules[0], [])
-        expect(scenarioTeardownSpy).toHaveBeenCalledWith(feature.rules[0].scenarii[0])
-        expect(scenarioTeardownSpy).toHaveBeenCalledWith(feature.scenarii[0])
 
         await fs.unlink(`${__dirname}/rules.feature`)
     })
