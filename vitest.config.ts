@@ -16,10 +16,7 @@ export default defineConfig({
         exclude : [
             'examples/vue-example.spec.ts',
             'node_modules',
-        ],
-        typecheck : {
-            tsconfig : 'tsconfig.vitest.json',
-        }
+        ]
     },
     resolve: {
         alias: {
