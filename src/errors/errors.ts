@@ -1,9 +1,57 @@
-import { Background } from '../parser/Background'
 import { Rule } from '../parser/Rule'
 import { ScenarioParent } from '../parser/ScenarioParent'
+import { StepAble } from '../parser/Stepable'
 import { Feature } from '../parser/feature'
 import { Scenario, ScenarioOutline } from '../parser/scenario'
 import { Step, StepTypes } from '../parser/step'
+import chalk from 'chalk'
+
+abstract class VitestCucumberError extends Error {
+
+    public constructor (message: string | string[]) {
+        if (Array.isArray(message)) {
+            super(message.join(`\n`))
+        } else {
+            super(message)
+        }
+
+        this.stack = ``
+        this.name = this.constructor.name
+    }
+
+}
+
+// steps
+
+export class NotCalledStepError extends VitestCucumberError {
+
+    public constructor (stepable: StepAble, notCalledSteps : Step[]) {
+        super(
+            [
+                `${notCalledSteps.length} step(s) wasn't called`,
+                `${chalk.reset(stepable.parent?.toString())}`,
+                `    ${chalk.white(stepable.toString())}`,
+                ...notCalledSteps.map((s) => `        ${s.toString()}`),
+            ],
+        )
+    }
+
+}
+
+export class UnknowStepError extends VitestCucumberError {
+
+    public constructor (stepable: StepAble, step: Step) {
+        super([
+            `Unknow called step in this ${stepable.constructor.name}`,
+            `${chalk.reset(stepable.parent?.toString())}`,
+            `    ${chalk.white(stepable.toString())}`,
+            `        ${step.toString()}`,
+        ])
+    }
+
+}
+
+// 
 
 export class NotScenarioOutlineError extends Error {
 
@@ -81,34 +129,8 @@ export class HookCalledAfterScenarioError extends Error {
 
 }
 
-export class StepAbleUnknowStepError extends Error {
 
-    public constructor (stepable : Scenario | Background, step : Step) {
-        if (stepable instanceof Scenario) {
-            super(`Scenario: ${stepable.description} \n ${step.type} ${step.details} doesn't exist`)
-        } else {
-            super(`Background:\n ${step.type} ${step.details} doesn't exist`)
-        }
-    }
 
-}
-
-export class StepAbleStepsNotCalledError extends Error {
-
-    public constructor (stepable : Scenario | Background) {
-        const steps = stepable
-            .getNoCalledSteps()
-            .map((s: Step) =>  `\n ${s.type} ${s.details} was not called`)
-            .join(``)
-
-        if (stepable instanceof Background) {
-            super(`Background: ${steps}`)
-        } else {
-            super(`Scenario: ${stepable.description}  ${steps}`)
-        }
-    }
-
-}
 
 // for rules
 

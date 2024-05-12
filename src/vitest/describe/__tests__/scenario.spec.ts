@@ -6,7 +6,7 @@ import { Step, StepTypes } from '../../../parser/step'
 import { createScenarioDescribeHandler } from '../describeScenario'
 import { createScenarioOutlineDescribeHandler } from '../describeScenarioOutline'
 import { createBackgroundDescribeHandler } from '../describeBackground'
-import { StepAbleStepsNotCalledError } from '../../../errors/errors'
+import { NotCalledStepError } from '../../../errors/errors'
 import { Background } from '../../../parser/Background'
 
 // TODO : describe background / step not exists in stepable
@@ -97,7 +97,7 @@ test(`describeScenario - detect steps not called`, () => {
             afterEachScenarioHook : () => {},
         })
     }).toThrowError(
-        new StepAbleStepsNotCalledError(scenario, [givenStep]),
+        new NotCalledStepError(scenario, [givenStep]),
     )
 })
 
@@ -117,7 +117,7 @@ test(`describeBackground - detect steps not called`, () => {
             },
         })
     }).toThrowError(
-        new StepAbleStepsNotCalledError(background, [andStep]),
+        new NotCalledStepError(background, [andStep]),
     )
 })
 
@@ -138,6 +138,6 @@ test(`describeScenarioOutline - detect steps not called`, () => {
             afterEachScenarioHook : () => {},
         })
     }).toThrowError(
-        new StepAbleStepsNotCalledError(scenario, [givenStep]),
+        new NotCalledStepError(scenario, [givenStep]),
     )
 })

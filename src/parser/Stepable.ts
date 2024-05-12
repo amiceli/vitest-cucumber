@@ -1,4 +1,4 @@
-import { StepAbleStepsNotCalledError, StepAbleUnknowStepError } from "../errors/errors"
+import { NotCalledStepError, UnknowStepError } from "../errors/errors"
 import { ScenarioParent } from "./ScenarioParent"
 import { Taggable } from "./Taggable"
 import { Step, StepTypes } from "./step"
@@ -29,7 +29,7 @@ export abstract class StepAble extends Taggable {
         )
 
         if (!foundStep) {
-            throw new StepAbleUnknowStepError(
+            throw new UnknowStepError(
                 this,
                 new Step(type, details),
             )
@@ -42,7 +42,7 @@ export abstract class StepAble extends Taggable {
         const missingStep = this.steps.filter((s) => !steps.includes(s))
 
         if (missingStep.length > 0) {
-            throw new StepAbleStepsNotCalledError(
+            throw new NotCalledStepError(
                 this, missingStep,
             )
         }

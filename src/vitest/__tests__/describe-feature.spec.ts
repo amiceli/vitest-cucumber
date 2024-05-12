@@ -5,7 +5,7 @@ import { describeFeature } from '../describe-feature'
 import {
     BackgroundNotExistsError,
     FeatureUknowScenarioError,
-    IsScenarioOutlineError, NotScenarioOutlineError, StepAbleUnknowStepError,
+    IsScenarioOutlineError, NotScenarioOutlineError, UnknowStepError,
 } from "../../errors/errors"
 import fs from 'fs/promises'
 import { loadFeature } from '../load-feature'
@@ -75,7 +75,7 @@ describe(`Check if scenario step exists`, () => {
             } catch (e) {
                 test(`[checkIfScenarioExists] handle step not in scenario`, () => {
                     expect(e).toEqual(
-                        new StepAbleUnknowStepError(
+                        new UnknowStepError(
                             scenario,
                             new Step(StepTypes.BUT, `I use bad step`),
                         ),
