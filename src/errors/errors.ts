@@ -51,35 +51,45 @@ export class UnknowStepError extends VitestCucumberError {
 
 }
 
+// Scenario
+
+export class NotScenarioOutlineError extends VitestCucumberError {
+
+    public constructor (scenario : Scenario) {
+        super([
+            `Scenario type mismatch`,
+            chalk.white(`${scenario.parent?.toString()}`),
+            `   ${(new ScenarioOutline(scenario.description)).toString()}`,
+        ])
+    }
+
+}
+
+export class IsScenarioOutlineError extends VitestCucumberError {
+
+    public constructor (scenario : Scenario) {
+        super([
+            `Scenario type mismatch`,
+            chalk.white(`${scenario.parent?.toString()}`),
+            `   ${(new Scenario(scenario.description)).toString()}`,
+        ])
+    }
+
+}
+
+export class ScenarioNotCalledError extends VitestCucumberError {
+
+    public constructor (scenario : StepAble) {
+        super([
+            `Scenario not called`,
+            chalk.white(`${scenario.parent?.toString()}`),
+            `   ${scenario.toString()}`,
+        ])
+    }
+
+}
+
 // 
-
-export class NotScenarioOutlineError extends Error {
-
-    public constructor (scenario : Scenario) {
-        super(`Scenario: ${scenario.description} is not a ScenarioOutline`)
-    }
-
-}
-
-export class IsScenarioOutlineError extends Error {
-
-    public constructor (scenario : Scenario) {
-        super(`Scenario: ${scenario.description} is a ScenarioOutline`)
-    }
-
-}
-
-export class ScenarioNotCalledError extends Error {
-
-    public constructor (scenario : Scenario | ScenarioOutline) {
-        if (scenario instanceof ScenarioOutline) {
-            super(`ScenarioOutline: ${scenario.description} was not called`)
-        } else {
-            super(`Scenario: ${scenario.description} was not called`)
-        }
-    }
-
-}
 
 export class ScenarioOutlineVariableNotCalledInStepsError extends Error {
 
