@@ -251,21 +251,6 @@ describe(`Models`, () => {
             expect(scenario.toString()).toBe(`Scenario: First`)
         })
 
-        test(`Scenaio check uncalled steps`, () => {
-            const scenario = new Scenario(`test`)
-            const step = new Step(StepTypes.AND, `test`)
-
-            expect(scenario.hasUnCalledSteps()).toBeFalsy()
-
-            scenario.addStep(step)
-
-            expect(scenario.hasUnCalledSteps()).toBeTruthy()
-
-            const noCalledSteps = scenario.getNoCalledSteps()
-
-            expect(noCalledSteps.includes(step)).toBeTruthy()
-        })
-
         test(`Scenario find step by name and title`, () => {
             const scenario = new Scenario(`test`)
             const step = new Step(StepTypes.AND, `test`)
@@ -273,12 +258,30 @@ describe(`Models`, () => {
             scenario.addStep(step)
             
             expect(
-                scenario.findStepByTypeAndDetails(`And`, `test`),
+                scenario.findStep(StepTypes.AND, `test`),
             ).toEqual(step)
 
-            expect(
-                scenario.findStepByTypeAndDetails(`Given`, `test`),
-            ).toBeUndefined()
+            expect(() => {
+                scenario.findStep(StepTypes.GIVEN, `test`)
+            }).toThrowError()
+        })
+
+        test(`Scneario compare steps`, () => {
+            const scenario = new Scenario(`test`)
+            const step = new Step(StepTypes.AND, `test`)
+            const anotherStep = new Step(StepTypes.GIVEN, `given`)
+
+            scenario.addStep(step)
+
+            expect(() => {
+                scenario.checkMissingSteps([step])
+            }).not.toThrowError()
+
+            scenario.addStep(anotherStep)
+
+            expect(() => {
+                scenario.checkMissingSteps([step])
+            }).toThrowError()
         })
 
         test(`Scenario can be outline`, () => {

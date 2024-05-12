@@ -38,7 +38,7 @@ export abstract class StepAble extends Taggable {
         return foundStep
     }
 
-    public checkMissingSteps (steps: Step[]) {
+    public checkMissingSteps (steps: Step[]) : void {
         const missingStep = this.steps.filter((s) => !steps.includes(s))
 
         if (missingStep.length > 0) {
