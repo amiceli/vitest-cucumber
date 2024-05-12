@@ -9,8 +9,9 @@ import { createBackgroundDescribeHandler } from '../describeBackground'
 import { StepAbleStepsNotCalledError } from '../../../errors/errors'
 import { Background } from '../../../parser/Background'
 
-describe(`describeScenario`, () => {
+// TODO : describe background / step not exists in stepable
 
+describe(`describeScenario`, () => {
     const each = vi.spyOn(test, `each`)
     const scenario = new Scenario(`test`)
     const thenStep = new Step(StepTypes.THEN, `then`)
@@ -96,7 +97,7 @@ test(`describeScenario - detect steps not called`, () => {
             afterEachScenarioHook : () => {},
         })
     }).toThrowError(
-        new StepAbleStepsNotCalledError(scenario),
+        new StepAbleStepsNotCalledError(scenario, [givenStep]),
     )
 })
 
@@ -114,11 +115,9 @@ test(`describeBackground - detect steps not called`, () => {
             backgroundCallback : ({ Given }) => {
                 Given(`given`, () => {})
             },
-            // beforeEachScenarioHook : () => {},
-            // afterEachScenarioHook : () => {},
         })
     }).toThrowError(
-        new StepAbleStepsNotCalledError(background),
+        new StepAbleStepsNotCalledError(background, [andStep]),
     )
 })
 
@@ -139,6 +138,6 @@ test(`describeScenarioOutline - detect steps not called`, () => {
             afterEachScenarioHook : () => {},
         })
     }).toThrowError(
-        new StepAbleStepsNotCalledError(scenario),
+        new StepAbleStepsNotCalledError(scenario, [givenStep]),
     )
 })

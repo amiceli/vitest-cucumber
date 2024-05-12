@@ -1,20 +1,16 @@
 import {
     test, expect, vi,
 } from "vitest"
-import { 
+import {
     detectUnCalledScenarioAndRules,
     detectNotCalledRuleScenario,
-    detectUncalledScenarioStep,
 } from "../../describe/teardowns"
 import { Feature } from "../../../parser/feature"
 import { Rule } from "../../../parser/Rule"
-import {
-    RuleNotCalledError, ScenarioNotCalledError, StepAbleStepsNotCalledError, 
-} from "../../../errors/errors"
+import { RuleNotCalledError, ScenarioNotCalledError } from "../../../errors/errors"
 import { Scenario } from "../../../parser/scenario"
 import { FeatureStateDetector } from "../../state-detectors/FeatureStateDetector"
 import { RuleStateDetector } from "../../state-detectors/RuleStateDetector"
-import { Step, StepTypes } from "../../../parser/step"
 
 test(`should check not called rules`, async () => {
     const spyDetector = vi.spyOn(FeatureStateDetector, `forFeature`)
@@ -70,19 +66,4 @@ test(`should detect rule not called scenario`, () => {
         new ScenarioNotCalledError(secondScenario),
     )
     expect(spyDetector).toHaveBeenCalledWith(rule, [`ignored`])
-})
-
-test(`should detect uncalled scenario step`, () => {
-    const scenario = new Scenario(`test`)
-    const step = new Step(StepTypes.GIVEN, `I am called`)
-    const secondStep = new Step(StepTypes.THEN, `I am uncalled`)
-
-    scenario.addStep(step)
-    scenario.addStep(secondStep)
-
-    expect(() => {
-        detectUncalledScenarioStep(scenario)
-    }).toThrowError(
-        new StepAbleStepsNotCalledError(scenario),
-    )
 })
