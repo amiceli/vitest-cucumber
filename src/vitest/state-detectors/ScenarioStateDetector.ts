@@ -1,9 +1,8 @@
 import {
-    StepAbleUnknowStepError, StepAbleStepsNotCalledError, ScenarioOulineWithoutExamplesError, ScenarioOutlineVariableNotCalledInStepsError, MissingScenarioOutlineVariableValueError, ScenarioOutlineVariablesDeclaredWithoutExamplesError,
+    ScenarioOulineWithoutExamplesError, ScenarioOutlineVariableNotCalledInStepsError, MissingScenarioOutlineVariableValueError, ScenarioOutlineVariablesDeclaredWithoutExamplesError,
 } from "../../errors/errors"
 import { StepAble } from "../../parser/Stepable"
 import { ScenarioOutline } from "../../parser/scenario"
-import { Step, StepTypes } from "../../parser/step"
 
 export class ScenarioStateDetector {
 
@@ -13,31 +12,8 @@ export class ScenarioStateDetector {
         this.scenario = scenario
     }
 
-    public static forScenario (scenario: StepAble) {
+    public static forStepable (scenario: StepAble) {
         return new ScenarioStateDetector(scenario)
-    }
-
-    public checkIfStepExists (stepType: string, stepDetails: string) {
-        const foundStep = this.scenario.findStepByTypeAndDetails(
-            stepType, stepDetails,
-        )
-
-        if (!foundStep) {
-            throw new StepAbleUnknowStepError(
-                this.scenario,
-                new Step(stepType as StepTypes, stepDetails),
-            )
-        }
-
-        return foundStep
-    }
-
-    public checkIfStepWasCalled () {
-        if (this.scenario.hasUnCalledSteps()) {
-            throw new StepAbleStepsNotCalledError(
-                this.scenario,
-            )
-        }
     }
 
     private checkIfScenarioHasNoExample () {

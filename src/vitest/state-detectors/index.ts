@@ -41,7 +41,7 @@ export function checkScenarioOutlineInFeature (args : CheckScenarioArgs<Feature>
         .scenarioShouldBeOutline(scenario)
 
     ScenarioStateDetector
-        .forScenario(scenario)
+        .forStepable(scenario)
         .checkExemples()
 
     return scenario
@@ -69,7 +69,7 @@ export function checkScenarioOutlineInRule (args : CheckScenarioArgs<Rule>) : Sc
         .scenarioShouldBeOutline(scenario)
 
     ScenarioStateDetector
-        .forScenario(scenario)
+        .forStepable(scenario)
         .checkExemples()
 
     return scenario
