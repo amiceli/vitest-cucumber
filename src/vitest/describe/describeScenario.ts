@@ -4,10 +4,8 @@ import {
 import {
     StepTest, MaybePromise, StepCallbackDefinition,
 } from "../types"
-import { Step } from "../../parser/step"
+import { Step, StepTypes } from "../../parser/step"
 import { Scenario } from "../../parser/scenario"
-import { ScenarioStateDetector } from "../state-detectors/ScenarioStateDetector"
-import { detectUncalledScenarioStep } from "./teardowns"
 
 type DescribeScenarioArgs = {
     scenario : Scenario,
@@ -29,17 +27,15 @@ export function createScenarioDescribeHandler (
         beforeEachScenarioHook,
     } : DescribeScenarioArgs,
 ) : () => void {
-    const scenarioStepsToRun : ScenarioSteps[]  = []
+    const scenarioStepsToRun: ScenarioSteps[] = []
 
-    const createScenarioStepCallback = (stepType: string): StepCallbackDefinition => {
+    const createScenarioStepCallback = (stepType: StepTypes): StepCallbackDefinition => {
         return (
             stepDetails: string, 
             scenarioStepCallback: () => void,
         ) => {
-            const foundStep = ScenarioStateDetector
-                .forScenario(scenario)
-                .checkIfStepExists(stepType, stepDetails)
- 
+            const foundStep = scenario.findStep(stepType, stepDetails)
+
             scenarioStepsToRun.push({
                 fn : scenarioStepCallback,
                 step : foundStep,
@@ -48,17 +44,16 @@ export function createScenarioDescribeHandler (
     }
 
     const scenarioStepsCallback: StepTest = {
-        Given : createScenarioStepCallback(`Given`),
-        When : createScenarioStepCallback(`When`),
-        And : createScenarioStepCallback(`And`),
-        Then : createScenarioStepCallback(`Then`),
-        But : createScenarioStepCallback(`But`),
+        Given : createScenarioStepCallback(StepTypes.GIVEN),
+        When : createScenarioStepCallback(StepTypes.WHEN),
+        And : createScenarioStepCallback(StepTypes.AND),
+        Then : createScenarioStepCallback(StepTypes.THEN),
+        But : createScenarioStepCallback(StepTypes.BUT),
     }
             
     scenarioTestCallback(scenarioStepsCallback)
 
-    detectUncalledScenarioStep(
-        scenario,
+    scenario.checkMissingSteps(
         scenarioStepsToRun.map((s) => s.step),
     )
 
@@ -82,7 +77,6 @@ export function createScenarioDescribeHandler (
             }),
         )(`%s`, async (_, scenarioStep) => {
             await scenarioStep.fn()
-            scenarioStep.step.isCalled = true
         })
     }
 }

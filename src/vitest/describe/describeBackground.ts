@@ -2,9 +2,7 @@ import { afterAll, test } from "vitest"
 import {
     MaybePromise, StepCallbackDefinition, BackgroundStepTest,
 } from "../types"
-import { Step } from "../../parser/step"
-import { ScenarioStateDetector } from "../state-detectors/ScenarioStateDetector"
-import { detectUncalledScenarioStep } from "./teardowns"
+import { Step, StepTypes } from "../../parser/step"
 import { Background } from "../../parser/Background"
 
 type DescribeScenarioArgs = {
@@ -23,17 +21,15 @@ export function createBackgroundDescribeHandler (
         backgroundCallback, 
     } : DescribeScenarioArgs,
 ) : () => void {
-    const backgroundStepsToRun : ScenarioSteps[]  = []
+    const backgroundStepsToRun: ScenarioSteps[] = []
 
-    const createScenarioStepCallback = (stepType: string): StepCallbackDefinition => {
+    const createScenarioStepCallback = (stepType: StepTypes): StepCallbackDefinition => {
         return (
             stepDetails: string, 
             scenarioStepCallback: () => void,
         ) => {
-            const foundStep = ScenarioStateDetector
-                .forScenario(background)
-                .checkIfStepExists(stepType, stepDetails)
- 
+            const foundStep = background.findStep(stepType, stepDetails)
+
             backgroundStepsToRun.push({
                 fn : scenarioStepCallback,
                 step : foundStep,
@@ -42,14 +38,13 @@ export function createBackgroundDescribeHandler (
     }
 
     const scenarioStepsCallback: BackgroundStepTest = {
-        Given : createScenarioStepCallback(`Given`),
-        And : createScenarioStepCallback(`And`),
+        Given : createScenarioStepCallback(StepTypes.GIVEN),
+        And : createScenarioStepCallback(StepTypes.AND),
     }
             
     backgroundCallback(scenarioStepsCallback)
 
-    detectUncalledScenarioStep(
-        background,
+    background.checkMissingSteps(
         backgroundStepsToRun.map((s) => s.step),
     )
 
@@ -67,7 +62,6 @@ export function createBackgroundDescribeHandler (
             }),
         )(`%s`, async (_, scenarioStep) => {
             await scenarioStep.fn()
-            scenarioStep.step.isCalled = true
         })
     }
 }

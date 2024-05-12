@@ -1,33 +1,51 @@
+import { StepAbleStepsNotCalledError, StepAbleUnknowStepError } from "../errors/errors"
 import { ScenarioParent } from "./ScenarioParent"
 import { Taggable } from "./Taggable"
-import { Step } from "./step"
+import { Step, StepTypes } from "./step"
 
 export abstract class StepAble extends Taggable {
+
+    public abstract toString (): string
 
     public isCalled : boolean = false
 
     private readonly _steps: Step[] = []
 
-    private _parent : ScenarioParent | undefined
-
-    public findStepByTypeAndDetails (type : string, details : string) : Step | undefined {
-        return this._steps.find((step : Step) => {
-            return step.type === type && step.details === details
-        })
-    }
-
-    public hasUnCalledSteps () : boolean {
-        return this.getNoCalledSteps().length > 0
-    }
-
-    public getNoCalledSteps () : Step[] {
-        return this._steps.filter((s) => s.isCalled === false)
+    private _parent: ScenarioParent | undefined
+    
+    public setParent (parent: ScenarioParent) {
+        this._parent = parent
     }
 
     public addStep (step: Step) {
         step.setParent(this)
 
         this._steps.push(step)
+    }
+
+    public findStep (type : StepTypes, details : string) : Step {
+        const foundStep = this._steps.find(
+            (step: Step) => (step.type === type && step.details === details),
+        )
+
+        if (!foundStep) {
+            throw new StepAbleUnknowStepError(
+                this,
+                new Step(type, details),
+            )
+        }
+
+        return foundStep
+    }
+
+    public checkMissingSteps (steps: Step[]) {
+        const missingStep = this.steps.filter((s) => !steps.includes(s))
+
+        if (missingStep.length > 0) {
+            throw new StepAbleStepsNotCalledError(
+                this, missingStep,
+            )
+        }
     }
 
     public get steps (): Readonly<Step[]> {
@@ -37,11 +55,5 @@ export abstract class StepAble extends Taggable {
     public get parent () : ScenarioParent | undefined {
         return this._parent
     }
-
-    public setParent (parent: ScenarioParent) {
-        this._parent = parent
-    }
-
-    public abstract toString () : string
 
 }

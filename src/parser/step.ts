@@ -13,15 +13,12 @@ export class Step {
     public readonly type : StepTypes
     
     public readonly details : string
-
-    public isCalled : boolean
     
     private _parent : StepAble | undefined = undefined
 
     public constructor (type : StepTypes, details : string) {
         this.details = details
         this.type = type
-        this.isCalled = false
     }
 
     public setParent (parent: StepAble) {
