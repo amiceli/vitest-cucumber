@@ -1,3 +1,4 @@
+import { Background } from '../parser/Background'
 import { Rule } from '../parser/Rule'
 import { ScenarioParent } from '../parser/ScenarioParent'
 import { StepAble } from '../parser/Stepable'
@@ -84,6 +85,28 @@ export class ScenarioNotCalledError extends VitestCucumberError {
             `Scenario not called`,
             chalk.white(`${scenario.parent?.toString()}`),
             `   ${scenario.toString()}`,
+        ])
+    }
+
+}
+
+// Background
+
+export class BackgroundNotExistsError extends VitestCucumberError {
+
+    public constructor (parent: ScenarioParent) {
+        super(`${parent.toString()} hasn't background`)
+    }
+
+}
+
+export class TwiceBackgroundError extends VitestCucumberError {
+
+    public constructor (background : Background) {
+        super([
+            `More than one Background is forbidden.`,
+            `Two backgrouns found in :`,
+            chalk.white(`    ${background.parent?.toString()}`),
         ])
     }
 
@@ -180,22 +203,6 @@ export class NotAllowedBackgroundStepTypeError extends Error {
 
     public constructor (type : StepTypes) {
         super(`${type} step isn't allow in Background`)
-    }
-
-}
-
-export class TwiceBackgroundError extends Error {
-
-    public constructor () {
-        super(`A background already exists`)
-    }
-
-}
-
-export class BackgroundNotExistsError extends VitestCucumberError {
-
-    public constructor (parent: ScenarioParent) {
-        super(`${parent.toString()} hasn't background`)
     }
 
 }

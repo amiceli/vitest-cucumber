@@ -379,7 +379,7 @@ describe(`GherkinParser`, () => {
         })
 
         it(`should prevent twice backgrounds in Feature`, () => {
-            expect(() => {
+            try {
                 parser.addLine(`Feature: I use background`)
                 parser.addLine(`    Background:`)
                 parser.addLine(`        Given I use backgroun`)
@@ -387,13 +387,14 @@ describe(`GherkinParser`, () => {
                 parser.addLine(`    Background:`)
                 parser.addLine(`        Given I want another background`)
                 parser.addLine(``)
-            }).toThrowError(
-                new TwiceBackgroundError(),
-            )
+            } catch (e) {
+                expect(e instanceof TwiceBackgroundError).toBe(true)
+                expect(e.message.includes(`Feature: I use background`)).toBe(true)
+            }
         })
 
         it(`should prevent twice backgrounds in Rule`, () => {
-            expect(() => {
+            try {
                 parser.addLine(`Feature: I use background`)
                 parser.addLine(`    Background:`)
                 parser.addLine(`        Given I use backgroun`)
@@ -404,9 +405,11 @@ describe(`GherkinParser`, () => {
                 parser.addLine(`        Background:`)
                 parser.addLine(`            Given I want another background`)
                 parser.addLine(``)
-            }).toThrowError(
-                new TwiceBackgroundError(),
-            )
+            } catch (e) {
+                expect(e instanceof TwiceBackgroundError).toBe(true)
+                expect(e.message.includes(`Rule: with background`)).toBe(true)
+            }
+
             expect(() => {
                 parser.addLine(`Feature: I use background`)
                 parser.addLine(`    Background:`)
