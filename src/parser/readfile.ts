@@ -42,15 +42,15 @@ export class FeatureFileReader {
             crlfDelay : Infinity,
         })
 
-        rl.on(`line`, (line : string) => {
-            try {
-                this.parser.addLine(line)
-            } catch (e) {
-                console.error(`Failed to parse line : `, e)
-            }
-        })
+        return new Promise((resolve, reject) => {
+            rl.on(`line`, (line : string) => {
+                try {
+                    this.parser.addLine(line)
+                } catch (e) {
+                    reject(e)
+                }
+            })
 
-        return new Promise((resolve) => {
             rl.on(`close`, () => {
                 resolve(this.parser.finish())
             })

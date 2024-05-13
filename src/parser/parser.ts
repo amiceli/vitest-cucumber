@@ -87,7 +87,7 @@ export class GherkinParser {
             this.addTagToParent(scenario)
         } else if (line.includes(`Background:`)) {
             if (this.currentBackground) {
-                throw new TwiceBackgroundError()
+                throw new TwiceBackgroundError(this.currentBackground)
             }
 
             const background = new Background()
