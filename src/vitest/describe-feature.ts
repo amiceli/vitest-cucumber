@@ -13,12 +13,12 @@ import { Example } from "../parser/scenario"
 import { createScenarioDescribeHandler } from "./describe/describeScenario"
 import { createScenarioOutlineDescribeHandler } from "./describe/describeScenarioOutline"
 import {
-    checkIfBackgroundExistInParent,
     checkScenarioInFeature, checkScenarioInRule, checkScenarioOutlineInFeature, checkScenarioOutlineInRule,
 } from "./state-detectors"
 import { FeatureStateDetector } from "./state-detectors/FeatureStateDetector"
 import { detectNotCalledRuleScenario, detectUnCalledScenarioAndRules } from "./describe/teardowns"
 import { createBackgroundDescribeHandler } from "./describe/describeBackground"
+import { BackgroundNotExistsError } from "../errors/errors"
 
 export type DescribeFeatureOptions = {
     excludeTags? : string[]
@@ -47,15 +47,14 @@ export function describeFeature (
         Background : (
             backgroundCallback: (op: BackgroundStepTest) => MaybePromise,
         ) => {
-            const background = checkIfBackgroundExistInParent({
-                parent : feature,
-                excludeTags : describeOptions?.excludeTags || [],
-            })
+            if (!feature.background) {
+                throw new BackgroundNotExistsError(feature)
+            }
 
             featureBackground = {
-                describeTitle : background.toString(),
+                describeTitle : feature.background.toString(),
                 describeHandler : createBackgroundDescribeHandler({
-                    background,
+                    background : feature.background,
                     backgroundCallback,
                 }),
             }
@@ -117,15 +116,14 @@ export function describeFeature (
                 RuleBackground : (
                     backgroundCallback: (op: BackgroundStepTest) => MaybePromise,
                 ) => {
-                    const background = checkIfBackgroundExistInParent({
-                        parent : currentRule,
-                        excludeTags : describeOptions?.excludeTags || [],
-                    })
+                    if (!currentRule.background) {
+                        throw new BackgroundNotExistsError(currentRule)
+                    }
 
                     ruleBackground = {
-                        describeTitle : background.toString(),
+                        describeTitle : currentRule.background.toString(),
                         describeHandler : createBackgroundDescribeHandler({
-                            background,
+                            background : currentRule.background,
                             backgroundCallback,
                         }),
                     }

@@ -192,14 +192,10 @@ export class TwiceBackgroundError extends Error {
 
 }
 
-export class BackgroundNotExistsError extends Error {
+export class BackgroundNotExistsError extends VitestCucumberError {
 
     public constructor (parent: ScenarioParent) {
-        if (parent instanceof Feature) {
-            super(`Feature: ${parent.name} hasn't background`)
-        } else {
-            super(`Rule: ${parent.name} hasn't background`)
-        }
+        super(`${parent.toString()} hasn't background`)
     }
 
 }
