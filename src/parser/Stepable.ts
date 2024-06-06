@@ -3,7 +3,9 @@ import { Step } from "./step"
 
 export abstract class StepAble extends Taggable {
 
-    public isCalled : boolean = false
+    public abstract getTitle (): string
+
+    public isCalled: boolean = false
 
     public steps: Step[] = []
 

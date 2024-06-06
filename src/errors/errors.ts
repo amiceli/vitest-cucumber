@@ -1,142 +1,141 @@
-import { Background } from '../parser/Background'
 import { Rule } from '../parser/Rule'
 import { ScenarioParent } from '../parser/ScenarioParent'
+import { StepAble } from '../parser/Stepable'
 import { Feature } from '../parser/feature'
 import { Scenario, ScenarioOutline } from '../parser/scenario'
 import { Step, StepTypes } from '../parser/step'
 
-export class NotScenarioOutlineError extends Error {
+abstract class VitestsCucumberError extends Error {
+
+    protected constructor (message: string) {
+        super(message)
+
+        this.stack = ``
+        this.name = this.constructor.name
+    }
+
+}
+
+export class NotScenarioOutlineError extends VitestsCucumberError {
 
     public constructor (scenario : Scenario) {
-        super(`Scenario: ${scenario.description} is not a ScenarioOutline`)
+        super(`${scenario.getTitle()} is not a ScenarioOutline`)
     }
 
 }
 
-export class IsScenarioOutlineError extends Error {
+export class IsScenarioOutlineError extends VitestsCucumberError {
 
     public constructor (scenario : Scenario) {
-        super(`Scenario: ${scenario.description} is a ScenarioOutline`)
+        super(`${scenario.getTitle()} is a ScenarioOutline`)
     }
 
 }
 
-export class ScenarioNotCalledError extends Error {
+export class ScenarioNotCalledError extends VitestsCucumberError {
 
-    public constructor (scenario : Scenario | ScenarioOutline) {
-        if (scenario instanceof ScenarioOutline) {
-            super(`ScenarioOutline: ${scenario.description} was not called`)
-        } else {
-            super(`Scenario: ${scenario.description} was not called`)
-        }
+    public constructor (scenario: Scenario) {
+        super(`${scenario.getTitle()} was not called`)
     }
 
 }
 
-export class ScenarioOutlineVariableNotCalledInStepsError extends Error {
+export class ScenarioOutlineVariableNotCalledInStepsError extends VitestsCucumberError {
 
     public constructor (scenario : ScenarioOutline, variableName : string) {
-        super(`ScenarioOutline: ${scenario.description} \n ${variableName} was not called in steps`)
+        super(`${scenario.getTitle()} \n ${variableName} was not called in steps`)
     }
 
 }
 
-export class ScenarioOulineWithoutExamplesError extends Error {
+export class ScenarioOulineWithoutExamplesError extends VitestsCucumberError {
 
     public constructor (scenario : ScenarioOutline) {
-        super(`ScenarioOutline: ${scenario.description} \n has an empty Examples`)
+        super(`${scenario.getTitle()} \n has an empty Examples`)
     }
 
 }
 
-export class ScenarioOutlineVariablesDeclaredWithoutExamplesError extends Error {
+export class ScenarioOutlineVariablesDeclaredWithoutExamplesError extends VitestsCucumberError {
 
     public constructor (scenario : ScenarioOutline) {
-        super(`ScenarioOutline: ${scenario.description} \n variables declarated without Examples`)
+        super(`${scenario.getTitle()} \n variables declarated without Examples`)
     }
 
 }
 
-export class MissingScenarioOutlineVariableValueError extends Error {
+export class MissingScenarioOutlineVariableValueError extends VitestsCucumberError {
 
     public constructor (scenario : ScenarioOutline, variableName : string) {
-        super(`ScenarioOutline: ${scenario.description} \n missing ${variableName} value in Excamples`)
+        super(`${scenario.getTitle()} \n missing ${variableName} value in Excamples`)
     }
 
 }
 
-export class FeatureUknowScenarioError extends Error {
+export class FeatureUknowScenarioError extends VitestsCucumberError {
 
     public constructor (feature : ScenarioParent, scenario : Scenario) {
-        super(`Scenario: ${scenario.description} doesn't exist in \n Feature: ${feature.name}`)
+        super(`${scenario.getTitle()} doesn't exist in \n Feature: ${feature.name}`)
     }
 
 }
 
-export class HookCalledAfterScenarioError extends Error {
+export class HookCalledAfterScenarioError extends VitestsCucumberError {
 
     public constructor (feature : ScenarioParent, hookName : string) {
-        super(`Feature: ${feature.name} \n ${hookName} hook was called after Scenario()`)
+        super(`${feature.getTitle()} \n ${hookName} hook was called after Scenario()`)
     }
 
 }
 
-export class StepAbleUnknowStepError extends Error {
+export class StepAbleUnknowStepError extends VitestsCucumberError {
 
-    public constructor (stepable : Scenario | Background, step : Step) {
-        if (stepable instanceof Scenario) {
-            super(`Scenario: ${stepable.description} \n ${step.type} ${step.details} doesn't exist`)
-        } else {
-            super(`Background:\n ${step.type} ${step.details} doesn't exist`)
-        }
+    public constructor (stepable : StepAble, step : Step) {
+        super(`${stepable.getTitle()} \n ${step.type} ${step.details} doesn't exist`)
     }
 
 }
 
-export class StepAbleStepsNotCalledError extends Error {
+export class StepAbleStepsNotCalledError extends VitestsCucumberError {
 
-    public constructor (stepable : Scenario | Background) {
+    public constructor (stepable : StepAble) {
         const steps = stepable
             .getNoCalledSteps()
             .map((s: Step) =>  `\n ${s.type} ${s.details} was not called`)
             .join(``)
 
-        if (stepable instanceof Background) {
-            super(`Background: ${steps}`)
-        } else {
-            super(`Scenario: ${stepable.description}  ${steps}`)
-        }
+        super(`${stepable.getTitle()}  ${steps}`)
     }
 
 }
 
 // for rules
 
-export class RuleNotCalledError extends Error {
+export class RuleNotCalledError extends VitestsCucumberError {
 
     public constructor (rule : Rule) {
-        super(`Rule: ${rule.name} was not called`)
+        super(`${rule.getTitle()} was not called`)
     }
 
 }
 
-export class FeatureUknowRuleError extends Error {
+export class FeatureUknowRuleError extends VitestsCucumberError {
 
     public constructor (feature : Feature, rule : Rule) {
-        super(`Rule: ${rule.name} doesn't exist in \n Feature: ${feature.name}`)
+        super(`${rule.getTitle()} doesn't exist in \n Feature: ${feature.name}`)
     }
 
 }
 
-export class HookCalledAfterRuleError extends Error {
+export class HookCalledAfterRuleError extends VitestsCucumberError {
 
     public constructor (feature : Feature, hookName : string) {
-        super(`Feature: ${feature.name} \n ${hookName} hook was called after Rule()`)
+        super(`${feature.getTitle()} \n ${hookName} hook was called after Rule()`)
     }
 
 }
 
-export class FeatureFileNotFoundError extends Error {
+export class FeatureFileNotFoundError extends VitestsCucumberError {
 
     public constructor (path : string) {
         super(`feature file ${path} doesn't exist`)
@@ -144,7 +143,7 @@ export class FeatureFileNotFoundError extends Error {
 
 }
 
-export class NotAllowedBackgroundStepTypeError extends Error {
+export class NotAllowedBackgroundStepTypeError extends VitestsCucumberError {
 
     public constructor (type : StepTypes) {
         super(`${type} step isn't allow in Background`)
@@ -152,7 +151,7 @@ export class NotAllowedBackgroundStepTypeError extends Error {
 
 }
 
-export class TwiceBackgroundError extends Error {
+export class TwiceBackgroundError extends VitestsCucumberError {
 
     public constructor () {
         super(`A background already exists`)
@@ -160,14 +159,10 @@ export class TwiceBackgroundError extends Error {
 
 }
 
-export class BackgroundNotExistsError extends Error {
+export class BackgroundNotExistsError extends VitestsCucumberError {
 
     public constructor (parent: ScenarioParent) {
-        if (parent instanceof Feature) {
-            super(`Feature: ${parent.name} hasn't background`)
-        } else {
-            super(`Rule: ${parent.name} hasn't background`)
-        }
+        super(`${parent.getTitle()} hasn't background`)
     }
 
 }

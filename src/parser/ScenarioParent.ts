@@ -45,4 +45,8 @@ export abstract class ScenarioParent extends Taggable {
             .length > 0
     }
 
+    public getTitle (): string {
+        return `${this.constructor.name}: ${this.name}`
+    }
+
 }
