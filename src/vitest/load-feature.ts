@@ -10,18 +10,6 @@ function getCallerPath () : string | null {
 
     return callerFileDir
 }
-/**
- * @deprecated You can use it but multiple features in Gherkin file is not a good practice.
- */
-export async function loadFeatures (featureFilePath: string): Promise<Readonly<Feature[]>> {
-    const callerFileDir = getCallerPath()
-
-    const features = await FeatureFileReader
-        .fromPath(featureFilePath, callerFileDir)
-        .parseFile()
-
-    return features
-}
 
 export async function loadFeature (featureFilePath: string): Promise<Readonly<Feature>> {
     const callerFileDir = getCallerPath()
