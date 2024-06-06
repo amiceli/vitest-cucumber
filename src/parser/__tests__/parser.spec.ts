@@ -4,7 +4,7 @@ import {
 } from 'vitest'
 import { StepTypes } from "../step"
 import { ScenarioOutline } from "../scenario"
-import { TwiceBackgroundError } from "../../errors/errors"
+import { OnlyOneFeatureError, TwiceBackgroundError } from "../../errors/errors"
 
 describe(`GherkinParser`, () => {
 
@@ -38,6 +38,16 @@ describe(`GherkinParser`, () => {
         expect(currentFeature).not.toBeUndefined()
         expect(currentFeature.name).toEqual(featureTitle)
         expect(currentFeature.scenarii.length).toEqual(0)
+    })
+
+    it(`should prevent more than one Feature`, () => {
+        parser.addLine(`Feature: test`)
+
+        expect(() => {
+            parser.addLine(`Feature: another test`)
+        }).toThrowError(
+            new OnlyOneFeatureError(),
+        )
     })
 
     it(`should be able to parse Scenario line`, () => {
@@ -407,6 +417,7 @@ describe(`GherkinParser`, () => {
             }).toThrowError(
                 new TwiceBackgroundError(),
             )
+            parser = new GherkinParser()
             expect(() => {
                 parser.addLine(`Feature: I use background`)
                 parser.addLine(`    Background:`)

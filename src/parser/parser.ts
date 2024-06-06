@@ -1,4 +1,4 @@
-import { TwiceBackgroundError } from "../errors/errors"
+import { OnlyOneFeatureError, TwiceBackgroundError } from "../errors/errors"
 import { Background } from "./Background"
 import { Rule } from "./Rule"
 import { StepAble } from "./Stepable"
@@ -37,6 +37,10 @@ export class GherkinParser {
             return
         } 
         if (line.includes(`Feature:`)) {
+            if (this.features.length > 0) {
+                throw new OnlyOneFeatureError()
+            }
+
             this.currentFeatureIndex++
             this.currentScenarioIndex = -1
             this.currentRulenIndex = -1
