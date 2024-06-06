@@ -83,7 +83,7 @@ export class FeatureUknowScenarioError extends VitestsCucumberError {
 export class HookCalledAfterScenarioError extends VitestsCucumberError {
 
     public constructor (feature : ScenarioParent, hookName : string) {
-        super(`Feature: ${feature.name} \n ${hookName} hook was called after Scenario()`)
+        super(`${feature.getTitle()} \n ${hookName} hook was called after Scenario()`)
     }
 
 }
@@ -114,7 +114,7 @@ export class StepAbleStepsNotCalledError extends VitestsCucumberError {
 export class RuleNotCalledError extends VitestsCucumberError {
 
     public constructor (rule : Rule) {
-        super(`Rule: ${rule.name} was not called`)
+        super(`${rule.getTitle()} was not called`)
     }
 
 }
@@ -122,7 +122,7 @@ export class RuleNotCalledError extends VitestsCucumberError {
 export class FeatureUknowRuleError extends VitestsCucumberError {
 
     public constructor (feature : Feature, rule : Rule) {
-        super(`Rule: ${rule.name} doesn't exist in \n Feature: ${feature.name}`)
+        super(`${rule.getTitle()} doesn't exist in \n Feature: ${feature.name}`)
     }
 
 }
@@ -130,7 +130,7 @@ export class FeatureUknowRuleError extends VitestsCucumberError {
 export class HookCalledAfterRuleError extends VitestsCucumberError {
 
     public constructor (feature : Feature, hookName : string) {
-        super(`Feature: ${feature.name} \n ${hookName} hook was called after Rule()`)
+        super(`${feature.getTitle()} \n ${hookName} hook was called after Rule()`)
     }
 
 }
@@ -162,11 +162,7 @@ export class TwiceBackgroundError extends VitestsCucumberError {
 export class BackgroundNotExistsError extends VitestsCucumberError {
 
     public constructor (parent: ScenarioParent) {
-        if (parent instanceof Feature) {
-            super(`Feature: ${parent.name} hasn't background`)
-        } else {
-            super(`Rule: ${parent.name} hasn't background`)
-        }
+        super(`${parent.getTitle()} hasn't background`)
     }
 
 }

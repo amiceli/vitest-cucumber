@@ -17,6 +17,7 @@ describe(`Models`, () => {
             expect(feature.name).toEqual(`Awesome`)
             expect(feature.scenarii.length).toEqual(0)
             expect(feature.background).toBeNull()
+            expect(feature.getTitle()).toEqual(`Feature: Awesome`)
         })
     
         test(`Find Feature scneario by name`, () => {
@@ -110,6 +111,7 @@ describe(`Models`, () => {
             expect(rule.name).toEqual(`Awesome`)
             expect(rule.scenarii.length).toEqual(0)
             expect(rule.background).toBeNull()
+            expect(rule.getTitle()).toEqual(`Rule: Awesome`)
         })
     
         test(`Find Rule scneario by name`, () => {
