@@ -66,6 +66,18 @@ describe(`GherkinParser`, () => {
         expect(currentScenario.isCalled).toBeFalsy()
     })
 
+    it(`should be able to parse Example line`, () => {
+        parser.addLine(`Feature: awesome feature`)
+        parser.addLine(`Example: Run unit tests`)
+        parser.addLine(``)
+
+        const currentFeature = getCurrentFeaut(parser)
+        const currentScenario = getCurrentScenario(parser)
+
+        expect(currentFeature.scenarii.length).toEqual(1)
+        expect(currentScenario.description).toEqual(`Run unit tests`)
+    })
+
     it(`should be able to parse Given line`, () => {
         const givenTitle = `I run unit tests with vitest`
 
@@ -116,6 +128,26 @@ describe(`GherkinParser`, () => {
 
         parser.addLine(`Feature: awesome feature`)
         parser.addLine(`Scenario Outline: ${scenarioTitile}`)
+        parser.addLine(``)
+
+        const currentFeature = getCurrentFeaut(parser)
+        const currentScenario = currentFeature.getScenarioByName(scenarioTitile)
+
+        if (!currentScenario) {
+            expect.fail(`Scenario shoutl exists`)
+        }
+
+        expect(currentScenario.description).toEqual(scenarioTitile)
+        expect(currentScenario.isCalled).toBeFalsy()
+        expect(currentScenario instanceof ScenarioOutline).toBeTruthy()
+        expect((currentScenario as ScenarioOutline).examples).toEqual([])
+    })
+
+    it(`should be able to parse Scenario Template line`, () => {
+        const scenarioTitile = `awesome outline`
+
+        parser.addLine(`Feature: awesome feature`)
+        parser.addLine(`Scenario Template:      ${scenarioTitile}`)
         parser.addLine(``)
 
         const currentFeature = getCurrentFeaut(parser)
