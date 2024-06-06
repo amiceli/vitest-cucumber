@@ -9,6 +9,10 @@ export class Scenario extends StepAble {
         this.description = description
     }
 
+    public getTitle (): string {
+        return `Scenario: ${this.description}`
+    }
+
 }
 
 export type Example = {
@@ -20,6 +24,10 @@ export class ScenarioOutline extends Scenario {
 
     public examples : Example = []
 
-    public missingExamplesKeyword : boolean = false
+    public missingExamplesKeyword: boolean = false
+    
+    public getTitle (): string {
+        return `Scenario Outline: ${this.description}`
+    }
 
 }

@@ -74,12 +74,18 @@ describe(`Models`, () => {
             rule.isCalled = true
             const secondRule = new Rule(`second rule`)
             secondRule.isCalled = false
+            const uncalledRuleWithTag = new Rule(`with tag`)
+            uncalledRuleWithTag.isCalled = true
+            uncalledRuleWithTag.tags.push(`ignore`)
 
             feature.rules.push(rule)
-            expect(feature.getFirstRuleNotCalled()).toBeUndefined()
+            expect(feature.getFirstRuleNotCalled([])).toBeUndefined()
+
+            feature.rules.push(uncalledRuleWithTag)
+            expect(feature.getFirstRuleNotCalled([`ignore`])).toBeUndefined()
             
             feature.rules.push(secondRule)
-            expect(feature.getFirstRuleNotCalled()).toEqual(secondRule)
+            expect(feature.getFirstRuleNotCalled([])).toEqual(secondRule)
         })
 
         test(`Check if have already called rule`, () => {
@@ -153,6 +159,7 @@ describe(`Models`, () => {
 
             expect(background.steps.length).toEqual(0)
             expect(background.isCalled).toBeFalsy()
+            expect(background.getTitle()).toEqual(`Background:`)
         })
 
         test(`Backgorund allowed step type`, () => {
@@ -188,6 +195,7 @@ describe(`Models`, () => {
             expect(scenario.description).toEqual(`First`)
             expect(scenario.steps.length).toEqual(0)
             expect(scenario.isCalled).toBeFalsy()
+            expect(scenario.getTitle()).toEqual(`Scenario: First`)
         })
 
         test(`Scenaio check uncalled steps`, () => {
@@ -225,6 +233,7 @@ describe(`Models`, () => {
 
             expect(scenarioOutline.examples).toEqual([])
             expect(scenarioOutline.missingExamplesKeyword).toBeFalsy()
+            expect(scenarioOutline.getTitle()).toEqual(`Scenario Outline: outline`)
         })
     })
 
