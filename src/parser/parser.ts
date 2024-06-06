@@ -74,7 +74,7 @@ export class GherkinParser {
 
             this.addScenarioToParent(scenario)
             this.addTagToParent(scenario)
-        } else if (line.includes(`Examples:`)) {
+        } else if (this.isExamplesLine(line)) {
             this.currentExample = []
         } else if (line.trim().startsWith(`|`)) {
             this.detectMissingExamplesKeyword()
@@ -266,6 +266,10 @@ export class GherkinParser {
 
     public isScenarioOutlineLine (line: string): boolean {
         return line.includes(`Scenario Outline:`) || line.includes(`Scenario Template:`)
+    }
+
+    public isExamplesLine (line: string): boolean {
+        return line.includes(`Examples:`) || line.includes(`Scenarios:`)
     }
 
     public getScenarioName (line: string): string {

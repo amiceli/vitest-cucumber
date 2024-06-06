@@ -191,6 +191,34 @@ describe(`GherkinParser`, () => {
         ])
     })
 
+    it(`should be able to read Scenarios`, () => {
+        const scenarioTitile = `awesome outline`
+
+        parser.addLine(`Feature: awesome feature`)
+        parser.addLine(`Scenario Template: ${scenarioTitile}`)
+        parser.addLine(`Scenarios:`)
+        parser.addLine(`| framework | language   |`)
+        parser.addLine(`| Vue       | Javascript |`)
+        parser.addLine(`| Stencil   | Typescript |`)
+        parser.addLine(``)
+
+        const currentFeature = getCurrentFeaut(parser)
+        const currentScenario = currentFeature.getScenarioByName(scenarioTitile)
+
+        expect(
+            (currentScenario as ScenarioOutline).examples,
+        ).toEqual([
+            {
+                framework : `Vue`,
+                language : `Javascript`,
+            },
+            {
+                framework : `Stencil`,
+                language : `Typescript`,
+            },
+        ])
+    })
+
     it(`should check Examples at finish parse`, () => {
         const scenarioTitile = `awesome outline`
 
