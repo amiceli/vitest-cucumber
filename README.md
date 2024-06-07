@@ -2,11 +2,9 @@
 <img src="https://vitest-cucumber.miceli.click/logo.png" width="100" />
 </p>
 
-# vitest-cucumber
+# [vitest-cucumber](https://vitest-cucumber.miceli.click/)
 
-###  [docs website](https://vitest-cucumber.miceli.click/).
-
----
+## Overview
 
 vitest-cucumber is a [vitest](https://vitest.dev/) **tools** (not a plugin) inspired by [jest-cucumber](https://github.com/bencompton/jest-cucumber).
 
