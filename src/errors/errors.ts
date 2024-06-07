@@ -166,3 +166,11 @@ export class BackgroundNotExistsError extends VitestsCucumberError {
     }
 
 }
+
+export class OnlyOneFeatureError extends VitestsCucumberError {
+
+    public constructor () {
+        super(`Gherkin rule: only one Feature by file`)
+    }
+
+}

@@ -1,6 +1,6 @@
 {
   "name": "@amiceli/vitest-cucumber",
-  "version": "3.3.1",
+  "version": "3.3.2",
   "description": "vitest tools to use Gherkin feature in unit tests",
   "main": "dist/module.js",
   "files": [
@@ -15,6 +15,7 @@
     "build:script": "esbuild scripts/cli-generate.ts --bundle --platform=node > dist/cli-generate.js",
     "build:all": "npm run build && npm run build:script",
     "test:unit": "vitest --run",
+    "test:silent": "vitest --silent --run",
     "prepare": "husky install"
   },
   "keywords": [

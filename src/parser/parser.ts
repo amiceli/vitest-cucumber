@@ -1,4 +1,4 @@
-import { TwiceBackgroundError } from "../errors/errors"
+import { OnlyOneFeatureError, TwiceBackgroundError } from "../errors/errors"
 import { Background } from "./Background"
 import { Rule } from "./Rule"
 import { StepAble } from "./Stepable"
@@ -37,6 +37,10 @@ export class GherkinParser {
             return
         } 
         if (line.includes(`Feature:`)) {
+            if (this.features.length > 0) {
+                throw new OnlyOneFeatureError()
+            }
+
             this.currentFeatureIndex++
             this.currentScenarioIndex = -1
             this.currentRulenIndex = -1
@@ -59,10 +63,10 @@ export class GherkinParser {
 
             this.addTagToParent(rule)
             this.currentFeature.rules.push(rule)
-        } else if (line.includes(`Scenario Outline:`)) {
+        } else if (this.isScenarioOutlineLine(line)) {
             this.currentScenarioIndex++
 
-            const scenarioName = this.getTextAfterKeyword(line, `Scenario Outline`)
+            const scenarioName = this.getScenarioOutlineName(line)
             const scenario = new ScenarioOutline(scenarioName)
 
             this.lastScenarioOutline = scenario
@@ -70,15 +74,15 @@ export class GherkinParser {
 
             this.addScenarioToParent(scenario)
             this.addTagToParent(scenario)
-        } else if (line.includes(`Examples:`)) {
+        } else if (this.isExamplesLine(line)) {
             this.currentExample = []
         } else if (line.trim().startsWith(`|`)) {
             this.detectMissingExamplesKeyword()
             this.updateScenarioExamples(line)
-        } else if (line.includes(`Scenario:`)) {
+        } else if (this.isScenarioLine(line)) {
             this.currentScenarioIndex++
 
-            const scenarioName = this.getTextAfterKeyword(line, `Scenario`)
+            const scenarioName = this.getScenarioName(line)
             const scenario = new Scenario(scenarioName)
 
             this.lastSteppableTag = `Scenario`
@@ -254,6 +258,34 @@ export class GherkinParser {
         } else {
             return this.currentFeature.scenarii[this.currentScenarioIndex]
         }
+    }
+
+    public isScenarioLine (line: string): boolean {
+        return line.includes(`Scenario:`) || line.includes(`Example:`)
+    }
+
+    public isScenarioOutlineLine (line: string): boolean {
+        return line.includes(`Scenario Outline:`) || line.includes(`Scenario Template:`)
+    }
+
+    public isExamplesLine (line: string): boolean {
+        return line.includes(`Examples:`) || line.includes(`Scenarios:`)
+    }
+
+    public getScenarioName (line: string): string {
+        if (line.includes(`Example:`)) {
+            return this.getTextAfterKeyword(line, `Example`)
+        }
+
+        return this.getTextAfterKeyword(line, `Scenario`) 
+    }
+
+    public getScenarioOutlineName (line: string): string {
+        if (line.includes(`Scenario Template:`)) {
+            return this.getTextAfterKeyword(line, `Scenario Template`)
+        }
+
+        return this.getTextAfterKeyword(line, `Scenario Outline`) 
     }
 
 }
