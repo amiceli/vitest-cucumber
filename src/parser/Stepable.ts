@@ -16,11 +16,11 @@ export abstract class StepAble extends Taggable {
     }
 
     public hasUnCalledSteps () : boolean {
-        return this.getNoCalledSteps().length > 0
+        return this.getNoCalledStep() !== undefined
     }
 
-    public getNoCalledSteps () : Step[] {
-        return this.steps.filter((s) => s.isCalled === false)
+    public getNoCalledStep () : Step | undefined {
+        return this.steps.find((s) => s.isCalled === false)
     }
 
     public addStep (step : Step) {
