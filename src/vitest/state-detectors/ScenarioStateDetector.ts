@@ -33,9 +33,11 @@ export class ScenarioStateDetector {
     }
 
     public checkIfStepWasCalled () {
-        if (this.scenario.hasUnCalledSteps()) {
+        const step = this.scenario.getNoCalledStep()
+
+        if (step) {
             throw new StepAbleStepsNotCalledError(
-                this.scenario,
+                this.scenario, step,
             )
         }
     }

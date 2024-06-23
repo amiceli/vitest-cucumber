@@ -7,11 +7,11 @@ import { Step, StepTypes } from '../parser/step'
 
 abstract class VitestsCucumberError extends Error {
 
-    protected constructor (message: string) {
+    protected constructor (message: string, name? : string) {
         super(message)
 
         this.stack = ``
-        this.name = this.constructor.name
+        this.name = name || this.constructor.name
     }
 
 }
@@ -98,13 +98,15 @@ export class StepAbleUnknowStepError extends VitestsCucumberError {
 
 export class StepAbleStepsNotCalledError extends VitestsCucumberError {
 
-    public constructor (stepable : StepAble) {
-        const steps = stepable
-            .getNoCalledSteps()
-            .map((s: Step) =>  `\n ${s.type} ${s.details} was not called`)
-            .join(``)
-
-        super(`${stepable.getTitle()}  ${steps}`)
+    public constructor (stepable : StepAble, step : Step) {
+        super(
+            [
+                ``,
+                `    ${stepable.getTitle()}`,
+                `        ${step.getTitle()} ❌`,
+            ].join(`\n`),
+            `Missing steps in Scenario`,
+        )
     }
 
 }
