@@ -40,6 +40,8 @@ export function createScenarioDescribeHandler (
             const foundStep = ScenarioStateDetector
                 .forScenario(scenario)
                 .checkIfStepExists(stepType, stepDetails)
+            
+            foundStep.isCalled = true
  
             scenarioStepsToRun.push({
                 key : `${stepType} ${stepDetails}`,
@@ -59,14 +61,14 @@ export function createScenarioDescribeHandler (
             
     scenarioTestCallback(scenarioStepsCallback)
 
+    detectUncalledScenarioStep(scenario)
+
     return function scenarioDescribe () {
         beforeAll(async () => {
             await beforeEachScenarioHook()
         })
 
         afterAll(async () => {
-            detectUncalledScenarioStep(scenario)
-
             scenario.isCalled = true
 
             await afterEachScenarioHook()
@@ -81,7 +83,6 @@ export function createScenarioDescribeHandler (
             }),
         )(`%s`, async (_, scenarioStep) => {
             await scenarioStep.fn()
-            scenarioStep.step.isCalled = true
         })
     }
 }

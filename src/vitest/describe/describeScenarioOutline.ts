@@ -41,6 +41,7 @@ export function createScenarioOutlineDescribeHandler (
                 .forScenario(scenario)
                 .checkIfStepExists(stepType, stepDetails)
 
+            foundStep.isCalled = true
             scenarioStepsToRun.push({
                 key : `${stepType} ${stepDetails}`,
                 fn : scenarioStepCallback,
@@ -65,6 +66,8 @@ export function createScenarioOutlineDescribeHandler (
             scenarioStepsToRun = []
             scenarioTestCallback(scenarioStepsCallback, exampleVariables)
 
+            detectUncalledScenarioStep(scenario)
+
             return (
                 (steps) => function scenarioOutlineDescribe () {
                     beforeAll(async () => {
@@ -72,8 +75,6 @@ export function createScenarioOutlineDescribeHandler (
                     })
 
                     afterAll(async () => {
-                        detectUncalledScenarioStep(scenario)
-
                         scenario.isCalled = true
 
                         await afterEachScenarioHook()
@@ -88,7 +89,6 @@ export function createScenarioOutlineDescribeHandler (
                         }),
                     )(`%s`, async (_, scenarioStep) => {
                         await scenarioStep.fn()
-                        scenarioStep.step.isCalled = true
                     })
                 }
             )([...scenarioStepsToRun])

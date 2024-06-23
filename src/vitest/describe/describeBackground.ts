@@ -34,6 +34,8 @@ export function createBackgroundDescribeHandler (
             const foundStep = ScenarioStateDetector
                 .forScenario(background)
                 .checkIfStepExists(stepType, stepDetails)
+            
+            foundStep.isCalled = true
  
             backgroundStepsToRun.push({
                 key : `${stepType} ${stepDetails}`,
@@ -50,10 +52,10 @@ export function createBackgroundDescribeHandler (
             
     backgroundCallback(scenarioStepsCallback)
 
-    return function backgroundDescribe () {
-        afterAll(async () => {
-            detectUncalledScenarioStep(background)
+    detectUncalledScenarioStep(background)
 
+    return function backgroundDescribe () {
+        afterAll(() => {
             background.isCalled = true
         })
 
@@ -66,7 +68,6 @@ export function createBackgroundDescribeHandler (
             }),
         )(`%s`, async (_, scenarioStep) => {
             await scenarioStep.fn()
-            scenarioStep.step.isCalled = true
         })
     }
 }
