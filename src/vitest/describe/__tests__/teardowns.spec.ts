@@ -79,6 +79,6 @@ test(`should detect uncalled scenario step`, () => {
     expect(() => {
         detectUncalledScenarioStep(scenario)
     }).toThrowError(
-        new StepAbleStepsNotCalledError(scenario),
+        new StepAbleStepsNotCalledError(scenario, step),
     )
 })
