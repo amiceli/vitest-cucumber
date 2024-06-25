@@ -1,3 +1,4 @@
+import { Background } from '../parser/Background'
 import { Rule } from '../parser/Rule'
 import { ScenarioParent } from '../parser/ScenarioParent'
 import { StepAble } from '../parser/Stepable'
@@ -28,6 +29,14 @@ export class IsScenarioOutlineError extends VitestsCucumberError {
 
     public constructor (scenario : Scenario) {
         super(`${scenario.getTitle()} is a ScenarioOutline`)
+    }
+
+}
+
+export class BackgroundNotCalledError extends VitestsCucumberError {
+
+    public constructor (background : Background) {
+        super(`${background.getTitle()} was not called`)
     }
 
 }

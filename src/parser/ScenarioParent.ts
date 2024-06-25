@@ -1,3 +1,4 @@
+import { BackgroundNotCalledError, ScenarioNotCalledError } from '../errors/errors'
 import { Background } from './Background'
 import { Taggable } from './Taggable'
 import {
@@ -47,6 +48,26 @@ export abstract class ScenarioParent extends Taggable {
 
     public getTitle (): string {
         return `${this.constructor.name}: ${this.name}`
+    }
+
+    public checkUncalledScenario (tags : string[]) {
+        const uncalled = this.getFirstNotCalledScenario(tags)
+
+        if (uncalled) {
+            throw new ScenarioNotCalledError(uncalled)
+        }
+
+        return this
+    }
+
+    public checkUncalledBackground (tags : string[]) {
+        if (this.background) {
+            if (!this.background.isCalled && !this.background.matchTags(tags)) {
+                throw new BackgroundNotCalledError(this.background)
+            }
+        }
+
+        return this
     }
 
 }

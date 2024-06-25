@@ -1,3 +1,4 @@
+import { StepAbleStepsNotCalledError } from "../errors/errors"
 import { Taggable } from "./Taggable"
 import { Step } from "./step"
 
@@ -25,6 +26,16 @@ export abstract class StepAble extends Taggable {
 
     public addStep (step : Step) {
         this.steps.push(step)
+    }
+    
+    public checkIfStepWasCalled () {
+        const step = this.getNoCalledStep()
+
+        if (step) {
+            throw new StepAbleStepsNotCalledError(
+                this, step,
+            )
+        }
     }
 
 }

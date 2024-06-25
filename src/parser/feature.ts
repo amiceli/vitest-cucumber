@@ -1,5 +1,6 @@
 import { ScenarioParent } from './ScenarioParent'
 import { Rule } from './Rule'
+import { RuleNotCalledError } from '../errors/errors'
 
 export class Feature extends ScenarioParent {
 
@@ -19,6 +20,16 @@ export class Feature extends ScenarioParent {
 
     public haveAlreadyCalledRule (): boolean {
         return this.rules.some((rule) => rule.isCalled === true)
+    }
+
+    public checkUncalledRule (tags : string[]) {
+        const uncalled = this.getFirstRuleNotCalled(tags)
+
+        if (uncalled) {
+            throw new RuleNotCalledError(uncalled)
+        }
+
+        return this
     }
 
 }
