@@ -13,6 +13,7 @@ import { Example } from "../parser/scenario"
 import { createScenarioDescribeHandler } from "./describe/describeScenario"
 import { createScenarioOutlineDescribeHandler } from "./describe/describeScenarioOutline"
 import { createBackgroundDescribeHandler } from "./describe/describeBackground"
+import { ScenarioStateDetector } from "./state-detectors/ScenarioStateDetector"
 
 export type DescribeFeatureOptions = {
     excludeTags? : string[]
@@ -76,6 +77,11 @@ export function describeFeature (
             scenarioTestCallback: (op: StepTest, variables: Example[0]) => MaybePromise,
         ) => {
             const scenario = feature.getScenarioOutline(scenarioDescription)
+
+            ScenarioStateDetector
+                .forScenario(scenario)
+                .checkExemples()
+
             scenario.isCalled = true
 
             scenarioToRun.push(
@@ -138,6 +144,11 @@ export function describeFeature (
                     scenarioTestCallback: (op: StepTest, variables: Example[0]) => MaybePromise,
                 ) => {
                     const scenario = currentRule.getScenarioOutline(scenarioDescription)
+
+                    ScenarioStateDetector
+                        .forScenario(scenario)
+                        .checkExemples()
+
                     scenario.isCalled = true
 
                     rulesScenarios.push(
