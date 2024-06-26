@@ -6,7 +6,6 @@ import { Step } from "../../parser/step"
 import {
     StepTest, MaybePromise, StepCallbackDefinition,
 } from "../types"
-import { ScenarioStateDetector } from "../state-detectors/ScenarioStateDetector"
 
 type DescribeScenarioArgs = {
     scenario: ScenarioOutline,
@@ -36,9 +35,7 @@ export function createScenarioOutlineDescribeHandler (
             stepDetails: string,
             scenarioStepCallback: () => void,
         ) => {
-            const foundStep = ScenarioStateDetector
-                .forScenario(scenario)
-                .checkIfStepExists(stepType, stepDetails)
+            const foundStep = scenario.checkIfStepExists(stepType, stepDetails)
 
             foundStep.isCalled = true
             scenarioStepsToRun.push({

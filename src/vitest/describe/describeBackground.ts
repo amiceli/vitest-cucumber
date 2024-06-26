@@ -3,7 +3,6 @@ import {
     MaybePromise, StepCallbackDefinition, BackgroundStepTest,
 } from "../types"
 import { Step } from "../../parser/step"
-import { ScenarioStateDetector } from "../state-detectors/ScenarioStateDetector"
 import { Background } from "../../parser/Background"
 
 type DescribeScenarioArgs = {
@@ -30,10 +29,7 @@ export function createBackgroundDescribeHandler (
             stepDetails: string, 
             scenarioStepCallback: () => void,
         ) => {
-            const foundStep = ScenarioStateDetector
-                .forScenario(background)
-                .checkIfStepExists(stepType, stepDetails)
-            
+            const foundStep = background.checkIfStepExists(stepType, stepDetails)
             foundStep.isCalled = true
  
             backgroundStepsToRun.push({

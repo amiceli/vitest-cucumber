@@ -1,6 +1,6 @@
-import { StepAbleStepsNotCalledError } from "../errors/errors"
+import { StepAbleStepsNotCalledError, StepAbleUnknowStepError } from "../errors/errors"
 import { Taggable } from "./Taggable"
-import { Step } from "./step"
+import { Step, StepTypes } from "./step"
 
 export abstract class StepAble extends Taggable {
 
@@ -36,6 +36,21 @@ export abstract class StepAble extends Taggable {
                 this, step,
             )
         }
+    }
+
+    public checkIfStepExists (stepType: string, stepDetails: string) {
+        const foundStep = this.findStepByTypeAndDetails(
+            stepType, stepDetails,
+        )
+
+        if (!foundStep) {
+            throw new StepAbleUnknowStepError(
+                this,
+                new Step(stepType as StepTypes, stepDetails),
+            )
+        }
+
+        return foundStep
     }
 
 }

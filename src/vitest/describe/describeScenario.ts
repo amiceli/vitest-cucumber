@@ -6,7 +6,6 @@ import {
 } from "../types"
 import { Step } from "../../parser/step"
 import { Scenario } from "../../parser/scenario"
-import { ScenarioStateDetector } from "../state-detectors/ScenarioStateDetector"
 
 type DescribeScenarioArgs = {
     scenario : Scenario,
@@ -36,9 +35,7 @@ export function createScenarioDescribeHandler (
             stepDetails: string, 
             scenarioStepCallback: () => void,
         ) => {
-            const foundStep = ScenarioStateDetector
-                .forScenario(scenario)
-                .checkIfStepExists(stepType, stepDetails)
+            const foundStep = scenario.checkIfStepExists(stepType, stepDetails)
             
             foundStep.isCalled = true
  
