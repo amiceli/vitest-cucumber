@@ -1,6 +1,6 @@
 import { ScenarioParent } from './ScenarioParent'
 import { Rule } from './Rule'
-import { RuleNotCalledError } from '../errors/errors'
+import { FeatureUknowRuleError, RuleNotCalledError } from '../errors/errors'
 
 export class Feature extends ScenarioParent {
 
@@ -30,6 +30,19 @@ export class Feature extends ScenarioParent {
         }
 
         return this
+    }
+
+    public checkIfRuleExists (ruleName : string) : Rule {
+        const foundRule = this.getRuleByName(ruleName)
+
+        if (!foundRule) {
+            throw new FeatureUknowRuleError(
+                this,
+                new Rule(ruleName),
+            )
+        }
+
+        return foundRule
     }
 
 }
