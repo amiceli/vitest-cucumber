@@ -1,4 +1,6 @@
-import { BackgroundNotCalledError, ScenarioNotCalledError } from '../errors/errors'
+import {
+    BackgroundNotCalledError, BackgroundNotExistsError, ScenarioNotCalledError, 
+} from '../errors/errors'
 import { Background } from './Background'
 import { Taggable } from './Taggable'
 import {
@@ -68,6 +70,14 @@ export abstract class ScenarioParent extends Taggable {
         }
 
         return this
+    }
+
+    public getBackground () : Background {
+        if (this.background) {
+            return this.background
+        }
+
+        throw new BackgroundNotExistsError(this)
     }
 
 }
