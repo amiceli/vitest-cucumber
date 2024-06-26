@@ -12,12 +12,6 @@ import {
 import { Example } from "../parser/scenario"
 import { createScenarioDescribeHandler } from "./describe/describeScenario"
 import { createScenarioOutlineDescribeHandler } from "./describe/describeScenarioOutline"
-import {
-    checkIfBackgroundExistInParent,
-    checkScenarioInFeature, checkScenarioInRule, checkScenarioOutlineInFeature, checkScenarioOutlineInRule,
-} from "./state-detectors"
-import { FeatureStateDetector } from "./state-detectors/FeatureStateDetector"
-import { detectNotCalledRuleScenario, detectUnCalledScenarioAndRules } from "./describe/teardowns"
 import { createBackgroundDescribeHandler } from "./describe/describeBackground"
 
 export type DescribeFeatureOptions = {
@@ -39,6 +33,8 @@ export function describeFeature (
     let afterAllScenarioHook: () => MaybePromise = () => { }
     let afterEachScenarioHook: () => MaybePromise = () => { }
 
+    const excludeTags = describeOptions?.excludeTags || []
+
     const scenarioToRun: DescribesToRun = []
     const rulesToRun: DescribesToRun = []
     let featureBackground : DescribesToRun[0] | null = null
@@ -47,10 +43,8 @@ export function describeFeature (
         Background : (
             backgroundCallback: (op: BackgroundStepTest) => MaybePromise,
         ) => {
-            const background = checkIfBackgroundExistInParent({
-                parent : feature,
-                excludeTags : describeOptions?.excludeTags || [],
-            })
+            const background = feature.getBackground()
+            background.isCalled = true
 
             featureBackground = {
                 describeTitle : `Background`,
@@ -64,11 +58,8 @@ export function describeFeature (
             scenarioDescription: string,
             scenarioTestCallback: (op: StepTest) => MaybePromise,
         ) => {
-            const scenario = checkScenarioInFeature({
-                scenarioDescription,
-                parent : feature,
-                excludeTags : describeOptions?.excludeTags || [],
-            })
+            const scenario = feature.getScenario(scenarioDescription)
+            scenario.isCalled = true
 
             scenarioToRun.push({
                 describeTitle : `Scenario: ${scenario.description}`,
@@ -84,11 +75,8 @@ export function describeFeature (
             scenarioDescription: string,
             scenarioTestCallback: (op: StepTest, variables: Example[0]) => MaybePromise,
         ) => {
-            const scenario = checkScenarioOutlineInFeature({
-                scenarioDescription,
-                parent : feature,
-                excludeTags : describeOptions?.excludeTags || [],
-            })
+            const scenario = feature.getScenarioOutline(scenarioDescription)
+            scenario.isCalled = true
 
             scenarioToRun.push(
                 ...createScenarioOutlineDescribeHandler({
@@ -102,25 +90,23 @@ export function describeFeature (
                 })),
             )
         },
-        Rule : async (
+        Rule : (
             ruleName: string,
             ruleCallback,
         ) => {
             const rulesScenarios: DescribesToRun = []
-            const currentRule = FeatureStateDetector
-                .forFeature(feature, describeOptions?.excludeTags || [])
-                .checkIfRuleExists(ruleName)
+            const currentRule = feature.checkIfRuleExists(ruleName)
             
+            currentRule.isCalled = true
+
             let ruleBackground : DescribesToRun[0] | null = null
 
-            await ruleCallback({
+            ruleCallback({
                 RuleBackground : (
                     backgroundCallback: (op: BackgroundStepTest) => MaybePromise,
                 ) => {
-                    const background = checkIfBackgroundExistInParent({
-                        parent : currentRule,
-                        excludeTags : describeOptions?.excludeTags || [],
-                    })
+                    const background = currentRule.getBackground()
+                    background.isCalled = true
 
                     ruleBackground = {
                         describeTitle : `Background`,
@@ -134,11 +120,8 @@ export function describeFeature (
                     scenarioDescription: string,
                     scenarioTestCallback: (op: StepTest) => MaybePromise,
                 ) => {
-                    const scenario = checkScenarioInRule({
-                        scenarioDescription,
-                        parent : currentRule,
-                        excludeTags : describeOptions?.excludeTags || [],
-                    })
+                    const scenario = currentRule.getScenario(scenarioDescription)
+                    scenario.isCalled = true
 
                     rulesScenarios.push({
                         describeTitle : `Scenario: ${scenario.description}`,
@@ -154,11 +137,8 @@ export function describeFeature (
                     scenarioDescription: string,
                     scenarioTestCallback: (op: StepTest, variables: Example[0]) => MaybePromise,
                 ) => {
-                    const scenario = checkScenarioOutlineInRule({
-                        scenarioDescription,
-                        parent : currentRule,
-                        excludeTags : describeOptions?.excludeTags || [],
-                    })
+                    const scenario = currentRule.getScenarioOutline(scenarioDescription)
+                    scenario.isCalled = true
 
                     rulesScenarios.push(
                         ...createScenarioOutlineDescribeHandler({
@@ -173,6 +153,10 @@ export function describeFeature (
                     )
                 },
             })
+            
+            currentRule
+                .checkUncalledScenario(excludeTags)
+                .checkUncalledBackground(excludeTags)
 
             rulesToRun.push({
                 describeTitle : `Rule: ${ruleName}`,
@@ -181,9 +165,6 @@ export function describeFeature (
                         await beforeAllScenarioHook()
                     })
                     afterAll(async () => {
-                        detectNotCalledRuleScenario(currentRule, describeOptions?.excludeTags || [])
-                        currentRule.isCalled = true
-
                         await afterAllScenarioHook()
                     })
 
@@ -224,16 +205,19 @@ export function describeFeature (
         },
     }
 
-    describe(`Feature: ${feature.name}`, async () => {
-        await featureFn(descibeFeatureParams)
+    featureFn(descibeFeatureParams)
 
+    feature
+        .checkUncalledRule(excludeTags)
+        .checkUncalledScenario(excludeTags)
+        .checkUncalledBackground(excludeTags)
+
+    describe(`Feature: ${feature.name}`, async () => {
         beforeAll(async () => {
             await beforeAllScenarioHook()
         })
 
         afterAll(async () => {
-            detectUnCalledScenarioAndRules(feature, describeOptions?.excludeTags || [])
-
             await afterAllScenarioHook()
         })
 

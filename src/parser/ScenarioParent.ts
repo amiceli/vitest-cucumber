@@ -1,5 +1,5 @@
 import {
-    BackgroundNotCalledError, BackgroundNotExistsError, ScenarioNotCalledError, 
+    BackgroundNotCalledError, BackgroundNotExistsError, FeatureUknowScenarioError, IsScenarioOutlineError, NotScenarioOutlineError, ScenarioNotCalledError, 
 } from '../errors/errors'
 import { Background } from './Background'
 import { Taggable } from './Taggable'
@@ -78,6 +78,47 @@ export abstract class ScenarioParent extends Taggable {
         }
 
         throw new BackgroundNotExistsError(this)
+    }
+
+    private checkIfScenarioExists (scenarioDescription: string) : Scenario {
+        const foundScenario = this.getScenarioByName(scenarioDescription)
+
+        if (!foundScenario) {
+            throw new FeatureUknowScenarioError(
+                this,
+                new Scenario(scenarioDescription),
+            )
+        }
+
+        return foundScenario
+    }
+
+    private scenarioShouldNotBeOutline (scenario: Scenario) {
+        if (scenario instanceof ScenarioOutline) {
+            throw new IsScenarioOutlineError(scenario)
+        }
+    }
+
+    private scenarioShouldBeOutline (scenario: Scenario) {
+        if (!(scenario instanceof ScenarioOutline)) {
+            throw new NotScenarioOutlineError(scenario)
+        }
+    }
+
+    public getScenario (description : string) : Scenario {
+        const scenario = this.checkIfScenarioExists(description)
+
+        this.scenarioShouldNotBeOutline(scenario)
+
+        return scenario
+    }
+
+    public getScenarioOutline (description : string) : ScenarioOutline {
+        const scenario = this.checkIfScenarioExists(description) as ScenarioOutline
+
+        this.scenarioShouldBeOutline(scenario)
+
+        return scenario
     }
 
 }
