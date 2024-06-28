@@ -3,15 +3,22 @@ import { describeFeature } from '../describe-feature'
 import {
     BackgroundNotCalledError,
     BackgroundNotExistsError,
-    FeatureUknowRuleError, IsScenarioOutlineError, NotScenarioOutlineError, RuleNotCalledError, ScenarioNotCalledError, StepAbleStepsNotCalledError, StepAbleUnknowStepError,
+    FeatureUknowRuleError, 
+    IsScenarioOutlineError, 
+    NotScenarioOutlineError, 
+    RuleNotCalledError, 
+    ScenarioNotCalledError, 
+    StepAbleStepsNotCalledError, 
+    StepAbleUnknowStepError,
 } from "../../errors/errors"
-// import * as teardowns from "../describe/teardowns"
 import {
-    afterAll, describe, expect,
+    afterAll, 
+    describe, 
+    expect,
     vi,
 } from "vitest"
 import { FeatureContentReader } from "../../__mocks__/FeatureContentReader.spec"
-import { Rule } from "../../parser/Rule"
+import { Rule as RuleType } from "../../parser/Rule"
 
 describe(`Feature`, () => {
     describe(`should detect uncalled Rule`, () => {
@@ -51,7 +58,7 @@ describe(`Feature`, () => {
         }).toThrowError(
             new FeatureUknowRuleError(
                 feature,
-                new Rule(`another`),
+                new RuleType(`another`),
             ),
         )
         
@@ -429,7 +436,7 @@ describe(`Background`, () => {
 })
 
 describe(`ScenarioOutline`, () => {
-    describe(`should detect uncalled Scenario step`, () => {
+    describe(`should detect uncalled ScenarioOutline step`, () => {
         const feature = FeatureContentReader.fromString([
             `Feature: one scenario with missing steps`,
             `   Scenario Outline: Simple scenario`,
@@ -490,317 +497,235 @@ describe(`ScenarioOutline`, () => {
     })
 })
 
-// describe(`Async scenario hooks`, () => {
-//     const feature = new Feature(`Async scenario hook`)
-//     const scenario = new ScenarioType(`A simple Scenario`)
+describe(`Async scenario hooks`, () => {
+    const feature = FeatureContentReader.fromString([
+        `Feature: Async scenario hook`,
+        `   Scenario: A simple Scenario`,
+        `       Given Hooks are async`,
+        `       Then  I wait hooks are finished`,
+    ]).parseContent()
 
-//     scenario.steps.push(
-//         new Step(StepTypes.GIVEN, `Hooks are async`),
-//         new Step(StepTypes.THEN, `I wait hooks are finished`),
-//     )
+    type ResolveArgs = (
+        resolve: (value: void | PromiseLike<void>) => void
+    ) => void
 
-//     feature.scenarii.push(scenario)
+    function delayPromise (fn: ResolveArgs): Promise<void> {
+        return new Promise((resolve) => {
+            setTimeout(() => { fn(resolve) }, 200)
+        })
+    }
 
-//     type ResolveArgs = (
-//         resolve: (value: void | PromiseLike<void>) => void
-//     ) => void
+    let beforeEachScenarioHookFinished = false
+    let beforeAllScenarioHookFinished = false
+    let afterEachScenarioHookFinished = false
+    let afterAllScenarioHookFinished = true
 
-//     function delayPromise (fn: ResolveArgs): Promise<void> {
-//         return new Promise((resolve) => {
-//             setTimeout(() => { fn(resolve) }, 400)
-//         })
-//     }
+    afterAll(() => {
+        expect(afterAllScenarioHookFinished).toBeTruthy()
+    })
 
-//     let beforeEachScenarioHookFinished = false
-//     let beforeAllScenarioHookFinished = false
-//     let afterEachScenarioHookFinished = false
-//     let afterAllScenarioHookFinished = true
+    describeFeature(feature, (f) => {
+        f.BeforeAllScenarios(async () => {
+            await delayPromise((resolve) => {
+                beforeAllScenarioHookFinished = true
+                resolve()
+            })
+        })
+        f.BeforeEachScenario(async () => {
+            expect(beforeAllScenarioHookFinished).toBe(true)
 
-//     afterAll(() => {
-//         expect(afterAllScenarioHookFinished).toBeTruthy()
-//     })
+            await delayPromise((resolve) => {
+                beforeEachScenarioHookFinished = true
+                resolve()
+            })
+        })
+        f.AfterEachScenario(async () => {
+            expect(beforeEachScenarioHookFinished).toBe(true)
+            expect(beforeAllScenarioHookFinished).toBe(true)
 
-//     describeFeature(feature, ({ BeforeEachScenario, AfterEachScenario, BeforeAllScenarios, AfterAllScenarios, Scenario }) => {
-//         BeforeAllScenarios(async () => {
-//             await delayPromise((resolve) => {
-//                 beforeAllScenarioHookFinished = true
-//                 resolve()
-//             })
-//         })
-//         BeforeEachScenario(async () => {
-//             expect(beforeAllScenarioHookFinished).toBe(true)
+            await delayPromise((resolve) => {
+                afterEachScenarioHookFinished = true
+                resolve()
+            })
+        })
+        f.AfterAllScenarios(async () => {
+            await delayPromise((resolve) => {
+                expect(beforeEachScenarioHookFinished).toBe(true)
+                expect(beforeAllScenarioHookFinished).toBe(true)
+                expect(afterEachScenarioHookFinished).toBe(true)
 
-//             await delayPromise((resolve) => {
-//                 beforeEachScenarioHookFinished = true
-//                 resolve()
-//             })
-//         })
-//         AfterEachScenario(async () => {
-//             expect(beforeEachScenarioHookFinished).toBe(true)
-//             expect(beforeAllScenarioHookFinished).toBe(true)
+                afterAllScenarioHookFinished = true
+                resolve()
+            })
+        })
+        f.Scenario(`A simple Scenario`, ({ Given, Then }) => {
+            Given(`Hooks are async`, () => {
+                expect(beforeEachScenarioHookFinished).toBeTruthy()
+            })
+            Then(`I wait hooks are finished`, () => {
+                expect(beforeAllScenarioHookFinished).toBeTruthy()
+            })
+        })
+    })
+})
 
-//             await delayPromise((resolve) => {
-//                 afterEachScenarioHookFinished = true
-//                 resolve()
-//             })
-//         })
-//         AfterAllScenarios(async () => {
-//             await delayPromise((resolve) => {
-//                 expect(beforeEachScenarioHookFinished).toBe(true)
-//                 expect(beforeAllScenarioHookFinished).toBe(true)
-//                 expect(afterEachScenarioHookFinished).toBe(true)
+describe(`Scneario hooks`, () => {
+    const feature = FeatureContentReader.fromString([
+        `Feature: Check scenario hooks`,
+        `   Scenario: First scenario`,
+        `       Given BeforeEachScenario should be called`,
+        `       And   BeforeAllScenarios should be called`,
+        `       But   AfterEachScenario should not be called`,
+        `       And   AfterAllScenarios should not be called`,
+        `   Scenario: Second scenario`,
+        `       Given AfterEachScenario should be called`,
+        `       And   AfterAllScenarios should not  be called`,
+    ]).parseContent()
 
-//                 afterAllScenarioHookFinished = true
-//                 resolve()
-//             })
-//         })
-//         Scenario(`A simple Scenario`, ({ Given, Then }) => {
-//             Given(`Hooks are async`, () => {
-//                 expect(beforeEachScenarioHookFinished).toBeTruthy()
-//             })
-//             Then(`I wait hooks are finished`, () => {
-//                 expect(beforeAllScenarioHookFinished).toBeTruthy()
-//             })
-//         })
-//     })
-// })
+    const spyBeforeEachScenario = vi.fn()
+    const spyBeforeAllScenarios = vi.fn()
+    const spyAfterEachScenario = vi.fn()
+    const spyAfterAllScenarios = vi.fn()
 
-// describe(`Scneario hooks`, () => {
-//     const feature = new Feature(`Check scenario hooks`)
-//     const first = new ScenarioType(`First scenario`)
-//     const second = new ScenarioType(`Second scenario`)
+    afterAll(() => {
+        expect(spyAfterAllScenarios).toHaveBeenCalled()
+    })
 
-//     first.steps.push(
-//         new Step(StepTypes.THEN, `BeforeEachScenario should be called`),
-//         new Step(StepTypes.AND, `BeforeAllScenarios should be called`),
-//         new Step(StepTypes.BUT, `AfterEachScenario should not be called`),
-//         new Step(StepTypes.AND, `AfterAllScenarios should not be called`),
-//     )
-//     second.steps.push(
-//         new Step(StepTypes.THEN, `AfterEachScenario should be called`),
-//         new Step(StepTypes.AND, `AfterAllScenarios should not  be called`),
-//     )
-//     feature.scenarii.push(first, second)
+    describeFeature(
+        feature,
+        ({ Scenario, BeforeEachScenario, AfterEachScenario, AfterAllScenarios, BeforeAllScenarios }) => {
+            BeforeEachScenario(() => { spyBeforeEachScenario() })
+            BeforeAllScenarios(() => { spyBeforeAllScenarios() })
+            AfterEachScenario(() => { spyAfterEachScenario() })
+            AfterAllScenarios(() => { spyAfterAllScenarios() })
 
-//     const spyBeforeEachScenario = vi.fn()
-//     const spyBeforeAllScenarios = vi.fn()
-//     const spyAfterEachScenario = vi.fn()
-//     const spyAfterAllScenarios = vi.fn()
+            Scenario(`First scenario`, ({ Given, And, But }) => {
+                Given(`BeforeEachScenario should be called`, () => {
+                    expect(spyBeforeEachScenario).toHaveBeenCalled()
+                })
+                And(`BeforeAllScenarios should be called`, () => {
+                    expect(spyBeforeAllScenarios).toHaveBeenCalled()
+                })
+                But(`AfterEachScenario should not be called`, () => {
+                    expect(spyAfterEachScenario).not.toHaveBeenCalled()
+                })
+                And(`AfterAllScenarios should not be called`, () => {
+                    expect(spyAfterAllScenarios).not.toHaveBeenCalled()
+                })
+            })
 
-//     afterAll(() => {
-//         expect(spyAfterAllScenarios).toHaveBeenCalled()
-//     })
+            Scenario(`Second scenario`, ({ Given, And }) => {
+                Given(`AfterEachScenario should be called`, () => {
+                    expect(spyAfterEachScenario).toHaveBeenCalled()
+                })
+                And(`AfterAllScenarios should not  be called`, () => {
+                    expect(spyAfterAllScenarios).not.toHaveBeenCalled()
+                })
+            })
+        },
+    )
+})
 
-//     describeFeature(
-//         feature,
-//         ({ Scenario, BeforeEachScenario, AfterEachScenario, AfterAllScenarios, BeforeAllScenarios }) => {
-//             BeforeEachScenario(() => { spyBeforeEachScenario() })
-//             BeforeAllScenarios(() => { spyBeforeAllScenarios() })
-//             AfterEachScenario(() => { spyAfterEachScenario() })
-//             AfterAllScenarios(() => { spyAfterAllScenarios() })
+describe(`Scenario steps are executed one after one`, () => {
+    const feature = FeatureContentReader.fromString([
+        `Feature: Handle scenario step one after one`,
+        `   Scenario: Step one after one`,
+        `       Given I start a count to 0`,
+        `       And   I increase the count by 1 in a promise`,
+        `       When  I use a timeout`,
+        `       Then  The count should be 2`,
+    ]).parseContent()
 
-//             Scenario(`First scenario`, ({ Then, And, But }) => {
-//                 Then(`BeforeEachScenario should be called`, () => {
-//                     expect(spyBeforeEachScenario).toHaveBeenCalled()
-//                 })
-//                 And(`BeforeAllScenarios should be called`, () => {
-//                     expect(spyBeforeAllScenarios).toHaveBeenCalled()
-//                 })
-//                 But(`AfterEachScenario should not be called`, () => {
-//                     expect(spyAfterEachScenario).not.toHaveBeenCalled()
-//                 })
-//                 And(`AfterAllScenarios should not be called`, () => {
-//                     expect(spyAfterAllScenarios).not.toHaveBeenCalled()
-//                 })
-//             })
+    describeFeature(feature, ({ Scenario }) => {
+        Scenario(`Step one after one`, ({ Given, And, When, Then }) => {
+            let count = 0
+            Given(`I start a count to 0`, () => {
+                expect(count).toBe(0)
+            })
+            And(`I increase the count by 1 in a promise`, async () => {
+                await new Promise((resolve) => {
+                    count++
+                    resolve(null)
+                })
+            })
+            When(`I use a timeout`, async () => {
+                expect(count).toBe(1)
+                await new Promise((resolve) => {
+                    setTimeout(() => {
+                        count++
+                        resolve(null)
+                    }, 1000)
+                })
+            })
+            Then(`The count should be 2`, () => {
+                expect(count).toBe(2)
+            })
+        })
+    })
+})
 
-//             Scenario(`Second scenario`, ({ Then, And }) => {
-//                 Then(`AfterEachScenario should be called`, () => {
-//                     expect(spyAfterEachScenario).toHaveBeenCalled()
-//                 })
-//                 And(`AfterAllScenarios should not  be called`, () => {
-//                     expect(spyAfterAllScenarios).not.toHaveBeenCalled()
-//                 })
-//             })
-//         },
-//     )
-// })
+describe(`Background run before scenario`, async () => {
+    const feature = FeatureContentReader.fromString([
+        `Feature: Background run before scenario tests`,
+        `    Background:`,
+        `        Given I'm a background`,
+        `    Scenario: Simple scenario`,
+        `        Given I'm a scenario`,
+        `        Then  background is run before me`,
+        `    Rule: background in rule`,
+        `        Background:`,
+        `            Given I'm a background in a rule`,
+        `        Scenario: Simple rule scenario`,
+        `            Given I'm a rule scenario`,
+        `            Then  rule background is run before me`,
+        `            And   feature background is run before me`,
+    ]).parseContent()
 
-// describe(`Scenario steps are executed one after one`, () => {
-//     const feature = new Feature(`Handle scenario step one after one`)
-//     const scenario = new ScenarioType(`Step one after one`)
+    describeFeature(feature, ({ Background, Scenario, Rule }) => {
+        let featureBackgroundSpy = -1
 
-//     scenario.steps.push(
-//         new Step(StepTypes.GIVEN, `I start a count to 0`),
-//         new Step(StepTypes.AND, `I increase the count by 1 in a promise`),
-//         new Step(StepTypes.WHEN, `I use a timeout`),
-//         new Step(StepTypes.THEN, `The count should be 2`),
-//     )
-//     feature.scenarii.push(scenario)
+        Background(({ Given }) => {
+            Given(`I'm a background`,  async () => {
+                console.debug(`Feature Background`)
+                featureBackgroundSpy = 0
+            })
+        })
 
-//     describeFeature(feature, ({ Scenario }) => {
-//         Scenario(`Step one after one`, ({ Given, And, When, Then }) => {
-//             let count = 0
-//             Given(`I start a count to 0`, () => {
-//                 expect(count).toBe(0)
-//             })
-//             And(`I increase the count by 1 in a promise`, async () => {
-//                 await new Promise((resolve) => {
-//                     count++
-//                     resolve(null)
-//                 })
-//             })
-//             When(`I use a timeout`, async () => {
-//                 await new Promise((resolve) => {
-//                     setTimeout(() => {
-//                         count++
-//                         resolve(null)
-//                     }, 1000)
-//                 })
-//             })
-//             Then(`The count should be 2`, () => {
-//                 expect(count).toBe(2)
-//             })
-//         })
-//     })
-// })
+        Scenario(`Simple scenario`, ({ Given, Then }) => {
+            Given(`I'm a scenario`, () => {
+                console.debug(`Feature Scenario`)
 
-// describe(`Background run before scenario`, async () => {
-//     const gherkin = `
-//         Feature: Background run before scenario tests
-//             Background:
-//                 Given I'm a background
-//             Scenario: Simple scenario
-//                 Given I'm a scenario
-//                 Then  background is run before me
-//             Rule: background in rule
-//                 Background:
-//                     Given I'm a background in a rule
-//                 Scenario: Simple rule scenario
-//                     Given I'm a rule scenario
-//                     Then  rule background is run before me
-//                     And   feature background is run before me
+                expect(featureBackgroundSpy).toEqual(0)
+                featureBackgroundSpy += 1
+            })
+            Then(`background is run before me`, () => {
+                expect(featureBackgroundSpy).toEqual(1)
+            })
+        })
 
-//     `
-//     await fs.writeFile(`${__dirname}/background.feature`, gherkin)
+        Rule(`background in rule`, ({ RuleBackground, RuleScenario }) => {
+            let ruleBackgroundSpy = -1
 
-//     const feature = await loadFeature(`./background.feature`)
+            RuleBackground( ({ Given }) => {
+                Given(`I'm a background in a rule`, () => {
+                    console.debug(`Rule Background`)
 
-//     describeFeature(feature, ({ Background, Scenario, Rule }) => {
-//         let featureBackgroundSpy = -1
-
-//         Background(({ Given }) => {
-//             Given(`I'm a background`,  async () => {
-//                 console.debug(`Feature Background`)
-//                 featureBackgroundSpy = 0
-//             })
-//         })
-
-//         Scenario(`Simple scenario`, ({ Given, Then }) => {
-//             Given(`I'm a scenario`, () => {
-//                 console.debug(`Feature Scenario`)
-
-//                 expect(featureBackgroundSpy).toEqual(0)
-//                 featureBackgroundSpy += 1
-//             })
-//             Then(`background is run before me`, () => {
-//                 expect(featureBackgroundSpy).toEqual(1)
-//             })
-//         })
-
-//         Rule(`background in rule`, ({ RuleBackground, RuleScenario }) => {
-//             let ruleBackgroundSpy = -1
-
-//             RuleBackground( ({ Given }) => {
-//                 Given(`I'm a background in a rule`, () => {
-//                     console.debug(`Rule Background`)
-
-//                     ruleBackgroundSpy = 0
-//                 })
-//             })
-//             RuleScenario(`Simple rule scenario`, ({ Given, Then, And }) => {
-//                 Given(`I'm a rule scenario`, () => {
-//                     console.debug(`Rule Scenario`)
-//                     expect(ruleBackgroundSpy).toEqual(0)
-//                     ruleBackgroundSpy += 1
-//                 })
-//                 Then(`rule background is run before me`, () => {
-//                     expect(ruleBackgroundSpy).toEqual(1)
-//                 })
-//                 And(`feature background is run before me`, () => {
-//                     expect(ruleBackgroundSpy).toEqual(1)
-//                     expect(featureBackgroundSpy).toEqual(0)
-//                 })
-//             })
-//         })
-//     })
-
-//     afterAll(async () => {
-//         await fs.unlink(`${__dirname}/background.feature`)
-//     })
-// })
-
-// describe(`Detect if feature contains background`, async () => {
-//     const gherkin = `
-//         Feature: Without background
-//             Scenario: Simple scenario
-//                 Given I'm a scenario
-//                 Then  background is run before me
-//     `
-//     await fs.writeFile(`${__dirname}/no-background.feature`, gherkin)
-
-//     const feature = await loadFeature(`./no-background.feature`)
-
-//     describeFeature(feature, ({ Background, Scenario }) => {
-//         expect(() => {
-//             Background(({ Given }) => {
-//                 Given(`I'm a background`,  () => {})
-//             })
-//         }).toThrowError(
-//             new BackgroundNotExistsError(feature),
-//         )
-
-//         Scenario(`Simple scenario`, ({ Given, Then }) => {
-//             Given(`I'm a scenario`, () => {})
-//             Then(`background is run before me`, () => {})
-//         })
-//     })
-
-//     afterAll(async () => {
-//         await fs.unlink(`${__dirname}/no-background.feature`)
-//     })
-// })
-
-// describe(`Detect if rule contains background`, async () => {
-//     const gherkin = `
-//         Feature: Without background
-//             Rule: example rule
-//                 Scenario: Simple scenario
-//                     Given I'm a scenario
-//                     Then  background is run before me
-//     `
-//     await fs.writeFile(`${__dirname}/rule-no-background.feature`, gherkin)
-
-//     const feature = await loadFeature(`./rule-no-background.feature`)
-
-//     describeFeature(feature, ({ Rule }) => {
-//         Rule(`example rule`, ({ RuleBackground, RuleScenario }) => {
-//             expect(() => {
-//                 RuleBackground(({ Given }) => {
-//                     Given(`I'm a background`,  () => {})
-//                 })
-//             }).toThrowError(
-//                 new BackgroundNotExistsError(feature.rules[0]),
-//             )
-    
-//             RuleScenario(`Simple scenario`, ({ Given, Then }) => {
-//                 Given(`I'm a scenario`, () => {})
-//                 Then(`background is run before me`, () => {})
-//             })
-//         })
-//     })
-
-//     afterAll(async () => {
-//         await fs.unlink(`${__dirname}/rule-no-background.feature`)
-//     })
-// })
+                    ruleBackgroundSpy = 0
+                })
+            })
+            RuleScenario(`Simple rule scenario`, ({ Given, Then, And }) => {
+                Given(`I'm a rule scenario`, () => {
+                    expect(ruleBackgroundSpy).toEqual(0)
+                    ruleBackgroundSpy += 1
+                })
+                Then(`rule background is run before me`, () => {
+                    expect(ruleBackgroundSpy).toEqual(1)
+                })
+                And(`feature background is run before me`, () => {
+                    expect(ruleBackgroundSpy).toEqual(1)
+                    expect(featureBackgroundSpy).toEqual(0)
+                })
+            })
+        })
+    })
+})
