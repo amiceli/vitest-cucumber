@@ -686,15 +686,12 @@ describe(`Background run before scenario`, async () => {
 
         Background(({ Given }) => {
             Given(`I'm a background`,  async () => {
-                console.debug(`Feature Background`)
                 featureBackgroundSpy = 0
             })
         })
 
         Scenario(`Simple scenario`, ({ Given, Then }) => {
             Given(`I'm a scenario`, () => {
-                console.debug(`Feature Scenario`)
-
                 expect(featureBackgroundSpy).toEqual(0)
                 featureBackgroundSpy += 1
             })
@@ -708,8 +705,6 @@ describe(`Background run before scenario`, async () => {
 
             RuleBackground( ({ Given }) => {
                 Given(`I'm a background in a rule`, () => {
-                    console.debug(`Rule Background`)
-
                     ruleBackgroundSpy = 0
                 })
             })
