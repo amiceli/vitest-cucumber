@@ -6,7 +6,9 @@ import {
 import { Scenario, ScenarioOutline } from "../scenario"
 import { Step, StepTypes } from "../step"
 import { Background } from "../Background"
-import { NotAllowedBackgroundStepTypeError } from "../../errors/errors"
+import {
+    FeatureUknowRuleError, NotAllowedBackgroundStepTypeError, RuleNotCalledError, 
+} from "../../errors/errors"
 
 describe(`Models`, () => {
 
@@ -67,6 +69,7 @@ describe(`Models`, () => {
             feature.rules.push(rule)
 
             expect(feature.getRuleByName(`rule`)).toEqual(rule)
+            expect(feature.getRuleByName(`another`)).toBeUndefined()
         })
 
         test(`Get first rule not called`, () => {
@@ -87,6 +90,55 @@ describe(`Models`, () => {
             
             feature.rules.push(secondRule)
             expect(feature.getFirstRuleNotCalled([])).toEqual(secondRule)
+        })
+
+        test(`Trhow an error if a Rule isn't called`, () => {
+            const feature = new Feature(`test`)
+            const rule = new Rule(`rule`)
+            rule.tags.push(`ignore`)
+
+            feature.rules.push(rule)
+
+            expect(() => {
+                feature.checkUncalledRule([])
+            }).toThrowError(
+                new RuleNotCalledError(rule),   
+            )
+
+            expect(() => {
+                feature.checkUncalledRule([`test`])
+            }).toThrowError(
+                new RuleNotCalledError(rule),   
+            )
+
+            expect(() => {
+                feature.checkUncalledRule([`ignore`])
+            }).not.toThrowError()
+
+            rule.isCalled = true
+
+            expect(() => {
+                feature.checkUncalledRule([])
+            }).not.toThrowError()
+        })
+
+        test(`Check if rule exists`, () => {
+            const feature = new Feature(`feature`)
+            const rule = new Rule(`rule`)
+
+            feature.rules.push(rule)
+
+            expect(() => {
+                feature.checkIfRuleExists(`another`)
+            }).toThrowError(
+                new FeatureUknowRuleError(
+                    feature,
+                    new Rule(`another`),
+                ),
+            )
+            expect(
+                feature.checkIfRuleExists(`rule`),
+            ).toEqual(rule)
         })
 
         test(`Check if have already called rule`, () => {
@@ -112,6 +164,7 @@ describe(`Models`, () => {
             expect(rule.scenarii.length).toEqual(0)
             expect(rule.background).toBeNull()
             expect(rule.getTitle()).toEqual(`Rule: Awesome`)
+            expect(rule.isCalled).toBe(false)
         })
     
         test(`Find Rule scneario by name`, () => {
@@ -226,6 +279,10 @@ describe(`Models`, () => {
             ).toEqual(step)
 
             expect(
+                scenario.findStepByTypeAndDetails(`And`, `another`),
+            ).toBeUndefined()
+
+            expect(
                 scenario.findStepByTypeAndDetails(`Given`, `test`),
             ).toBeUndefined()
         })
@@ -236,6 +293,23 @@ describe(`Models`, () => {
             expect(scenarioOutline.examples).toEqual([])
             expect(scenarioOutline.missingExamplesKeyword).toBeFalsy()
             expect(scenarioOutline.getTitle()).toEqual(`Scenario Outline: outline`)
+        })
+    })
+
+    describe(`Taggable`, () => {
+        test(`check if Taggable match tags`, () => {
+            const scenario = new Scenario(`test`)
+            scenario.tags = [`vitests`]
+
+            expect(
+                scenario.matchTags([`test`]),
+            ).toBe(false)
+            expect(
+                scenario.matchTags([`vitests`]),
+            ).toBe(true)
+            expect(
+                scenario.matchTags([`vitests`, `another`]),
+            ).toBe(true)
         })
     })
 
