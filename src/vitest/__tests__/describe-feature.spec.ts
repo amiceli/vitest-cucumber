@@ -4,6 +4,7 @@ import {
     BackgroundNotCalledError,
     BackgroundNotExistsError,
     FeatureUknowRuleError, 
+    FeatureUknowScenarioError, 
     IsScenarioOutlineError, 
     NotScenarioOutlineError, 
     RuleNotCalledError, 
@@ -19,6 +20,7 @@ import {
 } from "vitest"
 import { FeatureContentReader } from "../../__mocks__/FeatureContentReader.spec"
 import { Rule as RuleType } from "../../parser/Rule"
+import { Scenario as ScenarioType } from "../../parser/scenario"
 
 describe(`Feature`, () => {
     describe(`should detect uncalled Rule`, () => {
@@ -182,6 +184,26 @@ describe(`Feature`, () => {
             new NotScenarioOutlineError(feature.scenarii[0]),
         )
     })
+    describe(`should detetc if Scenario exists`, () => {
+        const feature = FeatureContentReader.fromString([
+            `Feature: one scenario with missing steps`,
+            `   Scenario: Simple scenario`,
+            `       Given vitest-cucumber is <state>`,
+            `       Then  check if I am called`,
+            ``,
+        ]).parseContent()
+        
+        expect(() => {
+            describeFeature(feature, (f) => {
+                f.Scenario(`unknow scenario`, () => {})
+            })
+        }).toThrowError(
+            new FeatureUknowScenarioError(
+                feature,
+                new ScenarioType(`unknow scenario`),
+            ),
+        )
+    })
 })
 
 describe(`Rule`, () => {
@@ -319,6 +341,29 @@ describe(`Rule`, () => {
             })
         }).toThrowError(
             new NotScenarioOutlineError(feature.rules[0].scenarii[0]),
+        )
+    })
+    describe(`should detetc if Scenario exists`, () => {
+        const feature = FeatureContentReader.fromString([
+            `Feature: one scenario with missing steps`,
+            `   Rule: simple rule`,
+            `      Scenario: Simple scenario`,
+            `          Given vitest-cucumber is <state>`,
+            `          Then  check if I am called`,
+            ``,
+        ]).parseContent()
+        
+        expect(() => {
+            describeFeature(feature, (f) => {
+                f.Rule(`simple rule`, (r) => {
+                    r.RuleScenario(`unknow scenario`, () => {})
+                })
+            })
+        }).toThrowError(
+            new FeatureUknowScenarioError(
+                feature.rules[0],
+                new ScenarioType(`unknow scenario`),
+            ),
         )
     })
 })

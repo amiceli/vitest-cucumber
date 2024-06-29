@@ -84,7 +84,7 @@ export class MissingScenarioOutlineVariableValueError extends VitestsCucumberErr
 export class FeatureUknowScenarioError extends VitestsCucumberError {
 
     public constructor (feature : ScenarioParent, scenario : Scenario) {
-        super(`${scenario.getTitle()} doesn't exist in \n Feature: ${feature.name}`)
+        super(`${scenario.getTitle()} doesn't exist in \n ${feature.getTitle()}`)
     }
 
 }
