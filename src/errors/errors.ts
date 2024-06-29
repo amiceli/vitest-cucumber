@@ -89,14 +89,6 @@ export class FeatureUknowScenarioError extends VitestsCucumberError {
 
 }
 
-export class HookCalledAfterScenarioError extends VitestsCucumberError {
-
-    public constructor (feature : ScenarioParent, hookName : string) {
-        super(`${feature.getTitle()} \n ${hookName} hook was called after Scenario()`)
-    }
-
-}
-
 export class StepAbleUnknowStepError extends VitestsCucumberError {
 
     public constructor (stepable : StepAble, step : Step) {
@@ -134,14 +126,6 @@ export class FeatureUknowRuleError extends VitestsCucumberError {
 
     public constructor (feature : Feature, rule : Rule) {
         super(`${rule.getTitle()} doesn't exist in \n Feature: ${feature.name}`)
-    }
-
-}
-
-export class HookCalledAfterRuleError extends VitestsCucumberError {
-
-    public constructor (feature : Feature, hookName : string) {
-        super(`${feature.getTitle()} \n ${hookName} hook was called after Rule()`)
     }
 
 }
