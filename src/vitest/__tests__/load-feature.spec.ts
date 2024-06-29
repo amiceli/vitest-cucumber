@@ -11,6 +11,7 @@ test(`should be able to load feature file`, async () => {
         test.fails(`scenario should not be undefined`)
         return
     }
+
     expect(feature.name).toBe(`vitest-cucumber`)
     expect(
         scenario.description,
