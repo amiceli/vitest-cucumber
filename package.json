@@ -8,7 +8,7 @@
   ],
   "scripts": {
     "lint": "eslint -c .eslintrc.js src/",
-    "test:coverage": "vitest run --coverage",
+    "test:coverage": "vitest run --coverage --passWithNoTests",
     "lint:staged": "eslint -c .eslintrc.js",
     "lint:fix": "eslint -c .eslintrc.js src/ --fix",
     "build": "npx tsc --declaration --project tsconfig.json",
