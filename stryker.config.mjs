@@ -6,6 +6,8 @@ const config = {
     testRunner: "vitest",
     coverageAnalysis: "perTest",
     buildCommand: "npm run build",
+    "checkers": ["typescript"],
+    "tsconfigFile": "tsconfig.json",
 }
 
 export default config
