@@ -11,6 +11,7 @@ export default defineConfig({
                 '.eslintrc.js',
                 'commitlint.config.js',
                 'src/vitest/types.ts',
+                'scripts/cli-generate.ts',
             ]
         },
         exclude : [

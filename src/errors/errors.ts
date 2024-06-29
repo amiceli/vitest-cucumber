@@ -1,3 +1,4 @@
+import { Background } from '../parser/Background'
 import { Rule } from '../parser/Rule'
 import { ScenarioParent } from '../parser/ScenarioParent'
 import { StepAble } from '../parser/Stepable'
@@ -7,11 +8,11 @@ import { Step, StepTypes } from '../parser/step'
 
 abstract class VitestsCucumberError extends Error {
 
-    protected constructor (message: string) {
+    protected constructor (message: string, name? : string) {
         super(message)
 
         this.stack = ``
-        this.name = this.constructor.name
+        this.name = name || this.constructor.name
     }
 
 }
@@ -28,6 +29,14 @@ export class IsScenarioOutlineError extends VitestsCucumberError {
 
     public constructor (scenario : Scenario) {
         super(`${scenario.getTitle()} is a ScenarioOutline`)
+    }
+
+}
+
+export class BackgroundNotCalledError extends VitestsCucumberError {
+
+    public constructor (background : Background) {
+        super(`${background.getTitle()} was not called`)
     }
 
 }
@@ -75,15 +84,7 @@ export class MissingScenarioOutlineVariableValueError extends VitestsCucumberErr
 export class FeatureUknowScenarioError extends VitestsCucumberError {
 
     public constructor (feature : ScenarioParent, scenario : Scenario) {
-        super(`${scenario.getTitle()} doesn't exist in \n Feature: ${feature.name}`)
-    }
-
-}
-
-export class HookCalledAfterScenarioError extends VitestsCucumberError {
-
-    public constructor (feature : ScenarioParent, hookName : string) {
-        super(`${feature.getTitle()} \n ${hookName} hook was called after Scenario()`)
+        super(`${scenario.getTitle()} doesn't exist in \n ${feature.getTitle()}`)
     }
 
 }
@@ -98,13 +99,15 @@ export class StepAbleUnknowStepError extends VitestsCucumberError {
 
 export class StepAbleStepsNotCalledError extends VitestsCucumberError {
 
-    public constructor (stepable : StepAble) {
-        const steps = stepable
-            .getNoCalledSteps()
-            .map((s: Step) =>  `\n ${s.type} ${s.details} was not called`)
-            .join(``)
-
-        super(`${stepable.getTitle()}  ${steps}`)
+    public constructor (stepable : StepAble, step : Step) {
+        super(
+            [
+                ``,
+                `    ${stepable.getTitle()}`,
+                `        ${step.getTitle()} ❌`,
+            ].join(`\n`),
+            `Missing steps in Scenario`,
+        )
     }
 
 }
@@ -123,14 +126,6 @@ export class FeatureUknowRuleError extends VitestsCucumberError {
 
     public constructor (feature : Feature, rule : Rule) {
         super(`${rule.getTitle()} doesn't exist in \n Feature: ${feature.name}`)
-    }
-
-}
-
-export class HookCalledAfterRuleError extends VitestsCucumberError {
-
-    public constructor (feature : Feature, hookName : string) {
-        super(`${feature.getTitle()} \n ${hookName} hook was called after Rule()`)
     }
 
 }

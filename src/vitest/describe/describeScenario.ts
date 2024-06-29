@@ -6,8 +6,6 @@ import {
 } from "../types"
 import { Step } from "../../parser/step"
 import { Scenario } from "../../parser/scenario"
-import { ScenarioStateDetector } from "../state-detectors/ScenarioStateDetector"
-import { detectUncalledScenarioStep } from "./teardowns"
 
 type DescribeScenarioArgs = {
     scenario : Scenario,
@@ -37,9 +35,9 @@ export function createScenarioDescribeHandler (
             stepDetails: string, 
             scenarioStepCallback: () => void,
         ) => {
-            const foundStep = ScenarioStateDetector
-                .forScenario(scenario)
-                .checkIfStepExists(stepType, stepDetails)
+            const foundStep = scenario.checkIfStepExists(stepType, stepDetails)
+            
+            foundStep.isCalled = true
  
             scenarioStepsToRun.push({
                 key : `${stepType} ${stepDetails}`,
@@ -59,16 +57,14 @@ export function createScenarioDescribeHandler (
             
     scenarioTestCallback(scenarioStepsCallback)
 
+    scenario.checkIfStepWasCalled()
+
     return function scenarioDescribe () {
         beforeAll(async () => {
             await beforeEachScenarioHook()
         })
 
         afterAll(async () => {
-            detectUncalledScenarioStep(scenario)
-
-            scenario.isCalled = true
-
             await afterEachScenarioHook()
         })
 
@@ -81,7 +77,6 @@ export function createScenarioDescribeHandler (
             }),
         )(`%s`, async (_, scenarioStep) => {
             await scenarioStep.fn()
-            scenarioStep.step.isCalled = true
         })
     }
 }

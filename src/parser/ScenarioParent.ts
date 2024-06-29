@@ -1,3 +1,6 @@
+import {
+    BackgroundNotCalledError, BackgroundNotExistsError, FeatureUknowScenarioError, IsScenarioOutlineError, NotScenarioOutlineError, ScenarioNotCalledError, 
+} from '../errors/errors'
 import { Background } from './Background'
 import { Taggable } from './Taggable'
 import {
@@ -47,6 +50,75 @@ export abstract class ScenarioParent extends Taggable {
 
     public getTitle (): string {
         return `${this.constructor.name}: ${this.name}`
+    }
+
+    public checkUncalledScenario (tags : string[]) {
+        const uncalled = this.getFirstNotCalledScenario(tags)
+
+        if (uncalled) {
+            throw new ScenarioNotCalledError(uncalled)
+        }
+
+        return this
+    }
+
+    public checkUncalledBackground (tags : string[]) {
+        if (this.background) {
+            if (!this.background.isCalled && !this.background.matchTags(tags)) {
+                throw new BackgroundNotCalledError(this.background)
+            }
+        }
+
+        return this
+    }
+
+    public getBackground () : Background {
+        if (this.background) {
+            return this.background
+        }
+
+        throw new BackgroundNotExistsError(this)
+    }
+
+    private checkIfScenarioExists (scenarioDescription: string) : Scenario {
+        const foundScenario = this.getScenarioByName(scenarioDescription)
+
+        if (!foundScenario) {
+            throw new FeatureUknowScenarioError(
+                this,
+                new Scenario(scenarioDescription),
+            )
+        }
+
+        return foundScenario
+    }
+
+    private scenarioShouldNotBeOutline (scenario: Scenario) {
+        if (scenario instanceof ScenarioOutline) {
+            throw new IsScenarioOutlineError(scenario)
+        }
+    }
+
+    private scenarioShouldBeOutline (scenario: Scenario) {
+        if (!(scenario instanceof ScenarioOutline)) {
+            throw new NotScenarioOutlineError(scenario)
+        }
+    }
+
+    public getScenario (description : string) : Scenario {
+        const scenario = this.checkIfScenarioExists(description)
+
+        this.scenarioShouldNotBeOutline(scenario)
+
+        return scenario
+    }
+
+    public getScenarioOutline (description : string) : ScenarioOutline {
+        const scenario = this.checkIfScenarioExists(description) as ScenarioOutline
+
+        this.scenarioShouldBeOutline(scenario)
+
+        return scenario
     }
 
 }

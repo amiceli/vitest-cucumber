@@ -1,10 +1,8 @@
-import { afterAll, test } from "vitest"
+import { test } from "vitest"
 import {
     MaybePromise, StepCallbackDefinition, BackgroundStepTest,
 } from "../types"
 import { Step } from "../../parser/step"
-import { ScenarioStateDetector } from "../state-detectors/ScenarioStateDetector"
-import { detectUncalledScenarioStep } from "./teardowns"
 import { Background } from "../../parser/Background"
 
 type DescribeScenarioArgs = {
@@ -31,9 +29,8 @@ export function createBackgroundDescribeHandler (
             stepDetails: string, 
             scenarioStepCallback: () => void,
         ) => {
-            const foundStep = ScenarioStateDetector
-                .forScenario(background)
-                .checkIfStepExists(stepType, stepDetails)
+            const foundStep = background.checkIfStepExists(stepType, stepDetails)
+            foundStep.isCalled = true
  
             backgroundStepsToRun.push({
                 key : `${stepType} ${stepDetails}`,
@@ -50,13 +47,9 @@ export function createBackgroundDescribeHandler (
             
     backgroundCallback(scenarioStepsCallback)
 
+    background.checkIfStepWasCalled()
+
     return function backgroundDescribe () {
-        afterAll(async () => {
-            detectUncalledScenarioStep(background)
-
-            background.isCalled = true
-        })
-
         test.each(
             backgroundStepsToRun.map((s) => {
                 return [
@@ -66,7 +59,6 @@ export function createBackgroundDescribeHandler (
             }),
         )(`%s`, async (_, scenarioStep) => {
             await scenarioStep.fn()
-            scenarioStep.step.isCalled = true
         })
     }
 }

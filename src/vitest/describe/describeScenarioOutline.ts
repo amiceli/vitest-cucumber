@@ -6,8 +6,6 @@ import { Step } from "../../parser/step"
 import {
     StepTest, MaybePromise, StepCallbackDefinition,
 } from "../types"
-import { ScenarioStateDetector } from "../state-detectors/ScenarioStateDetector"
-import { detectUncalledScenarioStep } from "./teardowns"
 
 type DescribeScenarioArgs = {
     scenario: ScenarioOutline,
@@ -37,10 +35,9 @@ export function createScenarioOutlineDescribeHandler (
             stepDetails: string,
             scenarioStepCallback: () => void,
         ) => {
-            const foundStep = ScenarioStateDetector
-                .forScenario(scenario)
-                .checkIfStepExists(stepType, stepDetails)
+            const foundStep = scenario.checkIfStepExists(stepType, stepDetails)
 
+            foundStep.isCalled = true
             scenarioStepsToRun.push({
                 key : `${stepType} ${stepDetails}`,
                 fn : scenarioStepCallback,
@@ -65,6 +62,8 @@ export function createScenarioOutlineDescribeHandler (
             scenarioStepsToRun = []
             scenarioTestCallback(scenarioStepsCallback, exampleVariables)
 
+            scenario.checkIfStepWasCalled()
+
             return (
                 (steps) => function scenarioOutlineDescribe () {
                     beforeAll(async () => {
@@ -72,10 +71,6 @@ export function createScenarioOutlineDescribeHandler (
                     })
 
                     afterAll(async () => {
-                        detectUncalledScenarioStep(scenario)
-
-                        scenario.isCalled = true
-
                         await afterEachScenarioHook()
                     })
 
@@ -88,7 +83,6 @@ export function createScenarioOutlineDescribeHandler (
                         }),
                     )(`%s`, async (_, scenarioStep) => {
                         await scenarioStep.fn()
-                        scenarioStep.step.isCalled = true
                     })
                 }
             )([...scenarioStepsToRun])

@@ -26,9 +26,9 @@ export type FeatureDescriibeCallbackParams = {
     Rule : RuleTest
 }
 
-export type FeatureDescribeCallback = (
+export type DescribeFeatureCallback = (
     scenarioCallback: FeatureDescriibeCallbackParams
-) => MaybePromise
+) => void
 
 export type RuleOptions = {
     RuleBackground: BackgroundTest,
@@ -38,7 +38,7 @@ export type RuleOptions = {
 
 export type RuleTest = (
     ruleName : string,
-    fn : (options :  RuleOptions) => MaybePromise
+    fn : (options :  RuleOptions) => void
 ) => void
 
 export type ScenarioTest = (

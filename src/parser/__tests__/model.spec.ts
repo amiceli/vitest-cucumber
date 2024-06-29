@@ -210,9 +210,9 @@ describe(`Models`, () => {
 
             expect(scenario.hasUnCalledSteps()).toBeTruthy()
 
-            const noCalledSteps = scenario.getNoCalledSteps()
+            const noCalledSteps = scenario.getNoCalledStep()
 
-            expect(noCalledSteps.includes(step)).toBeTruthy()
+            expect(noCalledSteps).toEqual(step)
         })
 
         test(`Scenario find step by name and title`, () => {
@@ -244,6 +244,7 @@ describe(`Models`, () => {
 
         expect(step.type).toEqual(`Given`)
         expect(step.details).toEqual(`I trye`)
+        expect(step.getTitle()).toEqual(`Given I trye`)
     })
 
 })
