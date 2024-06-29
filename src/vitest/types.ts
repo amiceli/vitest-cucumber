@@ -26,7 +26,7 @@ export type FeatureDescriibeCallbackParams = {
     Rule : RuleTest
 }
 
-export type FeatureDescribeCallback = (
+export type DescribeFeatureCallback = (
     scenarioCallback: FeatureDescriibeCallbackParams
 ) => void
 
