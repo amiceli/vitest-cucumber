@@ -3,18 +3,18 @@ import { describeFeature } from '../describe-feature'
 import {
     BackgroundNotCalledError,
     BackgroundNotExistsError,
-    FeatureUknowRuleError, 
-    FeatureUknowScenarioError, 
-    IsScenarioOutlineError, 
-    NotScenarioOutlineError, 
-    RuleNotCalledError, 
-    ScenarioNotCalledError, 
-    StepAbleStepsNotCalledError, 
+    FeatureUknowRuleError,
+    FeatureUknowScenarioError,
+    IsScenarioOutlineError,
+    NotScenarioOutlineError,
+    RuleNotCalledError,
+    ScenarioNotCalledError,
+    StepAbleStepsNotCalledError,
     StepAbleUnknowStepError,
 } from "../../errors/errors"
 import {
-    afterAll, 
-    describe, 
+    afterAll,
+    describe,
     expect,
     vi,
 } from "vitest"
@@ -766,6 +766,124 @@ describe(`Background run before scenario`, async () => {
                     expect(featureBackgroundSpy).toEqual(0)
                 })
             })
+        })
+    })
+})
+
+describe(`excludeTags`, () => {
+    describe(`default value`, () => {
+        const feature = FeatureContentReader.fromString([
+            `Feature: excludeTags default value`,
+            `   Rule: sample rule`,
+            `       Scenario: excludeTags is optionnal`,
+            `           Given I have no tags`,
+            `           Then  So I'm called`,
+        ]).parseContent()
+
+        const featureCheck = vi.spyOn(feature, `checkUncalledScenario`)
+        const ruleCheck = vi.spyOn(feature, `checkUncalledScenario`)
+
+        describeFeature(feature, (f) => {
+            f.AfterAllScenarios(()=> {
+                expect(featureCheck).toHaveBeenCalledWith([])
+                expect(ruleCheck).toHaveBeenCalledWith([])
+            })
+            f.Rule(`sample rule`, (r) => {
+                r.RuleScenario(`excludeTags is optionnal`, (s) => {
+                    s.Given(`I have no tags`, () => {})
+                    s.Then(`So I'm called`, () => {})
+                })
+            })
+        })
+    })
+    describe(`exclude Rule and Scenario`, () => {
+        const feature = FeatureContentReader.fromString([
+            `Feature: excludeTags used`,
+            `   @ignored-scenario`,
+            `   Scenario: A Feature ignored Scenario`,
+            `       Given I have a tag`,
+            `       Then  So I'm ignored`,
+            `   Rule: sample rule`,
+            `       @simple`,
+            `       Scenario: no ignored scenario`,
+            `           Given I have simple tag`,
+            `           Then  So I'm called`,
+            `       @ignored-scenario`,
+            `       Scenario: A Rule ignored Scenario`,
+            `           Given I have a tag`,
+            `           Then  So I'm ignored`,
+            `   @ignored-rule`,
+            `   Rule: ignored rule`,
+            `       Scenario: full ignored`,
+            `           Given My parent has a tag`,
+            `           Then  So I'm ignored`,
+        ]).parseContent()
+
+        const featureCheckUncalledRule = vi.spyOn(
+            feature, `checkUncalledRule`,
+        )
+        const featureCheckUncalledScenario = vi.spyOn(
+            feature, `checkUncalledScenario`,
+        )
+        const featureCheckUncalledBackground = vi.spyOn(
+            feature, `checkUncalledBackground`,
+        )
+
+        const ruleCheckUncalledScenario = vi.spyOn(
+            feature.rules[0], `checkUncalledScenario`,
+        )
+        const ruleCheckUncalledBackground = vi.spyOn(
+            feature.rules[0], `checkUncalledBackground`,
+        )
+
+
+        describeFeature(feature, (f) => {
+            f.AfterAllScenarios(()=> {
+                [
+                    featureCheckUncalledRule,
+                    featureCheckUncalledScenario,
+                    featureCheckUncalledBackground,
+                    ruleCheckUncalledScenario,
+                    ruleCheckUncalledBackground,
+                ].forEach((fn) => {
+                    expect(fn).toHaveBeenCalledWith([
+                        `ignored-scenario`,
+                        `ignored-rule`,
+                    ])
+                })
+                expect(
+                    feature.getScenarioByName(`A Feature ignored Scenario`)?.isCalled,
+                ).toBe(false)
+                expect(
+                    feature.getRuleByName(`ignored rule`)?.isCalled,
+                ).toBe(false)
+                expect(
+                    feature.getRuleByName(`ignored rule`)?.scenarii[0]?.isCalled,
+                ).toBe(false)
+                expect(
+                    feature
+                        .getRuleByName(`sample rule`)
+                        ?.getScenarioByName(`no ignored scenario`)
+                        ?.isCalled,
+                ).toBe(true)
+                expect(
+                    feature
+                        .getRuleByName(`sample rule`)
+                        ?.getScenarioByName(`A Rule ignored Scenario`)
+                        ?.isCalled,
+                ).toBe(false)
+            })
+            f.Rule(`sample rule`, (r) => {
+                r.RuleScenario(`no ignored scenario`, (s) => {
+                    s.Given(`I have simple tag`, () => {})
+                    s.Then(`So I'm called`, () => {})
+                })
+            })
+        }, {
+            excludeTags : [
+                `ignored-scenario`,
+                `ignored-rule`,
+            ],
         })
     })
 })

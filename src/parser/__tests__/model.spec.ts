@@ -6,7 +6,10 @@ import {
 import { Scenario, ScenarioOutline } from "../scenario"
 import { Step, StepTypes } from "../step"
 import { Background } from "../Background"
-import { NotAllowedBackgroundStepTypeError } from "../../errors/errors"
+import {
+    BackgroundNotExistsError,
+    FeatureUknowRuleError, FeatureUknowScenarioError, IsScenarioOutlineError, NotAllowedBackgroundStepTypeError, NotScenarioOutlineError, RuleNotCalledError, 
+} from "../../errors/errors"
 
 describe(`Models`, () => {
 
@@ -67,6 +70,7 @@ describe(`Models`, () => {
             feature.rules.push(rule)
 
             expect(feature.getRuleByName(`rule`)).toEqual(rule)
+            expect(feature.getRuleByName(`another`)).toBeUndefined()
         })
 
         test(`Get first rule not called`, () => {
@@ -89,6 +93,55 @@ describe(`Models`, () => {
             expect(feature.getFirstRuleNotCalled([])).toEqual(secondRule)
         })
 
+        test(`Trhow an error if a Rule isn't called`, () => {
+            const feature = new Feature(`test`)
+            const rule = new Rule(`rule`)
+            rule.tags.push(`ignore`)
+
+            feature.rules.push(rule)
+
+            expect(() => {
+                feature.checkUncalledRule([])
+            }).toThrowError(
+                new RuleNotCalledError(rule),   
+            )
+
+            expect(() => {
+                feature.checkUncalledRule([`test`])
+            }).toThrowError(
+                new RuleNotCalledError(rule),   
+            )
+
+            expect(() => {
+                feature.checkUncalledRule([`ignore`])
+            }).not.toThrowError()
+
+            rule.isCalled = true
+
+            expect(() => {
+                feature.checkUncalledRule([])
+            }).not.toThrowError()
+        })
+
+        test(`Check if rule exists`, () => {
+            const feature = new Feature(`feature`)
+            const rule = new Rule(`rule`)
+
+            feature.rules.push(rule)
+
+            expect(() => {
+                feature.checkIfRuleExists(`another`)
+            }).toThrowError(
+                new FeatureUknowRuleError(
+                    feature,
+                    new Rule(`another`),
+                ),
+            )
+            expect(
+                feature.checkIfRuleExists(`rule`),
+            ).toEqual(rule)
+        })
+
         test(`Check if have already called rule`, () => {
             const feature = new Feature(`Awesome`)
             const rule = new Rule(`rule`)
@@ -102,6 +155,70 @@ describe(`Models`, () => {
             feature.rules.push(secondRule)
             expect(feature.haveAlreadyCalledRule()).toBeTruthy()
         })
+
+        test(`Get background`, () => {
+            const feature = new Feature(`sample`)
+            const background = new Background()
+            expect(() => {
+                feature.getBackground()
+            }).toThrowError(
+                new BackgroundNotExistsError(feature),
+            )
+            
+            feature.background = background
+
+            expect(
+                feature.getBackground(),
+            ).toEqual(background)
+        })
+
+        test(`Get Scenario by name`, () => {
+            const scenario = new Scenario(`sample`)
+            const outline = new ScenarioOutline(`outline`)
+            const feature = new Feature(`sample`)
+
+            feature.scenarii.push(scenario, outline)
+
+            expect(() => {
+                feature.getScenario(`another`)
+            }).toThrowError(
+                new FeatureUknowScenarioError(
+                    feature, new Scenario(`another`),
+                ),
+            )
+
+            expect(feature.getScenario(`sample`)).toEqual(scenario)
+
+            expect(() => {
+                feature.getScenario(`outline`)
+            }).toThrowError(
+                new IsScenarioOutlineError(outline),
+            )
+        })
+
+        test(`Get Scenario Outline by name`, () => {
+            const scenario = new Scenario(`sample`)
+            const outline = new ScenarioOutline(`outline`)
+            const feature = new Feature(`sample`)
+
+            feature.scenarii.push(scenario, outline)
+
+            expect(() => {
+                feature.getScenarioOutline(`another`)
+            }).toThrowError(
+                new FeatureUknowScenarioError(
+                    feature, new Scenario(`another`),
+                ),
+            )
+
+            expect(feature.getScenarioOutline(`outline`)).toEqual(outline)
+
+            expect(() => {
+                feature.getScenarioOutline(`sample`)
+            }).toThrowError(
+                new NotScenarioOutlineError(scenario),
+            )
+        })
     })
 
     describe(`Rule`, () => {
@@ -112,6 +229,7 @@ describe(`Models`, () => {
             expect(rule.scenarii.length).toEqual(0)
             expect(rule.background).toBeNull()
             expect(rule.getTitle()).toEqual(`Rule: Awesome`)
+            expect(rule.isCalled).toBe(false)
         })
     
         test(`Find Rule scneario by name`, () => {
@@ -226,6 +344,10 @@ describe(`Models`, () => {
             ).toEqual(step)
 
             expect(
+                scenario.findStepByTypeAndDetails(`And`, `another`),
+            ).toBeUndefined()
+
+            expect(
                 scenario.findStepByTypeAndDetails(`Given`, `test`),
             ).toBeUndefined()
         })
@@ -236,6 +358,23 @@ describe(`Models`, () => {
             expect(scenarioOutline.examples).toEqual([])
             expect(scenarioOutline.missingExamplesKeyword).toBeFalsy()
             expect(scenarioOutline.getTitle()).toEqual(`Scenario Outline: outline`)
+        })
+    })
+
+    describe(`Taggable`, () => {
+        test(`check if Taggable match tags`, () => {
+            const scenario = new Scenario(`test`)
+            scenario.tags = [`vitests`]
+
+            expect(
+                scenario.matchTags([`test`]),
+            ).toBe(false)
+            expect(
+                scenario.matchTags([`vitests`]),
+            ).toBe(true)
+            expect(
+                scenario.matchTags([`vitests`, `another`]),
+            ).toBe(true)
         })
     })
 

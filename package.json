@@ -8,14 +8,14 @@
   ],
   "scripts": {
     "lint": "eslint -c .eslintrc.js src/",
-    "test:coverage": "vitest run --coverage --passWithNoTests",
+    "test:coverage": "vitest run --coverage",
     "lint:staged": "eslint -c .eslintrc.js",
     "lint:fix": "eslint -c .eslintrc.js src/ --fix",
     "build": "npx tsc --declaration --project tsconfig.json",
     "build:script": "esbuild scripts/cli-generate.ts --bundle --platform=node > dist/cli-generate.js",
     "build:all": "npm run build && npm run build:script",
-    "test:unit": "vitest --passWithNoTests",
-    "test:silent": "vitest --silent --run --passWithNoTests",
+    "test:unit": "vitest",
+    "test:silent": "vitest --silent --run",
     "prepare": "husky install"
   },
   "keywords": [
@@ -29,6 +29,8 @@
     "@amiceli/eslint-config-typescript": "^1.0.1",
     "@commitlint/cli": "^19.3.0",
     "@commitlint/config-conventional": "^19.2.2",
+    "@stryker-mutator/typescript-checker": "^8.2.6",
+    "@stryker-mutator/vitest-runner": "^8.2.6",
     "@types/node": "^20.4.5",
     "@vitest/coverage-v8": "^1.5.3",
     "esbuild": "0.21.5",

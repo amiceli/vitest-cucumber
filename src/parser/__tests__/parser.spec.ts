@@ -8,7 +8,7 @@ import { OnlyOneFeatureError, TwiceBackgroundError } from "../../errors/errors"
 
 describe(`GherkinParser`, () => {
 
-    let parser
+    let parser : GherkinParser
 
     beforeEach(() => {
         parser = new GherkinParser()
