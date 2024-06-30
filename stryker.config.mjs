@@ -7,7 +7,6 @@ const config = {
     "vitest": {
         "configFile": "vitest.config.ts",
     },
-    coverageAnalysis: "all",
     checkers: ["typescript",],
     tsconfigFile: "tsconfig.vitest.json",
     tempDirName: "stryker-tmp",
