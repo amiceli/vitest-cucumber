@@ -10,6 +10,7 @@ const config = {
     coverageAnalysis: "all",
     checkers: ["typescript",],
     tsconfigFile: "tsconfig.vitest.json",
+    tempDirName: "stryker-tmp",
 }
 
 export default config
