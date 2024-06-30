@@ -7,7 +7,8 @@ import { Scenario, ScenarioOutline } from "../scenario"
 import { Step, StepTypes } from "../step"
 import { Background } from "../Background"
 import {
-    FeatureUknowRuleError, NotAllowedBackgroundStepTypeError, RuleNotCalledError, 
+    BackgroundNotExistsError,
+    FeatureUknowRuleError, FeatureUknowScenarioError, IsScenarioOutlineError, NotAllowedBackgroundStepTypeError, NotScenarioOutlineError, RuleNotCalledError, 
 } from "../../errors/errors"
 
 describe(`Models`, () => {
@@ -153,6 +154,70 @@ describe(`Models`, () => {
 
             feature.rules.push(secondRule)
             expect(feature.haveAlreadyCalledRule()).toBeTruthy()
+        })
+
+        test(`Get background`, () => {
+            const feature = new Feature(`sample`)
+            const background = new Background()
+            expect(() => {
+                feature.getBackground()
+            }).toThrowError(
+                new BackgroundNotExistsError(feature),
+            )
+            
+            feature.background = background
+
+            expect(
+                feature.getBackground(),
+            ).toEqual(background)
+        })
+
+        test(`Get Scenario by name`, () => {
+            const scenario = new Scenario(`sample`)
+            const outline = new ScenarioOutline(`outline`)
+            const feature = new Feature(`sample`)
+
+            feature.scenarii.push(scenario, outline)
+
+            expect(() => {
+                feature.getScenario(`another`)
+            }).toThrowError(
+                new FeatureUknowScenarioError(
+                    feature, new Scenario(`another`),
+                ),
+            )
+
+            expect(feature.getScenario(`sample`)).toEqual(scenario)
+
+            expect(() => {
+                feature.getScenario(`outline`)
+            }).toThrowError(
+                new IsScenarioOutlineError(outline),
+            )
+        })
+
+        test(`Get Scenario Outline by name`, () => {
+            const scenario = new Scenario(`sample`)
+            const outline = new ScenarioOutline(`outline`)
+            const feature = new Feature(`sample`)
+
+            feature.scenarii.push(scenario, outline)
+
+            expect(() => {
+                feature.getScenarioOutline(`another`)
+            }).toThrowError(
+                new FeatureUknowScenarioError(
+                    feature, new Scenario(`another`),
+                ),
+            )
+
+            expect(feature.getScenarioOutline(`outline`)).toEqual(outline)
+
+            expect(() => {
+                feature.getScenarioOutline(`sample`)
+            }).toThrowError(
+                new NotScenarioOutlineError(scenario),
+            )
         })
     })
 
