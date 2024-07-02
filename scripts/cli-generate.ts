@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import {Background} from '../src/parser/Background'
 import {Rule} from '../src/parser/Rule'
 import {Scenario, ScenarioOutline} from '../src/parser/scenario'
@@ -119,9 +121,9 @@ loadFeature(filePath).then(async (feature) => {
 
     fileContentLines.push('import { loadFeature, describeFeature } from "@amiceli/vitest-cucumber"')
     fileContentLines.push("")
-    fileContentLines.push(`const featureCampagneFilter = await loadFeature('${filePath}')`)
+    fileContentLines.push(`const feature = await loadFeature('${filePath}')`)
     fileContentLines.push("")
-    fileContentLines.push(`describeFeature(featureCampagneFilter, ({ ${describeFeatureArgs.join(', ')} }) => {`)
+    fileContentLines.push(`describeFeature(feature, ({ ${describeFeatureArgs.join(', ')} }) => {`)
 
     describeHook.forEach((s) => {
         fileContentLines.push(`  ${s}(() => {})`)

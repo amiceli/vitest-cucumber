@@ -88,15 +88,15 @@ It will throw **When I run my unit tests was not called**.
 
 ### Generate spec file from feature file
 
-Since `3.2.2` vitest-cucumber provide a script to generate spec file from feature file.
+Since `3.4.1` vitest-cucumber provide a script to generate spec file from feature file.
 
 You can use it like this : 
 
-    node node_modules/@amiceli/vitest-cucumber/dist/cli-generate.js <path-to-feature> <path-to-spec>
+    npx @amiceli/vitest-cucumber <path-to-feature> <path-to-spec>
 
 An example : 
 
-    node node_modules/@amiceli/vitest-cucumber/dist/cli-generate.js  features/example.feature src/__tests__/example.spec.ts
+    npx @amiceli/vitest-cucumber features/example.feature src/__tests__/example.spec.ts
 
 You just have to format spec file after this script ;).
 
