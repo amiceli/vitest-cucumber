@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import {Background} from '../src/parser/Background'
 import {Rule} from '../src/parser/Rule'
 import {Scenario, ScenarioOutline} from '../src/parser/scenario'

@@ -1,8 +1,9 @@
 {
   "name": "@amiceli/vitest-cucumber",
-  "version": "3.4.0",
+  "version": "3.4.1",
   "description": "vitest tools to use Gherkin feature in unit tests",
   "main": "dist/module.js",
+  "bin": "dist/cli-generate.js",
   "files": [
     "dist"
   ],
@@ -33,7 +34,7 @@
     "@stryker-mutator/vitest-runner": "^8.2.6",
     "@types/node": "^20.4.5",
     "@vitest/coverage-v8": "^1.5.3",
-    "esbuild": "0.21.5",
+    "esbuild": "0.23.0",
     "eslint-plugin-import": "^2.29.1",
     "husky": "^9.0.11",
     "lint-staged": "^15.2.7",
