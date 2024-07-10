@@ -11,7 +11,7 @@ function getCallerPath () : string | null {
     return callerFileDir
 }
 
-export async function loadFeature (featureFilePath: string): Promise<Readonly<Feature>> {
+export async function loadFeature (featureFilePath: string): Promise<Feature> {
     const callerFileDir = getCallerPath()
 
     const [feature] = await FeatureFileReader
