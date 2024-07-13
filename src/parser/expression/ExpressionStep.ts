@@ -1,25 +1,13 @@
 import { Step } from "../step"
+import {
+    ExpressionRegex, NumberRegex, StringRegex,
+} from "./regexes"
 
 export class ExpressionStep {
 
-    public static readonly expressionRegEx = [
-        {
-            keyword : `{string}`,
-            reg : /{string}/g,
-            groupName : `string`,
-            getFull : (index: number) => {
-                return `(?<string${index}>"[^"]*"|'[^']*')`
-            },
-        },
-        {
-            keyword : `{number}`,
-            reg : /{number}/g,
-            value : /(?<number>("[^"]*"|'[^']*'))/g,
-            groupName : `number`,
-            getFull : (index: number) => {
-                return `(?<number${index}>\\$?\\d+(\\.\\d+)?)`
-            },
-        },
+    public static readonly expressionRegEx : ExpressionRegex[] = [
+        new StringRegex(),
+        new NumberRegex(),
     ]
 
     // todo use {float} with parseFloat
@@ -35,9 +23,10 @@ export class ExpressionStep {
         })
 
         this.expressionRegEx.forEach((r) => {
-            regexString = regexString.replace(r.reg, () => {
+            regexString = regexString.replace(r.keywordRegex, () => {
                 groupCount[r.groupName] += 1
-                return r.getFull(groupCount[r.groupName])
+
+                return r.getRegex(groupCount[r.groupName])
             })
         })
 
