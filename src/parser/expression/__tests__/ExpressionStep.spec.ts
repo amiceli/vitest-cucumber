@@ -1,7 +1,7 @@
 import {
     describe, expect, it, 
 } from "vitest"
-import { Step, StepTypes } from '../step'
+import { Step, StepTypes } from '../../step'
 import { ExpressionStep } from '../ExpressionStep'
 
 describe(`ExpressionStep`, () => {
