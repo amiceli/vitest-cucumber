@@ -77,7 +77,8 @@ export class ExpressionStep {
         const allValues = result
             .flat()
             .filter((t) => t !== undefined)
-            .map((r) => r.value)
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            .map((r) => r!.value)
 
         const hasRegex = this.expressionRegEx.some((r) => {
             return stepExpression.includes(r.keyword)
