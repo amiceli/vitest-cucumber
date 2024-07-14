@@ -3,6 +3,7 @@ import {
 } from "vitest"
 import { Step, StepTypes } from '../../step'
 import { ExpressionStep } from '../ExpressionStep'
+import { StepExpressionMatchError } from "../../../errors/errors"
 
 describe(`ExpressionStep`, () => {
 
@@ -88,7 +89,12 @@ describe(`ExpressionStep`, () => {
                 step,
                 `I love {number} 3`,
             )
-        }).toThrow(`wrong expression`)
+        }).toThrowError(
+            new StepExpressionMatchError(
+                step,
+                `I love {number} 3`,
+            ),
+        )
     })
 
     it(`should detect step without expression`, () => {

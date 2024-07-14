@@ -24,7 +24,7 @@ export abstract class StepAble extends Taggable {
 
                     return sameType && (sameDetails || params.length >= 0)
                 } else {
-                    return sameType === sameDetails
+                    return sameType && sameDetails
                 }
             } catch (e) {
                 return false
