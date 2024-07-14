@@ -41,6 +41,17 @@ describe(`ExpressionStep`, () => {
         expect(params).toEqual([3])
     })
 
+    it(`should match {float}`, () => {
+        const step = new Step(
+            StepTypes.GIVEN, `I love Vue 3.1 couille`,
+        )
+        const params = ExpressionStep.matchStep(
+            step,
+            `I love Vue {float} couille`,
+        )
+        expect(params).toEqual([3.1])
+    })
+
     it(`should match {string} and {number}`, () => {
         const step = new Step(
             StepTypes.GIVEN, `I love "Vue" 3 and 12`,

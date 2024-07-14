@@ -1,6 +1,6 @@
 import { Step } from "../step"
 import {
-    ExpressionRegex, NumberRegex, StringRegex,
+    ExpressionRegex, FloatRegex, NumberRegex, StringRegex,
 } from "./regexes"
 
 export class ExpressionStep {
@@ -8,6 +8,7 @@ export class ExpressionStep {
     public static readonly expressionRegEx : ExpressionRegex[] = [
         new StringRegex(),
         new NumberRegex(),
+        new FloatRegex(),
     ]
 
     // todo use {float} with parseFloat
@@ -54,6 +55,18 @@ export class ExpressionStep {
                         index,
                         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                         value : parseInt(match.groups![key], 10),
+                    })
+                } else if (key.startsWith(`float`)) {
+                    res.push({
+                        index,
+                        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                        value : parseFloat(match.groups![key]),
+                    })
+                } else {
+                    res.push({
+                        index,
+                        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                        value : match.groups![key].replace(/^["']|["']$/g, ``),
                     })
                 }
             })

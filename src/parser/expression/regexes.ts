@@ -34,3 +34,17 @@ export class NumberRegex implements ExpressionRegex {
     }
 
 }
+
+export class FloatRegex implements ExpressionRegex {
+
+    public readonly keyword: string = `{float}`
+
+    public readonly groupName: string  = `float`
+
+    public readonly keywordRegex: RegExp = /{float}/g
+
+    public getRegex (index : number) {
+        return `\\b(?<float${index}>\\d+\\.\\d+)\\b`
+    }
+
+}
