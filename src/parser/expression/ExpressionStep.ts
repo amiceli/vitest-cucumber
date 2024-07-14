@@ -1,3 +1,4 @@
+import { StepExpressionMatchError } from "../../errors/errors"
 import { Step } from "../step"
 import {
     ExpressionRegex, FloatRegex, NumberRegex, StringRegex,
@@ -11,7 +12,6 @@ export class ExpressionStep {
         new FloatRegex(),
     ]
 
-    // todo use {float} with parseFloat
     // todo matcg {number} with $ and/or .
     public static matchStep (step: Step, stepExpression: string): any[] {
         let regexString = stepExpression
@@ -84,7 +84,7 @@ export class ExpressionStep {
         })
 
         if (hasRegex && allValues.length === 0) {
-            throw `wrong expression`
+            throw new StepExpressionMatchError(step, stepExpression)
         }
 
         return allValues

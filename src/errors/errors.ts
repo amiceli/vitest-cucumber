@@ -6,7 +6,7 @@ import { Feature } from '../parser/feature'
 import { Scenario, ScenarioOutline } from '../parser/scenario'
 import { Step, StepTypes } from '../parser/step'
 
-abstract class VitestsCucumberError extends Error {
+export abstract class VitestsCucumberError extends Error {
 
     protected constructor (message: string, name? : string) {
         super(message)
@@ -166,6 +166,14 @@ export class OnlyOneFeatureError extends VitestsCucumberError {
 
     public constructor () {
         super(`Gherkin rule: only one Feature by file`)
+    }
+
+}
+
+export class StepExpressionMatchError extends VitestsCucumberError {
+
+    public constructor (step : Step, expression : string) {
+        super(`${expression} no mtach with ${step.details}`)
     }
 
 }
