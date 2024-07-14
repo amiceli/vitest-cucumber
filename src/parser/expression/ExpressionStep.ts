@@ -90,4 +90,10 @@ export class ExpressionStep {
         return allValues
     }
 
+    public static stepContainsRegex (expression : string) : boolean {
+        return ExpressionStep.expressionRegEx.some((r) => {
+            return expression.includes(r.keyword)
+        })
+    }
+
 }

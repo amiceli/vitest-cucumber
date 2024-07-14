@@ -1,5 +1,6 @@
 import { StepAbleStepsNotCalledError, StepAbleUnknowStepError } from "../errors/errors"
 import { Taggable } from "./Taggable"
+import { ExpressionStep } from "./expression/ExpressionStep"
 import { Step, StepTypes } from "./step"
 
 export abstract class StepAble extends Taggable {
@@ -12,7 +13,22 @@ export abstract class StepAble extends Taggable {
 
     public findStepByTypeAndDetails (type : string, details : string) : Step | undefined {
         return this.steps.find((step : Step) => {
-            return step.type === type && step.details === details
+            try {
+                const sameType = step.type === type
+                const sameDetails = step.details === details
+
+                if (ExpressionStep.stepContainsRegex(details)) {
+                    const params = ExpressionStep.matchStep(
+                        step, details,
+                    )
+
+                    return sameType && (sameDetails || params.length >= 0)
+                } else {
+                    return sameType === sameDetails
+                }
+            } catch (e) {
+                return false
+            }
         })
     }
 
