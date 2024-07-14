@@ -1050,4 +1050,27 @@ describe(`step with expressions`, () => {
             })
         })
     })
+    describe(`With Rules`, () => {
+        const feature = FeatureContentReader.fromString([
+            `Feature: Background run before scenario tests`,
+            `   Rule: test`,
+            `      Background:`,
+            `           Given I use "Vue" 3.2`,
+            `       Scenario: simple scenario`,
+            `           Then   I use typescript`,
+        ]).parseContent()
+
+        describeFeature(feature, (f) => {
+            f.Rule(`test`, (r) => {
+                r.RuleBackground((b) => {
+                    b.Given(`I use "Vue" {float}`, (version) => {
+                        expect(version).toEqual(3.2)
+                    })
+                })
+                r.RuleScenario(`simple scenario`, (s) => {
+                    s.Then(`I use typescript`, () => {})
+                })
+            })
+        })
+    })
 })
