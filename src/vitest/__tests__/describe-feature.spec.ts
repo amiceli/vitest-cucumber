@@ -991,5 +991,41 @@ describe(`Step with TestContext`, () => {
                 expect(typeof ctx.skip).toBe(`function`)
             })
         })
-    } )
+    })
+})
+
+describe(`step with expressions`, () => {
+    const feature = FeatureContentReader.fromString([
+        `Feature: Background run before scenario tests`,
+        `    Scenario: scenario with expression`,
+        `        Given I use "Vue" 3.2`,
+        `        Then  I can't use Vue 2`,
+        `        And   I use typescript`,
+    ]).parseContent()
+
+    describeFeature(feature, (f) => {
+        f.Scenario(`scenario with expression`, (s) => {
+            s.Given(`I use {string} {float}`, (framework : string, version : number) => {
+                expect(framework).toEqual(`Vue`)
+                expect(version).toEqual(3.2)
+            })
+            s.Then(`I can't use Vue {number}`, (version) => {
+                expect(version).toEqual(2)
+            })
+            s.And(`I use typescript`, (...params) => {
+                expect(params.length).toBe(0)
+            })
+        })
+    })
+
+    expect(() => {
+        describeFeature(feature, (f) => {
+            f.Scenario(`scenario with expression`, (s) => {
+                s.Given(`I use {number} {float}`, (framework : string, version : number) => {
+                    expect(framework).toEqual(`Vue`)
+                    expect(version).toEqual(3.2)
+                })
+            })
+        })
+    }).toThrowError()
 })

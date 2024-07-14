@@ -5,7 +5,8 @@ export type MaybePromise<T = void> = T | Promise<T>
 
 export type StepCallbackDefinition = (
     name : string, 
-    fn : (ctx : TaskContext) => MaybePromise
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    fn : (...params: [...any[], TaskContext]) => MaybePromise
 ) => void
 
 export type StepTest = {
