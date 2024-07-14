@@ -995,37 +995,59 @@ describe(`Step with TestContext`, () => {
 })
 
 describe(`step with expressions`, () => {
-    const feature = FeatureContentReader.fromString([
-        `Feature: Background run before scenario tests`,
-        `    Scenario: scenario with expression`,
-        `        Given I use "Vue" 3.2`,
-        `        Then  I can't use Vue 2`,
-        `        And   I use typescript`,
-    ]).parseContent()
-
-    describeFeature(feature, (f) => {
-        f.Scenario(`scenario with expression`, (s) => {
-            s.Given(`I use {string} {float}`, (framework : string, version : number) => {
-                expect(framework).toEqual(`Vue`)
-                expect(version).toEqual(3.2)
-            })
-            s.Then(`I can't use Vue {number}`, (version) => {
-                expect(version).toEqual(2)
-            })
-            s.And(`I use typescript`, (...params) => {
-                expect(params.length).toBe(0)
-            })
-        })
-    })
-
-    expect(() => {
+    describe(`Scenario`, () => {
+        const feature = FeatureContentReader.fromString([
+            `Feature: Background run before scenario tests`,
+            `    Scenario: scenario with expression`,
+            `        Given I use "Vue" 3.2`,
+            `        Then  I can't use Vue 2`,
+            `        And   I use typescript`,
+        ]).parseContent()
+    
         describeFeature(feature, (f) => {
             f.Scenario(`scenario with expression`, (s) => {
-                s.Given(`I use {number} {float}`, (framework : string, version : number) => {
+                s.Given(`I use {string} {float}`, (framework : string, version : number) => {
                     expect(framework).toEqual(`Vue`)
                     expect(version).toEqual(3.2)
                 })
+                s.Then(`I can't use Vue {number}`, (version) => {
+                    expect(version).toEqual(2)
+                })
+                s.And(`I use typescript`, (...params) => {
+                    expect(params.length).toBe(0)
+                })
             })
         })
-    }).toThrowError()
+    
+        expect(() => {
+            describeFeature(feature, (f) => {
+                f.Scenario(`scenario with expression`, (s) => {
+                    s.Given(`I use {number} {float}`, (framework : string, version : number) => {
+                        expect(framework).toEqual(`Vue`)
+                        expect(version).toEqual(3.2)
+                    })
+                })
+            })
+        }).toThrowError()
+    })
+    describe(`With Background`, () => {
+        const feature = FeatureContentReader.fromString([
+            `Feature: Background run before scenario tests`,
+            `   Background:`,
+            `        Given I use "Vue" 3.2`,
+            `    Scenario: simple scenario`,
+            `        Then   I use typescript`,
+        ]).parseContent()
+
+        describeFeature(feature, (f) => {
+            f.Background((b) => {
+                b.Given(`I use "Vue" {float}`, (version) => {
+                    expect(version).toEqual(3.2)
+                })
+            })
+            f.Scenario(`simple scenario`, (s) => {
+                s.Then(`I use typescript`, () => {})
+            })
+        })
+    })
 })
