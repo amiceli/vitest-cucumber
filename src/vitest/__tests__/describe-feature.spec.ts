@@ -17,10 +17,11 @@ import {
     describe,
     expect,
     vi,
+    test,
 } from "vitest"
 import { FeatureContentReader } from "../../__mocks__/FeatureContentReader.spec"
 import { Rule as RuleType } from "../../parser/Rule"
-import { Scenario as ScenarioType } from "../../parser/scenario"
+import { ScenarioOutline, Scenario as ScenarioType } from "../../parser/scenario"
 
 describe(`Feature`, () => {
     describe(`should detect uncalled Rule`, () => {
@@ -884,6 +885,58 @@ describe(`excludeTags`, () => {
                 `ignored-scenario`,
                 `ignored-rule`,
             ],
+        })
+    })
+})
+
+describe(`ScenarioOutline step title`, () => {
+    const feature = FeatureContentReader.fromString([
+        `Feature: one scenario with missing steps`,
+        `   Scenario Outline: Simple scenario`,
+        `       Given vitest-cucumber is <state>`,
+        `       Then  check if I am <call>`,
+        `       Examples:`,
+        `           | state    | call     |`,
+        `           | running  | called   |`,
+        `           | finished | uncalled |`,
+        ``,
+    ]).parseContent()
+
+    const scenarioOutline = feature.scenarii[0] as ScenarioOutline
+    const getStepTitle = vi.spyOn(scenarioOutline, `getStepTitle`)
+    const givenStep = scenarioOutline.findStepByTypeAndDetails(
+        StepTypes.GIVEN, `vitest-cucumber is <state>`,
+    )
+    const thenStep = scenarioOutline.findStepByTypeAndDetails(
+        StepTypes.THEN, `check if I am <call>`,
+    )
+
+    if (!givenStep || !thenStep) {
+        test.fails(`Step not found`)
+    }
+
+    describeFeature(feature, (f) => {
+        f.AfterAllScenarios(() => {
+            expect(getStepTitle).toHaveBeenCalledTimes(4)
+        })
+
+        f.ScenarioOutline(`Simple scenario`, (s) => {
+            s.Given(`vitest-cucumber is <state>`, () => {
+                expect(getStepTitle).toHaveBeenCalledWith(
+                    givenStep, { state : `running`, call : `called` },
+                )
+                expect(getStepTitle).toHaveBeenCalledWith(
+                    givenStep, { state : `finished`, call : `uncalled` },
+                )
+            })
+            s.Then(`check if I am <call>`, () => {
+                expect(getStepTitle).toHaveBeenCalledWith(
+                    thenStep, { state : `running`, call : `called` },
+                )
+                expect(getStepTitle).toHaveBeenCalledWith(
+                    thenStep, { state : `finished`, call : `uncalled` },
+                )
+            })
         })
     })
 })

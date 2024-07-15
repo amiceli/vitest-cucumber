@@ -1,4 +1,5 @@
 import { StepAble } from './Stepable'
+import { Step } from './step'
 
 export class Scenario extends StepAble {
 
@@ -28,6 +29,20 @@ export class ScenarioOutline extends Scenario {
     
     public getTitle (): string {
         return `Scenario Outline: ${this.description}`
+    }
+
+    public getStepTitle (step : Step, example : Example[0]) : string {
+        let stepTitle = step.getTitle()
+
+        const exampleKeys = Object.keys(example)
+
+        exampleKeys.forEach((key) => {
+            stepTitle = stepTitle.replace(
+                `<${key}>`, example[key],
+            )
+        })
+
+        return stepTitle
     }
 
 }

@@ -359,6 +359,16 @@ describe(`Models`, () => {
             expect(scenarioOutline.missingExamplesKeyword).toBeFalsy()
             expect(scenarioOutline.getTitle()).toEqual(`Scenario Outline: outline`)
         })
+
+        test(`Scenario Outline can replace example in step title`, () => {
+            const step = new Step(StepTypes?.GIVEN, `I use <framework>`)
+            const scenarioOutline = new ScenarioOutline(`outline`)
+            const example = { framework : `Vue` }
+
+            expect(
+                scenarioOutline.getStepTitle(step, example),
+            ).toEqual(`Given I use Vue`)
+        })
     })
 
     describe(`Taggable`, () => {
