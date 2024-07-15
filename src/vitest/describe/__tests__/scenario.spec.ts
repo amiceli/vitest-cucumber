@@ -61,7 +61,19 @@ describe(`describeScenarioOutline`, () => {
             expect(each).toHaveBeenCalledWith(
                 [
                     expect.arrayContaining([
-                        `Given given <test>`,
+                        `Given given test`,
+                        expect.objectContaining({
+                            fn : expect.any(Function),
+                            key : `Given given <test>`,
+                            step : expect.any(Step),
+                        }),
+                    ]),
+                ],
+            )
+            expect(each).toHaveBeenCalledWith(
+                [
+                    expect.arrayContaining([
+                        `Given given test 2`,
                         expect.objectContaining({
                             fn : expect.any(Function),
                             key : `Given given <test>`,

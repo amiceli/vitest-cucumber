@@ -77,7 +77,7 @@ export function createScenarioOutlineDescribeHandler (
                     test.each(
                         steps.map((s) => {
                             return [
-                                s.key,
+                                scenario.getStepTitle(s.step, exampleVariables),
                                 s,
                             ]
                         }),
