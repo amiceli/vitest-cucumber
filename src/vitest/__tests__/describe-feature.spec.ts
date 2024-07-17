@@ -9,6 +9,7 @@ import {
     NotScenarioOutlineError,
     RuleNotCalledError,
     ScenarioNotCalledError,
+    StepAbleStepExpressionError,
     StepAbleStepsNotCalledError,
     StepAbleUnknowStepError,
 } from "../../errors/errors"
@@ -1028,7 +1029,12 @@ describe(`step with expressions`, () => {
                     })
                 })
             })
-        }).toThrowError()
+        }).toThrowError(
+            new StepAbleStepExpressionError(
+                feature.scenarii[0],
+                new Step(StepTypes.GIVEN, `I use {number} {float}`),
+            ),
+        )
     })
     describe(`With Background`, () => {
         const feature = FeatureContentReader.fromString([
@@ -1072,5 +1078,58 @@ describe(`step with expressions`, () => {
                 })
             })
         })
+    })
+    describe(`Scenario Outline`, () => {
+        const feature = FeatureContentReader.fromString([
+            `Feature: Background run before scenario tests`,
+            `    Scenario Outline: scenario outline with expression`,
+            `        Given I use "Vue" 3.2`,
+            `        Then  I can't use <framework> 2`,
+            `        And   Not work with variable`,
+            ``,
+            `        Examples:`,
+            `            | framework |`,
+            `            | Angular   |`,
+        ]).parseContent()
+    
+        describeFeature(feature, (f) => {
+            f.ScenarioOutline(`scenario outline with expression`, (s, variables) => {
+                s.Given(`I use {string} {float}`, (framework : string, version : number) => {
+                    expect(framework).toEqual(`Vue`)
+                    expect(version).toEqual(3.2)
+                })
+                s.Then(`I can't use <framework> {number}`, (version) => {
+                    expect(variables.framework).toEqual(`Angular`)
+                    expect(version).toEqual(2)
+                })
+                s.And(`Not work with variable`, (...params) => {
+                    expect(params.length).toBe(0)
+                })
+            })
+        })
+    
+        expect(() => {
+            describeFeature(feature, (f) => {
+                f.ScenarioOutline(`scenario outline with expression`, (s, variables) => {
+                    s.Given(`I use {string} {float}`, (framework : string, version : number) => {
+                        expect(framework).toEqual(`Vue`)
+                        expect(version).toEqual(3.2)
+                    })
+                    s.Then(`I can't use {string} {number}`, (frame, version) => {
+                        expect(variables.framework).toEqual(`Angular`)
+                        expect(frame).toEqual(`oo`)
+                        expect(version).toEqual(2)
+                    })
+                    s.And(`Not work with variable`, (...params) => {
+                        expect(params.length).toBe(0)
+                    })
+                })
+            })
+        }).toThrowError(
+            new StepAbleStepExpressionError(
+                feature.scenarii[0],
+                new Step(StepTypes.THEN, `I can't use {string} {number}`),
+            ),
+        )
     })
 })

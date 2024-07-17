@@ -97,6 +97,18 @@ export class StepAbleUnknowStepError extends VitestsCucumberError {
 
 }
 
+export class StepAbleStepExpressionError extends VitestsCucumberError {
+
+    public constructor (stepable : StepAble, step : Step) {
+        super([
+            `No step match with this expression`,
+            `   ${stepable.getTitle()}`,
+            `       ${step.getTitle()} ❌`,
+        ].join(`\n`))
+    }
+
+}
+
 export class StepAbleStepsNotCalledError extends VitestsCucumberError {
 
     public constructor (stepable : StepAble, step : Step) {
