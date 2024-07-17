@@ -8,6 +8,7 @@ import {
 import { Scenario } from "../../parser/scenario"
 import { ScenarioSteps, StepMap } from "./common"
 import { ExpressionStep } from "../../parser/expression/ExpressionStep"
+import { ScenarioSteps } from "./commonDescribeStepAble"
 
 type DescribeScenarioArgs = {
     scenario : Scenario,

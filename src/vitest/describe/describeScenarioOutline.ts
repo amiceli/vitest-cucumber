@@ -7,6 +7,8 @@ import {
     StepTest, MaybePromise, StepCallbackDefinition,
 } from "../types"
 import { ScenarioSteps, StepMap } from "./common"
+import { ExpressionStep } from "../../parser/expression/ExpressionStep"
+import { ScenarioSteps } from "./commonDescribeStepAble"
 
 type DescribeScenarioArgs = {
     scenario: ScenarioOutline,
@@ -28,15 +30,19 @@ export function createScenarioOutlineDescribeHandler (
     const createScenarioStepCallback = (stepType: string): StepCallbackDefinition => {
         return (
             stepDetails: string,
-            scenarioStepCallback: (ctx : TaskContext) => void,
+            scenarioStepCallback: (...params: [...unknown[], TaskContext]) => void,
         ) => {
             const foundStep = scenario.checkIfStepExists(stepType, stepDetails)
+            const params : unknown[] = ExpressionStep.matchStep(
+                foundStep, stepDetails,
+            )
 
             foundStep.isCalled = true
             scenarioStepsToRun.push({
                 key : `${stepType} ${stepDetails}`,
                 fn : scenarioStepCallback,
                 step : foundStep,
+                params,
             })
 
         }
@@ -77,7 +83,7 @@ export function createScenarioOutlineDescribeHandler (
                             ]
                         }),
                     )(`%s`, async ([,scenarioStep], ctx) => {
-                        await scenarioStep.fn(ctx)
+                        await scenarioStep.fn(...scenarioStep.params, ctx)
                     })
                 }
             )([...scenarioStepsToRun])

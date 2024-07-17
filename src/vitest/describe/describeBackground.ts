@@ -5,6 +5,7 @@ import {
 import { Background } from "../../parser/Background"
 import { ScenarioSteps, StepMap } from "./common"
 import { ExpressionStep } from "../../parser/expression/ExpressionStep"
+import { ScenarioSteps } from "./commonDescribeStepAble"
 
 type DescribeScenarioArgs = {
     background : Background,
