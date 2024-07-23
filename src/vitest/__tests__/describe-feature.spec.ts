@@ -17,7 +17,8 @@ import {
     describe,
     expect,
     vi,
-    test,
+    test, Task,
+    Suite,
 } from "vitest"
 import { FeatureContentReader } from "../../__mocks__/FeatureContentReader.spec"
 import { Rule as RuleType } from "../../parser/Rule"
@@ -939,4 +940,55 @@ describe(`ScenarioOutline step title`, () => {
             })
         })
     })
+})
+
+describe(`Step with TestContext`, () => {
+    const feature = FeatureContentReader.fromString([
+        `Feature: TestContext`,
+        `   Background:`,
+        `       Given I use vitest-cucumber`,
+        `   Scenario: simple scenario`,
+        `       Given I have a test`,
+        `       Then  I can use skip()`,
+        `   Scenario Outline: Simple outline`,
+        `       Given vitest-cucumber is <state>`,
+        `       Then  check if I am <call>`,
+        `       Examples:`,
+        `           | state    | call     |`,
+        `           | running  | called   |`,
+        `           | finished | uncalled |`,
+    ]).parseContent()
+
+    describeFeature(feature, (f) => {
+        let scenarioTask : Task
+        f.AfterAllScenarios(() => {
+            const background : Suite = scenarioTask.suite?.suite?.tasks?.find(({ name }) => name === `Background:`) as Suite
+            expect(
+                background?.tasks[0].mode,
+            ).toEqual(`skip`)
+        })
+        f.Background((b) => {
+            b.Given(`I use vitest-cucumber`, (ctx) => {
+                expect(typeof ctx.skip).toBe(`function`)
+                ctx.skip()
+            })
+        })
+        f.Scenario(`simple scenario`, (s) => {
+            s.Given(`I have a test`, ({ skip }) => {
+                expect(typeof skip).toBe(`function`)
+            })
+            s.Then(`I can use skip()`, (ctx) => {
+                scenarioTask = ctx.task
+                expect(typeof ctx.skip).toBe(`function`)
+            })
+        })
+        f.ScenarioOutline(`Simple outline`, (s) => {
+            s.Given(`vitest-cucumber is <state>`, (ctx) => {
+                expect(typeof ctx.skip).toBe(`function`)
+            })
+            s.Then(`check if I am <call>`, (ctx) => {
+                expect(typeof ctx.skip).toBe(`function`)
+            })
+        })
+    } )
 })
