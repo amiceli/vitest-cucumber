@@ -1,11 +1,12 @@
 import {
     beforeAll, afterAll, test,
+    TaskContext,
 } from "vitest"
 import { Example, ScenarioOutline } from "../../parser/scenario"
 import {
     StepTest, MaybePromise, StepCallbackDefinition,
 } from "../types"
-import { ScenarioSteps } from "./common"
+import { ScenarioSteps, StepMap } from "./common"
 
 type DescribeScenarioArgs = {
     scenario: ScenarioOutline,
@@ -69,7 +70,7 @@ export function createScenarioOutlineDescribeHandler (
                     })
 
                     test.for(
-                        steps.map((s) => {
+                        steps.map((s) : StepMap => {
                             return [
                                 scenario.getStepTitle(s.step, exampleVariables),
                                 s,
