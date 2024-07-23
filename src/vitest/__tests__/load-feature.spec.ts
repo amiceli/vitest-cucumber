@@ -50,7 +50,6 @@ test(`should be able to load file from relative path another example`, async () 
 
     expect(async () => {
         await loadFeature(`../../another.feature`)
+        await fs.unlink(featureFilePaht)
     }).not.toThrowError()
-
-    await fs.unlink(featureFilePaht)
 })
