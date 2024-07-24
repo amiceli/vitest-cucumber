@@ -70,8 +70,7 @@ export function createScenarioDescribeHandler (
                     s,
                 ]
             }),
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        )(`%s`, async ([_, scenarioStep], ctx) => {
+        )(`%s`, async ([,scenarioStep], ctx) => {
             await scenarioStep.fn(ctx)
         })
     }
