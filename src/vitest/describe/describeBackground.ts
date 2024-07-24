@@ -1,19 +1,13 @@
-import { test } from "vitest"
+import { TaskContext, test } from "vitest"
 import {
     MaybePromise, StepCallbackDefinition, BackgroundStepTest,
 } from "../types"
-import { Step } from "../../parser/step"
 import { Background } from "../../parser/Background"
+import { ScenarioSteps, StepMap } from "./common"
 
 type DescribeScenarioArgs = {
     background : Background,
     backgroundCallback: (op: BackgroundStepTest) => MaybePromise,
-}
-
-type ScenarioSteps = {
-    key : string
-    fn : () => MaybePromise
-    step : Step
 }
 
 export function createBackgroundDescribeHandler (
@@ -27,7 +21,7 @@ export function createBackgroundDescribeHandler (
     const createScenarioStepCallback = (stepType: string): StepCallbackDefinition => {
         return (
             stepDetails: string, 
-            scenarioStepCallback: () => void,
+            scenarioStepCallback: (ctx : TaskContext) => void,
         ) => {
             const foundStep = background.checkIfStepExists(stepType, stepDetails)
             foundStep.isCalled = true
@@ -50,15 +44,15 @@ export function createBackgroundDescribeHandler (
     background.checkIfStepWasCalled()
 
     return function backgroundDescribe () {
-        test.each(
-            backgroundStepsToRun.map((s) => {
+        test.for(
+            backgroundStepsToRun.map((s) : StepMap => {
                 return [
                     s.key,
                     s,
                 ]
             }),
-        )(`%s`, async (_, scenarioStep) => {
-            await scenarioStep.fn()
+        )(`%s`, async ([,scenarioStep], ctx) => {
+            await scenarioStep.fn(ctx)
         })
     }
 }

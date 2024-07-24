@@ -1,10 +1,11 @@
+import { TaskContext } from "vitest"
 import { Example } from "../parser/scenario"
 
 export type MaybePromise<T = void> = T | Promise<T>
 
 export type StepCallbackDefinition = (
     name : string, 
-    fn : () => MaybePromise
+    fn : (ctx : TaskContext) => MaybePromise
 ) => void
 
 export type StepTest = {

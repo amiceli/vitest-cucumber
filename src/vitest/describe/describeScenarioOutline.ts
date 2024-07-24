@@ -1,23 +1,18 @@
 import {
     beforeAll, afterAll, test,
+    TaskContext,
 } from "vitest"
 import { Example, ScenarioOutline } from "../../parser/scenario"
-import { Step } from "../../parser/step"
 import {
     StepTest, MaybePromise, StepCallbackDefinition,
 } from "../types"
+import { ScenarioSteps, StepMap } from "./common"
 
 type DescribeScenarioArgs = {
     scenario: ScenarioOutline,
     scenarioTestCallback: (op: StepTest, variables: Example[0]) => MaybePromise,
     beforeEachScenarioHook: () => MaybePromise
     afterEachScenarioHook: () => MaybePromise
-}
-
-type ScenarioSteps = {
-    key: string
-    fn: () => MaybePromise
-    step: Step
 }
 
 export function createScenarioOutlineDescribeHandler (
@@ -33,7 +28,7 @@ export function createScenarioOutlineDescribeHandler (
     const createScenarioStepCallback = (stepType: string): StepCallbackDefinition => {
         return (
             stepDetails: string,
-            scenarioStepCallback: () => void,
+            scenarioStepCallback: (ctx : TaskContext) => void,
         ) => {
             const foundStep = scenario.checkIfStepExists(stepType, stepDetails)
 
@@ -74,15 +69,15 @@ export function createScenarioOutlineDescribeHandler (
                         await afterEachScenarioHook()
                     })
 
-                    test.each(
-                        steps.map((s) => {
+                    test.for(
+                        steps.map((s) : StepMap => {
                             return [
                                 scenario.getStepTitle(s.step, exampleVariables),
                                 s,
                             ]
                         }),
-                    )(`%s`, async (_, scenarioStep) => {
-                        await scenarioStep.fn()
+                    )(`%s`, async ([,scenarioStep], ctx) => {
+                        await scenarioStep.fn(ctx)
                     })
                 }
             )([...scenarioStepsToRun])
