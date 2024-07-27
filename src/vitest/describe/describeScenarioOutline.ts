@@ -1,10 +1,11 @@
 import {
     beforeAll, afterAll, test,
-    TaskContext,
 } from "vitest"
 import { Example, ScenarioOutline } from "../../parser/scenario"
 import {
     StepTest, MaybePromise, StepCallbackDefinition,
+    CallbackWithSingleContext,
+    CallbackWithParamsAndContext,
 } from "../types"
 import { ScenarioSteps, StepMap } from "./common"
 import { ExpressionStep } from "../../parser/expression/ExpressionStep"
@@ -29,7 +30,7 @@ export function createScenarioOutlineDescribeHandler (
     const createScenarioStepCallback = (stepType: string): StepCallbackDefinition => {
         return (
             stepDetails: string,
-            scenarioStepCallback: (ctx : TaskContext, params : unknown[]) => void,
+            scenarioStepCallback: CallbackWithSingleContext | CallbackWithParamsAndContext,
         ) => {
             const foundStep = scenario.checkIfStepExists(stepType, stepDetails)
             const params : unknown[] = ExpressionStep.matchStep(

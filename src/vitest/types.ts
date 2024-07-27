@@ -4,9 +4,9 @@ import { Example } from "../parser/scenario"
 export type MaybePromise<T = void> = T | Promise<T>
 
 
-type CallbackWithSingleContext = (context: TaskContext) => MaybePromise
+export type CallbackWithSingleContext = (context: TaskContext) => MaybePromise
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-type CallbackWithParamsAndContext<T = any> = (ctx : TaskContext, ...params: T[]) => MaybePromise
+export type CallbackWithParamsAndContext<T = any> = (ctx : TaskContext, ...params: T[]) => MaybePromise
 
 export type StepCallbackDefinition = (
     name : string, 
