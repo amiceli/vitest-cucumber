@@ -21,6 +21,7 @@ import {
     test, 
     Task,
     Suite,
+    TaskContext,
 } from "vitest"
 import { FeatureContentReader } from "../../__mocks__/FeatureContentReader.spec"
 import { Rule as RuleType } from "../../parser/Rule"
@@ -1007,22 +1008,23 @@ describe(`step with expressions`, () => {
     
         describeFeature(feature, (f) => {
             f.Scenario(`scenario with expression`, (s) => {
-                s.Given(`I use {string} {float}`, (framework : string, version : number, ctx) => {
+                s.Given(`I use {string} {float}`, (framework : string, version : number, ctx : TaskContext) => {
                     expect(framework).toEqual(`Vue`)
                     expect(version).toEqual(3.2)
                     expect(
                         ctx.task.name,
                     ).toEqual(`Given I use {string} {float}`)
                 })
-                s.Then(`I can't use Vue {number}`, (version, ctx) => {
+                s.Then(`I can't use Vue {number}`, (version : number, ctx : TaskContext) => {
                     expect(version).toEqual(2)
                     expect(
                         ctx.task.name,
                     ).toEqual(`Then I can't use Vue {number}`)
                 })
-                s.And(`I use typescript`, (params) => {
+                s.And(`I use typescript`, (ctx : TaskContext) => {
+                    console.debug({ ctx })
                     expect(
-                        params.task.name,
+                        ctx.task.name,
                     ).toEqual(`And I use typescript`)
                 })
             })
