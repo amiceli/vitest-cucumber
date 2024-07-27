@@ -1007,15 +1007,23 @@ describe(`step with expressions`, () => {
     
         describeFeature(feature, (f) => {
             f.Scenario(`scenario with expression`, (s) => {
-                s.Given(`I use {string} {float}`, (framework : string, version : number) => {
+                s.Given(`I use {string} {float}`, (framework : string, version : number, ctx) => {
                     expect(framework).toEqual(`Vue`)
                     expect(version).toEqual(3.2)
+                    expect(
+                        ctx.task.name,
+                    ).toEqual(`Given I use {string} {float}`)
                 })
-                s.Then(`I can't use Vue {number}`, (version) => {
+                s.Then(`I can't use Vue {number}`, (version, ctx) => {
                     expect(version).toEqual(2)
+                    expect(
+                        ctx.task.name,
+                    ).toEqual(`Then I can't use Vue {number}`)
                 })
-                s.And(`I use typescript`, (...params) => {
-                    expect(params.length).toBe(0)
+                s.And(`I use typescript`, (params) => {
+                    expect(
+                        params.task.name,
+                    ).toEqual(`And I use typescript`)
                 })
             })
         })
@@ -1094,16 +1102,20 @@ describe(`step with expressions`, () => {
     
         describeFeature(feature, (f) => {
             f.ScenarioOutline(`scenario outline with expression`, (s, variables) => {
-                s.Given(`I use {string} {float}`, (framework : string, version : number) => {
+                s.Given(`I use {string} {float}`, (framework : string, version : number, ctx) => {
                     expect(framework).toEqual(`Vue`)
                     expect(version).toEqual(3.2)
+                    expect(ctx.task.name).toEqual(`Given I use "Vue" 3.2`)
                 })
-                s.Then(`I can't use <framework> {number}`, (version) => {
+                s.Then(`I can't use <framework> {number}`, (version, ctx) => {
                     expect(variables.framework).toEqual(`Angular`)
                     expect(version).toEqual(2)
+                    expect(ctx.task.name).toEqual(`Then I can't use Angular 2`)
                 })
-                s.And(`Not work with variable`, (...params) => {
-                    expect(params.length).toBe(0)
+                s.And(`Not work with variable`, (ctx) => {
+                    expect(
+                        ctx.task.name,
+                    ).toEqual(`And Not work with variable`)
                 })
             })
         })
