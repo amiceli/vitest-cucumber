@@ -8,7 +8,6 @@ import {
 } from "../types"
 import { ScenarioSteps, StepMap } from "./common"
 import { ExpressionStep } from "../../parser/expression/ExpressionStep"
-import { ScenarioSteps } from "./commonDescribeStepAble"
 
 type DescribeScenarioArgs = {
     scenario: ScenarioOutline,
@@ -30,7 +29,7 @@ export function createScenarioOutlineDescribeHandler (
     const createScenarioStepCallback = (stepType: string): StepCallbackDefinition => {
         return (
             stepDetails: string,
-            scenarioStepCallback: (...params: [...unknown[], TaskContext]) => void,
+            scenarioStepCallback: (ctx : TaskContext, params : unknown[]) => void,
         ) => {
             const foundStep = scenario.checkIfStepExists(stepType, stepDetails)
             const params : unknown[] = ExpressionStep.matchStep(
@@ -83,7 +82,7 @@ export function createScenarioOutlineDescribeHandler (
                             ]
                         }),
                     )(`%s`, async ([,scenarioStep], ctx) => {
-                        await scenarioStep.fn(...scenarioStep.params, ctx)
+                        await scenarioStep.fn(ctx, ...scenarioStep.params)
                     })
                 }
             )([...scenarioStepsToRun])

@@ -4,7 +4,7 @@ import { type MaybePromise } from "../types"
 
 export type ScenarioSteps = {
     key : string
-    fn : (...params: [...unknown[], TaskContext]) => MaybePromise
+    fn : (ctx : TaskContext, ...params : unknown[]) => MaybePromise
     step : Step
     params : unknown[]
 }

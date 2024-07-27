@@ -5,7 +5,6 @@ import {
 import { Background } from "../../parser/Background"
 import { ScenarioSteps, StepMap } from "./common"
 import { ExpressionStep } from "../../parser/expression/ExpressionStep"
-import { ScenarioSteps } from "./commonDescribeStepAble"
 
 type DescribeScenarioArgs = {
     background : Background,
@@ -23,7 +22,7 @@ export function createBackgroundDescribeHandler (
     const createScenarioStepCallback = (stepType: string): StepCallbackDefinition => {
         return (
             stepDetails: string, 
-            scenarioStepCallback: (...params: [...unknown[], TaskContext]) => void,
+            scenarioStepCallback: (ctx : TaskContext, params : unknown[]) => void,
         ) => {
             const foundStep = background.checkIfStepExists(stepType, stepDetails)
             const params : unknown[] = ExpressionStep.matchStep(
@@ -59,7 +58,7 @@ export function createBackgroundDescribeHandler (
                 ]
             }),
         )(`%s`, async ([,scenarioStep], ctx) => {
-            await scenarioStep.fn(...scenarioStep.params, ctx)
+            await scenarioStep.fn(ctx, ...scenarioStep.params)
         })
     }
 }
