@@ -63,6 +63,10 @@ export class NumberRegex extends ExpressionRegex<number> {
     }
 
     public getValue (str: string): number {
+        if (str.startsWith(`$`)) {
+            return parseInt(str.replace(`$`, ``), 10)
+        }
+
         return parseInt(str, 10)
     }
 

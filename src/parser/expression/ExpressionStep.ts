@@ -13,7 +13,6 @@ export class ExpressionStep {
         new ListRegex(),
     ]
 
-    // todo matcg {number} with $ and/or .
     public static matchStep (step: Step, stepExpression: string): any[] {
         let regexString = stepExpression
         const groupCount: {
