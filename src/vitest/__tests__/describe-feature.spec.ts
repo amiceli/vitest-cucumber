@@ -1008,21 +1008,20 @@ describe(`step with expressions`, () => {
     
         describeFeature(feature, (f) => {
             f.Scenario(`scenario with expression`, (s) => {
-                s.Given(`I use {string} {float}`, (framework : string, version : number, ctx : TaskContext) => {
+                s.Given(`I use {string} {float}`, (ctx : TaskContext, framework : string, version : number) => {
                     expect(framework).toEqual(`Vue`)
                     expect(version).toEqual(3.2)
                     expect(
                         ctx.task.name,
                     ).toEqual(`Given I use {string} {float}`)
                 })
-                s.Then(`I can't use Vue {number}`, (version : number, ctx : TaskContext) => {
+                s.Then(`I can't use Vue {number}`, (ctx : TaskContext, version : number) => {
                     expect(version).toEqual(2)
                     expect(
                         ctx.task.name,
                     ).toEqual(`Then I can't use Vue {number}`)
                 })
                 s.And(`I use typescript`, (ctx : TaskContext) => {
-                    console.debug({ ctx })
                     expect(
                         ctx.task.name,
                     ).toEqual(`And I use typescript`)
@@ -1033,7 +1032,7 @@ describe(`step with expressions`, () => {
         expect(() => {
             describeFeature(feature, (f) => {
                 f.Scenario(`scenario with expression`, (s) => {
-                    s.Given(`I use {number} {float}`, (framework : string, version : number) => {
+                    s.Given(`I use {number} {float}`, (ctx, framework : string, version : number) => {
                         expect(framework).toEqual(`Vue`)
                         expect(version).toEqual(3.2)
                     })
@@ -1057,7 +1056,7 @@ describe(`step with expressions`, () => {
 
         describeFeature(feature, (f) => {
             f.Background((b) => {
-                b.Given(`I use "Vue" {float}`, (version) => {
+                b.Given(`I use "Vue" {float}`, (ctx, version : number) => {
                     expect(version).toEqual(3.2)
                 })
             })
@@ -1079,7 +1078,7 @@ describe(`step with expressions`, () => {
         describeFeature(feature, (f) => {
             f.Rule(`test`, (r) => {
                 r.RuleBackground((b) => {
-                    b.Given(`I use "Vue" {float}`, (version) => {
+                    b.Given(`I use "Vue" {float}`, (ctx, version : number) => {
                         expect(version).toEqual(3.2)
                     })
                 })
@@ -1104,17 +1103,17 @@ describe(`step with expressions`, () => {
     
         describeFeature(feature, (f) => {
             f.ScenarioOutline(`scenario outline with expression`, (s, variables) => {
-                s.Given(`I use {string} {float}`, (framework : string, version : number, ctx) => {
+                s.Given(`I use {string} {float}`, (ctx, framework : string, version : number) => {
                     expect(framework).toEqual(`Vue`)
                     expect(version).toEqual(3.2)
                     expect(ctx.task.name).toEqual(`Given I use "Vue" 3.2`)
                 })
-                s.Then(`I can't use <framework> {number}`, (version, ctx) => {
+                s.Then(`I can't use <framework> {number}`, (ctx, version : number) => {
                     expect(variables.framework).toEqual(`Angular`)
                     expect(version).toEqual(2)
                     expect(ctx.task.name).toEqual(`Then I can't use Angular 2`)
                 })
-                s.And(`Not work with variable`, (ctx) => {
+                s.And(`Not work with variable`, (ctx : TaskContext) => {
                     expect(
                         ctx.task.name,
                     ).toEqual(`And Not work with variable`)
@@ -1125,16 +1124,16 @@ describe(`step with expressions`, () => {
         expect(() => {
             describeFeature(feature, (f) => {
                 f.ScenarioOutline(`scenario outline with expression`, (s, variables) => {
-                    s.Given(`I use {string} {float}`, (framework : string, version : number) => {
+                    s.Given(`I use {string} {float}`, (ctx, framework : string, version : number) => {
                         expect(framework).toEqual(`Vue`)
                         expect(version).toEqual(3.2)
                     })
-                    s.Then(`I can't use {string} {number}`, (frame, version) => {
+                    s.Then(`I can't use {string} {number}`, (ctx, frame : string, version : number) => {
                         expect(variables.framework).toEqual(`Angular`)
                         expect(frame).toEqual(`oo`)
                         expect(version).toEqual(2)
                     })
-                    s.And(`Not work with variable`, (...params) => {
+                    s.And(`Not work with variable`, (ctx, ...params : undefined[]) => {
                         expect(params.length).toBe(0)
                     })
                 })
