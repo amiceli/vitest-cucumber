@@ -13,7 +13,7 @@ describe(`step with expressions`, () => {
             `    Scenario: scenario with expression`,
             `        Given I use "Vue" 3.2`,
             `        Then  I can't use Vue 2`,
-            `        And   I use typescript`,
+            `        And   I use typescript for $2`,
         ]).parseContent()
     
         describeFeature(feature, (f) => {
@@ -23,18 +23,19 @@ describe(`step with expressions`, () => {
                     expect(version).toEqual(3.2)
                     expect(
                         ctx.task.name,
-                    ).toEqual(`Given I use {string} {float}`)
+                    ).toEqual(`Given I use "Vue" 3.2`)
                 })
                 s.Then(`I can't use Vue {number}`, (ctx : TaskContext, version : number) => {
                     expect(version).toEqual(2)
                     expect(
                         ctx.task.name,
-                    ).toEqual(`Then I can't use Vue {number}`)
+                    ).toEqual(`Then I can't use Vue 2`)
                 })
-                s.And(`I use typescript`, (ctx : TaskContext) => {
+                s.And(`I use typescript for {number}`, (ctx : TaskContext, num : number) => {
+                    expect(num).toEqual(2)
                     expect(
                         ctx.task.name,
-                    ).toEqual(`And I use typescript`)
+                    ).toEqual(`And I use typescript for $2`)
                 })
             })
         })
@@ -68,6 +69,9 @@ describe(`step with expressions`, () => {
             f.Background((b) => {
                 b.Given(`I use "Vue" {float}`, (ctx, version : number) => {
                     expect(version).toEqual(3.2)
+                    expect(
+                        ctx.task.name,
+                    ).toEqual(`Given I use "Vue" 3.2`)
                 })
             })
             f.Scenario(`simple scenario`, (s) => {
@@ -90,6 +94,9 @@ describe(`step with expressions`, () => {
                 r.RuleBackground((b) => {
                     b.Given(`I use "Vue" {float}`, (ctx, version : number) => {
                         expect(version).toEqual(3.2)
+                        expect(
+                            ctx.task.name,
+                        ).toEqual(`Given I use "Vue" 3.2`)
                     })
                 })
                 r.RuleScenario(`simple scenario`, (s) => {
@@ -123,7 +130,8 @@ describe(`step with expressions`, () => {
                     expect(version).toEqual(2)
                     expect(ctx.task.name).toEqual(`Then I can't use Angular 2`)
                 })
-                s.And(`Not work with variable`, (ctx : TaskContext) => {
+                s.And(`Not work with variable`, (ctx : TaskContext, ...params : unknown[]) => {
+                    expect(params.length).toBe(0)
                     expect(
                         ctx.task.name,
                     ).toEqual(`And Not work with variable`)
@@ -170,7 +178,7 @@ describe(`step with expressions`, () => {
                     expect(version).toEqual(3.2)
                     expect(
                         ctx.task.name,
-                    ).toEqual(`Given I use {string} {float}`)
+                    ).toEqual(`Given I use "Vue" 3.2`)
                 })
                 s.Then(`I can't use {list}`, (ctx : TaskContext, list : string[]) => {
                     expect(list.length).toEqual(3)
@@ -179,7 +187,7 @@ describe(`step with expressions`, () => {
                     expect(list).toContain(`Solid`)
                     expect(
                         ctx.task.name,
-                    ).toEqual(`Then I can't use {list}`)
+                    ).toEqual(`Then I can't use React, Angular, Solid`)
                 })
             })
         })

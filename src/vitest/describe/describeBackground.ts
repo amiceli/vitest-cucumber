@@ -34,7 +34,7 @@ export function createBackgroundDescribeHandler (
             foundStep.isCalled = true
  
             backgroundStepsToRun.push({
-                key : `${stepType} ${stepDetails}`,
+                key : foundStep.getTitle(),
                 fn : scenarioStepCallback,
                 step : foundStep,
                 params,

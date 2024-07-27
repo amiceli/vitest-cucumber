@@ -39,7 +39,7 @@ export function createScenarioOutlineDescribeHandler (
 
             foundStep.isCalled = true
             scenarioStepsToRun.push({
-                key : `${stepType} ${stepDetails}`,
+                key : foundStep.getTitle(),
                 fn : scenarioStepCallback,
                 step : foundStep,
                 params,
