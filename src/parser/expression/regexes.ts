@@ -87,3 +87,23 @@ export class FloatRegex extends ExpressionRegex<number> {
     }
 
 }
+
+export class ListRegex extends ExpressionRegex<string[]> {
+
+    public constructor () {
+        super({
+            keyword : `{list}`,
+            groupName : `list`,
+            keywordRegex : /{list}/g,
+        })
+    }
+
+    public getRegex (index : number) {
+        return `(?<list${index}>[a-zA-Z]+(?:, ?[a-zA-Z]+)*)`
+    }
+
+    public getValue (str: string): string[] {
+        return str.split(`,`).map((t) => t.trim())
+    }
+
+}

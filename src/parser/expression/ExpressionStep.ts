@@ -1,7 +1,7 @@
 import { StepExpressionMatchError } from "../../errors/errors"
 import { Step } from "../step"
 import {
-    ExpressionRegex, FloatRegex, NumberRegex, StringRegex,
+    ExpressionRegex, FloatRegex, ListRegex, NumberRegex, StringRegex,
 } from "./regexes"
 
 export class ExpressionStep {
@@ -10,6 +10,7 @@ export class ExpressionStep {
         new StringRegex(),
         new NumberRegex(),
         new FloatRegex(),
+        new ListRegex(),
     ]
 
     // todo matcg {number} with $ and/or .
