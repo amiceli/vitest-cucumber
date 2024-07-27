@@ -36,7 +36,7 @@ export class ExpressionStep {
 
         const result = matches.map(match => {
             const res: Array<{
-                index: number, value: string | number
+                index: number, value: unknown
             }> = []
 
             if (!match.groups) {
@@ -44,29 +44,20 @@ export class ExpressionStep {
             }
 
             Object.keys(match.groups).forEach((key, index) => {
-                if (key.startsWith(`string`)) {
+                const matchRegex = this.expressionRegEx.find(
+                    (r) => r.matchGroupName(key),
+                )
+                if (matchRegex) {
                     res.push({
                         index,
                         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                        value : match.groups![key].replace(/^["']|["']$/g, ``),
-                    })
-                } else if (key.startsWith(`number`)) {
-                    res.push({
-                        index,
-                        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                        value : parseInt(match.groups![key], 10),
-                    })
-                } else if (key.startsWith(`float`)) {
-                    res.push({
-                        index,
-                        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                        value : parseFloat(match.groups![key]),
+                        value : matchRegex.getValue(match.groups![key]),
                     })
                 } else {
                     res.push({
                         index,
                         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                        value : match.groups![key].replace(/^["']|["']$/g, ``),
+                        value : (new StringRegex()).getValue(match.groups![key]),
                     })
                 }
             })

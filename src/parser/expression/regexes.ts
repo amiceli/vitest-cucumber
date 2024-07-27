@@ -1,50 +1,89 @@
-
-export interface ExpressionRegex {
+type ExpressionRegexConstructor = {
     keyword : string
     keywordRegex : RegExp
     groupName : string
-
-    getRegex (index : number) : string
 }
 
-export class StringRegex implements ExpressionRegex {
+export abstract class ExpressionRegex<T = unknown> {
 
-    public readonly keyword: string = `{string}`
+    public readonly keyword : string
 
-    public readonly groupName: string  = `string`
+    public readonly keywordRegex : RegExp
 
-    public readonly keywordRegex: RegExp = /{string}/g
+    public readonly groupName : string
+
+    public constructor (options : ExpressionRegexConstructor) {
+        this.keyword = options.keyword
+        this.keywordRegex = options.keywordRegex
+        this.groupName = options.groupName
+    }
+
+    public abstract getRegex (index : number) : string
+
+    public abstract getValue (str : string) : T
+    
+    public matchGroupName (str: string): boolean {
+        return str.startsWith(this.groupName)
+    }
+
+}
+
+export class StringRegex extends ExpressionRegex<string> {
+
+    public constructor () {
+        super({
+            keyword : `{string}`,
+            groupName : `string`,
+            keywordRegex : /{string}/g,
+        })
+    }
 
     public getRegex (index : number) {
         return `(?<string${index}>"[^"]*"|'[^']*')`
     }
 
+    public getValue (str: string): string {
+        return str.replace(/^["']|["']$/g, ``)
+    }
+
 }
 
-export class NumberRegex implements ExpressionRegex {
+export class NumberRegex extends ExpressionRegex<number> {
 
-    public readonly keyword: string = `{number}`
-
-    public readonly groupName: string  = `number`
-
-    public readonly keywordRegex: RegExp = /{number}/g
+    public constructor () {
+        super({
+            keyword : `{number}`,
+            groupName : `number`,
+            keywordRegex : /{number}/g,
+        })
+    }
 
     public getRegex (index : number) {
         return `(?<number${index}>\\$?\\d+(\\.\\d+)?)`
     }
 
+    public getValue (str: string): number {
+        return parseInt(str, 10)
+    }
+
 }
 
-export class FloatRegex implements ExpressionRegex {
+export class FloatRegex extends ExpressionRegex<number> {
 
-    public readonly keyword: string = `{float}`
-
-    public readonly groupName: string  = `float`
-
-    public readonly keywordRegex: RegExp = /{float}/g
+    public constructor () {
+        super({
+            keyword : `{float}`,
+            groupName : `float`,
+            keywordRegex : /{float}/g,
+        })
+    }
 
     public getRegex (index : number) {
         return `\\b(?<float${index}>\\d+\\.\\d+)\\b`
+    }
+
+    public getValue (str: string): number {
+        return parseFloat(str)
     }
 
 }
