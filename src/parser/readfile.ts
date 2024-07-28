@@ -23,7 +23,9 @@ export class FeatureFileReader {
     }
 
     private handleFeatureFilePath (featureFilePath : string) : string {
-        if (featureFilePath.match(/\.\/[\w-]+(\.[\w-]+)*$/)) {
+        const regex = /^(?:\.\.?\/)+[\w-]+(?:\/[\w-]+)*(\.[\w-]+)?$/
+
+        if (featureFilePath.match(regex)) {
             return `${this.callerFilePath}/${featureFilePath}`
         }
 

@@ -2,17 +2,23 @@ import { Feature } from "../parser/feature"
 import { FeatureFileReader } from "../parser/readfile"
 import callsites from 'callsites'
 import { dirname } from 'path'
+import fs from 'fs'
 
-function getCallerPath () : string | null {
-    const { 2 : callerFilePath } = callsites()
-    const callerFileName = callerFilePath?.getFileName() || ``
-    const callerFileDir = dirname(callerFileName)
+function getCallerPath (filePath : string): string | null {
+    const list = callsites()
 
-    return callerFileDir
+    return list.map((s) => {
+        const callerFileName = s?.getFileName() || ``
+        const callerFileDir = dirname(callerFileName)
+
+        return callerFileDir
+    }).find((s) => {
+        return fs.existsSync(`${s}/${filePath}`)
+    }) || null
 }
 
 export async function loadFeature (featureFilePath: string): Promise<Feature> {
-    const callerFileDir = getCallerPath()
+    const callerFileDir = getCallerPath(featureFilePath)
 
     const [feature] = await FeatureFileReader
         .fromPath(featureFilePath, callerFileDir)
