@@ -6,7 +6,7 @@
 
 ## Overview
 
-vitest-cucumber is a [vitest](https://vitest.dev/) **tools** (not a plugin) inspired by [jest-cucumber](https://github.com/bencompton/jest-cucumber).
+vitest-cucumber is an **opiniated** [vitest](https://vitest.dev/) **tools** (not a plugin) inspired by [jest-cucumber](https://github.com/bencompton/jest-cucumber).
 
 Goal is to write unit test using Gherkin feature file and checking scenario name, missing scenario step etc.
 
@@ -21,6 +21,13 @@ It's enough you don't to add or update a config file.
 You can take a look on [vitest-cucumber-example](https://github.com/amiceli/vitest-cucumber-example).
 
 It's a Vue example project using **vitest-cucumber**.
+
+## How it works
+
+`Scenario` function use vitest `describe` function and all steps function like `Given`, `Then`
+use vitest `test` function.
+
+So you don't need to use `it` or `test` inside `Scenario` or scenario steps.
 
 ## Usage
 
@@ -84,8 +91,6 @@ When('I run my unit tests', () => {
 
 It will throw **When I run my unit tests was not called**.
 
-**NB** : `loadFeature` and `loadFeatures` allow to use relative path since `3.2.3` version ;).
-
 ### Generate spec file from feature file
 
 Since `3.4.1` vitest-cucumber provide a script to generate spec file from feature file.
@@ -102,266 +107,17 @@ You just have to format spec file after this script ;).
 
 Currently it generates `TS` file, if you need more options open an issue ;).
 
-### describeFeature options
+## [Docs](https://vitest-cucumber.miceli.click/)
 
-`describeFeature` allow optionnal options to ignore `Scenario`, `Scenario Outline`, `Rule` according a tag.
+- [Background](https://vitest-cucumber.miceli.click/features/background)
+- [Scenario](https://vitest-cucumber.miceli.click/features/scenario)
+- [Scenario Outline and Examples](https://vitest-cucumber.miceli.click/features/scenario-outline)
+- [Rule](https://vitest-cucumber.miceli.click/features/rule)
+- [Scneario hooks](https://vitest-cucumber.miceli.click/features/hooks)
+- [Step sequentially and async](https://vitest-cucumber.miceli.click/features/sequentially-and-async)
+- [Gherkin tags](https://vitest-cucumber.miceli.click/features/gherkin-tags)
+- [Step with expression / parameter type](https://vitest-cucumber.miceli.click/features/step-expression)
 
-Gherkin example : 
+Doc is maintain in this project [vitest-cucumber-docs](https://github.com/amiceli/vitest-cucumber-docs).
 
-~~~
-Feature: detect uncalled rules
-    @awesome
-    Scenario: Me I am executed
-        Given vitest-cucumber is running
-        Then I am executed
-    @another-tag
-    Rule: executed rule
-        Scenario: I am also executed
-            Given vitest-cucumber is running
-            Then  my parent rule is called
-        @custom
-        Scenario: Ignored scenario
-            Given vitest-cucumber is running
-            Then  I am ignored
-~~~
-
-An example, ignore Rule with `@another-tag` : 
-
-~~~typescript
-describeFeature(feautre, () => {
-    // ...
-}, { excludeTags : ['another-tag']}) // you can use many tags
-~~~
-
-This will ignore `Rule` and its `Scenario` / `Scenario Outline`.
-
-### Scenario Outline and Examples
-
-An example of feature file with `Scenario Outline` and `Examples` : 
-
-~~~
-Feature: Detect image ratio from width and height
-
-    Scenario Outline: Detect image ratio when upload image
-        Given As a user in an awesome project
-        When  I upload an image <width>px on <height>px
-        Then  I see my image <ratio>
-
-        Examples:
-            | width | height | ratio |
-            | 100   | 100    | 1     |
-            | 150   | 300    | 2     |
-
-~~~
-
-You can use variables in your `ScenarioOutline` callback.
-A `ScenarioOutline` is executed X times according to X variables.
-
-~~~typescript
-describeFeature(feature, ({ ScenarioOutline }) => {
-    ScenarioOutline(`Detect image ratio when upload image`, ({ Given, When, Then }, variables) =>{
-        Given(`As a user in an awesome project`, () => {})
-        When(` I upload an image <width>px on <height>px`, () => {
-            // varaibles.width can be 100 or 150
-            // varaibles.height can be 100 or 300
-            // varaibles.ratio can be 1 or 2
-        })
-        Then(`I see my image <ratio>`, () => { })
-    })
-})
-~~~
-
-For example, first time variables are : 
-
-~~~json
-{
-    "width": 100,
-    "height": 100,
-    "ratio": 1,
-}
-~~~
-
-And next test : 
-
-~~~json
-{
-    "width": 150,
-    "height": 300,
-    "ratio": 2,
-}
-~~~
-
-### Background
-
-Take a look for [background doc](https://vitest-cucumber.miceli.click/features/background).
-
-### Rule
-
-Since `3.0.0` version, **vitest-cucumber** allow to use `Rule`.
-
-A feature file example with rules : 
-
-~~~feature
-Feature: Run tests with Rule
-    Scenario: I'm feature's scenario
-        Given I use vitest-cucumber
-        Then  It know I come from a Feature
-
-    Rule: I've specific Scenario
-        Scenario: I'm rule's scenario
-            Given I use vitest-cucumber
-            Then  It know I come from a Rule
-~~~
-
-And you can use it in your test : 
-
-~~~typescript
-describeFeature(feature, ({ Rule, Scenario }) => {
-    Scenario("I'm feature's scenario", () => {
-        // ...
-    })
-    Rule(`I've specific Scenario`, ({ RuleScenario, RuleScenarioOutline }) =>{
-        RuleScenario("I'm rule's scenario", () => {
-            // ...
-        })
-    })
-})
-~~~
-
-**IMPORTANT**: in your feature file, your feature `Scenario` must be written before rule `Scenario`.
-
-If you write like this : 
-
-~~~feature
-Feature: Run tests with Rule
-    Rule: I've specific Scenario
-        Scenario: I'm rule's scenario
-            Given I use vitest-cucumber
-            Then  It know I come from a Rule
-    Scenario: I'm feature's scenario
-        Given I use vitest-cucumber
-        Then  It know I come from a Feature
-~~~
-
-**vitest-cucumber** doesn't use indentation, is too complex for a little bring.
-
-So In this case *I'm feature's scenario* `Scenario` is added to your Rule.
-### For async and await
-
-Steps can be asynchronous because they are executed sequentially.
-
-But `Scenario` and `ScenarioOutline` are not asynchronous.
-
-Depending on what you need to do you can use scenario hooks. 
-
-### Scenario hooks
-
-Gherkin provide some [scenario hooks](https://cucumber.io/docs/cucumber/api/?lang=java#hooks).
-
-vitest-gherkin provides : 
-
-- `BeforeEachScenario` like `beforeEach`, before each Scenario
-- `BeforeAllScenarios` like`beforeAll`, before all scenarios
-- `AfterEachScenario` like `afterEach`, after each scenario
-- `AfterAllScenarios` like `afterAll`, after all Scenario
-
-All hooks should be called before `Scenario` : 
-
-~~~typescript
-describeFeature(
-    feature,
-    ({ AfterAllScenarios, AfterEachScenario, BeforeAllScenarios, BeforeEachScenario, Scenario }) => {
-        BeforeAllScenarios(() => {
-            // ...
-        })
-        BeforeEachScenario(() => {
-            // ...
-        })
-        AfterEachScenario(() => {
-            // ...
-        })
-        AfterAllScenarios(() => {
-            // ...
-        })
-        Scenario(`vitest-cucumber hook`, ({ Given }) => {
-            // ...
-        })
-        Scenario(`vitest-cucumber hook again`, ({ Given }) => {
-            // ...
-        })
-    }
-)
-~~~
-
-If you use `Rule`, hooks are runned also in your `Rule`.
-
-For example if you have a `Feature` with 2 `Rule`, `BeforeAllScenarios` is executed three times.
-
-Currently I don't know if it's useful to split `Feature` hooks and `Rule` hooks ;).
-
-### Steps are run sequentially
-
-Since v2.0.0 `vitest-cucumber` use `test.each` instead of `test`.
-To follow Gherkin way, steps are tested one after one.
-
-An example Scenario : 
-
-~~~ts
-describeFeature(feature, ({ Scenario }) => {
-    Scenario(`Run steps sequentially`, ({ Given, And, When, Then }) => {
-        let count = 0
-        Given(`Count equals 0`, () => {
-            expect(count).toBe(0)
-        })
-        And(`I increase the count by 1 in a promise`, async () => {
-            await new Promise((resolve) => {
-                count++
-                resolve(null)
-            })
-        })
-        When(`I use a timeout to increase`, async () => {
-            await new Promise((resolve) => {
-                setTimeout(() => {
-                    count++
-                    resolve(null)
-                }, 1000)
-            })
-        })
-        Then(`At end count should be 2`, () => {
-            expect(count).toBe(2)
-        })
-    })
-})
-~~~
-
-### Many Feature(s)
-
-If in your feature file you have more than 1 feature.
-**vitest-cucumber** can load all feature with `loadFeature` : 
-
-~~~ts
-import { loadFeatures, describeFeature } from '@amiceli/vitest-cucumber'
-import { expect } from 'vitest'
-
-const [
-    firstFeature, secondFeature
-] = await loadFeatures('path/to/my/file.feature')
-
-describeFeature(firstFeature, ({ Scenario }) => {
-    // ...
-})
-
-describeFeature(secondFeature, ({ Scenario }) => {
-    // ...
-})
-~~~
-
-You can still use `loadFeatures` but since v2.0.0 is deprecated.
-Because multiple `Feature` in one gherkin file isn't recommended in Gherkin rules.
-
-### How it works
-
-`Scenario` function use vitest `describe` function and all steps function like `Given`, `Then`
-use vitest `test` function.
-
-So you don't need to use `it` or `test` inside `Scenario` or scenario steps.
+Don't hesitate to open an issue on it if you want more details ;).
