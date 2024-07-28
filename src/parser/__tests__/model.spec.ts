@@ -352,6 +352,21 @@ describe(`Models`, () => {
             ).toBeUndefined()
         })
 
+        test(`Scenario find step with expression`, () => {
+            const scenario = new Scenario(`test`)
+            const step = new Step(StepTypes.AND, `I love Vue 3`)
+
+            scenario.addStep(step)
+            
+            expect(
+                scenario.findStepByTypeAndDetails(`And`, `I love Vue {number}`),
+            ).toEqual(step)
+
+            expect(
+                scenario.findStepByTypeAndDetails(`And`, `I love Vue {float}`),
+            ).toBeUndefined()
+        })
+
         test(`Scenario can be outline`, () => {
             const scenarioOutline = new ScenarioOutline(`outline`)
 

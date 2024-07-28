@@ -1,12 +1,14 @@
 import {
     beforeAll, afterAll, test,
-    TaskContext,
 } from "vitest"
 import {
     StepTest, MaybePromise, StepCallbackDefinition,
+    CallbackWithSingleContext,
+    CallbackWithParamsAndContext,
 } from "../types"
 import { Scenario } from "../../parser/scenario"
 import { ScenarioSteps, StepMap } from "./common"
+import { ExpressionStep } from "../../parser/expression/ExpressionStep"
 
 type DescribeScenarioArgs = {
     scenario : Scenario,
@@ -28,16 +30,20 @@ export function createScenarioDescribeHandler (
     const createScenarioStepCallback = (stepType: string): StepCallbackDefinition => {
         return (
             stepDetails: string, 
-            scenarioStepCallback: (ctx : TaskContext) => void,
+            scenarioStepCallback: CallbackWithSingleContext | CallbackWithParamsAndContext,
         ) => {
             const foundStep = scenario.checkIfStepExists(stepType, stepDetails)
+            const params : unknown[] = ExpressionStep.matchStep(
+                foundStep, stepDetails,
+            )
             
             foundStep.isCalled = true
  
             scenarioStepsToRun.push({
-                key : `${stepType} ${stepDetails}`,
+                key : foundStep.getTitle(),
                 fn : scenarioStepCallback,
                 step : foundStep,
+                params,
             })
         }
     }
@@ -71,7 +77,7 @@ export function createScenarioDescribeHandler (
                 ]
             }),
         )(`%s`, async ([,scenarioStep], ctx) => {
-            await scenarioStep.fn(ctx)
+            await scenarioStep.fn(ctx, ...scenarioStep.params)
         })
     }
 }

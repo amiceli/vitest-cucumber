@@ -1,11 +1,11 @@
-import { type TaskContext } from "vitest"
 import { type Step } from "../../parser/step"
-import { type MaybePromise } from "../types"
+import { CallbackWithParamsAndContext, CallbackWithSingleContext } from "../types"
 
 export type ScenarioSteps = {
     key : string
-    fn : (ctx : TaskContext) => MaybePromise
+    fn : CallbackWithSingleContext | CallbackWithParamsAndContext
     step : Step
+    params : unknown[]
 }
 
 export type StepMap = [string, ScenarioSteps]

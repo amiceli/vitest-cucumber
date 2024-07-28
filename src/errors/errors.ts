@@ -6,7 +6,7 @@ import { Feature } from '../parser/feature'
 import { Scenario, ScenarioOutline } from '../parser/scenario'
 import { Step, StepTypes } from '../parser/step'
 
-abstract class VitestsCucumberError extends Error {
+export abstract class VitestsCucumberError extends Error {
 
     protected constructor (message: string, name? : string) {
         super(message)
@@ -97,6 +97,18 @@ export class StepAbleUnknowStepError extends VitestsCucumberError {
 
 }
 
+export class StepAbleStepExpressionError extends VitestsCucumberError {
+
+    public constructor (stepable : StepAble, step : Step) {
+        super([
+            `No step match with this expression`,
+            `   ${stepable.getTitle()}`,
+            `       ${step.getTitle()} ❌`,
+        ].join(`\n`))
+    }
+
+}
+
 export class StepAbleStepsNotCalledError extends VitestsCucumberError {
 
     public constructor (stepable : StepAble, step : Step) {
@@ -166,6 +178,14 @@ export class OnlyOneFeatureError extends VitestsCucumberError {
 
     public constructor () {
         super(`Gherkin rule: only one Feature by file`)
+    }
+
+}
+
+export class StepExpressionMatchError extends VitestsCucumberError {
+
+    public constructor (step : Step, expression : string) {
+        super(`${expression} no mtach with ${step.details}`)
     }
 
 }
