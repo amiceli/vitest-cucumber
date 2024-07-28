@@ -1,21 +1,16 @@
-import { afterAll, test } from "vitest"
+import { test } from "vitest"
 import {
     MaybePromise, StepCallbackDefinition, BackgroundStepTest,
+    CallbackWithSingleContext,
+    CallbackWithParamsAndContext,
 } from "../types"
-import { Step } from "../../parser/step"
-import { ScenarioStateDetector } from "../state-detectors/ScenarioStateDetector"
-import { detectUncalledScenarioStep } from "./teardowns"
 import { Background } from "../../parser/Background"
+import { ScenarioSteps, StepMap } from "./common"
+import { ExpressionStep } from "../../parser/expression/ExpressionStep"
 
 type DescribeScenarioArgs = {
     background : Background,
     backgroundCallback: (op: BackgroundStepTest) => MaybePromise,
-}
-
-type ScenarioSteps = {
-    key : string
-    fn : () => MaybePromise
-    step : Step
 }
 
 export function createBackgroundDescribeHandler (
@@ -29,16 +24,20 @@ export function createBackgroundDescribeHandler (
     const createScenarioStepCallback = (stepType: string): StepCallbackDefinition => {
         return (
             stepDetails: string, 
-            scenarioStepCallback: () => void,
+            scenarioStepCallback: CallbackWithSingleContext | CallbackWithParamsAndContext,
         ) => {
-            const foundStep = ScenarioStateDetector
-                .forScenario(background)
-                .checkIfStepExists(stepType, stepDetails)
+            const foundStep = background.checkIfStepExists(stepType, stepDetails)
+            const params : unknown[] = ExpressionStep.matchStep(
+                foundStep, stepDetails,
+            )
+
+            foundStep.isCalled = true
  
             backgroundStepsToRun.push({
-                key : `${stepType} ${stepDetails}`,
+                key : foundStep.getTitle(),
                 fn : scenarioStepCallback,
                 step : foundStep,
+                params,
             })
         }
     }
@@ -50,23 +49,18 @@ export function createBackgroundDescribeHandler (
             
     backgroundCallback(scenarioStepsCallback)
 
+    background.checkIfStepWasCalled()
+
     return function backgroundDescribe () {
-        afterAll(async () => {
-            detectUncalledScenarioStep(background)
-
-            background.isCalled = true
-        })
-
-        test.each(
-            backgroundStepsToRun.map((s) => {
+        test.for(
+            backgroundStepsToRun.map((s) : StepMap => {
                 return [
                     s.key,
                     s,
                 ]
             }),
-        )(`%s`, async (_, scenarioStep) => {
-            await scenarioStep.fn()
-            scenarioStep.step.isCalled = true
+        )(`%s`, async ([,scenarioStep], ctx) => {
+            await scenarioStep.fn(ctx, ...scenarioStep.params)
         })
     }
 }

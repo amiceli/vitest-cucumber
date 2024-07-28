@@ -3,6 +3,7 @@ import { defineConfig, configDefaults } from 'vitest/config'
 
 export default defineConfig({
     test: {
+        passWithNoTests : true,
         globals : true,
         coverage: {
             provider: 'v8',
@@ -11,6 +12,7 @@ export default defineConfig({
                 '.eslintrc.js',
                 'commitlint.config.js',
                 'src/vitest/types.ts',
+                'scripts/cli-generate.ts',
             ]
         },
         exclude : [

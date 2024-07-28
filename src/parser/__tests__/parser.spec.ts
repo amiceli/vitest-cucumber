@@ -4,11 +4,11 @@ import {
 } from 'vitest'
 import { StepTypes } from "../step"
 import { ScenarioOutline } from "../scenario"
-import { TwiceBackgroundError } from "../../errors/errors"
+import { OnlyOneFeatureError, TwiceBackgroundError } from "../../errors/errors"
 
 describe(`GherkinParser`, () => {
 
-    let parser
+    let parser : GherkinParser
 
     beforeEach(() => {
         parser = new GherkinParser()
@@ -40,6 +40,16 @@ describe(`GherkinParser`, () => {
         expect(currentFeature.scenarii.length).toEqual(0)
     })
 
+    it(`should prevent more than one Feature`, () => {
+        parser.addLine(`Feature: test`)
+
+        expect(() => {
+            parser.addLine(`Feature: another test`)
+        }).toThrowError(
+            new OnlyOneFeatureError(),
+        )
+    })
+
     it(`should be able to parse Scenario line`, () => {
         const scenarioTitile = `Run unit tests`
 
@@ -54,6 +64,18 @@ describe(`GherkinParser`, () => {
         expect(currentScenario.description).toEqual(scenarioTitile)
         expect(currentScenario.steps.length).toEqual(0)
         expect(currentScenario.isCalled).toBeFalsy()
+    })
+
+    it(`should be able to parse Example line`, () => {
+        parser.addLine(`Feature: awesome feature`)
+        parser.addLine(`Example: Run unit tests`)
+        parser.addLine(``)
+
+        const currentFeature = getCurrentFeaut(parser)
+        const currentScenario = getCurrentScenario(parser)
+
+        expect(currentFeature.scenarii.length).toEqual(1)
+        expect(currentScenario.description).toEqual(`Run unit tests`)
     })
 
     it(`should be able to parse Given line`, () => {
@@ -121,12 +143,60 @@ describe(`GherkinParser`, () => {
         expect((currentScenario as ScenarioOutline).examples).toEqual([])
     })
 
+    it(`should be able to parse Scenario Template line`, () => {
+        const scenarioTitile = `awesome outline`
+
+        parser.addLine(`Feature: awesome feature`)
+        parser.addLine(`Scenario Template:      ${scenarioTitile}`)
+        parser.addLine(``)
+
+        const currentFeature = getCurrentFeaut(parser)
+        const currentScenario = currentFeature.getScenarioByName(scenarioTitile)
+
+        if (!currentScenario) {
+            expect.fail(`Scenario shoutl exists`)
+        }
+
+        expect(currentScenario.description).toEqual(scenarioTitile)
+        expect(currentScenario.isCalled).toBeFalsy()
+        expect(currentScenario instanceof ScenarioOutline).toBeTruthy()
+        expect((currentScenario as ScenarioOutline).examples).toEqual([])
+    })
+
     it(`should be able to read Examples`, () => {
         const scenarioTitile = `awesome outline`
 
         parser.addLine(`Feature: awesome feature`)
         parser.addLine(`Scenario Outline: ${scenarioTitile}`)
         parser.addLine(`Examples:`)
+        parser.addLine(`| framework | language   |`)
+        parser.addLine(`| Vue       | Javascript |`)
+        parser.addLine(`| Stencil   | Typescript |`)
+        parser.addLine(``)
+
+        const currentFeature = getCurrentFeaut(parser)
+        const currentScenario = currentFeature.getScenarioByName(scenarioTitile)
+
+        expect(
+            (currentScenario as ScenarioOutline).examples,
+        ).toEqual([
+            {
+                framework : `Vue`,
+                language : `Javascript`,
+            },
+            {
+                framework : `Stencil`,
+                language : `Typescript`,
+            },
+        ])
+    })
+
+    it(`should be able to read Scenarios`, () => {
+        const scenarioTitile = `awesome outline`
+
+        parser.addLine(`Feature: awesome feature`)
+        parser.addLine(`Scenario Template: ${scenarioTitile}`)
+        parser.addLine(`Scenarios:`)
         parser.addLine(`| framework | language   |`)
         parser.addLine(`| Vue       | Javascript |`)
         parser.addLine(`| Stencil   | Typescript |`)
@@ -407,6 +477,7 @@ describe(`GherkinParser`, () => {
             }).toThrowError(
                 new TwiceBackgroundError(),
             )
+            parser = new GherkinParser()
             expect(() => {
                 parser.addLine(`Feature: I use background`)
                 parser.addLine(`    Background:`)

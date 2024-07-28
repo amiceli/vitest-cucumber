@@ -8,7 +8,7 @@ import { createScenarioOutlineDescribeHandler } from '../describeScenarioOutline
 
 describe(`describeScenario`, () => {
 
-    const each = vi.spyOn(test, `each`)
+    const each = vi.spyOn(test, `for`)
     const scenario = new Scenario(`test`)
     scenario.steps.push(
         new Step(StepTypes.GIVEN, `given`),
@@ -40,7 +40,7 @@ describe(`describeScenario`, () => {
 })
 
 describe(`describeScenarioOutline`, () => {
-    const each = vi.spyOn(test, `each`)
+    const each = vi.spyOn(test, `for`)
 
     const scenario = new ScenarioOutline(`test`)
     scenario.examples.push(
@@ -61,7 +61,19 @@ describe(`describeScenarioOutline`, () => {
             expect(each).toHaveBeenCalledWith(
                 [
                     expect.arrayContaining([
-                        `Given given <test>`,
+                        `Given given test`,
+                        expect.objectContaining({
+                            fn : expect.any(Function),
+                            key : `Given given <test>`,
+                            step : expect.any(Step),
+                        }),
+                    ]),
+                ],
+            )
+            expect(each).toHaveBeenCalledWith(
+                [
+                    expect.arrayContaining([
+                        `Given given test 2`,
                         expect.objectContaining({
                             fn : expect.any(Function),
                             key : `Given given <test>`,

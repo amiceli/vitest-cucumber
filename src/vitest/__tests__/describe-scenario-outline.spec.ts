@@ -1,129 +1,103 @@
 import {
-    ScenarioOutlineVariableNotCalledInStepsError, ScenarioOulineWithoutExamplesError, MissingScenarioOutlineVariableValueError, ScenarioOutlineVariablesDeclaredWithoutExamplesError, 
+    ScenarioOutlineVariableNotCalledInStepsError, ScenarioOulineWithoutExamplesError, MissingScenarioOutlineVariableValueError, ScenarioOutlineVariablesDeclaredWithoutExamplesError,
 } from "../../errors/errors"
-import { Feature } from "../../parser/feature"
-import { Step, StepTypes } from "../../parser/step"
 import { describeFeature } from "../describe-feature"
 import { ScenarioOutline as ScenarioOutlineType } from "../../parser/scenario"
-import { Rule as RuleType } from "../../parser/Rule"
+import { describe, expect } from "vitest"
+import { FeatureContentReader } from "../../__mocks__/FeatureContentReader.spec"
 
 describe(`ScenarioOutline without variables in step`, () => {
-    const feature = new Feature(`Use ScenarioOutline without variable in step`)
-    const scenario = new ScenarioOutlineType(`I forgot Examples in step`)
+    const feature = FeatureContentReader.fromString([
+        `Feature: Use ScenarioOutline without variable in step`,
+        `      Scenario Outline: I forgot Examples in step`,
+        `          Given I forgot to use variable`,
+        ``,
+        `          Examples:`,
+        `              | height |`,
+        `              | 100    |`,
+    ]).parseContent()
 
-    scenario.steps.push(
-        new Step(StepTypes.GIVEN, `I forgot to use variable`),
-    )
-
-    scenario.examples.push(
-        { height : 100 },
-    )
-
-    feature.scenarii.push(scenario)
-
-    describeFeature(feature, ({ ScenarioOutline }) => {
-        try {
+    expect(() => {
+        describeFeature(feature, ({ ScenarioOutline }) => {
             ScenarioOutline(`I forgot Examples in step`, ({ Given }) => {
                 Given(`I forgot to use variable`, () => {
                     expect(true).toBeTruthy()
                 })
             })
-        } catch (e) {
-            scenario.isCalled = true
-
-            test(`Handle ScenarioOutline without variables in step`, () => {
-                expect(e).toEqual(
-                    new ScenarioOutlineVariableNotCalledInStepsError(
-                        scenario, `height`,
-                    ),
-                )
-            })
-        }
-    })
+        })
+    }).toThrowError(
+        new ScenarioOutlineVariableNotCalledInStepsError(
+            feature.scenarii[0] as ScenarioOutlineType, `height`,
+        ),
+    )
 })
 
 describe(`ScenarioOutline with empty examples`, () => {
-    const feature = new Feature(`Use ScenarioOutline with empty examples`)
-    const scenario = new ScenarioOutlineType(`I forgot Examples`)
+    const feature = FeatureContentReader.fromString([
+        `Feature: Use ScenarioOutline with empty examples`,
+        `      Scenario Outline: I forgot Examples`,
+        `          Given I forgot to see examples`,
+        ``,
+    ]).parseContent()
 
-    scenario.steps.push(
-        new Step(StepTypes.GIVEN, `I forgot to see examples`),
-    )
-
-    feature.scenarii.push(scenario)
-
-    describeFeature(feature, ({ ScenarioOutline }) => {
-        try {
+    expect(() => {
+        describeFeature(feature, ({ ScenarioOutline }) => {
             ScenarioOutline(`I forgot Examples`, ({ Given }) => {
                 Given(`I forgot to see examples`, () => {
                     expect(true).toBeTruthy()
                 })
             })
-        } catch (e) {
-            scenario.isCalled = true
-
-            test(`Handle ScenarioOutline without examples`, () => {
-                expect(e).toEqual(
-                    new ScenarioOulineWithoutExamplesError(scenario),
-                )
-            })
-        }
-    })
+        })
+    }).toThrowError(
+        new ScenarioOulineWithoutExamplesError(
+            feature.scenarii[0] as ScenarioOutlineType,
+        ),
+    )
 })
 
 
 describe(`ScnearioOutline without variables`, () => {
-    const feature = new Feature(`Use ScenarioOutline without variable in Examples`)
-    const scenario = new ScenarioOutlineType(`I forgot Examples variables name`)
+    const feature = FeatureContentReader.fromString([
+        `Feature: Use ScenarioOutline without variable in Examples`,
+        `      Scenario Outline: I forgot Examples variables name`,
+        `          Given I love <height>`,
+        ``,
+        `          Examples:`,
+        `              | height |`,
+    ]).parseContent()
 
-    scenario.steps.push(
-        new Step(StepTypes.GIVEN, `I love <height>`),
-    )
-
-    scenario.examples.push({ height : undefined })
-
-    feature.scenarii.push(scenario)
-
-    describeFeature(feature, ({ ScenarioOutline }) => {
-        try {
-            ScenarioOutline(scenario.description, ({ Given }) => {
+    expect(() => {
+        describeFeature(feature, ({ ScenarioOutline }) => {
+            ScenarioOutline(`I forgot Examples variables name`, ({ Given }) => {
                 Given(`I love <height>`, () => {
                     expect(true).toBeTruthy()
                 })
             })
-        } catch (e) {
-            scenario.isCalled = true
-
-            test(`Handle ScenarioOutline with missing Examples variables value`, () => {
-                expect(e).toEqual(
-                    new MissingScenarioOutlineVariableValueError(
-                        scenario, `height`,
-                    ),
-                )
-            })
-        }
-    })
+        })
+    }).toThrowError(
+        new MissingScenarioOutlineVariableValueError(
+            feature.scenarii[0] as ScenarioOutlineType,
+            `height`,
+        ),
+    )
 })
 
 describe(`ScnearioOutline examples use N times in Rule`, () => {
-    const feature = new Feature(`test`)
-    const scenario = new ScenarioOutlineType(`out line baby`)
-
-    scenario.steps.push(
-        new Step(StepTypes.GIVEN, `I check <width>`),
-        new Step(StepTypes.AND, `I check <height>`),
-    )
-
-    scenario.examples.push(
-        { width : 100, height : 200 },
-        { width : 200, height : 400 },
-    )
-
-    const rule = new RuleType(`Example rule`)
-    rule.scenarii.push(scenario)
-    feature.rules.push(rule)
+    const feature = FeatureContentReader.fromString([
+        `Feature: test`,
+        `      Rule: Example rule`,
+        `          Scenario Outline: out line baby`,
+        `              Given I check <width>`,
+        `              And   I check <height>`,
+        ``,
+        `              Examples:`,
+        `                  | width | height |`,
+        `                  | 100   | 200    |`,
+        `                  | 200   | 400    |`,
+    ]).parseContent()
 
     let examplesStepCount = 0
+    const [scenario] = feature.rules[0].scenarii as ScenarioOutlineType[]
 
     describeFeature(feature, ({ Rule, AfterEachScenario }) => {
         AfterEachScenario(() => {
@@ -147,21 +121,20 @@ describe(`ScnearioOutline examples use N times in Rule`, () => {
 })
 
 describe(`ScenarioOutline examples use N times`, () => {
-    const feature = new Feature(`test`)
-    const scenario = new ScenarioOutlineType(`out line baby`)
+    const feature = FeatureContentReader.fromString([
+        `Feature: test`,
+        `      Scenario Outline: out line baby`,
+        `          Given I check <width>`,
+        `          And   I check <height>`,
+        ``,
+        `          Examples:`,
+        `              | width | height |`,
+        `              | 100   | 200    |`,
+        `              | 200   | 400    |`,
+    ]).parseContent()
 
-    scenario.steps.push(
-        new Step(StepTypes.GIVEN, `I check <width>`),
-        new Step(StepTypes.AND, `I check <height>`),
-    )
-
-    scenario.examples.push(
-        { width : 100, height : 200 },
-        { width : 200, height : 400 },
-    )
-
-    feature.scenarii.push(scenario)
     let examplesStepCount = 0
+    const [scenario] = feature.scenarii as ScenarioOutlineType[]
 
     describeFeature(feature, ({ ScenarioOutline, AfterEachScenario }) => {
         AfterEachScenario(() => {
@@ -183,55 +156,46 @@ describe(`ScenarioOutline examples use N times`, () => {
 })
 
 describe(`ScenarioOutline without Examples`, () => {
-    const feature = new Feature(`Use ScenarioOutline without examples`)
-    const scenario = new ScenarioOutlineType(`I forgot Examples`)
+    const feature = FeatureContentReader.fromString([
+        `Feature: Use ScenarioOutline without examples`,
+        `      Scenario Outline: I forgot Examples`,
+        `          Given I forgot to see examples`,
+        ``,
+        `          | height |`,
+        `          | 100   |`,
+        ``,
+    ]).parseContent()
 
-    scenario.steps.push(
-        new Step(StepTypes.GIVEN, `I forgot to see examples`),
-    )
-    scenario.missingExamplesKeyword = true
-
-    feature.scenarii.push(scenario)
-
-    describeFeature(feature, ({ ScenarioOutline }) => {
-        try {
+    expect(() => {
+        describeFeature(feature, ({ ScenarioOutline }) => {
             ScenarioOutline(`I forgot Examples`, ({ Given }) => {
                 Given(`I forgot to see examples`, () => {
                     expect(true).toBeTruthy()
                 })
             })
-        } catch (e) {
-            scenario.isCalled = true
-
-            test(`Handle ScenarioOutline without examples`, () => {
-                expect(e).toEqual(
-                    new ScenarioOutlineVariablesDeclaredWithoutExamplesError(scenario),
-                )
-            })
-        }
-    })
+        })
+    }).toThrowError(
+        new ScenarioOutlineVariablesDeclaredWithoutExamplesError(
+            feature.scenarii[0] as ScenarioOutlineType,
+        ),
+    )
 })
 
 describe(`ScenarioOutline with Examples`, () => {
-    const feature = new Feature(`Use ScenarioOutline with examples`)
-    const scenarioOutline = new ScenarioOutlineType(`I use variables`)
+    const feature = FeatureContentReader.fromString([
+        `Feature: Use ScenarioOutline with examples`,
+        `      Scenario Outline: I use variables`,
+        `          Given I know <width> value`,
+        `          And   I know <height> value`,
+        `          Then  I can make a <sum>`,
+        ``,
+        `          Examples:`,
+        `              | width | height | sum |`,
+        `              | 100   | 200    | 300 |`,
+        `              | 200   | 400    | 600 |`,
+    ]).parseContent()
 
-    scenarioOutline.examples.push(
-        {
-            width : 100, height : 200, sum : 300,
-        },
-        {
-            width : 200, height : 400, sum : 600,
-        },
-    )
-
-    scenarioOutline.steps.push(
-        new Step(StepTypes.GIVEN, `I know <width> value`),
-        new Step(StepTypes.AND, `I know <height> value`),
-        new Step(StepTypes.THEN, `I can make a <sum>`),
-    )
-
-    feature.scenarii.push(scenarioOutline)
+    const [scenarioOutline] = feature.scenarii as ScenarioOutlineType[]
 
     describeFeature(feature, ({ ScenarioOutline, AfterEachScenario, AfterAllScenarios }) => {
         let scenarioOutlineCount = 0
@@ -257,7 +221,7 @@ describe(`ScenarioOutline with Examples`, () => {
                 expect(
                     parseInt(variables.width) + parseInt(variables.height),
                 ).toEqual(
-                    variables.sum,
+                    parseInt(variables.sum, 10),
                 )
             })
         })

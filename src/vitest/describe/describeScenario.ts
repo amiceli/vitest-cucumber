@@ -3,23 +3,18 @@ import {
 } from "vitest"
 import {
     StepTest, MaybePromise, StepCallbackDefinition,
+    CallbackWithSingleContext,
+    CallbackWithParamsAndContext,
 } from "../types"
-import { Step } from "../../parser/step"
 import { Scenario } from "../../parser/scenario"
-import { ScenarioStateDetector } from "../state-detectors/ScenarioStateDetector"
-import { detectUncalledScenarioStep } from "./teardowns"
+import { ScenarioSteps, StepMap } from "./common"
+import { ExpressionStep } from "../../parser/expression/ExpressionStep"
 
 type DescribeScenarioArgs = {
     scenario : Scenario,
     scenarioTestCallback: (op: StepTest) => MaybePromise,
     beforeEachScenarioHook : () => MaybePromise
     afterEachScenarioHook : () => MaybePromise
-}
-
-type ScenarioSteps = {
-    key : string
-    fn : () => MaybePromise
-    step : Step
 }
 
 export function createScenarioDescribeHandler (
@@ -35,16 +30,20 @@ export function createScenarioDescribeHandler (
     const createScenarioStepCallback = (stepType: string): StepCallbackDefinition => {
         return (
             stepDetails: string, 
-            scenarioStepCallback: () => void,
+            scenarioStepCallback: CallbackWithSingleContext | CallbackWithParamsAndContext,
         ) => {
-            const foundStep = ScenarioStateDetector
-                .forScenario(scenario)
-                .checkIfStepExists(stepType, stepDetails)
+            const foundStep = scenario.checkIfStepExists(stepType, stepDetails)
+            const params : unknown[] = ExpressionStep.matchStep(
+                foundStep, stepDetails,
+            )
+            
+            foundStep.isCalled = true
  
             scenarioStepsToRun.push({
-                key : `${stepType} ${stepDetails}`,
+                key : foundStep.getTitle(),
                 fn : scenarioStepCallback,
                 step : foundStep,
+                params,
             })
         }
     }
@@ -59,29 +58,26 @@ export function createScenarioDescribeHandler (
             
     scenarioTestCallback(scenarioStepsCallback)
 
+    scenario.checkIfStepWasCalled()
+
     return function scenarioDescribe () {
         beforeAll(async () => {
             await beforeEachScenarioHook()
         })
 
         afterAll(async () => {
-            detectUncalledScenarioStep(scenario)
-
-            scenario.isCalled = true
-
             await afterEachScenarioHook()
         })
 
-        test.each(
-            scenarioStepsToRun.map((s) => {
+        test.for(
+            scenarioStepsToRun.map((s) : StepMap => {
                 return [
                     s.key,
                     s,
                 ]
             }),
-        )(`%s`, async (_, scenarioStep) => {
-            await scenarioStep.fn()
-            scenarioStep.step.isCalled = true
+        )(`%s`, async ([,scenarioStep], ctx) => {
+            await scenarioStep.fn(ctx, ...scenarioStep.params)
         })
     }
 }

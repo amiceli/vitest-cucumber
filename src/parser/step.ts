@@ -21,4 +21,8 @@ export class Step {
         this.isCalled = false
     }
 
+    public getTitle (): string {
+        return `${this.type} ${this.details}`
+    }
+
 }

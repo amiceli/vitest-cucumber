@@ -1,10 +1,16 @@
+import { TaskContext } from "vitest"
 import { Example } from "../parser/scenario"
 
 export type MaybePromise<T = void> = T | Promise<T>
 
+
+export type CallbackWithSingleContext = (context: TaskContext) => MaybePromise
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type CallbackWithParamsAndContext<T = any> = (ctx : TaskContext, ...params: T[]) => MaybePromise
+
 export type StepCallbackDefinition = (
     name : string, 
-    fn : () => MaybePromise
+    fn: CallbackWithSingleContext | CallbackWithParamsAndContext
 ) => void
 
 export type StepTest = {
@@ -26,9 +32,9 @@ export type FeatureDescriibeCallbackParams = {
     Rule : RuleTest
 }
 
-export type FeatureDescribeCallback = (
+export type DescribeFeatureCallback = (
     scenarioCallback: FeatureDescriibeCallbackParams
-) => MaybePromise
+) => void
 
 export type RuleOptions = {
     RuleBackground: BackgroundTest,
@@ -38,7 +44,7 @@ export type RuleOptions = {
 
 export type RuleTest = (
     ruleName : string,
-    fn : (options :  RuleOptions) => MaybePromise
+    fn : (options :  RuleOptions) => void
 ) => void
 
 export type ScenarioTest = (

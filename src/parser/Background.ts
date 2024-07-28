@@ -7,6 +7,10 @@ const BackgroundAllowedSteps = [
 ]
 
 export class Background extends StepAble {
+    
+    public getTitle (): string {
+        return `Background:`
+    }
 
     public addStep (step : Step) {
         if (BackgroundAllowedSteps.includes(step.type)) {
