@@ -409,6 +409,11 @@ describe(`Models`, () => {
         expect(step.type).toEqual(`Given`)
         expect(step.details).toEqual(`I trye`)
         expect(step.getTitle()).toEqual(`Given I trye`)
+        expect(step.docStrings).toBeNull()
+
+        step.setDocStrings(`test`)
+
+        expect(step.docStrings).toEqual(`test`)
     })
 
 })
