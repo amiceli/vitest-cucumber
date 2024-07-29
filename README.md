@@ -16,6 +16,8 @@ Goal is to write unit test using Gherkin feature file and checking scenario name
 
 It's enough you don't to add or update a config file.
 
+Since `v3.4.4` vitest-cucumber required vitest `>=2.0.0`.
+
 ## Examples
 
 You can take a look on [vitest-cucumber-example](https://github.com/amiceli/vitest-cucumber-example).
