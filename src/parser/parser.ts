@@ -32,6 +32,10 @@ export class GherkinParser {
 
     private lastSteppableTag : SteppableName | null = null
 
+    private readonly currentDocStrings : string[] = []
+
+    private parsingDocStrings : boolean = false
+
     public addLine (line: string) {
         if (line.trim().startsWith(`#`)) {
             return
@@ -106,6 +110,14 @@ export class GherkinParser {
                     .filter((l) => l.startsWith(`@`))
                     .map((l) => l.replace(`@`, ``)),
             )
+        } else if (this.isDocStrings(line)) {
+            if (this.parsingDocStrings) {
+                this.currentScenario.lastStep.docStrings = this.currentDocStrings.join(`\n`)
+                this.parsingDocStrings = false
+                this.currentDocStrings.splice(0, this.currentDocStrings.length)
+            } else {
+                this.parsingDocStrings = true
+            }
         } else if (this.isStep(line)) {
             const stepType = this.findStepType(line)
             const stepDetails = this.findStepDetails(line, stepType)
@@ -122,6 +134,10 @@ export class GherkinParser {
 
             this.currentExample = null
             this.currentExampleLine = -1
+        } else if (this.parsingDocStrings) {
+            this.currentDocStrings.push(
+                line.trim(),
+            )
         }
     }
 
@@ -198,10 +214,14 @@ export class GherkinParser {
     }
 
     private isStep (line: string): boolean {
+        if (this.parsingDocStrings) {
+            return false
+        }
+
         return Object
             .values(StepTypes)
             .some((value) => {
-                return line.includes(value)
+                return line.trim().startsWith(value)
             })
     }
 
@@ -232,6 +252,10 @@ export class GherkinParser {
                 )
             }
         }
+    }
+
+    public isDocStrings (line : string) : boolean {
+        return line.trim().startsWith(`"""`) || line.trim().startsWith(`\`\`\``)
     }
 
     public get currentBackground () : Background | null {

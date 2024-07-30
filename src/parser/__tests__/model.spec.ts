@@ -384,6 +384,14 @@ describe(`Models`, () => {
                 scenarioOutline.getStepTitle(step, example),
             ).toEqual(`Given I use Vue`)
         })
+        test(`Get last step`, () => {
+            const step = new Step(StepTypes?.GIVEN, `I use <framework>`)
+            const scenario = new Scenario(`test`)
+
+            scenario.addStep(step)
+
+            expect(scenario.lastStep).toEqual(step)
+        })
     })
 
     describe(`Taggable`, () => {
@@ -403,12 +411,31 @@ describe(`Models`, () => {
         })
     })
 
-    test(`Step initialize`, () => {
-        const step = new Step(StepTypes.GIVEN, `I trye`)
+    describe(`Step`, () => {
+        test(`Step initialize`, () => {
+            const step = new Step(StepTypes.GIVEN, `I code`)
+    
+            expect(step.type).toEqual(`Given`)
+            expect(step.details).toEqual(`I code`)
+            expect(step.getTitle()).toEqual(`Given I code`)
+        })
+        test(`Step docStrings`, () => {
+            const step = new Step(StepTypes.GIVEN, `I code`)  
 
-        expect(step.type).toEqual(`Given`)
-        expect(step.details).toEqual(`I trye`)
-        expect(step.getTitle()).toEqual(`Given I trye`)
+            expect(step.docStrings).toBeNull()
+    
+            step.setDocStrings(`test`)
+    
+            expect(step.docStrings).toEqual(`test`)
+        })
+        test(`Step title`, () => {
+            expect(
+                (new Step(StepTypes.GIVEN, `I code`)).getTitle(),
+            ).toEqual(`Given I code`)
+            expect(
+                (new Step(StepTypes.BUT, `I sleep`)).getTitle(),
+            ).toEqual(`But I sleep`)
+        })
     })
 
 })

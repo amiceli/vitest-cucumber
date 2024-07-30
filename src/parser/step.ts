@@ -13,6 +13,8 @@ export class Step {
     
     public readonly details : string
 
+    public docStrings : string | null = null
+
     public isCalled : boolean
 
     public constructor (type : StepTypes, details : string) {
@@ -23,6 +25,10 @@ export class Step {
 
     public getTitle (): string {
         return `${this.type} ${this.details}`
+    }
+
+    public setDocStrings (docStrings : string) {
+        this.docStrings = docStrings
     }
 
 }

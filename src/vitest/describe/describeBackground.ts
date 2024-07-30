@@ -37,7 +37,10 @@ export function createBackgroundDescribeHandler (
                 key : foundStep.getTitle(),
                 fn : scenarioStepCallback,
                 step : foundStep,
-                params,
+                params : [
+                    ...params,
+                    foundStep.docStrings,
+                ].filter((p) => p !== null),
             })
         }
     }

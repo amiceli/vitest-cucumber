@@ -45,4 +45,18 @@ export class ScenarioOutline extends Scenario {
         return stepTitle
     }
 
+    public getStepDocStrings (step : Step, example : Example[0]) : string | null {
+        if (step.docStrings) {
+            let docStrings = `${step.docStrings}`
+
+            Object.keys(example).forEach((key : string) => {
+                docStrings = docStrings.replace(`<${key}>`, example[key])
+            })
+
+            return docStrings
+        }
+
+        return null
+    }
+
 }
