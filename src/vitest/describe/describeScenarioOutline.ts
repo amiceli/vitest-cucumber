@@ -38,6 +38,7 @@ export function createScenarioOutlineDescribeHandler (
             )
 
             foundStep.isCalled = true
+
             scenarioStepsToRun.push({
                 key : foundStep.getTitle(),
                 fn : scenarioStepCallback,
@@ -86,6 +87,12 @@ export function createScenarioOutlineDescribeHandler (
                             ]
                         }),
                     )(`%s`, async ([,scenarioStep], ctx) => {
+                        if (scenarioStep.step.docStrings) {
+                            scenarioStep.params[
+                                scenarioStep.params.length - 1
+                            ] = scenario.getStepDocStrings(scenarioStep.step, exampleVariables)
+                        }
+
                         await scenarioStep.fn(ctx, ...scenarioStep.params)
                     })
                 }
