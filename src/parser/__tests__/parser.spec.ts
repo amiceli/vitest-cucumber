@@ -5,6 +5,8 @@ import {
 import { StepTypes } from "../step"
 import { ScenarioOutline } from "../scenario"
 import { OnlyOneFeatureError, TwiceBackgroundError } from "../../errors/errors"
+import { FeatureContentReader } from "../../__mocks__/FeatureContentReader.spec"
+import { describeFeature } from "../../vitest/describe-feature"
 
 describe(`GherkinParser`, () => {
 
@@ -492,6 +494,118 @@ describe(`GherkinParser`, () => {
                 parser.addLine(``)
             }).not.toThrowError()
         })
+    })
+
+    describe(`DocStringss`, () => {
+
+        describe(`DocStringss only`, () => {
+            const feature = FeatureContentReader.fromString([
+                `Feature: DocStrings`,
+                `    Scenario: DocStrings example`,
+                `        Given I use "DocStrings"`,
+                `            """`,
+                `            DocStrings is passed to current Given`,
+                `            And at last params`,
+                `            After ctx : TaskContext`,
+                `            """`,
+                `        Then I can check it`,
+            ]).parseContent()
+
+            describeFeature(feature, (f) => {
+                f.Scenario(`DocStrings example`, (s) => {
+                    s.Given(`I use "DocStrings"`, (ctx, docStrings : string) => {
+                        expect(
+                            docStrings.includes(`DocStrings is passed to current Given`),
+                        ).toBe(true)
+                    })
+                    s.Then(`I can check it`, () => {
+                        const docs = feature.scenarii.at(0)?.steps.at(0)?.docStrings
+                        expect(
+                            docs?.split(`\n`),
+                        ).toEqual([
+                            `DocStrings is passed to current Given`,
+                            `And at last params`,
+                            `After ctx : TaskContext`,
+                        ])
+                    })
+                })
+            })
+        })
+
+        describe(`DocStrings and expression`, () => {
+            const feature = FeatureContentReader.fromString([
+                `Feature: DocStrings`,
+                `    Scenario: DocStrings example`,
+                `        Given I use "DocStrings" 2 hours`,
+                `            """`,
+                `            DocStrings is passed to current Given`,
+                `            And at last params`,
+                `            After ctx : TaskContext`,
+                `            """`,
+                `        Then I can check it`,
+            ]).parseContent()
+            describeFeature(feature, (f) => {
+                f.Scenario(`DocStrings example`, (s) => {
+                    // eslint-disable-next-line max-params
+                    s.Given(`I use {string} {number} hours`, (ctx, text : string, hours : number, docStrings : string) => {
+                        expect(
+                            docStrings.includes(`DocStrings is passed to current Given`),
+                        ).toBe(true)
+                        expect(text).toEqual(`DocStrings`)
+                        expect(hours).toBe(2)
+                    })
+                    s.Then(`I can check it`, () => {
+                        const docs = feature.scenarii.at(0)?.steps.at(0)?.docStrings
+                        expect(
+                            docs?.split(`\n`),
+                        ).toEqual([
+                            `DocStrings is passed to current Given`,
+                            `And at last params`,
+                            `After ctx : TaskContext`,
+                        ])
+                    })
+                })
+            })
+        })
+
+        describe(`DocStrings with backtick`, () => {
+            const feature = FeatureContentReader.fromString([
+                `Feature: DocStrings`,
+                `    Scenario: DocStrings example`,
+                `        Given I use "DocStrings" 2 tumes`,
+                `            \`\`\``,
+                `            DocStrings is passed to current Given`,
+                `            And at last params`,
+                `            After ctx : TaskContext`,
+                `            \`\`\``,
+                `        Then I can check it twice`,
+                `            """`,
+                `            DocStrings is awesome`,
+                `            """`,
+            ]).parseContent()
+            describeFeature(feature, (f) => {
+                f.Scenario(`DocStrings example`, (s) => {
+                    // eslint-disable-next-line max-params
+                    s.Given(`I use {string} {number} tumes`, (ctx, text : string, hours : number, docStrings : string) => {
+                        expect(text).toEqual(`DocStrings`)
+                        expect(hours).toBe(2)
+                        expect(
+                            docStrings.split(`\n`),
+                        ).toEqual([
+                            `DocStrings is passed to current Given`,
+                            `And at last params`,
+                            `After ctx : TaskContext`,
+                        ])
+                    })
+                    s.Then(`I can check it twice`, (ctx, docStrings) => {
+                        expect(docStrings).toEqual(
+                            `DocStrings is awesome`,
+                        )
+                    })
+                })
+            })
+        })
+
     })
 
 })
