@@ -84,4 +84,8 @@ export abstract class StepAble extends Taggable {
         return foundStep
     }
 
+    public get lastStep () : Step {
+        return this.steps[this.steps.length - 1]
+    }
+
 }
