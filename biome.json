@@ -4,7 +4,7 @@
         "enabled": true
     },
     "files": {
-        "ignore": ["package.json", "package-lock.json"]
+        "ignore": ["package.json", "package-lock.json", "dist/", "coverage/"]
     },
     "linter": {
         "enabled": true,
