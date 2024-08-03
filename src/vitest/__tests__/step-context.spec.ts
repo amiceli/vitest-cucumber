@@ -1,10 +1,8 @@
-import {
-    describe, vi, test, expect, Task, Suite,
-} from "vitest"
-import { FeatureContentReader } from "../../__mocks__/FeatureContentReader.spec"
-import { ScenarioOutline } from "../../parser/scenario"
-import { StepTypes } from "../../parser/step"
-import { describeFeature } from "../describe-feature"
+import { type Suite, type Task, describe, expect, test, vi } from 'vitest'
+import { FeatureContentReader } from '../../__mocks__/FeatureContentReader.spec'
+import type { ScenarioOutline } from '../../parser/scenario'
+import { StepTypes } from '../../parser/step'
+import { describeFeature } from '../describe-feature'
 
 describe(`ScenarioOutline step title`, () => {
     const feature = FeatureContentReader.fromString([
@@ -22,10 +20,12 @@ describe(`ScenarioOutline step title`, () => {
     const scenarioOutline = feature.scenarii[0] as ScenarioOutline
     const getStepTitle = vi.spyOn(scenarioOutline, `getStepTitle`)
     const givenStep = scenarioOutline.findStepByTypeAndDetails(
-        StepTypes.GIVEN, `vitest-cucumber is <state>`,
+        StepTypes.GIVEN,
+        `vitest-cucumber is <state>`,
     )
     const thenStep = scenarioOutline.findStepByTypeAndDetails(
-        StepTypes.THEN, `check if I am <call>`,
+        StepTypes.THEN,
+        `check if I am <call>`,
     )
 
     if (!givenStep || !thenStep) {
@@ -39,20 +39,24 @@ describe(`ScenarioOutline step title`, () => {
 
         f.ScenarioOutline(`Simple scenario`, (s) => {
             s.Given(`vitest-cucumber is <state>`, () => {
-                expect(getStepTitle).toHaveBeenCalledWith(
-                    givenStep, { state : `running`, call : `called` },
-                )
-                expect(getStepTitle).toHaveBeenCalledWith(
-                    givenStep, { state : `finished`, call : `uncalled` },
-                )
+                expect(getStepTitle).toHaveBeenCalledWith(givenStep, {
+                    state: `running`,
+                    call: `called`,
+                })
+                expect(getStepTitle).toHaveBeenCalledWith(givenStep, {
+                    state: `finished`,
+                    call: `uncalled`,
+                })
             })
             s.Then(`check if I am <call>`, () => {
-                expect(getStepTitle).toHaveBeenCalledWith(
-                    thenStep, { state : `running`, call : `called` },
-                )
-                expect(getStepTitle).toHaveBeenCalledWith(
-                    thenStep, { state : `finished`, call : `uncalled` },
-                )
+                expect(getStepTitle).toHaveBeenCalledWith(thenStep, {
+                    state: `running`,
+                    call: `called`,
+                })
+                expect(getStepTitle).toHaveBeenCalledWith(thenStep, {
+                    state: `finished`,
+                    call: `uncalled`,
+                })
             })
         })
     })
@@ -76,12 +80,12 @@ describe(`Step with TestContext`, () => {
     ]).parseContent()
 
     describeFeature(feature, (f) => {
-        let scenarioTask : Task
+        let scenarioTask: Task
         f.AfterAllScenarios(() => {
-            const background : Suite = scenarioTask.suite?.suite?.tasks?.find(({ name }) => name === `Background:`) as Suite
-            expect(
-                background?.tasks[0].mode,
-            ).toEqual(`skip`)
+            const background: Suite = scenarioTask.suite?.suite?.tasks?.find(
+                ({ name }) => name === `Background:`,
+            ) as Suite
+            expect(background?.tasks[0].mode).toEqual(`skip`)
         })
         f.Background((b) => {
             b.Given(`I use vitest-cucumber`, (ctx) => {

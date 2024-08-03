@@ -1,69 +1,71 @@
-import {
-    beforeAll, afterAll, test,
-} from "vitest"
-import {
-    StepTest, MaybePromise, StepCallbackDefinition,
-    CallbackWithSingleContext,
+import { afterAll, beforeAll, test } from 'vitest'
+import { ExpressionStep } from '../../parser/expression/ExpressionStep'
+import type { Scenario } from '../../parser/scenario'
+import type {
     CallbackWithParamsAndContext,
-} from "../types"
-import { Scenario } from "../../parser/scenario"
-import { ScenarioSteps, StepMap } from "./common"
-import { ExpressionStep } from "../../parser/expression/ExpressionStep"
+    CallbackWithSingleContext,
+    MaybePromise,
+    StepCallbackDefinition,
+    StepTest,
+} from '../types'
+import type { ScenarioSteps, StepMap } from './common'
 
 type DescribeScenarioArgs = {
-    scenario : Scenario,
-    scenarioTestCallback: (op: StepTest) => MaybePromise,
-    beforeEachScenarioHook : () => MaybePromise
-    afterEachScenarioHook : () => MaybePromise
+    scenario: Scenario
+    scenarioTestCallback: (op: StepTest) => MaybePromise
+    beforeEachScenarioHook: () => MaybePromise
+    afterEachScenarioHook: () => MaybePromise
 }
 
-export function createScenarioDescribeHandler (
-    { 
-        scenario,
-        scenarioTestCallback, 
-        afterEachScenarioHook,
-        beforeEachScenarioHook,
-    } : DescribeScenarioArgs,
-) : () => void {
-    const scenarioStepsToRun : ScenarioSteps[]  = []
+export function createScenarioDescribeHandler({
+    scenario,
+    scenarioTestCallback,
+    afterEachScenarioHook,
+    beforeEachScenarioHook,
+}: DescribeScenarioArgs): () => void {
+    const scenarioStepsToRun: ScenarioSteps[] = []
 
-    const createScenarioStepCallback = (stepType: string): StepCallbackDefinition => {
+    const createScenarioStepCallback = (
+        stepType: string,
+    ): StepCallbackDefinition => {
         return (
-            stepDetails: string, 
-            scenarioStepCallback: CallbackWithSingleContext | CallbackWithParamsAndContext,
+            stepDetails: string,
+            scenarioStepCallback:
+                | CallbackWithSingleContext
+                | CallbackWithParamsAndContext,
         ) => {
             const foundStep = scenario.checkIfStepExists(stepType, stepDetails)
-            const params : unknown[] = ExpressionStep.matchStep(
-                foundStep, stepDetails,
+            const params: unknown[] = ExpressionStep.matchStep(
+                foundStep,
+                stepDetails,
             )
-            
+
             foundStep.isCalled = true
- 
+
             scenarioStepsToRun.push({
-                key : foundStep.getTitle(),
-                fn : scenarioStepCallback,
-                step : foundStep,
-                params : [
-                    ...params,
-                    foundStep.docStrings,
-                ].filter((p) => p !== null),
+                key: foundStep.getTitle(),
+                fn: scenarioStepCallback,
+                step: foundStep,
+                params: [...params, foundStep.docStrings].filter(
+                    (p) => p !== null,
+                ),
             })
         }
     }
 
     const scenarioStepsCallback: StepTest = {
-        Given : createScenarioStepCallback(`Given`),
-        When : createScenarioStepCallback(`When`),
-        And : createScenarioStepCallback(`And`),
-        Then : createScenarioStepCallback(`Then`),
-        But : createScenarioStepCallback(`But`),
+        Given: createScenarioStepCallback(`Given`),
+        When: createScenarioStepCallback(`When`),
+        And: createScenarioStepCallback(`And`),
+        Then: createScenarioStepCallback(`Then`),
+        But: createScenarioStepCallback(`But`),
     }
-            
+
     scenarioTestCallback(scenarioStepsCallback)
 
     scenario.checkIfStepWasCalled()
 
-    return function scenarioDescribe () {
+    return function scenarioDescribe() {
         beforeAll(async () => {
             await beforeEachScenarioHook()
         })
@@ -73,13 +75,10 @@ export function createScenarioDescribeHandler (
         })
 
         test.for(
-            scenarioStepsToRun.map((s) : StepMap => {
-                return [
-                    s.key,
-                    s,
-                ]
+            scenarioStepsToRun.map((s): StepMap => {
+                return [s.key, s]
             }),
-        )(`%s`, async ([,scenarioStep], ctx) => {
+        )(`%s`, async ([, scenarioStep], ctx) => {
             await scenarioStep.fn(ctx, ...scenarioStep.params)
         })
     }

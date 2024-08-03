@@ -1,63 +1,64 @@
-import {
-    beforeAll, afterAll, test,
-} from "vitest"
-import { Example, ScenarioOutline } from "../../parser/scenario"
-import {
-    StepTest, MaybePromise, StepCallbackDefinition,
-    CallbackWithSingleContext,
+import { afterAll, beforeAll, test } from 'vitest'
+import { ExpressionStep } from '../../parser/expression/ExpressionStep'
+import type { Example, ScenarioOutline } from '../../parser/scenario'
+import type {
     CallbackWithParamsAndContext,
-} from "../types"
-import { ScenarioSteps, StepMap } from "./common"
-import { ExpressionStep } from "../../parser/expression/ExpressionStep"
+    CallbackWithSingleContext,
+    MaybePromise,
+    StepCallbackDefinition,
+    StepTest,
+} from '../types'
+import type { ScenarioSteps, StepMap } from './common'
 
 type DescribeScenarioArgs = {
-    scenario: ScenarioOutline,
-    scenarioTestCallback: (op: StepTest, variables: Example[0]) => MaybePromise,
+    scenario: ScenarioOutline
+    scenarioTestCallback: (op: StepTest, variables: Example[0]) => MaybePromise
     beforeEachScenarioHook: () => MaybePromise
     afterEachScenarioHook: () => MaybePromise
 }
 
-export function createScenarioOutlineDescribeHandler (
-    {
-        scenario,
-        scenarioTestCallback,
-        afterEachScenarioHook,
-        beforeEachScenarioHook,
-    }: DescribeScenarioArgs,
-): Array<() => void> {
+export function createScenarioOutlineDescribeHandler({
+    scenario,
+    scenarioTestCallback,
+    afterEachScenarioHook,
+    beforeEachScenarioHook,
+}: DescribeScenarioArgs): Array<() => void> {
     let scenarioStepsToRun: ScenarioSteps[] = []
 
-    const createScenarioStepCallback = (stepType: string): StepCallbackDefinition => {
+    const createScenarioStepCallback = (
+        stepType: string,
+    ): StepCallbackDefinition => {
         return (
             stepDetails: string,
-            scenarioStepCallback: CallbackWithSingleContext | CallbackWithParamsAndContext,
+            scenarioStepCallback:
+                | CallbackWithSingleContext
+                | CallbackWithParamsAndContext,
         ) => {
             const foundStep = scenario.checkIfStepExists(stepType, stepDetails)
-            const params : unknown[] = ExpressionStep.matchStep(
-                foundStep, stepDetails,
+            const params: unknown[] = ExpressionStep.matchStep(
+                foundStep,
+                stepDetails,
             )
 
             foundStep.isCalled = true
 
             scenarioStepsToRun.push({
-                key : foundStep.getTitle(),
-                fn : scenarioStepCallback,
-                step : foundStep,
-                params : [
-                    ...params,
-                    foundStep.docStrings,
-                ].filter((p) => p !== null),
+                key: foundStep.getTitle(),
+                fn: scenarioStepCallback,
+                step: foundStep,
+                params: [...params, foundStep.docStrings].filter(
+                    (p) => p !== null,
+                ),
             })
-
         }
     }
 
     const scenarioStepsCallback: StepTest = {
-        Given : createScenarioStepCallback(`Given`),
-        When : createScenarioStepCallback(`When`),
-        And : createScenarioStepCallback(`And`),
-        Then : createScenarioStepCallback(`Then`),
-        But : createScenarioStepCallback(`But`),
+        Given: createScenarioStepCallback(`Given`),
+        When: createScenarioStepCallback(`When`),
+        And: createScenarioStepCallback(`And`),
+        Then: createScenarioStepCallback(`Then`),
+        But: createScenarioStepCallback(`But`),
     }
 
     const example = scenario.examples
@@ -69,8 +70,8 @@ export function createScenarioOutlineDescribeHandler (
 
             scenario.checkIfStepWasCalled()
 
-            return (
-                (steps) => function scenarioOutlineDescribe () {
+            return ((steps) =>
+                function scenarioOutlineDescribe() {
                     beforeAll(async () => {
                         await beforeEachScenarioHook()
                     })
@@ -80,25 +81,27 @@ export function createScenarioOutlineDescribeHandler (
                     })
 
                     test.for(
-                        steps.map((s) : StepMap => {
+                        steps.map((s): StepMap => {
                             return [
                                 scenario.getStepTitle(s.step, exampleVariables),
                                 s,
                             ]
                         }),
-                    )(`%s`, async ([,scenarioStep], ctx) => {
+                    )(`%s`, async ([, scenarioStep], ctx) => {
                         if (scenarioStep.step.docStrings) {
                             scenarioStep.params[
                                 scenarioStep.params.length - 1
-                            ] = scenario.getStepDocStrings(scenarioStep.step, exampleVariables)
+                            ] = scenario.getStepDocStrings(
+                                scenarioStep.step,
+                                exampleVariables,
+                            )
                         }
 
                         await scenarioStep.fn(ctx, ...scenarioStep.params)
                     })
-                }
-            )([...scenarioStepsToRun])
+                })([...scenarioStepsToRun])
         })
-    } else {
-        return []
     }
+
+    return []
 }
