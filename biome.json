@@ -12,9 +12,9 @@
             "recommended": true,
             "style": {
                 "noUnusedTemplateLiteral": "off",
-                "noInferrableTypes" : "off"
+                "noInferrableTypes": "off"
             }
-        },
+        }
     },
     "formatter": {
         "indentStyle": "space",
@@ -23,7 +23,7 @@
     "javascript": {
         "formatter": {
             "semicolons": "asNeeded",
-            "quoteStyle" : "single"
+            "quoteStyle": "single"
         }
     }
 }
