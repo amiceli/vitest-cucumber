@@ -1,13 +1,10 @@
-import {
-    test, describe, expect, 
-} from "vitest"
+import { describe, expect, test } from 'vitest'
+import { Rule } from '../../parser/Rule'
+import { Feature } from '../../parser/feature'
+import { Scenario } from '../../parser/scenario'
 import { BackgroundNotExistsError, NotScenarioOutlineError } from '../errors'
-import { Scenario } from "../../parser/scenario"
-import { Feature } from "../../parser/feature"
-import { Rule } from "../../parser/Rule"
 
 describe(`errors`, () => {
-
     test(`Error without stack`, () => {
         const scenario = new Scenario(`test`)
         const error = new NotScenarioOutlineError(scenario)
@@ -20,12 +17,11 @@ describe(`errors`, () => {
         const feature = new Feature(`test`)
         const rule = new Rule(`rule`)
 
-        expect(
-            (new BackgroundNotExistsError(feature)).message,
-        ).toEqual(`Feature: test hasn't background`)
-        expect(
-            (new BackgroundNotExistsError(rule)).message,
-        ).toEqual(`Rule: rule hasn't background`)
+        expect(new BackgroundNotExistsError(feature).message).toEqual(
+            `Feature: test hasn't background`,
+        )
+        expect(new BackgroundNotExistsError(rule).message).toEqual(
+            `Rule: rule hasn't background`,
+        )
     })
-
 })
