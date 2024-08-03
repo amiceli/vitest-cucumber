@@ -8,9 +8,9 @@
     "dist"
   ],
   "scripts": {
-    "lint": "biome check src/",
+    "lint": "biome check",
     "test:coverage": "vitest run --coverage",
-    "lint:fix": "biome check src/ --write",
+    "lint:fix": "biome check --write",
     "build": "npx tsc --declaration --project tsconfig.json",
     "build:script": "esbuild scripts/cli-generate.ts --bundle --platform=node > dist/cli-generate.js",
     "build:all": "npm run build && npm run build:script",
