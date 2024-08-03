@@ -1,0 +1,29 @@
+{
+    "$schema": "https://biomejs.dev/schemas/1.7.0/schema.json",
+    "organizeImports": {
+        "enabled": true
+    },
+    "files": {
+        "ignore": ["package.json", "package-lock.json"]
+    },
+    "linter": {
+        "enabled": true,
+        "rules": {
+            "recommended": true,
+            "style": {
+                "noUnusedTemplateLiteral": "off",
+                "noInferrableTypes" : "off"
+            }
+        },
+    },
+    "formatter": {
+        "indentStyle": "space",
+        "indentWidth": 4
+    },
+    "javascript": {
+        "formatter": {
+            "semicolons": "asNeeded",
+            "quoteStyle" : "single"
+        }
+    }
+}
