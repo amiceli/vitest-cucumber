@@ -43,9 +43,6 @@
     "type": "git",
     "url": "git+https://github.com/amiceli/vitest-cucumber.git"
   },
-  "lint-staged": {
-    "*.ts": "npm run lint:staged"
-  },
   "bugs": {
     "url": "https://github.com/amiceli/vitest-cucumber/issues"
   },
