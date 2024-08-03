@@ -1,42 +1,48 @@
-import { StepExpressionMatchError } from "../../errors/errors"
-import { Step } from "../step"
+import { StepExpressionMatchError } from '../../errors/errors'
+import type { Step } from '../step'
 import {
-    ExpressionRegex, FloatRegex, ListRegex, NumberRegex, StringRegex,
-} from "./regexes"
+    type ExpressionRegex,
+    FloatRegex,
+    ListRegex,
+    NumberRegex,
+    StringRegex,
+} from './regexes'
 
+// biome-ignore lint/complexity/noStaticOnlyClass: <explanation>
 export class ExpressionStep {
-
-    public static readonly expressionRegEx : ExpressionRegex[] = [
+    public static readonly expressionRegEx: ExpressionRegex[] = [
         new StringRegex(),
         new NumberRegex(),
         new FloatRegex(),
         new ListRegex(),
     ]
 
-    public static matchStep (step: Step, stepExpression: string): any[] {
+    // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+    public static matchStep(step: Step, stepExpression: string): any[] {
         let regexString = stepExpression
         const groupCount: {
             [key: string]: number
         } = {}
 
-        this.expressionRegEx.forEach((r) => {
+        for (const r of ExpressionStep.expressionRegEx) {
             groupCount[r.groupName] = 0
-        })
+        }
 
-        this.expressionRegEx.forEach((r) => {
+        for (const r of ExpressionStep.expressionRegEx) {
             regexString = regexString.replace(r.keywordRegex, () => {
                 groupCount[r.groupName] += 1
 
                 return r.getRegex(groupCount[r.groupName])
             })
-        })
+        }
 
         const regex = new RegExp(regexString, `g`)
         const matches = [...step.details.matchAll(regex)]
 
-        const result = matches.map(match => {
+        const result = matches.map((match) => {
             const res: Array<{
-                index: number, value: unknown
+                index: number
+                value: unknown
             }> = []
 
             if (!match.groups) {
@@ -44,20 +50,20 @@ export class ExpressionStep {
             }
 
             Object.keys(match.groups).forEach((key, index) => {
-                const matchRegex = this.expressionRegEx.find(
-                    (r) => r.matchGroupName(key),
+                const matchRegex = ExpressionStep.expressionRegEx.find((r) =>
+                    r.matchGroupName(key),
                 )
                 if (matchRegex) {
                     res.push({
                         index,
-                        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                        value : matchRegex.getValue(match.groups![key]),
+                        // biome-ignore lint/style/noNonNullAssertion: <explanation>
+                        value: matchRegex.getValue(match.groups![key]),
                     })
                 } else {
                     res.push({
                         index,
-                        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                        value : (new StringRegex()).getValue(match.groups![key]),
+                        // biome-ignore lint/style/noNonNullAssertion: <explanation>
+                        value: new StringRegex().getValue(match.groups![key]),
                     })
                 }
             })
@@ -68,10 +74,10 @@ export class ExpressionStep {
         const allValues = result
             .flat()
             .filter((t) => t !== undefined)
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            // biome-ignore lint/style/noNonNullAssertion: <explanation>
             .map((r) => r!.value)
 
-        const hasRegex = this.expressionRegEx.some((r) => {
+        const hasRegex = ExpressionStep.expressionRegEx.some((r) => {
             return stepExpression.includes(r.keyword)
         })
 
@@ -82,10 +88,9 @@ export class ExpressionStep {
         return allValues
     }
 
-    public static stepContainsRegex (expression : string) : boolean {
+    public static stepContainsRegex(expression: string): boolean {
         return ExpressionStep.expressionRegEx.some((r) => {
             return expression.includes(r.keyword)
         })
     }
-
 }

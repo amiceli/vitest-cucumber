@@ -5,6 +5,11 @@ import { ScenarioParent } from './ScenarioParent'
 export class Feature extends ScenarioParent {
     public readonly rules: Rule[] = []
 
+    // biome-ignore lint/complexity/noUselessConstructor: <explanation>
+    public constructor(name: string) {
+        super(name)
+    }
+
     public getRuleByName(name: string): Rule | undefined {
         return this.rules.find((rule) => rule.name === name)
     }

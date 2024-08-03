@@ -1,15 +1,10 @@
-import { FeatureFileReader } from "../readfile"
-import {
-    describe, expect, test,
-} from 'vitest'
-import { Step, StepTypes } from "../step"
+import { describe, expect, test } from 'vitest'
+import { FeatureFileReader } from '../readfile'
+import { type Step, StepTypes } from '../step'
 
 describe(`Parse feature file`, async () => {
-
     const path = `src/parser/__tests__/readline.feature`
-    const features = await FeatureFileReader
-        .fromPath(path)
-        .parseFile()
+    const features = await FeatureFileReader.fromPath(path).parseFile()
 
     const [feature] = features
     const [scenario] = feature.scenarii
@@ -26,18 +21,10 @@ describe(`Parse feature file`, async () => {
     })
 
     test(`Scenario should have 5 steps`, () => {
-        const [
-            Given,
-            When,
-            And,
-            Then,
-            LastAnd,
-        ] = scenario.steps
+        const [Given, When, And, Then, LastAnd] = scenario.steps
 
         expect(scenario.steps.length).toEqual(5)
-        expect(
-            scenario.steps.every((s : Step) => !s.isCalled),
-        ).toBeTruthy()
+        expect(scenario.steps.every((s: Step) => !s.isCalled)).toBeTruthy()
 
         expect(Given.type).toEqual(StepTypes.GIVEN)
         expect(Given.details).toEqual(`Front end developer using vitest`)
@@ -54,5 +41,4 @@ describe(`Parse feature file`, async () => {
         expect(LastAnd.type).toEqual(StepTypes.AND)
         expect(LastAnd.details).toEqual(`I know with step I forgot`)
     })
-
 })
