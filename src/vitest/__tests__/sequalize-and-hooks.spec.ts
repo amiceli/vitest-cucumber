@@ -1,8 +1,6 @@
-import {
-    describe, afterAll, expect, vi,
-} from "vitest"
-import { FeatureContentReader } from "../../__mocks__/FeatureContentReader.spec"
-import { describeFeature } from "../describe-feature"
+import { afterAll, describe, expect, vi } from 'vitest'
+import { FeatureContentReader } from '../../__mocks__/FeatureContentReader.spec'
+import { describeFeature } from '../describe-feature'
 
 describe(`Async scenario hooks`, () => {
     const feature = FeatureContentReader.fromString([
@@ -13,12 +11,14 @@ describe(`Async scenario hooks`, () => {
     ]).parseContent()
 
     type ResolveArgs = (
-        resolve: (value: void | PromiseLike<void>) => void
+        resolve: (value: void | PromiseLike<void>) => void,
     ) => void
 
-    function delayPromise (fn: ResolveArgs): Promise<void> {
+    function delayPromise(fn: ResolveArgs): Promise<void> {
         return new Promise((resolve) => {
-            setTimeout(() => { fn(resolve) }, 200)
+            setTimeout(() => {
+                fn(resolve)
+            }, 200)
         })
     }
 
@@ -100,11 +100,25 @@ describe(`Scneario hooks`, () => {
 
     describeFeature(
         feature,
-        ({ Scenario, BeforeEachScenario, AfterEachScenario, AfterAllScenarios, BeforeAllScenarios }) => {
-            BeforeEachScenario(() => { spyBeforeEachScenario() })
-            BeforeAllScenarios(() => { spyBeforeAllScenarios() })
-            AfterEachScenario(() => { spyAfterEachScenario() })
-            AfterAllScenarios(() => { spyAfterAllScenarios() })
+        ({
+            Scenario,
+            BeforeEachScenario,
+            AfterEachScenario,
+            AfterAllScenarios,
+            BeforeAllScenarios,
+        }) => {
+            BeforeEachScenario(() => {
+                spyBeforeEachScenario()
+            })
+            BeforeAllScenarios(() => {
+                spyBeforeAllScenarios()
+            })
+            AfterEachScenario(() => {
+                spyAfterEachScenario()
+            })
+            AfterAllScenarios(() => {
+                spyAfterAllScenarios()
+            })
 
             Scenario(`First scenario`, ({ Given, And, But }) => {
                 Given(`BeforeEachScenario should be called`, () => {
@@ -192,7 +206,7 @@ describe(`Background run before scenario`, async () => {
         let featureBackgroundSpy = -1
 
         Background(({ Given }) => {
-            Given(`I'm a background`,  async () => {
+            Given(`I'm a background`, async () => {
                 featureBackgroundSpy = 0
             })
         })
@@ -210,7 +224,7 @@ describe(`Background run before scenario`, async () => {
         Rule(`background in rule`, ({ RuleBackground, RuleScenario }) => {
             let ruleBackgroundSpy = -1
 
-            RuleBackground( ({ Given }) => {
+            RuleBackground(({ Given }) => {
                 Given(`I'm a background in a rule`, () => {
                     ruleBackgroundSpy = 0
                 })
