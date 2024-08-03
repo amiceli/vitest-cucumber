@@ -1,39 +1,41 @@
 import {
-    StepAbleStepExpressionError, StepAbleStepsNotCalledError, StepAbleUnknowStepError, 
-} from "../errors/errors"
-import { Taggable } from "./Taggable"
-import { ExpressionStep } from "./expression/ExpressionStep"
-import { Step, StepTypes } from "./step"
+    StepAbleStepExpressionError,
+    StepAbleStepsNotCalledError,
+    StepAbleUnknowStepError,
+} from '../errors/errors'
+import { Taggable } from './Taggable'
+import { ExpressionStep } from './expression/ExpressionStep'
+import { Step, type StepTypes } from './step'
 
 export abstract class StepAble extends Taggable {
-
-    public abstract getTitle (): string
+    public abstract getTitle(): string
 
     public isCalled: boolean = false
 
     public steps: Step[] = []
 
-    public stepFailedExpressionMatch : {
-        [key : string] : number
+    public stepFailedExpressionMatch: {
+        [key: string]: number
     } = {}
 
-    public findStepByTypeAndDetails (type : string, details : string) : Step | undefined {
+    public findStepByTypeAndDetails(
+        type: string,
+        details: string,
+    ): Step | undefined {
         this.stepFailedExpressionMatch[details] = 0
 
-        return this.steps.find((step : Step) => {
+        return this.steps.find((step: Step) => {
             try {
                 const sameType = step.type === type
                 const sameDetails = step.details === details
 
                 if (ExpressionStep.stepContainsRegex(details)) {
-                    const params = ExpressionStep.matchStep(
-                        step, details,
-                    )
+                    const params = ExpressionStep.matchStep(step, details)
 
                     return sameType && (sameDetails || params.length >= 0)
-                } else {
-                    return sameType && sameDetails
                 }
+
+                return sameType && sameDetails
             } catch (e) {
                 this.stepFailedExpressionMatch[details] += 1
                 return false
@@ -41,35 +43,34 @@ export abstract class StepAble extends Taggable {
         })
     }
 
-    public hasUnCalledSteps () : boolean {
+    public hasUnCalledSteps(): boolean {
         return this.getNoCalledStep() !== undefined
     }
 
-    public getNoCalledStep () : Step | undefined {
+    public getNoCalledStep(): Step | undefined {
         return this.steps.find((s) => s.isCalled === false)
     }
 
-    public addStep (step : Step) {
+    public addStep(step: Step) {
         this.steps.push(step)
     }
-    
-    public checkIfStepWasCalled () {
+
+    public checkIfStepWasCalled() {
         const step = this.getNoCalledStep()
 
         if (step) {
-            throw new StepAbleStepsNotCalledError(
-                this, step,
-            )
+            throw new StepAbleStepsNotCalledError(this, step)
         }
     }
 
-    public checkIfStepExists (stepType: string, stepDetails: string) {
-        const foundStep = this.findStepByTypeAndDetails(
-            stepType, stepDetails,
-        )
+    public checkIfStepExists(stepType: string, stepDetails: string) {
+        const foundStep = this.findStepByTypeAndDetails(stepType, stepDetails)
 
         if (!foundStep) {
-            if (this.stepFailedExpressionMatch[stepDetails] === this.steps.length) {
+            if (
+                this.stepFailedExpressionMatch[stepDetails] ===
+                this.steps.length
+            ) {
                 throw new StepAbleStepExpressionError(
                     this,
                     new Step(stepType as StepTypes, stepDetails),
@@ -84,8 +85,7 @@ export abstract class StepAble extends Taggable {
         return foundStep
     }
 
-    public get lastStep () : Step {
+    public get lastStep(): Step {
         return this.steps[this.steps.length - 1]
     }
-
 }
