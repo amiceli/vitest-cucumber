@@ -1,29 +1,26 @@
-import { GherkinParser } from "../parser"
-import {
-    describe, it, expect, beforeEach,
-} from 'vitest'
-import { StepTypes } from "../step"
-import { ScenarioOutline } from "../scenario"
-import { OnlyOneFeatureError, TwiceBackgroundError } from "../../errors/errors"
-import { FeatureContentReader } from "../../__mocks__/FeatureContentReader.spec"
-import { describeFeature } from "../../vitest/describe-feature"
+import { beforeEach, describe, expect, it } from 'vitest'
+import { FeatureContentReader } from '../../__mocks__/FeatureContentReader.spec'
+import { OnlyOneFeatureError, TwiceBackgroundError } from '../../errors/errors'
+import { describeFeature } from '../../vitest/describe-feature'
+import { GherkinParser } from '../parser'
+import { ScenarioOutline } from '../scenario'
+import { StepTypes } from '../step'
 
 describe(`GherkinParser`, () => {
-
     let parser: GherkinParser
 
     beforeEach(() => {
         parser = new GherkinParser()
     })
 
-    function getCurrentFeaut (p: GherkinParser) {
+    function getCurrentFeaut(p: GherkinParser) {
         const { features } = p
         const [firstFeature] = features
 
         return firstFeature
     }
 
-    function getCurrentScenario (p: GherkinParser) {
+    function getCurrentScenario(p: GherkinParser) {
         const feature = getCurrentFeaut(p)
         const [scenario] = feature.scenarii
 
@@ -47,9 +44,7 @@ describe(`GherkinParser`, () => {
 
         expect(() => {
             parser.addLine(`Feature: another test`)
-        }).toThrowError(
-            new OnlyOneFeatureError(),
-        )
+        }).toThrowError(new OnlyOneFeatureError())
     })
 
     it(`should be able to parse Scenario line`, () => {
@@ -179,16 +174,14 @@ describe(`GherkinParser`, () => {
         const currentFeature = getCurrentFeaut(parser)
         const currentScenario = currentFeature.getScenarioByName(scenarioTitile)
 
-        expect(
-            (currentScenario as ScenarioOutline).examples,
-        ).toEqual([
+        expect((currentScenario as ScenarioOutline).examples).toEqual([
             {
-                framework : `Vue`,
-                language : `Javascript`,
+                framework: `Vue`,
+                language: `Javascript`,
             },
             {
-                framework : `Stencil`,
-                language : `Typescript`,
+                framework: `Stencil`,
+                language: `Typescript`,
             },
         ])
     })
@@ -207,16 +200,14 @@ describe(`GherkinParser`, () => {
         const currentFeature = getCurrentFeaut(parser)
         const currentScenario = currentFeature.getScenarioByName(scenarioTitile)
 
-        expect(
-            (currentScenario as ScenarioOutline).examples,
-        ).toEqual([
+        expect((currentScenario as ScenarioOutline).examples).toEqual([
             {
-                framework : `Vue`,
-                language : `Javascript`,
+                framework: `Vue`,
+                language: `Javascript`,
             },
             {
-                framework : `Stencil`,
-                language : `Typescript`,
+                framework: `Stencil`,
+                language: `Typescript`,
             },
         ])
     })
@@ -228,7 +219,9 @@ describe(`GherkinParser`, () => {
         parser.addLine(`Scenario Outline: ${scenarioTitile}`)
 
         const currentFeature = getCurrentFeaut(parser)
-        const currentScenario = currentFeature.getScenarioByName(scenarioTitile) as ScenarioOutline
+        const currentScenario = currentFeature.getScenarioByName(
+            scenarioTitile,
+        ) as ScenarioOutline
 
         currentScenario.examples = []
 
@@ -241,16 +234,14 @@ describe(`GherkinParser`, () => {
 
         parser.finish()
 
-        expect(
-            currentScenario.examples,
-        ).toEqual([
+        expect(currentScenario.examples).toEqual([
             {
-                framework : `Vue`,
-                language : `Javascript`,
+                framework: `Vue`,
+                language: `Javascript`,
             },
             {
-                framework : `Stencil`,
-                language : `Typescript`,
+                framework: `Stencil`,
+                language: `Typescript`,
             },
         ])
     })
@@ -317,12 +308,12 @@ describe(`GherkinParser`, () => {
         expect(outline instanceof ScenarioOutline).toBe(true)
         expect((outline as ScenarioOutline).examples).toEqual([
             {
-                framework : `Vue`,
-                language : `Javascript`,
+                framework: `Vue`,
+                language: `Javascript`,
             },
             {
-                framework : `Stencil`,
-                language : `Typescript`,
+                framework: `Stencil`,
+                language: `Typescript`,
             },
         ])
     })
@@ -330,7 +321,9 @@ describe(`GherkinParser`, () => {
     it(`can add Scneario to Feature and Scenario to Rule`, async () => {
         parser.addLine(`Feature: test scenario for fule and feature`)
         parser.addLine(`Scenario: first scenario for the feature`)
-        parser.addLine(`Scenario Outline: first scenario outline for the feature`)
+        parser.addLine(
+            `Scenario Outline: first scenario outline for the feature`,
+        )
         parser.addLine(`Rule: I have two scenarii`)
         parser.addLine(`Scenario: first scenario`)
         parser.addLine(`Scenario: second scenario`)
@@ -338,25 +331,17 @@ describe(`GherkinParser`, () => {
         const currentFeature = getCurrentFeaut(parser)
         const [rule] = currentFeature.rules
 
-        expect(
-            currentFeature.scenarii.map((s) => s.description),
-        ).toContain(
+        expect(currentFeature.scenarii.map((s) => s.description)).toContain(
             `first scenario for the feature`,
         )
-        expect(
-            currentFeature.scenarii.map((s) => s.description),
-        ).toContain(
+        expect(currentFeature.scenarii.map((s) => s.description)).toContain(
             `first scenario outline for the feature`,
         )
 
-        expect(
-            rule.scenarii.map((s) => s.description),
-        ).toContain(
+        expect(rule.scenarii.map((s) => s.description)).toContain(
             `first scenario`,
         )
-        expect(
-            rule.scenarii.map((s) => s.description),
-        ).toContain(
+        expect(rule.scenarii.map((s) => s.description)).toContain(
             `second scenario`,
         )
     })
@@ -376,15 +361,9 @@ describe(`GherkinParser`, () => {
         const currentFeature = getCurrentFeaut(parser)
         const [oneTag, manyLineTags, oneLineTags] = currentFeature.scenarii
 
-        expect(
-            oneTag.tags,
-        ).toContain(`example`)
-        expect(manyLineTags.tags).toEqual([
-            `example`, `awesome`, `again`,
-        ])
-        expect(oneLineTags.tags).toEqual([
-            `example`, `awesome`, `again`,
-        ])
+        expect(oneTag.tags).toContain(`example`)
+        expect(manyLineTags.tags).toEqual([`example`, `awesome`, `again`])
+        expect(oneLineTags.tags).toEqual([`example`, `awesome`, `again`])
     })
 
     it(`should ignore tags without @`, () => {
@@ -459,9 +438,7 @@ describe(`GherkinParser`, () => {
                 parser.addLine(`    Background:`)
                 parser.addLine(`        Given I want another background`)
                 parser.addLine(``)
-            }).toThrowError(
-                new TwiceBackgroundError(),
-            )
+            }).toThrowError(new TwiceBackgroundError())
         })
 
         it(`should prevent twice backgrounds in Rule`, () => {
@@ -476,9 +453,7 @@ describe(`GherkinParser`, () => {
                 parser.addLine(`        Background:`)
                 parser.addLine(`            Given I want another background`)
                 parser.addLine(``)
-            }).toThrowError(
-                new TwiceBackgroundError(),
-            )
+            }).toThrowError(new TwiceBackgroundError())
             parser = new GherkinParser()
             expect(() => {
                 parser.addLine(`Feature: I use background`)
@@ -497,7 +472,6 @@ describe(`GherkinParser`, () => {
     })
 
     describe(`DocStringss`, () => {
-
         describe(`DocStringss only`, () => {
             const feature = FeatureContentReader.fromString([
                 `Feature: DocStrings`,
@@ -518,13 +492,16 @@ describe(`GherkinParser`, () => {
 
             describeFeature(feature, (f) => {
                 f.ScenarioOutline(`DocStrings example`, (s) => {
-                    s.Given(`I use "DocStrings" with <lang>`, (ctx, docStrings: string) => {
-                        const expectedValues = [
-                            `DocStrings love js`,
-                            `DocStrings love ts`,
-                        ]
-                        expect(expectedValues).toContain(docStrings)
-                    })
+                    s.Given(
+                        `I use "DocStrings" with <lang>`,
+                        (ctx, docStrings: string) => {
+                            const expectedValues = [
+                                `DocStrings love js`,
+                                `DocStrings love ts`,
+                            ]
+                            expect(expectedValues).toContain(docStrings)
+                        },
+                    )
                     s.Then(`I use <framework>`, (ctx, docStrings: string) => {
                         const expectedValues = [
                             `DocStrings love Vue`,
@@ -551,18 +528,28 @@ describe(`GherkinParser`, () => {
             describeFeature(feature, (f) => {
                 f.Scenario(`DocStrings example`, (s) => {
                     // eslint-disable-next-line max-params
-                    s.Given(`I use {string} {number} hours`, (ctx, text: string, hours: number, docStrings: string) => {
-                        expect(
-                            docStrings.includes(`DocStrings is passed to current Given`),
-                        ).toBe(true)
-                        expect(text).toEqual(`DocStrings`)
-                        expect(hours).toBe(2)
-                    })
+                    s.Given(
+                        `I use {string} {number} hours`,
+                        (
+                            ctx,
+                            text: string,
+                            hours: number,
+                            docStrings: string,
+                        ) => {
+                            expect(
+                                docStrings.includes(
+                                    `DocStrings is passed to current Given`,
+                                ),
+                            ).toBe(true)
+                            expect(text).toEqual(`DocStrings`)
+                            expect(hours).toBe(2)
+                        },
+                    )
                     s.Then(`I can check it`, () => {
-                        const docs = feature.scenarii.at(0)?.steps.at(0)?.docStrings
-                        expect(
-                            docs?.split(`\n`),
-                        ).toEqual([
+                        const docs = feature.scenarii
+                            .at(0)
+                            ?.steps.at(0)?.docStrings
+                        expect(docs?.split(`\n`)).toEqual([
                             `DocStrings is passed to current Given`,
                             `And at last params`,
                             `After ctx : TaskContext`,
@@ -591,28 +578,30 @@ describe(`GherkinParser`, () => {
             describeFeature(feature, (f) => {
                 f.Background((b) => {
                     // eslint-disable-next-line max-params
-                    b.Given(`I use {string} {number} tumes`, (ctx, text: string, hours: number, docStrings: string) => {
-                        expect(text).toEqual(`DocStrings`)
-                        expect(hours).toBe(2)
-                        expect(
-                            docStrings.split(`\n`),
-                        ).toEqual([
-                            `DocStrings is passed to current Given`,
-                            `And at last params`,
-                            `After ctx : TaskContext`,
-                        ])
-                    })
+                    b.Given(
+                        `I use {string} {number} tumes`,
+                        (
+                            ctx,
+                            text: string,
+                            hours: number,
+                            docStrings: string,
+                        ) => {
+                            expect(text).toEqual(`DocStrings`)
+                            expect(hours).toBe(2)
+                            expect(docStrings.split(`\n`)).toEqual([
+                                `DocStrings is passed to current Given`,
+                                `And at last params`,
+                                `After ctx : TaskContext`,
+                            ])
+                        },
+                    )
                 })
                 f.Scenario(`DocStrings example`, (s) => {
                     s.Then(`I can check it twice`, (ctx, docStrings) => {
-                        expect(docStrings).toEqual(
-                            `DocStrings is awesome`,
-                        )
+                        expect(docStrings).toEqual(`DocStrings is awesome`)
                     })
                 })
             })
         })
-
     })
-
 })

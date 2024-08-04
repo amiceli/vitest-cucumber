@@ -1,31 +1,28 @@
-import path from 'path'
-import { defineConfig, configDefaults } from 'vitest/config'
+import path from 'node:path'
+import { configDefaults, defineConfig } from 'vitest/config'
 
 export default defineConfig({
     test: {
-        passWithNoTests : true,
-        globals : true,
+        passWithNoTests: true,
+        globals: true,
         coverage: {
             provider: 'v8',
-            exclude : [
+            exclude: [
                 'src/module.ts',
                 '.eslintrc.js',
                 'commitlint.config.js',
                 'src/vitest/types.ts',
                 'scripts/cli-generate.ts',
-            ]
+            ],
         },
-        exclude : [
-            'examples/vue-example.spec.ts',
-            'node_modules',
-        ],
-        typecheck : {
-            tsconfig : 'tsconfig.vitest.json',
-        }
+        exclude: ['examples/vue-example.spec.ts', 'node_modules'],
+        typecheck: {
+            tsconfig: 'tsconfig.vitest.json',
+        },
     },
     resolve: {
         alias: {
-            '@': path.resolve(__dirname, './src')
+            '@': path.resolve(__dirname, './src'),
         },
     },
 })

@@ -1,4 +1,3 @@
-
 export enum StepTypes {
     THEN = `Then`,
     AND = `And`,
@@ -8,27 +7,25 @@ export enum StepTypes {
 }
 
 export class Step {
+    public readonly type: StepTypes
 
-    public readonly type : StepTypes
-    
-    public readonly details : string
+    public readonly details: string
 
-    public docStrings : string | null = null
+    public docStrings: string | null = null
 
-    public isCalled : boolean
+    public isCalled: boolean
 
-    public constructor (type : StepTypes, details : string) {
+    public constructor(type: StepTypes, details: string) {
         this.details = details
         this.type = type
         this.isCalled = false
     }
 
-    public getTitle (): string {
+    public getTitle(): string {
         return `${this.type} ${this.details}`
     }
 
-    public setDocStrings (docStrings : string) {
+    public setDocStrings(docStrings: string) {
         this.docStrings = docStrings
     }
-
 }

@@ -1,10 +1,13 @@
+import { describe, expect } from 'vitest'
+import { FeatureContentReader } from '../../__mocks__/FeatureContentReader.spec'
 import {
-    ScenarioOutlineVariableNotCalledInStepsError, ScenarioOulineWithoutExamplesError, MissingScenarioOutlineVariableValueError, ScenarioOutlineVariablesDeclaredWithoutExamplesError,
-} from "../../errors/errors"
-import { describeFeature } from "../describe-feature"
-import { ScenarioOutline as ScenarioOutlineType } from "../../parser/scenario"
-import { describe, expect } from "vitest"
-import { FeatureContentReader } from "../../__mocks__/FeatureContentReader.spec"
+    MissingScenarioOutlineVariableValueError,
+    ScenarioOulineWithoutExamplesError,
+    ScenarioOutlineVariableNotCalledInStepsError,
+    ScenarioOutlineVariablesDeclaredWithoutExamplesError,
+} from '../../errors/errors'
+import type { ScenarioOutline as ScenarioOutlineType } from '../../parser/scenario'
+import { describeFeature } from '../describe-feature'
 
 describe(`ScenarioOutline without variables in step`, () => {
     const feature = FeatureContentReader.fromString([
@@ -27,7 +30,8 @@ describe(`ScenarioOutline without variables in step`, () => {
         })
     }).toThrowError(
         new ScenarioOutlineVariableNotCalledInStepsError(
-            feature.scenarii[0] as ScenarioOutlineType, `height`,
+            feature.scenarii[0] as ScenarioOutlineType,
+            `height`,
         ),
     )
 })
@@ -54,7 +58,6 @@ describe(`ScenarioOutline with empty examples`, () => {
         ),
     )
 })
-
 
 describe(`ScnearioOutline without variables`, () => {
     const feature = FeatureContentReader.fromString([
@@ -104,18 +107,21 @@ describe(`ScnearioOutline examples use N times in Rule`, () => {
             examplesStepCount++
         })
         Rule(`Example rule`, ({ RuleScenarioOutline }) => {
-            RuleScenarioOutline(`out line baby`, ({ Given, And }, variables) => {
-                Given(`I check <width>`, () => {
-                    expect(
-                        variables.width,
-                    ).toEqual(scenario.examples[examplesStepCount].width)
-                })
-                And(`I check <height>`, () => {
-                    expect(
-                        variables.height,
-                    ).toEqual(scenario.examples[examplesStepCount].height)
-                })
-            })
+            RuleScenarioOutline(
+                `out line baby`,
+                ({ Given, And }, variables) => {
+                    Given(`I check <width>`, () => {
+                        expect(variables.width).toEqual(
+                            scenario.examples[examplesStepCount].width,
+                        )
+                    })
+                    And(`I check <height>`, () => {
+                        expect(variables.height).toEqual(
+                            scenario.examples[examplesStepCount].height,
+                        )
+                    })
+                },
+            )
         })
     })
 })
@@ -142,14 +148,14 @@ describe(`ScenarioOutline examples use N times`, () => {
         })
         ScenarioOutline(`out line baby`, ({ Given, And }, variables) => {
             Given(`I check <width>`, () => {
-                expect(
-                    variables.width,
-                ).toEqual(scenario.examples[examplesStepCount].width)
+                expect(variables.width).toEqual(
+                    scenario.examples[examplesStepCount].width,
+                )
             })
             And(`I check <height>`, () => {
-                expect(
-                    variables.height,
-                ).toEqual(scenario.examples[examplesStepCount].height)
+                expect(variables.height).toEqual(
+                    scenario.examples[examplesStepCount].height,
+                )
             })
         })
     })
@@ -197,33 +203,42 @@ describe(`ScenarioOutline with Examples`, () => {
 
     const [scenarioOutline] = feature.scenarii as ScenarioOutlineType[]
 
-    describeFeature(feature, ({ ScenarioOutline, AfterEachScenario, AfterAllScenarios }) => {
-        let scenarioOutlineCount = 0
+    describeFeature(
+        feature,
+        ({ ScenarioOutline, AfterEachScenario, AfterAllScenarios }) => {
+            let scenarioOutlineCount = 0
 
-        AfterEachScenario(() => {
-            scenarioOutlineCount++
-        })
-
-        AfterAllScenarios(() => {
-            expect(scenarioOutlineCount).toBe(
-                scenarioOutline.examples.length,
-            )
-        })
-
-        ScenarioOutline(`I use variables`, ({ Given, And, Then }, variables) => {
-            Given(`I know <width> value`, () => {
-                expect(parseInt(variables.width) >= 100).toBeTruthy()
+            AfterEachScenario(() => {
+                scenarioOutlineCount++
             })
-            And(`I know <height> value`, () => {
-                expect(parseInt(variables.height) >= 100).toBeTruthy()
-            })
-            Then(`I can make a <sum>`, () => {
-                expect(
-                    parseInt(variables.width) + parseInt(variables.height),
-                ).toEqual(
-                    parseInt(variables.sum, 10),
+
+            AfterAllScenarios(() => {
+                expect(scenarioOutlineCount).toBe(
+                    scenarioOutline.examples.length,
                 )
             })
-        })
-    })
+
+            ScenarioOutline(
+                `I use variables`,
+                ({ Given, And, Then }, variables) => {
+                    Given(`I know <width> value`, () => {
+                        expect(
+                            Number.parseInt(variables.width) >= 100,
+                        ).toBeTruthy()
+                    })
+                    And(`I know <height> value`, () => {
+                        expect(
+                            Number.parseInt(variables.height) >= 100,
+                        ).toBeTruthy()
+                    })
+                    Then(`I can make a <sum>`, () => {
+                        expect(
+                            Number.parseInt(variables.width) +
+                                Number.parseInt(variables.height),
+                        ).toEqual(Number.parseInt(variables.sum, 10))
+                    })
+                },
+            )
+        },
+    )
 })

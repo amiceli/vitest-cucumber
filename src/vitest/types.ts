@@ -1,65 +1,67 @@
-import { TaskContext } from "vitest"
-import { Example } from "../parser/scenario"
+import type { TaskContext } from 'vitest'
+import type { Example } from '../parser/scenario'
 
 export type MaybePromise<T = void> = T | Promise<T>
 
-
 export type CallbackWithSingleContext = (context: TaskContext) => MaybePromise
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type CallbackWithParamsAndContext<T = any> = (ctx : TaskContext, ...params: T[]) => MaybePromise
+
+// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+export type CallbackWithParamsAndContext<T = any> = (
+    ctx: TaskContext,
+    ...params: T[]
+) => MaybePromise
 
 export type StepCallbackDefinition = (
-    name : string, 
-    fn: CallbackWithSingleContext | CallbackWithParamsAndContext
+    name: string,
+    fn: CallbackWithSingleContext | CallbackWithParamsAndContext,
 ) => void
 
 export type StepTest = {
-    Given : StepCallbackDefinition
-    When : StepCallbackDefinition
-    But : StepCallbackDefinition
-    And : StepCallbackDefinition
-    Then : StepCallbackDefinition
+    Given: StepCallbackDefinition
+    When: StepCallbackDefinition
+    But: StepCallbackDefinition
+    And: StepCallbackDefinition
+    Then: StepCallbackDefinition
 }
 
-export type FeatureDescriibeCallbackParams = { 
-    Background: BackgroundTest,
-    Scenario: ScenarioTest,
-    ScenarioOutline: ScenarioOutlineTest,
-    BeforeAllScenarios : (fn : () => MaybePromise) => void
-    AfterAllScenarios : (fn : () => MaybePromise) => void
-    BeforeEachScenario : (fn : () => MaybePromise) => void
-    AfterEachScenario : (fn : () => MaybePromise) => void
-    Rule : RuleTest
+export type FeatureDescriibeCallbackParams = {
+    Background: BackgroundTest
+    Scenario: ScenarioTest
+    ScenarioOutline: ScenarioOutlineTest
+    BeforeAllScenarios: (fn: () => MaybePromise) => void
+    AfterAllScenarios: (fn: () => MaybePromise) => void
+    BeforeEachScenario: (fn: () => MaybePromise) => void
+    AfterEachScenario: (fn: () => MaybePromise) => void
+    Rule: RuleTest
 }
 
 export type DescribeFeatureCallback = (
-    scenarioCallback: FeatureDescriibeCallbackParams
+    scenarioCallback: FeatureDescriibeCallbackParams,
 ) => void
 
 export type RuleOptions = {
-    RuleBackground: BackgroundTest,
-    RuleScenario: ScenarioTest,
-    RuleScenarioOutline: ScenarioOutlineTest,
+    RuleBackground: BackgroundTest
+    RuleScenario: ScenarioTest
+    RuleScenarioOutline: ScenarioOutlineTest
 }
 
 export type RuleTest = (
-    ruleName : string,
-    fn : (options :  RuleOptions) => void
+    ruleName: string,
+    fn: (options: RuleOptions) => void,
 ) => void
 
 export type ScenarioTest = (
-    scenarioDescription : string, 
-    fn : (options : StepTest) => MaybePromise
+    scenarioDescription: string,
+    fn: (options: StepTest) => MaybePromise,
 ) => void
 
 export type ScenarioOutlineTest = (
-    scenarioDescription : string, 
-    fn : (options : StepTest, examples : Example[0]) => MaybePromise
+    scenarioDescription: string,
+    fn: (options: StepTest, examples: Example[0]) => MaybePromise,
 ) => void
 
 export type BackgroundStepTest = Pick<StepTest, 'Given' | 'And'>
 
 export type BackgroundTest = (
-    fn : (options : BackgroundStepTest) => MaybePromise
+    fn: (options: BackgroundStepTest) => MaybePromise,
 ) => void
-

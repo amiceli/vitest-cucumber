@@ -1,25 +1,25 @@
-import { Feature } from "../parser/feature"
-import { GherkinParser } from "../parser/parser"
+import type { Feature } from '../parser/feature'
+import { GherkinParser } from '../parser/parser'
 
 export class FeatureContentReader {
-
     private readonly content: string[]
 
     private readonly parser: GherkinParser
 
-    public static fromString (content: string[]) {
+    public static fromString(content: string[]) {
         return new FeatureContentReader(content)
     }
 
-    private constructor (content: string[]) {
+    private constructor(content: string[]) {
         this.content = content
         this.parser = new GherkinParser()
     }
 
-    public parseContent (): Feature {
-        this.content.forEach((line) => {
+    public parseContent(): Feature {
+        for (const line of this.content) {
             this.parser.addLine(line)
-        })
+        }
+
         const feature = this.parser.finish().at(0)
 
         if (feature) {
@@ -28,5 +28,4 @@ export class FeatureContentReader {
 
         throw `No Feature`
     }
-
 }
