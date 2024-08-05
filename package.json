@@ -30,7 +30,7 @@
     "@commitlint/cli": "^19.3.0",
     "@commitlint/config-conventional": "^19.2.2",
     "@types/node": "^20.4.5",
-    "@vitest/coverage-v8": "^2.0.4",
+    "@vitest/coverage-v8": "^2.0.5",
     "esbuild": "0.23.0",
     "lefthook": "^1.7.11",
     "typescript": "^5.5.4"
