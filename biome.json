@@ -9,7 +9,8 @@
             "package-lock.json",
             "dist/",
             "coverage/",
-            "tsconfig.json"
+            "tsconfig.json",
+            "tsconfig.vitest.json"
         ]
     },
     "linter": {
