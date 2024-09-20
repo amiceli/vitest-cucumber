@@ -11,13 +11,10 @@ import { Step, StepTypes } from './step'
 type SteppableName = 'Scenario' | 'ScenarioOutline' | 'Background'
 
 export type ParserOptions = {
-    excludeTags?: string[]
     language?: string
 }
 
 export class GherkinParser {
-    private readonly excludeTags: string[]
-
     private readonly spokenParser: SpokenParser
 
     public readonly features: Feature[] = []
@@ -45,7 +42,6 @@ export class GherkinParser {
     private parsingDocStrings: boolean = false
 
     public constructor(options?: ParserOptions) {
-        this.excludeTags = options?.excludeTags || []
         this.spokenParser = SpokenParserFactory.fromLang(
             options?.language || 'en',
         )
