@@ -1,6 +1,7 @@
 import { dirname } from 'node:path'
 import callsites from 'callsites'
 import type { Feature } from '../parser/feature'
+import type { ParserOptions } from '../parser/parser'
 import { FeatureFileReader } from '../parser/readfile'
 
 function getCallerPath(): string | null {
@@ -11,13 +12,17 @@ function getCallerPath(): string | null {
     return callerFileDir
 }
 
-export async function loadFeature(featureFilePath: string): Promise<Feature> {
+export async function loadFeature(
+    featureFilePath: string,
+    options?: ParserOptions,
+): Promise<Feature> {
     const callerFileDir = getCallerPath()
 
-    const [feature] = await FeatureFileReader.fromPath(
+    const [feature] = await FeatureFileReader.fromPath({
         featureFilePath,
         callerFileDir,
-    ).parseFile()
+        options,
+    }).parseFile()
 
     return feature
 }
