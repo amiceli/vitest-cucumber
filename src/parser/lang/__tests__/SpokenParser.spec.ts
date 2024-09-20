@@ -4,6 +4,18 @@ import { StepTypes } from '../../step'
 import { SpokenParserFactory } from '../SpokenParser'
 
 describe('SpokenParser', () => {
+    it('should check if line is a step', () => {
+        expect(
+            SpokenParserFactory.fromLang('fr').isStep('Alors je lance vitest'),
+        ).toBe(true)
+        expect(
+            SpokenParserFactory.fromLang('fr').isStep('Test ça marche pas'),
+        ).toBe(false)
+        expect(
+            SpokenParserFactory.fromLang('it').isStep('Dato sono contento'),
+        ).toBe(true)
+    })
+
     it('should match Step for a language', () => {
         const frenchSpoken = SpokenParserFactory.fromLang('fr')
 
@@ -71,5 +83,45 @@ describe('SpokenParser', () => {
                 'Primer: sr-latin',
             ),
         ).toBe(true)
+    })
+
+    it('should check if line is a scenario outline', () => {
+        expect(
+            SpokenParserFactory.fromLang('fr').isScenarioOutline(
+                'Plan du scénario: je fais du JS',
+            ),
+        ).toBe(true)
+        expect(
+            SpokenParserFactory.fromLang('fr').isScenarioOutline(
+                'Background: je fais du JS',
+            ),
+        ).toBe(false)
+        expect(
+            SpokenParserFactory.fromLang('it').isScenarioOutline(
+                'Schema dello scenario: ciao fratello',
+            ),
+        ).toBe(true)
+    })
+
+    it('should check if line is an Examples', () => {
+        expect(SpokenParserFactory.fromLang('fr').isExamples('Exemples:')).toBe(
+            true,
+        )
+        expect(
+            SpokenParserFactory.fromLang('fr').isExamples('Test ça marche pas'),
+        ).toBe(false)
+        expect(SpokenParserFactory.fromLang('it').isExamples('Esempi:')).toBe(
+            true,
+        )
+    })
+
+    it('should check if line is a Rule', () => {
+        expect(SpokenParserFactory.fromLang('fr').isRule('Règles: test')).toBe(
+            true,
+        )
+        expect(
+            SpokenParserFactory.fromLang('fr').isRule('Test ça marche pas'),
+        ).toBe(false)
+        expect(SpokenParserFactory.fromLang('it').isRule('Regola:')).toBe(true)
     })
 })
