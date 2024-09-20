@@ -2,28 +2,34 @@ import fs from 'node:fs'
 import readline from 'node:readline'
 import { FeatureFileNotFoundError } from '../errors/errors'
 import type { Feature } from './feature'
-import { GherkinParser } from './parser'
+import { GherkinParser, type ParserOptions } from './parser'
+
+type FeatureFileReaderParams = {
+    featureFilePath: string
+    callerFileDir?: string | null
+    options?: ParserOptions
+}
 
 export class FeatureFileReader {
     private readonly path: string
 
     private readonly parser: GherkinParser
 
-    private readonly callerFilePath: string | null
+    private readonly callerFileDir: string | null
 
-    public static fromPath(path: string, callerFilePath: string | null = null) {
-        return new FeatureFileReader(path, callerFilePath)
+    public static fromPath(params: FeatureFileReaderParams) {
+        return new FeatureFileReader(params)
     }
 
-    private constructor(path: string, callerFilePath: string | null) {
-        this.callerFilePath = callerFilePath
-        this.path = this.handleFeatureFilePath(path)
-        this.parser = new GherkinParser()
+    private constructor(params: FeatureFileReaderParams) {
+        this.callerFileDir = params.callerFileDir || null
+        this.path = this.handleFeatureFilePath(params.featureFilePath)
+        this.parser = new GherkinParser(params.options)
     }
 
     private handleFeatureFilePath(featureFilePath: string): string {
         if (featureFilePath.match(/\.\/[\w-]+(\.[\w-]+)*$/)) {
-            return `${this.callerFilePath}/${featureFilePath}`
+            return `${this.callerFileDir}/${featureFilePath}`
         }
 
         return featureFilePath

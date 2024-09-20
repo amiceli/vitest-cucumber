@@ -45,6 +45,32 @@ export class SpokenParser {
         this.details = details
     }
 
+    public getFeatureName(line: string): string {
+        return this.getMatchKey(line, this.details.feature)
+    }
+
+    public getScenarioName(line: string): string {
+        return this.getMatchKey(line, this.details.scenario)
+    }
+
+    public getScenarioOutlineName(line: string): string {
+        return this.getMatchKey(line, this.details.scenarioOutline)
+    }
+
+    public getRuleName(line: string): string {
+        return this.getMatchKey(line, this.details.rule)
+    }
+
+    private getMatchKey(line: string, keys: string[]): string {
+        const foundKey = keys.find((featureKey) =>
+            line.trim().startsWith(`${featureKey}:`),
+        )
+
+        return line.split(`${foundKey}:`)[1].trim()
+    }
+
+    // match line
+
     public isRule(line: string): boolean {
         return this.lineStartsWithOneOf(this.details.rule, line)
     }
@@ -73,6 +99,19 @@ export class SpokenParser {
         return this.foundStep(line) !== undefined
     }
 
+    public getStepDetails(line: string, type: StepTypes): string {
+        const matches = this.stepsMatch.find((s) => s.type === type)
+        const foundMatch = matches?.keys.find((stepKey) => {
+            return line.trim().startsWith(stepKey)
+        })
+
+        if (foundMatch) {
+            return line.trim().split(foundMatch)[1].trim()
+        }
+
+        throw 'Failed'
+    }
+
     public getStepType(line: string): StepTypes {
         const foundStep = this.foundStep(line)
 
@@ -86,7 +125,7 @@ export class SpokenParser {
     private foundStep(line: string): SpokenStepMatch[0] | undefined {
         return this.stepsMatch.find((stepDetails) => {
             return stepDetails.keys.some((stepKey) => {
-                return line.startsWith(stepKey)
+                return line.trim().startsWith(stepKey)
             })
         })
     }
@@ -94,7 +133,7 @@ export class SpokenParser {
     private lineStartsWithOneOf(keys: string[], line: string): boolean {
         return (
             keys.find((value) => {
-                return line.startsWith(value)
+                return line.trim().startsWith(`${value}:`)
             }) !== undefined
         )
     }

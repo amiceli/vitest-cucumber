@@ -4,7 +4,9 @@ import { type Step, StepTypes } from '../step'
 
 describe(`Parse feature file`, async () => {
     const path = `src/parser/__tests__/readline.feature`
-    const features = await FeatureFileReader.fromPath(path).parseFile()
+    const features = await FeatureFileReader.fromPath({
+        featureFilePath: path,
+    }).parseFile()
 
     const [feature] = features
     const [scenario] = feature.scenarii
