@@ -63,7 +63,7 @@ export abstract class ScenarioParent extends Taggable {
     }
 
     public getTitle(): string {
-        return `${this.constructor.name}: ${this.name}`
+        return `${this.title}: ${this.name}`
     }
 
     public checkUncalledScenario(tags: string[]) {

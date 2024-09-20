@@ -15,14 +15,17 @@ export class Step {
 
     public isCalled: boolean
 
-    public constructor(type: StepTypes, details: string) {
+    private readonly title: string
+
+    public constructor(type: StepTypes, details: string, title?: string) {
         this.details = details
         this.type = type
         this.isCalled = false
+        this.title = title || `${type}`
     }
 
     public getTitle(): string {
-        return `${this.type} ${this.details}`
+        return `${this.title} ${this.details}`
     }
 
     public setDocStrings(docStrings: string) {

@@ -15,6 +15,8 @@ type GherkinLanguageDetails = {
     when: string[]
 }
 
+type LineDetails = { keyword: string; title: string }
+
 type GherkinLanguage = {
     [key: string]: GherkinLanguageDetails
 }
@@ -45,28 +47,39 @@ export class SpokenParser {
         this.details = details
     }
 
-    public getFeatureName(line: string): string {
+    public getFeatureName(line: string): LineDetails {
         return this.getMatchKey(line, this.details.feature)
     }
 
-    public getScenarioName(line: string): string {
+    public getScenarioName(line: string): LineDetails {
         return this.getMatchKey(line, this.details.scenario)
     }
 
-    public getScenarioOutlineName(line: string): string {
+    public getScenarioOutlineName(line: string): LineDetails {
         return this.getMatchKey(line, this.details.scenarioOutline)
     }
 
-    public getRuleName(line: string): string {
+    public getRuleName(line: string): LineDetails {
         return this.getMatchKey(line, this.details.rule)
     }
 
-    private getMatchKey(line: string, keys: string[]): string {
-        const foundKey = keys.find((featureKey) =>
+    public getBackgroundKeyWord(line: string): string {
+        return this.getMatchKey(line, this.details.background).keyword
+    }
+
+    private getMatchKey(line: string, keys: string[]): LineDetails {
+        const foundKeyword = keys.find((featureKey) =>
             line.trim().startsWith(`${featureKey}:`),
         )
 
-        return line.split(`${foundKey}:`)[1].trim()
+        if (!foundKeyword) {
+            throw 'Error de ouf'
+        }
+
+        return {
+            keyword: foundKeyword.trim(),
+            title: line.split(`${foundKeyword}:`)[1].trim(),
+        }
     }
 
     // match line
@@ -99,14 +112,17 @@ export class SpokenParser {
         return this.foundStep(line) !== undefined
     }
 
-    public getStepDetails(line: string, type: StepTypes): string {
+    public getStepDetails(line: string, type: StepTypes): LineDetails {
         const matches = this.stepsMatch.find((s) => s.type === type)
         const foundMatch = matches?.keys.find((stepKey) => {
             return line.trim().startsWith(stepKey)
         })
 
         if (foundMatch) {
-            return line.trim().split(foundMatch)[1].trim()
+            return {
+                keyword: foundMatch.trim(),
+                title: line.trim().split(foundMatch)[1].trim(),
+            }
         }
 
         throw 'Failed'

@@ -5,12 +5,12 @@ import { type Step, StepTypes } from './step'
 const BackgroundAllowedSteps = [StepTypes.GIVEN, StepTypes.AND]
 
 export class Background extends StepAble {
-    public constructor() {
-        super('')
+    public constructor(title: string = 'Background') {
+        super(title)
     }
 
     public getTitle(): string {
-        return `Background:`
+        return `${this.title}:`
     }
 
     public addStep(step: Step) {

@@ -61,8 +61,8 @@ export class GherkinParser {
             this.currentRulenIndex = -1
             this.currentExampleLine = -1
 
-            const featureName = this.spokenParser.getFeatureName(line)
-            const feature = new Feature(featureName)
+            const { title, keyword } = this.spokenParser.getFeatureName(line)
+            const feature = new Feature(title, keyword)
 
             this.features.push(feature)
 
@@ -73,17 +73,17 @@ export class GherkinParser {
 
             this.currentRulenIndex++
 
-            const ruleName = this.spokenParser.getRuleName(line)
-            // const ruleName = this.getTextAfterKeyword(line, `Rule`)
-            const rule = new Rule(ruleName)
+            const { title, keyword } = this.spokenParser.getRuleName(line)
+            const rule = new Rule(title, keyword)
 
             this.addTagToParent(rule)
             this.currentFeature.rules.push(rule)
         } else if (this.spokenParser.isScenarioOutline(line)) {
             this.currentScenarioIndex++
 
-            const scenarioName = this.spokenParser.getScenarioOutlineName(line)
-            const scenario = new ScenarioOutline(scenarioName)
+            const { title, keyword } =
+                this.spokenParser.getScenarioOutlineName(line)
+            const scenario = new ScenarioOutline(title, keyword)
 
             this.lastScenarioOutline = scenario
             this.lastSteppableTag = `ScenarioOutline`
@@ -98,8 +98,8 @@ export class GherkinParser {
         } else if (this.spokenParser.isScenario(line)) {
             this.currentScenarioIndex++
 
-            const scenarioName = this.spokenParser.getScenarioName(line)
-            const scenario = new Scenario(scenarioName)
+            const { title, keyword } = this.spokenParser.getScenarioName(line)
+            const scenario = new Scenario(title, keyword)
 
             this.lastSteppableTag = `Scenario`
 
@@ -110,7 +110,9 @@ export class GherkinParser {
                 throw new TwiceBackgroundError()
             }
 
-            const background = new Background()
+            const background = new Background(
+                this.spokenParser.getBackgroundKeyWord(line),
+            )
             this.lastSteppableTag = `Background`
 
             this.addBackgroundToParent(background)
@@ -133,8 +135,11 @@ export class GherkinParser {
             }
         } else if (!this.parsingDocStrings && this.spokenParser.isStep(line)) {
             const stepType = this.spokenParser.getStepType(line)
-            const stepDetails = this.spokenParser.getStepDetails(line, stepType)
-            const newStep = new Step(stepType, stepDetails)
+            const { keyword, title } = this.spokenParser.getStepDetails(
+                line,
+                stepType,
+            )
+            const newStep = new Step(stepType, title, keyword)
 
             this.currentScenario.addStep(newStep)
         } else if (this.currentExample !== null) {

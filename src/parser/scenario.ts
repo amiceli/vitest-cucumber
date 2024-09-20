@@ -10,7 +10,7 @@ export class Scenario extends StepAble {
     }
 
     public getTitle(): string {
-        return `Scenario: ${this.description}`
+        return `${this.title}: ${this.description}`
     }
 }
 
@@ -29,10 +29,6 @@ export class ScenarioOutline extends Scenario {
         title: string = 'Scenario Outline',
     ) {
         super(description, title)
-    }
-
-    public getTitle(): string {
-        return `Scenario Outline: ${this.description}`
     }
 
     public getStepTitle(step: Step, example: Example[0]): string {
