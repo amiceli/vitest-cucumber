@@ -3,11 +3,11 @@ import { Rule } from './Rule'
 import { ScenarioParent } from './ScenarioParent'
 
 export class Feature extends ScenarioParent {
-    public readonly rules: Rule[] = []
+    public readonly rules: Rule[]
 
-    // biome-ignore lint/complexity/noUselessConstructor: <explanation>
-    public constructor(name: string) {
-        super(name)
+    public constructor(name: string, title: string = 'Feature') {
+        super(name, title)
+        this.rules = []
     }
 
     public getRuleByName(name: string): Rule | undefined {

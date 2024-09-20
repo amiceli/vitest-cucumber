@@ -1,10 +1,10 @@
 import { ScenarioParent } from './ScenarioParent'
 
 export class Rule extends ScenarioParent {
-    public isCalled: boolean = false
+    public isCalled: boolean
 
-    // biome-ignore lint/complexity/noUselessConstructor: <explanation>
-    public constructor(name: string) {
-        super(name)
+    public constructor(name: string, title: string = 'Rule') {
+        super(name, title)
+        this.isCalled = false
     }
 }
