@@ -1,6 +1,13 @@
 import { beforeEach, describe, expect, it, test } from 'vitest'
 import { FeatureContentReader } from '../../__mocks__/FeatureContentReader.spec'
-import { OnlyOneFeatureError, TwiceBackgroundError } from '../../errors/errors'
+import {
+    MissingExamplesError,
+    MissingFeature,
+    MissingScnearioOutlineError,
+    MissingSteppableError,
+    OnlyOneFeatureError,
+    TwiceBackgroundError,
+} from '../../errors/errors'
 import { describeFeature } from '../../vitest/describe-feature'
 import avalaibleLanguages from '../lang/lang.json'
 import { GherkinParser } from '../parser'
@@ -738,4 +745,81 @@ describe('GherkinParser - language', () => {
             expect(scenario.steps.length).toBe(5)
         })
     }
+})
+
+describe('Missing parent', () => {
+    it('should prevent missing Feature before add Background', () => {
+        const content = `
+            Background: Detect relative path
+                Given I use relative path 
+        `
+        expect(() => {
+            FeatureContentReader.fromString(content.split('\n')).parseContent()
+        }).toThrowError(new MissingFeature('Background: Detect relative path'))
+    })
+    it('should prevent missing Feature before add Scenario', () => {
+        const content = `
+            Scenario: Detect relative path
+                Given I use relative path 
+        `
+        expect(() => {
+            FeatureContentReader.fromString(content.split('\n')).parseContent()
+        }).toThrowError(new MissingFeature('Scenario: Detect relative path'))
+    })
+    it('should prevent missing Feature before add ScenarioOutline', () => {
+        const content = `
+            Scenario Outline: Detect relative path
+                Given I use relative path 
+        `
+        expect(() => {
+            FeatureContentReader.fromString(content.split('\n')).parseContent()
+        }).toThrowError(
+            new MissingFeature('Scenario Outline: Detect relative path'),
+        )
+    })
+    it('should prevent missing Feature before add Rule', () => {
+        const content = `
+            Rule: simple rule
+                Scenario: simple
+                    Given I use relative path 
+        `
+        expect(() => {
+            FeatureContentReader.fromString(content.split('\n')).parseContent()
+        }).toThrowError(new MissingFeature('Rule: simple rule'))
+    })
+    it('should prevent missing Scenario before add step', () => {
+        const content = `
+            Feature: test
+                Given I use relative path 
+        `
+        expect(() => {
+            FeatureContentReader.fromString(content.split('\n')).parseContent()
+        }).toThrowError(new MissingSteppableError('Given I use relative path '))
+    })
+    it('should prevent missing Scenario Outline before add Examples', () => {
+        const content = `
+            Feature: test
+                Examples:
+                    | test |
+                    | test |
+
+        `
+        expect(() => {
+            FeatureContentReader.fromString(content.split('\n')).parseContent()
+        }).toThrowError(new MissingScnearioOutlineError('Examples:'))
+    })
+    it('should prevent missing Examples before add values', () => {
+        const content = `
+            Feature: test
+                Scenario Outline: test
+                    Given I use relative path 
+
+                        | test |
+                        | test |
+
+        `
+        expect(() => {
+            FeatureContentReader.fromString(content.split('\n')).parseContent()
+        }).toThrowError(new MissingExamplesError('| test |'))
+    })
 })

@@ -1,4 +1,11 @@
-import { OnlyOneFeatureError, TwiceBackgroundError } from '../errors/errors'
+import {
+    MissingExamplesError,
+    MissingFeature,
+    MissingScnearioOutlineError,
+    MissingSteppableError,
+    OnlyOneFeatureError,
+    TwiceBackgroundError,
+} from '../errors/errors'
 import { Background } from './Background'
 import { Rule } from './Rule'
 import type { StepAble } from './Stepable'
@@ -47,6 +54,38 @@ export class GherkinParser {
         )
     }
 
+    public hasFeature(line: string): boolean {
+        if (!this.currentFeature) {
+            throw new MissingFeature(line)
+        }
+
+        return true
+    }
+
+    public hasSteppable(line: string): boolean {
+        if (!(this.currentBackground || this.currentScenario)) {
+            throw new MissingSteppableError(line)
+        }
+
+        return true
+    }
+
+    public hasScenarioOutline(line: string): boolean {
+        if (!this.lastScenarioOutline) {
+            throw new MissingScnearioOutlineError(line)
+        }
+
+        return true
+    }
+
+    public hasExamples(line: string): boolean {
+        if (!this.currentExample) {
+            throw new MissingExamplesError(line)
+        }
+
+        return true
+    }
+
     public addLine(line: string) {
         if (line.trim().startsWith(`#`)) {
             return
@@ -67,7 +106,7 @@ export class GherkinParser {
             this.features.push(feature)
 
             this.addTagToParent(feature)
-        } else if (this.spokenParser.isRule(line)) {
+        } else if (this.spokenParser.isRule(line) && this.hasFeature(line)) {
             this.currentExampleLine = -1
             this.currentScenarioIndex = -1
 
@@ -78,7 +117,10 @@ export class GherkinParser {
 
             this.addTagToParent(rule)
             this.currentFeature.rules.push(rule)
-        } else if (this.spokenParser.isScenarioOutline(line)) {
+        } else if (
+            this.spokenParser.isScenarioOutline(line) &&
+            this.hasFeature(line)
+        ) {
             this.currentScenarioIndex++
 
             const { title, keyword } =
@@ -90,12 +132,18 @@ export class GherkinParser {
 
             this.addScenarioToParent(scenario)
             this.addTagToParent(scenario)
-        } else if (this.spokenParser.isExamples(line)) {
+        } else if (
+            this.spokenParser.isExamples(line) &&
+            this.hasScenarioOutline(line)
+        ) {
             this.currentExample = []
-        } else if (line.trim().startsWith(`|`)) {
+        } else if (line.trim().startsWith(`|`) && this.hasExamples(line)) {
             this.detectMissingExamplesKeyword()
             this.updateScenarioExamples(line)
-        } else if (this.spokenParser.isScenario(line)) {
+        } else if (
+            this.spokenParser.isScenario(line) &&
+            this.hasFeature(line)
+        ) {
             this.currentScenarioIndex++
 
             const { title, keyword } = this.spokenParser.getScenarioName(line)
@@ -105,7 +153,10 @@ export class GherkinParser {
 
             this.addScenarioToParent(scenario)
             this.addTagToParent(scenario)
-        } else if (this.spokenParser.isBackground(line)) {
+        } else if (
+            this.spokenParser.isBackground(line) &&
+            this.hasFeature(line)
+        ) {
             if (this.currentBackground) {
                 throw new TwiceBackgroundError()
             }
@@ -133,7 +184,11 @@ export class GherkinParser {
             } else {
                 this.parsingDocStrings = true
             }
-        } else if (!this.parsingDocStrings && this.spokenParser.isStep(line)) {
+        } else if (
+            !this.parsingDocStrings &&
+            this.spokenParser.isStep(line) &&
+            this.hasSteppable(line)
+        ) {
             const stepType = this.spokenParser.getStepType(line)
             const { keyword, title } = this.spokenParser.getStepDetails(
                 line,

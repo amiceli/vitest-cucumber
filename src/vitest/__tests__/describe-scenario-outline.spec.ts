@@ -161,32 +161,6 @@ describe(`ScenarioOutline examples use N times`, () => {
     })
 })
 
-describe(`ScenarioOutline without Examples`, () => {
-    const feature = FeatureContentReader.fromString([
-        `Feature: Use ScenarioOutline without examples`,
-        `      Scenario Outline: I forgot Examples`,
-        `          Given I forgot to see examples`,
-        ``,
-        `          | height |`,
-        `          | 100   |`,
-        ``,
-    ]).parseContent()
-
-    expect(() => {
-        describeFeature(feature, ({ ScenarioOutline }) => {
-            ScenarioOutline(`I forgot Examples`, ({ Given }) => {
-                Given(`I forgot to see examples`, () => {
-                    expect(true).toBeTruthy()
-                })
-            })
-        })
-    }).toThrowError(
-        new ScenarioOutlineVariablesDeclaredWithoutExamplesError(
-            feature.scenarii[0] as ScenarioOutlineType,
-        ),
-    )
-})
-
 describe(`ScenarioOutline with Examples`, () => {
     const feature = FeatureContentReader.fromString([
         `Feature: Use ScenarioOutline with examples`,

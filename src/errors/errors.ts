@@ -157,3 +157,45 @@ export class StepExpressionMatchError extends VitestsCucumberError {
         super(`${expression} no mtach with ${step.details}`)
     }
 }
+
+export class MissingFeature extends VitestsCucumberError {
+    public constructor(line: string) {
+        super(
+            [
+                `Missing Feature before add Bakcground or Scenario`,
+                `   ${line.trim()} ❌`,
+            ].join('\n'),
+        )
+    }
+}
+
+export class MissingSteppableError extends VitestsCucumberError {
+    public constructor(line: string) {
+        super(
+            [
+                `Missing Scenario, ScenarioOutline or Background before add step`,
+                `   ${line.trim()} ❌`,
+            ].join('\n'),
+        )
+    }
+}
+
+export class MissingScnearioOutlineError extends VitestsCucumberError {
+    public constructor(line: string) {
+        super(
+            [
+                `Missing ScenarioOutline before add Examples`,
+                `   ${line.trim()} ❌`,
+            ].join('\n'),
+        )
+    }
+}
+export class MissingExamplesError extends VitestsCucumberError {
+    public constructor(line: string) {
+        super(
+            [`Missing Examples before add value`, `   ${line.trim()} ❌`].join(
+                '\n',
+            ),
+        )
+    }
+}

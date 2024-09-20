@@ -491,57 +491,58 @@ describe(`ScenarioOutline`, () => {
             )
         })
     })
-    describe('use language for feature', () => {
-        const content = `
-            Fonctionnalité: vitest-cucumber en français
-                Contexte:
-                    Sachant que Je parle "français"
-                Scénario: premier jet
-                    Etant donné que Je code en javascript
-                    Quand Je lance les tests
-                    Alors Il capte que je parle français
-                Règle: utiliser des plans de scénario
-                    Plan du Scénario: plusieurs versions
-                        Sachant que J'utilise Vue <version>
-                        Et que J'utilise "nanostores"
-                        Lorsque Je lance les tests
-                        Donc Je n'ai pas d'erreur
-                        Mais Ça me rassure
+})
 
-                        Exemples:
-                            | version |
-                            | 2       |
-                            | 3       |
+describe('use language for feature', () => {
+    const content = `
+        Fonctionnalité: vitest-cucumber en français
+            Contexte:
+                Sachant que Je parle "français"
+            Scénario: premier jet
+                Etant donné que Je code en javascript
+                Quand Je lance les tests
+                Alors Il capte que je parle français
+            Règle: utiliser des plans de scénario
+                Plan du Scénario: plusieurs versions
+                    Sachant que J'utilise Vue <version>
+                    Et que J'utilise "nanostores"
+                    Lorsque Je lance les tests
+                    Donc Je n'ai pas d'erreur
+                    Mais Ça me rassure
 
-        `
-        const feature = FeatureContentReader.fromString(
-            content.split('\n'),
-            'fr',
-        ).parseContent()
+                    Exemples:
+                        | version |
+                        | 2       |
+                        | 3       |
 
-        describeFeature(feature, (f) => {
-            f.Background((b) => {
-                b.Given('Je parle {string}', (ctx, lang: string) => {
-                    expect(lang).toBe('français')
-                })
+    `
+    const feature = FeatureContentReader.fromString(
+        content.split('\n'),
+        'fr',
+    ).parseContent()
+
+    describeFeature(feature, (f) => {
+        f.Background((b) => {
+            b.Given('Je parle {string}', (ctx, lang: string) => {
+                expect(lang).toBe('français')
             })
-            f.Scenario('premier jet', (s) => {
-                s.Given('Je code en javascript', () => {})
+        })
+        f.Scenario('premier jet', (s) => {
+            s.Given('Je code en javascript', () => {})
+            s.When('Je lance les tests', () => {})
+            s.Then('Il capte que je parle français', () => {})
+        })
+        f.Rule('utiliser des plans de scénario', (r) => {
+            r.RuleScenarioOutline('plusieurs versions', (s, variables) => {
+                s.Given("J'utilise Vue <version>", () => {
+                    expect(['2', '3']).toContain(variables.version)
+                })
+                s.And(`J'utilise {string}`, (ctx, tool: string) => {
+                    expect(tool).toEqual('nanostores')
+                })
                 s.When('Je lance les tests', () => {})
-                s.Then('Il capte que je parle français', () => {})
-            })
-            f.Rule('utiliser des plans de scénario', (r) => {
-                r.RuleScenarioOutline('plusieurs versions', (s, variables) => {
-                    s.Given("J'utilise Vue <version>", () => {
-                        expect(['2', '3']).toContain(variables.version)
-                    })
-                    s.And(`J'utilise {string}`, (ctx, tool: string) => {
-                        expect(tool).toEqual('nanostores')
-                    })
-                    s.When('Je lance les tests', () => {})
-                    s.Then("Je n'ai pas d'erreur", () => {})
-                    s.But('Ça me rassure', () => {})
-                })
+                s.Then("Je n'ai pas d'erreur", () => {})
+                s.But('Ça me rassure', () => {})
             })
         })
     })
