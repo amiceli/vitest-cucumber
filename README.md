@@ -120,6 +120,7 @@ Currently it generates `TS` file, if you need more options open an issue ;).
 - [Gherkin tags](https://vitest-cucumber.miceli.click/features/gherkin-tags)
 - [Step with expression / parameter type](https://vitest-cucumber.miceli.click/features/step-expression)
 - [DocStrings](https://vitest-cucumber.miceli.click/features/doc-strings)
+- [Spoken languages](https://vitest-cucumber.miceli.click/features/spoken-languages)
 
 Doc is maintain in this project [vitest-cucumber-docs](https://github.com/amiceli/vitest-cucumber-docs).
 
