@@ -1,6 +1,10 @@
 import fs from 'node:fs'
 import readline from 'node:readline'
-import { FeatureFileNotFoundError } from '../errors/errors'
+import { test, vi } from 'vitest'
+import {
+    FeatureFileNotFoundError,
+    VitestsCucumberError,
+} from '../errors/errors'
 import type { Feature } from './feature'
 import { GherkinParser, type ParserOptions } from './parser'
 
@@ -39,6 +43,7 @@ export class FeatureFileReader {
         if (!fs.existsSync(this.path)) {
             throw new FeatureFileNotFoundError(this.path).message
         }
+        let parseFilleError: Error | null = null
 
         const fileStream = fs.createReadStream(this.path)
 
@@ -49,15 +54,21 @@ export class FeatureFileReader {
 
         rl.on(`line`, (line: string) => {
             try {
-                this.parser.addLine(line)
+                if (!parseFilleError) {
+                    this.parser.addLine(line)
+                }
             } catch (e) {
-                console.error(`Failed to parse line : `, e)
+                parseFilleError = e as Error
             }
         })
 
-        return new Promise((resolve) => {
+        return new Promise((resolve, reject) => {
             rl.on(`close`, () => {
-                resolve(this.parser.finish())
+                if (parseFilleError) {
+                    reject(parseFilleError)
+                } else {
+                    resolve(this.parser.finish())
+                }
             })
         })
     }

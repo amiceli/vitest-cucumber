@@ -1,6 +1,10 @@
 import fs from 'node:fs/promises'
 import { expect, test } from 'vitest'
-import { FeatureFileNotFoundError } from '../../errors/errors'
+import {
+    FeatureFileNotFoundError,
+    MissingFeature,
+    VitestsCucumberError,
+} from '../../errors/errors'
 import { loadFeature } from '../load-feature'
 
 test(`should be able to load feature file`, async () => {
@@ -50,4 +54,27 @@ test(`should be able to load file from relative path another example`, async () 
         await loadFeature(`../../another.feature`)
         await fs.unlink(featureFilePaht)
     }).not.toThrowError()
+})
+
+test('Handle error during parsing', async () => {
+    const content = `
+        Feature: another relative feature file
+            Scénario: Detect relative path
+                Given I use relative path 
+                When  I use vitest-cucumber
+                Then  It can load me
+
+    `
+    const featureFilePaht = `${__dirname}/../../lang.feature`
+
+    await fs.writeFile(featureFilePaht, content)
+
+    try {
+        await loadFeature(`../../lang.feature`, {
+            language: 'fr',
+        })
+    } catch (e) {
+        expect(e).toEqual(new MissingFeature('Scénario: Detect relative path'))
+    }
+    await fs.unlink(featureFilePaht)
 })

@@ -6,8 +6,8 @@ import type { Feature } from '../parser/feature'
 import type { Scenario, ScenarioOutline } from '../parser/scenario'
 import type { Step, StepTypes } from '../parser/step'
 
-export abstract class VitestsCucumberError extends Error {
-    protected constructor(message: string, name?: string) {
+export class VitestsCucumberError extends Error {
+    public constructor(message: string, name?: string) {
         super(message)
 
         this.stack = ``
@@ -162,7 +162,7 @@ export class MissingFeature extends VitestsCucumberError {
     public constructor(line: string) {
         super(
             [
-                `Missing Feature before add Bakcground or Scenario`,
+                `Missing Feature before add Scenario, Rule or Background`,
                 `   ${line.trim()} ❌`,
             ].join('\n'),
         )
