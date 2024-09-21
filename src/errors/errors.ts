@@ -6,8 +6,8 @@ import type { Feature } from '../parser/feature'
 import type { Scenario, ScenarioOutline } from '../parser/scenario'
 import type { Step, StepTypes } from '../parser/step'
 
-export abstract class VitestsCucumberError extends Error {
-    protected constructor(message: string, name?: string) {
+export class VitestsCucumberError extends Error {
+    public constructor(message: string, name?: string) {
         super(message)
 
         this.stack = ``
@@ -155,5 +155,47 @@ export class OnlyOneFeatureError extends VitestsCucumberError {
 export class StepExpressionMatchError extends VitestsCucumberError {
     public constructor(step: Step, expression: string) {
         super(`${expression} no mtach with ${step.details}`)
+    }
+}
+
+export class MissingFeature extends VitestsCucumberError {
+    public constructor(line: string) {
+        super(
+            [
+                `Missing Feature before add Scenario, Rule or Background`,
+                `   ${line.trim()} ❌`,
+            ].join('\n'),
+        )
+    }
+}
+
+export class MissingSteppableError extends VitestsCucumberError {
+    public constructor(line: string) {
+        super(
+            [
+                `Missing Scenario, ScenarioOutline or Background before add step`,
+                `   ${line.trim()} ❌`,
+            ].join('\n'),
+        )
+    }
+}
+
+export class MissingScnearioOutlineError extends VitestsCucumberError {
+    public constructor(line: string) {
+        super(
+            [
+                `Missing ScenarioOutline before add Examples`,
+                `   ${line.trim()} ❌`,
+            ].join('\n'),
+        )
+    }
+}
+export class MissingExamplesError extends VitestsCucumberError {
+    public constructor(line: string) {
+        super(
+            [`Missing Examples before add value`, `   ${line.trim()} ❌`].join(
+                '\n',
+            ),
+        )
     }
 }

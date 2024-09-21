@@ -4,13 +4,13 @@ import type { Step } from './step'
 export class Scenario extends StepAble {
     public description: string
 
-    public constructor(description: string) {
-        super()
+    public constructor(description: string, title: string = 'Scenario') {
+        super(title)
         this.description = description
     }
 
     public getTitle(): string {
-        return `Scenario: ${this.description}`
+        return `${this.title}: ${this.description}`
     }
 }
 
@@ -24,8 +24,11 @@ export class ScenarioOutline extends Scenario {
 
     public missingExamplesKeyword: boolean = false
 
-    public getTitle(): string {
-        return `Scenario Outline: ${this.description}`
+    public constructor(
+        description: string,
+        title: string = 'Scenario Outline',
+    ) {
+        super(description, title)
     }
 
     public getStepTitle(step: Step, example: Example[0]): string {

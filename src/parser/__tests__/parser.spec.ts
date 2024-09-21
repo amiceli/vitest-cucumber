@@ -1,10 +1,25 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, test } from 'vitest'
 import { FeatureContentReader } from '../../__mocks__/FeatureContentReader.spec'
-import { OnlyOneFeatureError, TwiceBackgroundError } from '../../errors/errors'
+import {
+    MissingExamplesError,
+    MissingFeature,
+    MissingScnearioOutlineError,
+    MissingSteppableError,
+    OnlyOneFeatureError,
+    TwiceBackgroundError,
+} from '../../errors/errors'
 import { describeFeature } from '../../vitest/describe-feature'
+import avalaibleLanguages from '../lang/lang.json'
 import { GherkinParser } from '../parser'
 import { ScenarioOutline } from '../scenario'
 import { StepTypes } from '../step'
+
+function getCurrentFeaut(p: GherkinParser) {
+    const { features } = p
+    const [firstFeature] = features
+
+    return firstFeature
+}
 
 describe(`GherkinParser`, () => {
     let parser: GherkinParser
@@ -12,13 +27,6 @@ describe(`GherkinParser`, () => {
     beforeEach(() => {
         parser = new GherkinParser()
     })
-
-    function getCurrentFeaut(p: GherkinParser) {
-        const { features } = p
-        const [firstFeature] = features
-
-        return firstFeature
-    }
 
     function getCurrentScenario(p: GherkinParser) {
         const feature = getCurrentFeaut(p)
@@ -603,5 +611,215 @@ describe(`GherkinParser`, () => {
                 })
             })
         })
+    })
+})
+
+describe('GherkinParser - language', () => {
+    const langs = ['fr', 'it', 'sr-Latn']
+
+    for (const language of langs) {
+        const languageKeys = avalaibleLanguages[language]
+
+        describe(`GherkinParser - language - ${language}`, () => {
+            for (const featureKey of languageKeys.feature) {
+                test(`${language} - Feature - ${featureKey}`, () => {
+                    const parser = new GherkinParser({ language })
+
+                    parser.addLine(`${featureKey}: allez l'OM`)
+
+                    expect(getCurrentFeaut(parser).name).toEqual("allez l'OM")
+                })
+            }
+
+            for (const scenarioKey of languageKeys.scenario) {
+                const [featureKey] = languageKeys.feature
+                test(`${language} - Scenario - ${scenarioKey}`, () => {
+                    const parser = new GherkinParser({ language })
+
+                    parser.addLine(`${featureKey}: allez l'OM`)
+                    parser.addLine(`${scenarioKey}: gagner le match`)
+
+                    const currentFeature = getCurrentFeaut(parser)
+                    const [scenario] = currentFeature.scenarii
+
+                    expect(scenario.description).toEqual('gagner le match')
+                })
+            }
+
+            for (const outlineKey of languageKeys.scenarioOutline) {
+                const [featureKey] = languageKeys.feature
+                test(`${language} - ScenarioOutline - ${outlineKey}`, () => {
+                    const parser = new GherkinParser({ language })
+
+                    parser.addLine(`${featureKey}: allez l'OM`)
+                    parser.addLine(`${outlineKey}: gagner le match`)
+
+                    const currentFeature = getCurrentFeaut(parser)
+                    const [scenario] = currentFeature.scenarii
+
+                    expect(scenario.description).toEqual('gagner le match')
+                    expect(scenario).toBeInstanceOf(ScenarioOutline)
+                })
+            }
+
+            for (const outlineKey of languageKeys.rule) {
+                const [featureKey] = languageKeys.feature
+                test(`${language} - Rule - ${outlineKey}`, () => {
+                    const parser = new GherkinParser({ language })
+
+                    parser.addLine(`${featureKey}: allez l'OM`)
+                    parser.addLine(`${outlineKey}: En lique 1`)
+
+                    const currentFeature = getCurrentFeaut(parser)
+                    const [rule] = currentFeature.rules
+
+                    expect(rule.name).toEqual('En lique 1')
+                })
+            }
+
+            for (const exampleKey of languageKeys.examples) {
+                const [featureKey] = languageKeys.feature
+                const [outlineKey] = languageKeys.scenarioOutline
+
+                test(`${language} - Example - ${exampleKey}`, () => {
+                    const parser = new GherkinParser({ language })
+
+                    parser.addLine(`${featureKey}: allez l'OM`)
+                    parser.addLine(`${outlineKey}: En lique 1`)
+                    parser.addLine(`    ${exampleKey}:`)
+                    parser.addLine('        | test |')
+                    parser.addLine('        | one  |')
+                    parser.addLine('        | two  |')
+                    parser.addLine('')
+
+                    const currentFeature = getCurrentFeaut(parser)
+                    const [scenarioOutline] = currentFeature.scenarii
+
+                    expect(
+                        (scenarioOutline as ScenarioOutline).examples,
+                    ).toEqual([{ test: 'one' }, { test: 'two' }])
+                })
+            }
+
+            for (const backgroundKey of languageKeys.background) {
+                const [featureKey] = languageKeys.feature
+                test(`${language} - Background - ${backgroundKey}`, () => {
+                    const parser = new GherkinParser({ language })
+
+                    parser.addLine(`${featureKey}: allez l'OM`)
+                    parser.addLine(`${backgroundKey}:`)
+
+                    expect(getCurrentFeaut(parser).background).not.toBeNull()
+                })
+            }
+        })
+
+        test(`GherkinParser - ${language} - steps`, () => {
+            const [featureKey] = languageKeys.feature
+            const [scenarioKey] = languageKeys.scenario
+            const [givenKey] = languageKeys.given.filter(
+                (v: string) => v !== '* ',
+            )
+            const [whenKey] = languageKeys.when.filter(
+                (v: string) => v !== '* ',
+            )
+            const [thenKey] = languageKeys.then.filter(
+                (v: string) => v !== '* ',
+            )
+            const [andKey] = languageKeys.and.filter((v: string) => v !== '* ')
+            const [butKey] = languageKeys.but.filter((v: string) => v !== '* ')
+
+            const parser = new GherkinParser({ language })
+
+            parser.addLine(`${featureKey}: check GherkinParser`)
+            parser.addLine(`${scenarioKey}: I use ${language} lang`)
+            parser.addLine(`${givenKey} I use GherkinParser`)
+            parser.addLine(`${whenKey} I run unit tests`)
+            parser.addLine(`${thenKey} It detects my lang`)
+            parser.addLine(`${andKey} I see no errors`)
+            parser.addLine(`${butKey} I hope OM wins`)
+
+            const feature = getCurrentFeaut(parser)
+            const [scenario] = feature.scenarii
+            expect(scenario.description).toEqual(`I use ${language} lang`)
+            expect(scenario.steps.length).toBe(5)
+        })
+    }
+})
+
+describe('Missing parent', () => {
+    it('should prevent missing Feature before add Background', () => {
+        const content = `
+            Background: Detect relative path
+                Given I use relative path 
+        `
+        expect(() => {
+            FeatureContentReader.fromString(content.split('\n')).parseContent()
+        }).toThrowError(new MissingFeature('Background: Detect relative path'))
+    })
+    it('should prevent missing Feature before add Scenario', () => {
+        const content = `
+            Scenario: Detect relative path
+                Given I use relative path 
+        `
+        expect(() => {
+            FeatureContentReader.fromString(content.split('\n')).parseContent()
+        }).toThrowError(new MissingFeature('Scenario: Detect relative path'))
+    })
+    it('should prevent missing Feature before add ScenarioOutline', () => {
+        const content = `
+            Scenario Outline: Detect relative path
+                Given I use relative path 
+        `
+        expect(() => {
+            FeatureContentReader.fromString(content.split('\n')).parseContent()
+        }).toThrowError(
+            new MissingFeature('Scenario Outline: Detect relative path'),
+        )
+    })
+    it('should prevent missing Feature before add Rule', () => {
+        const content = `
+            Rule: simple rule
+                Scenario: simple
+                    Given I use relative path 
+        `
+        expect(() => {
+            FeatureContentReader.fromString(content.split('\n')).parseContent()
+        }).toThrowError(new MissingFeature('Rule: simple rule'))
+    })
+    it('should prevent missing Scenario before add step', () => {
+        const content = `
+            Feature: test
+                Given I use relative path 
+        `
+        expect(() => {
+            FeatureContentReader.fromString(content.split('\n')).parseContent()
+        }).toThrowError(new MissingSteppableError('Given I use relative path '))
+    })
+    it('should prevent missing Scenario Outline before add Examples', () => {
+        const content = `
+            Feature: test
+                Examples:
+                    | test |
+                    | test |
+
+        `
+        expect(() => {
+            FeatureContentReader.fromString(content.split('\n')).parseContent()
+        }).toThrowError(new MissingScnearioOutlineError('Examples:'))
+    })
+    it('should prevent missing Examples before add values', () => {
+        const content = `
+            Feature: test
+                Scenario Outline: test
+                    Given I use relative path 
+
+                        | test |
+                        | test |
+
+        `
+        expect(() => {
+            FeatureContentReader.fromString(content.split('\n')).parseContent()
+        }).toThrowError(new MissingExamplesError('| test |'))
     })
 })

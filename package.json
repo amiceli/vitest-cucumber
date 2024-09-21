@@ -1,6 +1,6 @@
 {
   "name": "@amiceli/vitest-cucumber",
-  "version": "3.6.0",
+  "version": "3.7.0",
   "description": "vitest tools to use Gherkin feature in unit tests",
   "main": "dist/module.js",
   "bin": "dist/cli-generate.js",
@@ -9,13 +9,14 @@
   ],
   "scripts": {
     "lint": "biome check",
-    "test:coverage": "vitest run --coverage",
     "lint:fix": "biome check --write",
+    "prebuild" : "wget -q -O src/parser/lang/lang.json 'https://raw.githubusercontent.com/cucumber/gherkin/1667cf8ed6920093ccf0ad1111bceb823ae43730/gherkin-languages.json'",
     "build": "npx tsc --declaration --project tsconfig.json",
     "build:script": "esbuild scripts/cli-generate.ts --bundle --platform=node > dist/cli-generate.js",
     "build:all": "npm run build && npm run build:script",
-    "test:unit": "vitest",
-    "test:silent": "vitest --silent --run",
+    "test:unit": "npm run prebuild && vitest",
+    "test:silent": "npm run prebuild && vitest --silent --run",
+    "test:coverage": "npm run prebuild && vitest run --coverage",
     "prepare" : "lefthook install"
   },
   "keywords": [

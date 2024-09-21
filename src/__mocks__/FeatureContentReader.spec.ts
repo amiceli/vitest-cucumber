@@ -6,13 +6,15 @@ export class FeatureContentReader {
 
     private readonly parser: GherkinParser
 
-    public static fromString(content: string[]) {
-        return new FeatureContentReader(content)
+    public static fromString(content: string[], lang: string = 'en') {
+        return new FeatureContentReader(content, lang)
     }
 
-    private constructor(content: string[]) {
+    private constructor(content: string[], lang: string) {
         this.content = content
-        this.parser = new GherkinParser()
+        this.parser = new GherkinParser({
+            language: lang,
+        })
     }
 
     public parseContent(): Feature {

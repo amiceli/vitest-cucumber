@@ -4,7 +4,14 @@
         "enabled": true
     },
     "files": {
-        "ignore": ["package.json", "package-lock.json", "dist/", "coverage/"]
+        "ignore": [
+            "package.json",
+            "package-lock.json",
+            "dist/",
+            "coverage/",
+            "tsconfig.json",
+            "tsconfig.vitest.json"
+        ]
     },
     "linter": {
         "enabled": true,

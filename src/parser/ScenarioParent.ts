@@ -17,9 +17,12 @@ export abstract class ScenarioParent extends Taggable {
 
     public background: Background | null = null
 
-    protected constructor(name: string) {
+    protected readonly title: string
+
+    protected constructor(name: string, title: string) {
         super()
         this.name = name
+        this.title = title
     }
 
     public getScenarioByName(
@@ -60,7 +63,7 @@ export abstract class ScenarioParent extends Taggable {
     }
 
     public getTitle(): string {
-        return `${this.constructor.name}: ${this.name}`
+        return `${this.title}: ${this.name}`
     }
 
     public checkUncalledScenario(tags: string[]) {

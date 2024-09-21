@@ -1,29 +1,39 @@
 import fs from 'node:fs'
 import readline from 'node:readline'
-import { FeatureFileNotFoundError } from '../errors/errors'
+import { test, vi } from 'vitest'
+import {
+    FeatureFileNotFoundError,
+    VitestsCucumberError,
+} from '../errors/errors'
 import type { Feature } from './feature'
-import { GherkinParser } from './parser'
+import { GherkinParser, type ParserOptions } from './parser'
+
+type FeatureFileReaderParams = {
+    featureFilePath: string
+    callerFileDir?: string | null
+    options?: ParserOptions
+}
 
 export class FeatureFileReader {
     private readonly path: string
 
     private readonly parser: GherkinParser
 
-    private readonly callerFilePath: string | null
+    private readonly callerFileDir: string | null
 
-    public static fromPath(path: string, callerFilePath: string | null = null) {
-        return new FeatureFileReader(path, callerFilePath)
+    public static fromPath(params: FeatureFileReaderParams) {
+        return new FeatureFileReader(params)
     }
 
-    private constructor(path: string, callerFilePath: string | null) {
-        this.callerFilePath = callerFilePath
-        this.path = this.handleFeatureFilePath(path)
-        this.parser = new GherkinParser()
+    private constructor(params: FeatureFileReaderParams) {
+        this.callerFileDir = params.callerFileDir || null
+        this.path = this.handleFeatureFilePath(params.featureFilePath)
+        this.parser = new GherkinParser(params.options)
     }
 
     private handleFeatureFilePath(featureFilePath: string): string {
         if (featureFilePath.match(/\.\/[\w-]+(\.[\w-]+)*$/)) {
-            return `${this.callerFilePath}/${featureFilePath}`
+            return `${this.callerFileDir}/${featureFilePath}`
         }
 
         return featureFilePath
@@ -33,6 +43,7 @@ export class FeatureFileReader {
         if (!fs.existsSync(this.path)) {
             throw new FeatureFileNotFoundError(this.path).message
         }
+        let parseFilleError: Error | null = null
 
         const fileStream = fs.createReadStream(this.path)
 
@@ -43,15 +54,21 @@ export class FeatureFileReader {
 
         rl.on(`line`, (line: string) => {
             try {
-                this.parser.addLine(line)
+                if (!parseFilleError) {
+                    this.parser.addLine(line)
+                }
             } catch (e) {
-                console.error(`Failed to parse line : `, e)
+                parseFilleError = e as Error
             }
         })
 
-        return new Promise((resolve) => {
+        return new Promise((resolve, reject) => {
             rl.on(`close`, () => {
-                resolve(this.parser.finish())
+                if (parseFilleError) {
+                    reject(parseFilleError)
+                } else {
+                    resolve(this.parser.finish())
+                }
             })
         })
     }

@@ -1,14 +1,29 @@
-import { OnlyOneFeatureError, TwiceBackgroundError } from '../errors/errors'
+import {
+    MissingExamplesError,
+    MissingFeature,
+    MissingScnearioOutlineError,
+    MissingSteppableError,
+    OnlyOneFeatureError,
+    TwiceBackgroundError,
+} from '../errors/errors'
 import { Background } from './Background'
 import { Rule } from './Rule'
 import type { StepAble } from './Stepable'
 import type { Taggable } from './Taggable'
 import { Feature } from './feature'
+import { type SpokenParser, SpokenParserFactory } from './lang/SpokenParser'
 import { type Example, Scenario, ScenarioOutline } from './scenario'
 import { Step, StepTypes } from './step'
 
 type SteppableName = 'Scenario' | 'ScenarioOutline' | 'Background'
+
+export type ParserOptions = {
+    language?: string
+}
+
 export class GherkinParser {
+    private readonly spokenParser: SpokenParser
+
     public readonly features: Feature[] = []
 
     private currentFeatureIndex: number = -1
@@ -33,11 +48,49 @@ export class GherkinParser {
 
     private parsingDocStrings: boolean = false
 
+    public constructor(options?: ParserOptions) {
+        this.spokenParser = SpokenParserFactory.fromLang(
+            options?.language || 'en',
+        )
+    }
+
+    public hasFeature(line: string): boolean {
+        if (!this.currentFeature) {
+            throw new MissingFeature(line)
+        }
+
+        return true
+    }
+
+    public hasSteppable(line: string): boolean {
+        if (!(this.currentBackground || this.currentScenario)) {
+            throw new MissingSteppableError(line)
+        }
+
+        return true
+    }
+
+    public hasScenarioOutline(line: string): boolean {
+        if (!this.lastScenarioOutline) {
+            throw new MissingScnearioOutlineError(line)
+        }
+
+        return true
+    }
+
+    public hasExamples(line: string): boolean {
+        if (!this.currentExample) {
+            throw new MissingExamplesError(line)
+        }
+
+        return true
+    }
+
     public addLine(line: string) {
         if (line.trim().startsWith(`#`)) {
             return
         }
-        if (line.includes(`Feature:`)) {
+        if (this.spokenParser.isFeature(line)) {
             if (this.features.length > 0) {
                 throw new OnlyOneFeatureError()
             }
@@ -47,55 +100,70 @@ export class GherkinParser {
             this.currentRulenIndex = -1
             this.currentExampleLine = -1
 
-            const featureName = this.getTextAfterKeyword(line, `Feature`)
-            const feature = new Feature(featureName)
+            const { title, keyword } = this.spokenParser.getFeatureName(line)
+            const feature = new Feature(title, keyword)
 
             this.features.push(feature)
 
             this.addTagToParent(feature)
-        } else if (line.includes(`Rule:`)) {
+        } else if (this.spokenParser.isRule(line) && this.hasFeature(line)) {
             this.currentExampleLine = -1
             this.currentScenarioIndex = -1
 
             this.currentRulenIndex++
 
-            const ruleName = this.getTextAfterKeyword(line, `Rule`)
-            const rule = new Rule(ruleName)
+            const { title, keyword } = this.spokenParser.getRuleName(line)
+            const rule = new Rule(title, keyword)
 
             this.addTagToParent(rule)
             this.currentFeature.rules.push(rule)
-        } else if (this.isScenarioOutlineLine(line)) {
+        } else if (
+            this.spokenParser.isScenarioOutline(line) &&
+            this.hasFeature(line)
+        ) {
             this.currentScenarioIndex++
 
-            const scenarioName = this.getScenarioOutlineName(line)
-            const scenario = new ScenarioOutline(scenarioName)
+            const { title, keyword } =
+                this.spokenParser.getScenarioOutlineName(line)
+            const scenario = new ScenarioOutline(title, keyword)
 
             this.lastScenarioOutline = scenario
             this.lastSteppableTag = `ScenarioOutline`
 
             this.addScenarioToParent(scenario)
             this.addTagToParent(scenario)
-        } else if (this.isExamplesLine(line)) {
+        } else if (
+            this.spokenParser.isExamples(line) &&
+            this.hasScenarioOutline(line)
+        ) {
             this.currentExample = []
-        } else if (line.trim().startsWith(`|`)) {
+        } else if (line.trim().startsWith(`|`) && this.hasExamples(line)) {
             this.detectMissingExamplesKeyword()
             this.updateScenarioExamples(line)
-        } else if (this.isScenarioLine(line)) {
+        } else if (
+            this.spokenParser.isScenario(line) &&
+            this.hasFeature(line)
+        ) {
             this.currentScenarioIndex++
 
-            const scenarioName = this.getScenarioName(line)
-            const scenario = new Scenario(scenarioName)
+            const { title, keyword } = this.spokenParser.getScenarioName(line)
+            const scenario = new Scenario(title, keyword)
 
             this.lastSteppableTag = `Scenario`
 
             this.addScenarioToParent(scenario)
             this.addTagToParent(scenario)
-        } else if (line.includes(`Background:`)) {
+        } else if (
+            this.spokenParser.isBackground(line) &&
+            this.hasFeature(line)
+        ) {
             if (this.currentBackground) {
                 throw new TwiceBackgroundError()
             }
 
-            const background = new Background()
+            const background = new Background(
+                this.spokenParser.getBackgroundKeyWord(line),
+            )
             this.lastSteppableTag = `Background`
 
             this.addBackgroundToParent(background)
@@ -116,10 +184,17 @@ export class GherkinParser {
             } else {
                 this.parsingDocStrings = true
             }
-        } else if (this.isStep(line)) {
-            const stepType = this.findStepType(line)
-            const stepDetails = this.findStepDetails(line, stepType)
-            const newStep = new Step(stepType, stepDetails)
+        } else if (
+            !this.parsingDocStrings &&
+            this.spokenParser.isStep(line) &&
+            this.hasSteppable(line)
+        ) {
+            const stepType = this.spokenParser.getStepType(line)
+            const { keyword, title } = this.spokenParser.getStepDetails(
+                line,
+                stepType,
+            )
+            const newStep = new Step(stepType, title, keyword)
 
             this.currentScenario.addStep(newStep)
         } else if (this.currentExample !== null) {
@@ -209,33 +284,6 @@ export class GherkinParser {
         return res
     }
 
-    private getTextAfterKeyword(line: string, key: string): string {
-        return line.split(`${key}:`)[1].trim()
-    }
-
-    private findStepDetails(line: string, stepType: string): string {
-        return line.split(`${stepType}`)[1].trim()
-    }
-
-    private isStep(line: string): boolean {
-        if (this.parsingDocStrings) {
-            return false
-        }
-
-        return Object.values(StepTypes).some((value) => {
-            return line.trim().startsWith(value)
-        })
-    }
-
-    private findStepType(line: string): StepTypes {
-        const foundStep = Object.values(StepTypes).find((value) =>
-            line.includes(value),
-        )
-
-        // biome-ignore lint/style/noNonNullAssertion: <explanation>
-        return foundStep!
-    }
-
     private detectMissingExamplesKeyword() {
         if (this.currentExample === null && this.lastScenarioOutline) {
             this.lastScenarioOutline.missingExamplesKeyword = true
@@ -283,36 +331,5 @@ export class GherkinParser {
         }
 
         return this.currentFeature.scenarii[this.currentScenarioIndex]
-    }
-
-    public isScenarioLine(line: string): boolean {
-        return line.includes(`Scenario:`) || line.includes(`Example:`)
-    }
-
-    public isScenarioOutlineLine(line: string): boolean {
-        return (
-            line.includes(`Scenario Outline:`) ||
-            line.includes(`Scenario Template:`)
-        )
-    }
-
-    public isExamplesLine(line: string): boolean {
-        return line.includes(`Examples:`) || line.includes(`Scenarios:`)
-    }
-
-    public getScenarioName(line: string): string {
-        if (line.includes(`Example:`)) {
-            return this.getTextAfterKeyword(line, `Example`)
-        }
-
-        return this.getTextAfterKeyword(line, `Scenario`)
-    }
-
-    public getScenarioOutlineName(line: string): string {
-        if (line.includes(`Scenario Template:`)) {
-            return this.getTextAfterKeyword(line, `Scenario Template`)
-        }
-
-        return this.getTextAfterKeyword(line, `Scenario Outline`)
     }
 }

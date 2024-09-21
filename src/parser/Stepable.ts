@@ -10,9 +10,19 @@ import { Step, type StepTypes } from './step'
 export abstract class StepAble extends Taggable {
     public abstract getTitle(): string
 
-    public isCalled: boolean = false
+    public isCalled: boolean
 
-    public steps: Step[] = []
+    public readonly steps: Step[]
+
+    protected readonly title: string
+
+    public constructor(title: string) {
+        super()
+
+        this.title = title
+        this.isCalled = false
+        this.steps = []
+    }
 
     public stepFailedExpressionMatch: {
         [key: string]: number
