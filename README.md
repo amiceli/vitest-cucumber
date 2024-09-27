@@ -33,48 +33,49 @@ So you don't need to use `it` or `test` inside `Scenario` or scenario steps.
 
 ## Usage
 
-First write your `feature` file. By example : 
+First write your `feature` file. By example :
 
-~~~feature
-Feature: Improve my unit tests
-    Scenario: Use vitest-cucumber in my unit tests
-        Given Developer using feature file
-        And   Using vitest-cucumber
-        When  I run my unit tests
-        Then  I know if I forgot a scenario
-~~~
+```feature
+Feature: Search Bar
+    Scenario: User wants to see all queried properties when querying 'Art-Canvas'
+        Given the user is actively on the home-page
+        When the user types 'Art-Canvas' in the search bar
+        Then I should see a loading bar
+        Then I should see all of the results under the search-bar
+```
 
 Now you can write unit tests with **vitest-cucumber**.
 
-Foe example : 
+For example :
 
-~~~typescript
-import { loadFeature, describeFeature } from '@amiceli/vitest-cucumber'
-import { expect } from 'vitest'
+```typescript
+import { loadFeature, describeFeature } from "@amiceli/vitest-cucumber";
+import { expect } from "vitest";
 
-const feature = await loadFeature('path/to/my/file.feature')
+const feature = await loadFeature("path/to/my/file.feature");
 
 describeFeature(feature, ({ Scenario }) => {
-            
-    Scenario('Use vitest-cucumber in my unit tests', ({ Given, When, Then, And }) => {
-        Given('Developer using feature file', () => {
-            expect(false).toBeFalsy()
-        })
-        And('sing vitest-cucumber', () => {
-            // ...
-        })
-        When('I run my unit tests', () => {
-            // ...
-        })
-        Then('I know if I forgot a scenario', () => {
-            // ...
-        })
-    })
+  Scenario(
+    "User wants to see all queried properties when querying Art-Canvas",
+    ({ Given, When, Then, And }) => {
+      Given("the user is actively on the home-page ", () => {
+        //logic to set up home-page
+      });
+      When("the user types Art-Canvas in the search bar", () => {
+        //write logic to simulate typing
+      });
+      Then("I should see a loading bar", () => {
+        //write test to see loading bar
+      }),
+        Then("I should see all of the results under the search-bar ", () => {
+          //write test to check results
+        });
+    }
+  );
+});
+```
 
-})
-~~~
-
-When you run your test with vitest, **vitest-cucumber** will check : 
+When you run your test with vitest, **vitest-cucumber** will check :
 
 - if you forget a Scenario or a Scenario Outline
 - if you use correct Scenario description
@@ -83,25 +84,57 @@ When you run your test with vitest, **vitest-cucumber** will check :
 - missing variables value in Scenario Outline
 - missing variables name in Scenario Outline steps
 
-For example, if you forgot to write : 
+For example, if you forgot to write :
 
-~~~typescript
-When('I run my unit tests', () => {
-    // ...
-})
-~~~
+```typescript
+When("I run my unit tests", () => {
+  // ...
+});
+```
 
 It will throw **When I run my unit tests was not called**.
+
+### Hooks
+
+All hooks are optionnal.
+
+```typescript
+describeFeature(
+  feature,
+  ({
+    AfterAllScenarios,
+    AfterEachScenario,
+    BeforeAllScenarios,
+    BeforeEachScenario,
+    Scenario,
+  }) => {
+    BeforeAllScenarios(() => {});
+    BeforeEachScenario(() => {});
+    AfterEachScenario(() => {});
+    AfterAllScenarios(() => {});
+  }
+);
+```
+
+BeforeAllScenarios:
+BeforeAllScenarios is run one time when describeFeature start. It’s like a beforeAll.
+
+```typescript
+beforeEach(() => {
+  //before each test, call render Data to be used in later
+  globalData = renderData(someComponent);
+});
+```
 
 ### Generate spec file from feature file
 
 Since `3.4.1` vitest-cucumber provide a script to generate spec file from feature file.
 
-You can use it like this : 
+You can use it like this :
 
     npx @amiceli/vitest-cucumber <path-to-feature> <path-to-spec>
 
-An example : 
+An example :
 
     npx @amiceli/vitest-cucumber features/example.feature src/__tests__/example.spec.ts
 
