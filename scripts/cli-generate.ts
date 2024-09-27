@@ -156,7 +156,6 @@ loadFeature(filePath).then(async (feature) => {
     for (const s of describeHook) {
         fileContentLines.push(`  ${s}(() => {})`)
     }
-    n
 
     if (featureHasBackground) {
         fileContentLines.push(...generateBackground(feature.background))
