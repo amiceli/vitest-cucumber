@@ -751,7 +751,7 @@ describe('Missing parent', () => {
     it('should prevent missing Feature before add Background', () => {
         const content = `
             Background: Detect relative path
-                Given I use relative path 
+                Given I use relative path
         `
         expect(() => {
             FeatureContentReader.fromString(content.split('\n')).parseContent()
@@ -760,7 +760,7 @@ describe('Missing parent', () => {
     it('should prevent missing Feature before add Scenario', () => {
         const content = `
             Scenario: Detect relative path
-                Given I use relative path 
+                Given I use relative path
         `
         expect(() => {
             FeatureContentReader.fromString(content.split('\n')).parseContent()
@@ -769,7 +769,7 @@ describe('Missing parent', () => {
     it('should prevent missing Feature before add ScenarioOutline', () => {
         const content = `
             Scenario Outline: Detect relative path
-                Given I use relative path 
+                Given I use relative path
         `
         expect(() => {
             FeatureContentReader.fromString(content.split('\n')).parseContent()
@@ -781,7 +781,7 @@ describe('Missing parent', () => {
         const content = `
             Rule: simple rule
                 Scenario: simple
-                    Given I use relative path 
+                    Given I use relative path
         `
         expect(() => {
             FeatureContentReader.fromString(content.split('\n')).parseContent()
@@ -790,7 +790,7 @@ describe('Missing parent', () => {
     it('should prevent missing Scenario before add step', () => {
         const content = `
             Feature: test
-                Given I use relative path 
+                Given I use relative path
         `
         expect(() => {
             FeatureContentReader.fromString(content.split('\n')).parseContent()
@@ -812,14 +812,67 @@ describe('Missing parent', () => {
         const content = `
             Feature: test
                 Scenario Outline: test
-                    Given I use relative path 
-
-                        | test |
-                        | test |
-
+                    | test |
+                    | test |
         `
         expect(() => {
             FeatureContentReader.fromString(content.split('\n')).parseContent()
         }).toThrowError(new MissingExamplesError('| test |'))
     })
+})
+
+describe('GherkinParser - Data Table', () => {
+    const feature = FeatureContentReader.fromString([
+        `Feature: Data Table`,
+        `    Background:`,
+        `        Given I have a game`,
+        `            | title            | editor    | `,
+        `            | Assassin's Creed | Ubisoft   |`,
+        `            | GTA IV           | Rockstar  |`,
+        `    Scenario: Data Table scenaio`,
+        `        Then I can run it on my play`,
+        `            | name  |`,
+        `            | PS4   |`,
+        `            | PS5   |`,
+    ]).parseContent()
+
+    const [scenario] = feature.scenarii
+    const { background } = feature
+    const given = background?.findStepByTypeAndDetails('Given', 'I have a game')
+    const then = scenario.findStepByTypeAndDetails(
+        'Then',
+        'I can run it on my play',
+    )
+
+    expect(given?.dataTables.length).toBe(2)
+    expect(then?.dataTables.length).toBe(2)
+
+    expect(given?.dataTables[0]).toEqual({
+        title: "Assassin's Creed",
+        editor: 'Ubisoft',
+    })
+    expect(given?.dataTables[1]).toEqual({
+        title: 'GTA IV',
+        editor: 'Rockstar',
+    })
+    expect(then?.dataTables[0]).toEqual({
+        name: 'PS4',
+    })
+    expect(then?.dataTables[1]).toEqual({
+        name: 'PS5',
+    })
+    // describeFeature(feature, (f) => {
+    //     f.Background((b) => {
+    //         b.Given('I have a game', (ctx, tables) => {
+    //             expect(tables.length).toBe(2)
+    //             expect(tables[0].title).toEqual("Assassin's Creed")
+    //         })
+    //     })
+    //     f.Scenario('Data Table scenaio', (s) => {
+    //         s.Then('I can run it on my play', (ctx, tables) => {
+    //             expect(tables.length).toBe(2)
+    //             expect(tables[0].name).toEqual('PS4')
+    //         })
+    //     })
+    // })
 })
