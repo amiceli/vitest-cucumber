@@ -393,6 +393,7 @@ describe(`Models`, () => {
             expect(step.type).toEqual(`Given`)
             expect(step.details).toEqual(`I code`)
             expect(step.getTitle()).toEqual(`Given I code`)
+            expect(step.dataTables).toEqual([])
         })
         test(`Step docStrings`, () => {
             const step = new Step(StepTypes.GIVEN, `I code`)

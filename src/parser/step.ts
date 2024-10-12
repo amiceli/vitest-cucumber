@@ -6,6 +6,10 @@ export enum StepTypes {
     BUT = `But`,
 }
 
+export type StepDataTanle = {
+    [key: string]: string
+}[]
+
 export class Step {
     public readonly type: StepTypes
 
@@ -14,6 +18,8 @@ export class Step {
     public docStrings: string | null = null
 
     public isCalled: boolean
+
+    public dataTables: StepDataTanle = []
 
     private readonly title: string
 
