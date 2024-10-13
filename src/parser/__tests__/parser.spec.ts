@@ -869,3 +869,47 @@ describe('GherkinParser - Data Table', () => {
         })
     })
 })
+
+describe('Gherkin Parse - DocStrings && ExpressionStep && DataTables', () => {
+    const feature = FeatureContentReader.fromString([
+        `Feature: DocStrings`,
+        `    Scenario: DocStrings & DataTables`,
+        `        Given I use "DocStrings" 2 hours`,
+        `            """`,
+        `            DocStrings is passed to current Given`,
+        `            And at last params`,
+        `            After ctx : TaskContext`,
+        `            """`,
+        `           | test | `,
+        `           | one  |`,
+        `           | two  |`,
+    ]).parseContent()
+
+    type GivenStepTables = { test: string }
+
+    describeFeature(feature, (f) => {
+        f.Scenario('DocStrings & DataTables', (s) => {
+            s.Given(
+                `I use {string} {number} hours`,
+                (
+                    ctx,
+                    text: string,
+                    hours: number,
+                    dataTables: GivenStepTables[],
+                    docStrings: string,
+                ) => {
+                    expect(
+                        docStrings.includes(
+                            `DocStrings is passed to current Given`,
+                        ),
+                    ).toBe(true)
+                    expect(text).toEqual(`DocStrings`)
+                    expect(hours).toBe(2)
+                    expect(dataTables.length).toBe(2)
+                    expect(dataTables[0].test).toBe('one')
+                    expect(dataTables[1].test).toBe('two')
+                },
+            )
+        })
+    })
+})
