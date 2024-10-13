@@ -682,17 +682,18 @@ describe('GherkinParser - language', () => {
                 const [outlineKey] = languageKeys.scenarioOutline
 
                 test(`${language} - Example - ${exampleKey}`, () => {
-                    const parser = new GherkinParser({ language })
+                    const currentFeature = FeatureContentReader.fromString(
+                        [
+                            `${featureKey}: allez l'OM`,
+                            `   ${outlineKey}: En lique 1`,
+                            `       ${exampleKey}:`,
+                            '           | test |',
+                            '           | one  |',
+                            '           | two  |',
+                        ],
+                        language,
+                    ).parseContent()
 
-                    parser.addLine(`${featureKey}: allez l'OM`)
-                    parser.addLine(`${outlineKey}: En lique 1`)
-                    parser.addLine(`    ${exampleKey}:`)
-                    parser.addLine('        | test |')
-                    parser.addLine('        | one  |')
-                    parser.addLine('        | two  |')
-                    parser.addLine('')
-
-                    const currentFeature = getCurrentFeaut(parser)
                     const [scenarioOutline] = currentFeature.scenarii
 
                     expect(
@@ -834,45 +835,37 @@ describe('GherkinParser - Data Table', () => {
         `            | name  |`,
         `            | PS4   |`,
         `            | PS5   |`,
+        `    Scenario Outline: Data Table scenaio outline`,
+        `        Then I can run it on my switch <version>`,
+        `            | name      |`,
+        `            | switch    |`,
+        `            | switch XL |`,
+        `       Examples:`,
+        `           | version |`,
+        `           | beta    |`,
     ]).parseContent()
 
-    const [scenario] = feature.scenarii
-    const { background } = feature
-    const given = background?.findStepByTypeAndDetails('Given', 'I have a game')
-    const then = scenario.findStepByTypeAndDetails(
-        'Then',
-        'I can run it on my play',
-    )
-
-    expect(given?.dataTables.length).toBe(2)
-    expect(then?.dataTables.length).toBe(2)
-
-    expect(given?.dataTables[0]).toEqual({
-        title: "Assassin's Creed",
-        editor: 'Ubisoft',
+    describeFeature(feature, (f) => {
+        f.Background((b) => {
+            b.Given('I have a game', (ctx, tables) => {
+                expect(tables.length).toBe(2)
+                expect(tables[0].title).toEqual("Assassin's Creed")
+                expect(tables[1].title).toEqual('GTA IV')
+            })
+        })
+        f.Scenario('Data Table scenaio', (s) => {
+            s.Then('I can run it on my play', (ctx, tables) => {
+                expect(tables.length).toBe(2)
+                expect(tables[0].name).toEqual('PS4')
+                expect(tables[1].name).toEqual('PS5')
+            })
+        })
+        f.ScenarioOutline('Data Table scenaio outline', (so) => {
+            so.Then('I can run it on my switch <version>', (ctx, tables) => {
+                expect(tables.length).toBe(2)
+                expect(tables[0].name).toEqual('switch')
+                expect(tables[1].name).toEqual('switch XL')
+            })
+        })
     })
-    expect(given?.dataTables[1]).toEqual({
-        title: 'GTA IV',
-        editor: 'Rockstar',
-    })
-    expect(then?.dataTables[0]).toEqual({
-        name: 'PS4',
-    })
-    expect(then?.dataTables[1]).toEqual({
-        name: 'PS5',
-    })
-    // describeFeature(feature, (f) => {
-    //     f.Background((b) => {
-    //         b.Given('I have a game', (ctx, tables) => {
-    //             expect(tables.length).toBe(2)
-    //             expect(tables[0].title).toEqual("Assassin's Creed")
-    //         })
-    //     })
-    //     f.Scenario('Data Table scenaio', (s) => {
-    //         s.Then('I can run it on my play', (ctx, tables) => {
-    //             expect(tables.length).toBe(2)
-    //             expect(tables[0].name).toEqual('PS4')
-    //         })
-    //     })
-    // })
 })
