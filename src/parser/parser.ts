@@ -6,14 +6,14 @@ import {
     OnlyOneFeatureError,
     TwiceBackgroundError,
 } from '../errors/errors'
-import { Background } from './Background'
-import { Rule } from './Rule'
-import type { StepAble } from './Stepable'
-import type { Taggable } from './Taggable'
-import { Feature } from './feature'
 import { type SpokenParser, SpokenParserFactory } from './lang/SpokenParser'
-import { type Example, Scenario, ScenarioOutline } from './scenario'
-import { Step, type StepDataTanle, StepTypes } from './step'
+import { Background } from './models/Background'
+import { Rule } from './models/Rule'
+import type { StepAble } from './models/Stepable'
+import type { Taggable } from './models/Taggable'
+import { Feature } from './models/feature'
+import { type Example, Scenario, ScenarioOutline } from './models/scenario'
+import { Step, type StepDataTanle, StepTypes } from './models/step'
 
 type SteppableName = 'Scenario' | 'ScenarioOutline' | 'Background'
 

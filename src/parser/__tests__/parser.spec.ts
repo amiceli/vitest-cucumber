@@ -10,9 +10,9 @@ import {
 } from '../../errors/errors'
 import { describeFeature } from '../../vitest/describe-feature'
 import avalaibleLanguages from '../lang/lang.json'
+import { ScenarioOutline } from '../models/scenario'
+import { StepTypes } from '../models/step'
 import { GherkinParser } from '../parser'
-import { ScenarioOutline } from '../scenario'
-import { StepTypes } from '../step'
 
 function getCurrentFeaut(p: GherkinParser) {
     const { features } = p

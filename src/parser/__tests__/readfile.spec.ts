@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
+import { type Step, StepTypes } from '../models/step'
 import { FeatureFileReader } from '../readfile'
-import { type Step, StepTypes } from '../step'
 
 describe(`Parse feature file`, async () => {
     const path = `src/parser/__tests__/readline.feature`

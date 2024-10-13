@@ -1,6 +1,6 @@
 import { test } from 'vitest'
-import type { Background } from '../../parser/Background'
 import { ExpressionStep } from '../../parser/expression/ExpressionStep'
+import type { Background } from '../../parser/models/Background'
 import type {
     BackgroundStepTest,
     CallbackWithParamsAndContext,

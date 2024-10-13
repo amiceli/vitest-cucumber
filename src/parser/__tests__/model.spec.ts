@@ -8,11 +8,11 @@ import {
     NotScenarioOutlineError,
     RuleNotCalledError,
 } from '../../errors/errors'
-import { Background } from '../Background'
-import { Rule } from '../Rule'
-import { Feature } from '../feature'
-import { Scenario, ScenarioOutline } from '../scenario'
-import { Step, StepTypes } from '../step'
+import { Background } from '../models/Background'
+import { Rule } from '../models/Rule'
+import { Feature } from '../models/feature'
+import { Scenario, ScenarioOutline } from '../models/scenario'
+import { Step, StepTypes } from '../models/step'
 
 describe(`Models`, () => {
     describe(`Feature`, () => {

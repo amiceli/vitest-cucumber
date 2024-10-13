@@ -12,9 +12,9 @@ import {
     StepAbleStepsNotCalledError,
     StepAbleUnknowStepError,
 } from '../../errors/errors'
-import { Rule as RuleType } from '../../parser/Rule'
-import { Scenario as ScenarioType } from '../../parser/scenario'
-import { Step, StepTypes } from '../../parser/step'
+import { Rule as RuleType } from '../../parser/models/Rule'
+import { Scenario as ScenarioType } from '../../parser/models/scenario'
+import { Step, StepTypes } from '../../parser/models/step'
 import { describeFeature } from '../describe-feature'
 
 describe(`Feature`, () => {

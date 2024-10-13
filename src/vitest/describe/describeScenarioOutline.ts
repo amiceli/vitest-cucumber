@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, test } from 'vitest'
 import { ExpressionStep } from '../../parser/expression/ExpressionStep'
-import type { Example, ScenarioOutline } from '../../parser/scenario'
+import type { Example, ScenarioOutline } from '../../parser/models/scenario'
 import type {
     CallbackWithParamsAndContext,
     CallbackWithSingleContext,

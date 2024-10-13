@@ -1,4 +1,4 @@
-import { NotAllowedBackgroundStepTypeError } from '../errors/errors'
+import { NotAllowedBackgroundStepTypeError } from '../../errors/errors'
 import { StepAble } from './Stepable'
 import { type Step, StepTypes } from './step'
 

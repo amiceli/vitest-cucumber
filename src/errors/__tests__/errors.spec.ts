@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest'
-import { Rule } from '../../parser/Rule'
-import { Feature } from '../../parser/feature'
-import { Scenario } from '../../parser/scenario'
+import { Rule } from '../../parser/models/Rule'
+import { Feature } from '../../parser/models/feature'
+import { Scenario } from '../../parser/models/scenario'
 import { BackgroundNotExistsError, NotScenarioOutlineError } from '../errors'
 
 describe(`errors`, () => {
