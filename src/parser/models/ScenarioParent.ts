@@ -5,7 +5,7 @@ import {
     IsScenarioOutlineError,
     NotScenarioOutlineError,
     ScenarioNotCalledError,
-} from '../errors/errors'
+} from '../../errors/errors'
 import type { Background } from './Background'
 import { Taggable } from './Taggable'
 import { type Example, Scenario, ScenarioOutline } from './scenario'

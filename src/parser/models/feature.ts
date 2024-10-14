@@ -1,4 +1,4 @@
-import { FeatureUknowRuleError, RuleNotCalledError } from '../errors/errors'
+import { FeatureUknowRuleError, RuleNotCalledError } from '../../errors/errors'
 import { Rule } from './Rule'
 import { ScenarioParent } from './ScenarioParent'
 

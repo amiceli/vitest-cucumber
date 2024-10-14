@@ -5,7 +5,7 @@ import {
     FeatureFileNotFoundError,
     VitestsCucumberError,
 } from '../errors/errors'
-import type { Feature } from './feature'
+import type { Feature } from './models/feature'
 import { GherkinParser, type ParserOptions } from './parser'
 
 type FeatureFileReaderParams = {

@@ -1,7 +1,7 @@
 import { type TaskContext, describe, expect } from 'vitest'
 import { FeatureContentReader } from '../../__mocks__/FeatureContentReader.spec'
 import { StepAbleStepExpressionError } from '../../errors/errors'
-import { Step, StepTypes } from '../../parser/step'
+import { Step, StepTypes } from '../../parser/models/step'
 import { describeFeature } from '../describe-feature'
 
 describe(`step with expressions`, () => {

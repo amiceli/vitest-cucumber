@@ -1,6 +1,6 @@
 import { test } from 'vitest'
-import type { Background } from '../../parser/Background'
 import { ExpressionStep } from '../../parser/expression/ExpressionStep'
+import type { Background } from '../../parser/models/Background'
 import type {
     BackgroundStepTest,
     CallbackWithParamsAndContext,
@@ -45,9 +45,13 @@ export function createBackgroundDescribeHandler({
                 key: foundStep.getTitle(),
                 fn: scenarioStepCallback,
                 step: foundStep,
-                params: [...params, foundStep.docStrings].filter(
-                    (p) => p !== null,
-                ),
+                params: [
+                    ...params,
+                    foundStep.dataTables.length > 0
+                        ? foundStep.dataTables
+                        : null,
+                    foundStep.docStrings,
+                ].filter((p) => p !== null),
             })
         }
     }

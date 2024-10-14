@@ -1,6 +1,6 @@
 import { describe, expect, test, vi } from 'vitest'
-import { Scenario, ScenarioOutline } from '../../../parser/scenario'
-import { Step, StepTypes } from '../../../parser/step'
+import { Scenario, ScenarioOutline } from '../../../parser/models/scenario'
+import { Step, StepTypes } from '../../../parser/models/step'
 import { createScenarioDescribeHandler } from '../describeScenario'
 import { createScenarioOutlineDescribeHandler } from '../describeScenarioOutline'
 

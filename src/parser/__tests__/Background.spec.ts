@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { NotAllowedBackgroundStepTypeError } from '../../errors/errors'
-import { Background } from '../Background'
-import { Step, StepTypes } from '../step'
+import { Background } from '../models/Background'
+import { Step, StepTypes } from '../models/step'
 
 describe(`Background`, () => {
     it(`should be initialized`, () => {

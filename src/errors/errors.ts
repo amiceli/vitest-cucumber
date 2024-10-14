@@ -1,10 +1,10 @@
-import type { Background } from '../parser/Background'
-import type { Rule } from '../parser/Rule'
-import type { ScenarioParent } from '../parser/ScenarioParent'
-import type { StepAble } from '../parser/Stepable'
-import type { Feature } from '../parser/feature'
-import type { Scenario, ScenarioOutline } from '../parser/scenario'
-import type { Step, StepTypes } from '../parser/step'
+import type { Background } from '../parser/models/Background'
+import type { Rule } from '../parser/models/Rule'
+import type { ScenarioParent } from '../parser/models/ScenarioParent'
+import type { StepAble } from '../parser/models/Stepable'
+import type { Feature } from '../parser/models/feature'
+import type { Scenario, ScenarioOutline } from '../parser/models/scenario'
+import type { Step, StepTypes } from '../parser/models/step'
 
 export class VitestsCucumberError extends Error {
     public constructor(message: string, name?: string) {

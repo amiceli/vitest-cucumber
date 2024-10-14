@@ -1,6 +1,6 @@
 import { dirname } from 'node:path'
 import callsites from 'callsites'
-import type { Feature } from '../parser/feature'
+import type { Feature } from '../parser/models/feature'
 import type { ParserOptions } from '../parser/parser'
 import { FeatureFileReader } from '../parser/readfile'
 

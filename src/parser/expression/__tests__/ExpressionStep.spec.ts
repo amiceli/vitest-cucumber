@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { StepExpressionMatchError } from '../../../errors/errors'
-import { Step, StepTypes } from '../../step'
+import { Step, StepTypes } from '../../models/step'
 import { ExpressionStep } from '../ExpressionStep'
 
 describe(`ExpressionStep`, () => {

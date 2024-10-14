@@ -1,4 +1,4 @@
-import { StepTypes } from '../step'
+import { StepTypes } from '../models/step'
 import avalaibleLanguages from './lang.json'
 
 type GherkinLanguageDetails = {

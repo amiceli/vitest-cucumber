@@ -1,4 +1,4 @@
-import type { Feature } from '../parser/feature'
+import type { Feature } from '../parser/models/feature'
 import { GherkinParser } from '../parser/parser'
 
 export class FeatureContentReader {

@@ -2,9 +2,9 @@ import {
     StepAbleStepExpressionError,
     StepAbleStepsNotCalledError,
     StepAbleUnknowStepError,
-} from '../errors/errors'
+} from '../../errors/errors'
+import { ExpressionStep } from '../expression/ExpressionStep'
 import { Taggable } from './Taggable'
-import { ExpressionStep } from './expression/ExpressionStep'
 import { Step, type StepTypes } from './step'
 
 export abstract class StepAble extends Taggable {

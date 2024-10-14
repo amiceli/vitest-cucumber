@@ -1,4 +1,4 @@
-import type { Step } from '../../parser/step'
+import type { Step } from '../../parser/models/step'
 import type {
     CallbackWithParamsAndContext,
     CallbackWithSingleContext,

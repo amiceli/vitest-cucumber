@@ -1,5 +1,5 @@
 import { StepExpressionMatchError } from '../../errors/errors'
-import type { Step } from '../step'
+import type { Step } from '../models/step'
 import {
     type ExpressionRegex,
     FloatRegex,

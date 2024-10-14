@@ -1,7 +1,7 @@
 import { type Suite, type Task, describe, expect, test, vi } from 'vitest'
 import { FeatureContentReader } from '../../__mocks__/FeatureContentReader.spec'
-import type { ScenarioOutline } from '../../parser/scenario'
-import { StepTypes } from '../../parser/step'
+import type { ScenarioOutline } from '../../parser/models/scenario'
+import { StepTypes } from '../../parser/models/step'
 import { describeFeature } from '../describe-feature'
 
 describe(`ScenarioOutline step title`, () => {

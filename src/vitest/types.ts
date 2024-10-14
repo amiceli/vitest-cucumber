@@ -1,5 +1,5 @@
 import type { TaskContext } from 'vitest'
-import type { Example } from '../parser/scenario'
+import type { Example } from '../parser/models/scenario'
 
 export type MaybePromise<T = void> = T | Promise<T>
 

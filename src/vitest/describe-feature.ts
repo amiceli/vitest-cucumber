@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, describe } from 'vitest'
-import type { Feature } from '../parser/feature'
-import type { Example } from '../parser/scenario'
+import type { Feature } from '../parser/models/feature'
+import type { Example } from '../parser/models/scenario'
 import { createBackgroundDescribeHandler } from './describe/describeBackground'
 import { createScenarioDescribeHandler } from './describe/describeScenario'
 import { createScenarioOutlineDescribeHandler } from './describe/describeScenarioOutline'

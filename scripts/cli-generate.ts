@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
 import fs from 'node:fs/promises'
-import type { Background } from '../src/parser/Background'
-import type { Rule } from '../src/parser/Rule'
-import { type Scenario, ScenarioOutline } from '../src/parser/scenario'
+import type { Background } from '../src/parser/models/Background'
+import type { Rule } from '../src/parser/models/Rule'
+import { type Scenario, ScenarioOutline } from '../src/parser/models/scenario'
 import { loadFeature } from '../src/vitest/load-feature'
 
 const [filePath, outPath] = process.argv.slice(2)

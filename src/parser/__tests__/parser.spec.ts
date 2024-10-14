@@ -10,9 +10,9 @@ import {
 } from '../../errors/errors'
 import { describeFeature } from '../../vitest/describe-feature'
 import avalaibleLanguages from '../lang/lang.json'
+import { ScenarioOutline } from '../models/scenario'
+import { StepTypes } from '../models/step'
 import { GherkinParser } from '../parser'
-import { ScenarioOutline } from '../scenario'
-import { StepTypes } from '../step'
 
 function getCurrentFeaut(p: GherkinParser) {
     const { features } = p
@@ -682,17 +682,18 @@ describe('GherkinParser - language', () => {
                 const [outlineKey] = languageKeys.scenarioOutline
 
                 test(`${language} - Example - ${exampleKey}`, () => {
-                    const parser = new GherkinParser({ language })
+                    const currentFeature = FeatureContentReader.fromString(
+                        [
+                            `${featureKey}: allez l'OM`,
+                            `   ${outlineKey}: En lique 1`,
+                            `       ${exampleKey}:`,
+                            '           | test |',
+                            '           | one  |',
+                            '           | two  |',
+                        ],
+                        language,
+                    ).parseContent()
 
-                    parser.addLine(`${featureKey}: allez l'OM`)
-                    parser.addLine(`${outlineKey}: En lique 1`)
-                    parser.addLine(`    ${exampleKey}:`)
-                    parser.addLine('        | test |')
-                    parser.addLine('        | one  |')
-                    parser.addLine('        | two  |')
-                    parser.addLine('')
-
-                    const currentFeature = getCurrentFeaut(parser)
                     const [scenarioOutline] = currentFeature.scenarii
 
                     expect(
@@ -751,7 +752,7 @@ describe('Missing parent', () => {
     it('should prevent missing Feature before add Background', () => {
         const content = `
             Background: Detect relative path
-                Given I use relative path 
+                Given I use relative path
         `
         expect(() => {
             FeatureContentReader.fromString(content.split('\n')).parseContent()
@@ -760,7 +761,7 @@ describe('Missing parent', () => {
     it('should prevent missing Feature before add Scenario', () => {
         const content = `
             Scenario: Detect relative path
-                Given I use relative path 
+                Given I use relative path
         `
         expect(() => {
             FeatureContentReader.fromString(content.split('\n')).parseContent()
@@ -769,7 +770,7 @@ describe('Missing parent', () => {
     it('should prevent missing Feature before add ScenarioOutline', () => {
         const content = `
             Scenario Outline: Detect relative path
-                Given I use relative path 
+                Given I use relative path
         `
         expect(() => {
             FeatureContentReader.fromString(content.split('\n')).parseContent()
@@ -781,7 +782,7 @@ describe('Missing parent', () => {
         const content = `
             Rule: simple rule
                 Scenario: simple
-                    Given I use relative path 
+                    Given I use relative path
         `
         expect(() => {
             FeatureContentReader.fromString(content.split('\n')).parseContent()
@@ -790,7 +791,7 @@ describe('Missing parent', () => {
     it('should prevent missing Scenario before add step', () => {
         const content = `
             Feature: test
-                Given I use relative path 
+                Given I use relative path
         `
         expect(() => {
             FeatureContentReader.fromString(content.split('\n')).parseContent()
@@ -812,14 +813,103 @@ describe('Missing parent', () => {
         const content = `
             Feature: test
                 Scenario Outline: test
-                    Given I use relative path 
-
-                        | test |
-                        | test |
-
+                    | test |
+                    | test |
         `
         expect(() => {
             FeatureContentReader.fromString(content.split('\n')).parseContent()
         }).toThrowError(new MissingExamplesError('| test |'))
+    })
+})
+
+describe('GherkinParser - Data Table', () => {
+    const feature = FeatureContentReader.fromString([
+        `Feature: Data Table`,
+        `    Background:`,
+        `        Given I have a game`,
+        `            | title            | editor    | `,
+        `            | Assassin's Creed | Ubisoft   |`,
+        `            | GTA IV           | Rockstar  |`,
+        `    Scenario: Data Table scenaio`,
+        `        Then I can run it on my play`,
+        `            | name  |`,
+        `            | PS4   |`,
+        `            | PS5   |`,
+        `    Scenario Outline: Data Table scenaio outline`,
+        `        Then I can run it on my switch <version>`,
+        `            | name      |`,
+        `            | switch    |`,
+        `            | switch XL |`,
+        `       Examples:`,
+        `           | version |`,
+        `           | beta    |`,
+    ]).parseContent()
+
+    describeFeature(feature, (f) => {
+        f.Background((b) => {
+            b.Given('I have a game', (ctx, tables) => {
+                expect(tables.length).toBe(2)
+                expect(tables[0].title).toEqual("Assassin's Creed")
+                expect(tables[1].title).toEqual('GTA IV')
+            })
+        })
+        f.Scenario('Data Table scenaio', (s) => {
+            s.Then('I can run it on my play', (ctx, tables) => {
+                expect(tables.length).toBe(2)
+                expect(tables[0].name).toEqual('PS4')
+                expect(tables[1].name).toEqual('PS5')
+            })
+        })
+        f.ScenarioOutline('Data Table scenaio outline', (so) => {
+            so.Then('I can run it on my switch <version>', (ctx, tables) => {
+                expect(tables.length).toBe(2)
+                expect(tables[0].name).toEqual('switch')
+                expect(tables[1].name).toEqual('switch XL')
+            })
+        })
+    })
+})
+
+describe('Gherkin Parse - DocStrings && ExpressionStep && DataTables', () => {
+    const feature = FeatureContentReader.fromString([
+        `Feature: DocStrings`,
+        `    Scenario: DocStrings & DataTables`,
+        `        Given I use "DocStrings" 2 hours`,
+        `            """`,
+        `            DocStrings is passed to current Given`,
+        `            And at last params`,
+        `            After ctx : TaskContext`,
+        `            """`,
+        `           | test | `,
+        `           | one  |`,
+        `           | two  |`,
+    ]).parseContent()
+
+    type GivenStepTables = { test: string }
+
+    describeFeature(feature, (f) => {
+        f.Scenario('DocStrings & DataTables', (s) => {
+            s.Given(
+                `I use {string} {number} hours`,
+                (
+                    ctx,
+                    text: string,
+                    hours: number,
+                    dataTables: GivenStepTables[],
+                    docStrings: string,
+                ) => {
+                    expect(
+                        docStrings.includes(
+                            `DocStrings is passed to current Given`,
+                        ),
+                    ).toBe(true)
+                    expect(text).toEqual(`DocStrings`)
+                    expect(hours).toBe(2)
+                    expect(dataTables.length).toBe(2)
+                    expect(dataTables[0].test).toBe('one')
+                    expect(dataTables[1].test).toBe('two')
+                },
+            )
+        })
     })
 })

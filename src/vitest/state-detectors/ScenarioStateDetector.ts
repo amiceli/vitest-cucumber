@@ -4,8 +4,8 @@ import {
     ScenarioOutlineVariableNotCalledInStepsError,
     ScenarioOutlineVariablesDeclaredWithoutExamplesError,
 } from '../../errors/errors'
-import type { StepAble } from '../../parser/Stepable'
-import { ScenarioOutline } from '../../parser/scenario'
+import type { StepAble } from '../../parser/models/Stepable'
+import { ScenarioOutline } from '../../parser/models/scenario'
 
 export class ScenarioStateDetector {
     private readonly scenario: StepAble

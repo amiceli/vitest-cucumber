@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, test } from 'vitest'
 import { ExpressionStep } from '../../parser/expression/ExpressionStep'
-import type { Example, ScenarioOutline } from '../../parser/scenario'
+import type { Example, ScenarioOutline } from '../../parser/models/scenario'
 import type {
     CallbackWithParamsAndContext,
     CallbackWithSingleContext,
@@ -46,9 +46,13 @@ export function createScenarioOutlineDescribeHandler({
                 key: foundStep.getTitle(),
                 fn: scenarioStepCallback,
                 step: foundStep,
-                params: [...params, foundStep.docStrings].filter(
-                    (p) => p !== null,
-                ),
+                params: [
+                    ...params,
+                    foundStep.dataTables.length > 0
+                        ? foundStep.dataTables
+                        : null,
+                    foundStep.docStrings,
+                ].filter((p) => p !== null),
             })
         }
     }

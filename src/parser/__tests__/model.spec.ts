@@ -8,11 +8,11 @@ import {
     NotScenarioOutlineError,
     RuleNotCalledError,
 } from '../../errors/errors'
-import { Background } from '../Background'
-import { Rule } from '../Rule'
-import { Feature } from '../feature'
-import { Scenario, ScenarioOutline } from '../scenario'
-import { Step, StepTypes } from '../step'
+import { Background } from '../models/Background'
+import { Rule } from '../models/Rule'
+import { Feature } from '../models/feature'
+import { Scenario, ScenarioOutline } from '../models/scenario'
+import { Step, StepTypes } from '../models/step'
 
 describe(`Models`, () => {
     describe(`Feature`, () => {
@@ -393,6 +393,7 @@ describe(`Models`, () => {
             expect(step.type).toEqual(`Given`)
             expect(step.details).toEqual(`I code`)
             expect(step.getTitle()).toEqual(`Given I code`)
+            expect(step.dataTables).toEqual([])
         })
         test(`Step docStrings`, () => {
             const step = new Step(StepTypes.GIVEN, `I code`)

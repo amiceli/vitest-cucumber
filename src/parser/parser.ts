@@ -6,19 +6,28 @@ import {
     OnlyOneFeatureError,
     TwiceBackgroundError,
 } from '../errors/errors'
-import { Background } from './Background'
-import { Rule } from './Rule'
-import type { StepAble } from './Stepable'
-import type { Taggable } from './Taggable'
-import { Feature } from './feature'
 import { type SpokenParser, SpokenParserFactory } from './lang/SpokenParser'
-import { type Example, Scenario, ScenarioOutline } from './scenario'
-import { Step, StepTypes } from './step'
+import { Background } from './models/Background'
+import { Rule } from './models/Rule'
+import type { StepAble } from './models/Stepable'
+import type { Taggable } from './models/Taggable'
+import { Feature } from './models/feature'
+import { type Example, Scenario, ScenarioOutline } from './models/scenario'
+import { Step, type StepDataTanle, StepTypes } from './models/step'
 
 type SteppableName = 'Scenario' | 'ScenarioOutline' | 'Background'
 
 export type ParserOptions = {
     language?: string
+}
+
+enum FeatureActions {
+    FEATURE = 'Feature',
+    SCENARIO = 'Scenario',
+    BACKGROUND = 'Background',
+    STEP = 'Step',
+    RULE = 'Rule',
+    EXAMPLES = 'Examples',
 }
 
 export class GherkinParser {
@@ -40,6 +49,12 @@ export class GherkinParser {
 
     private exampleKeys: string[] = []
 
+    private currentDataTable: StepDataTanle = []
+
+    private currentStepDataTableLine: number = -1
+
+    private dataTanleKeys: string[] = []
+
     private lastTags: string[] = []
 
     private lastSteppableTag: SteppableName | null = null
@@ -47,6 +62,17 @@ export class GherkinParser {
     private readonly currentDocStrings: string[] = []
 
     private parsingDocStrings: boolean = false
+
+    private previousAction: FeatureActions | null = null
+
+    private lastStep: Step | null = null
+
+    private resetStepDataTable() {
+        this.currentDataTable = []
+        this.currentStepDataTableLine = -1
+        this.dataTanleKeys = []
+        this.lastStep = null
+    }
 
     public constructor(options?: ParserOptions) {
         this.spokenParser = SpokenParserFactory.fromLang(
@@ -78,19 +104,23 @@ export class GherkinParser {
         return true
     }
 
-    public hasExamples(line: string): boolean {
-        if (!this.currentExample) {
-            throw new MissingExamplesError(line)
-        }
-
-        return true
+    public previousActionIs(value: FeatureActions): boolean {
+        return this.previousAction === value
     }
 
     public addLine(line: string) {
         if (line.trim().startsWith(`#`)) {
             return
         }
+        if (this.previousActionIs(FeatureActions.STEP)) {
+            if (this.lastStep) {
+                this.lastStep.dataTables = this.currentDataTable
+            }
+        }
         if (this.spokenParser.isFeature(line)) {
+            this.previousAction = FeatureActions.FEATURE
+            this.resetStepDataTable()
+
             if (this.features.length > 0) {
                 throw new OnlyOneFeatureError()
             }
@@ -107,6 +137,9 @@ export class GherkinParser {
 
             this.addTagToParent(feature)
         } else if (this.spokenParser.isRule(line) && this.hasFeature(line)) {
+            this.previousAction = FeatureActions.RULE
+            this.resetStepDataTable()
+
             this.currentExampleLine = -1
             this.currentScenarioIndex = -1
 
@@ -121,6 +154,9 @@ export class GherkinParser {
             this.spokenParser.isScenarioOutline(line) &&
             this.hasFeature(line)
         ) {
+            this.previousAction = FeatureActions.SCENARIO
+            this.resetStepDataTable()
+
             this.currentScenarioIndex++
 
             const { title, keyword } =
@@ -136,14 +172,27 @@ export class GherkinParser {
             this.spokenParser.isExamples(line) &&
             this.hasScenarioOutline(line)
         ) {
+            this.previousAction = FeatureActions.EXAMPLES
             this.currentExample = []
-        } else if (line.trim().startsWith(`|`) && this.hasExamples(line)) {
-            this.detectMissingExamplesKeyword()
-            this.updateScenarioExamples(line)
+            this.resetStepDataTable()
+        } else if (line.trim().startsWith(`|`)) {
+            if (
+                this.previousActionIs(FeatureActions.EXAMPLES) &&
+                this.currentExample
+            ) {
+                this.detectMissingExamplesKeyword()
+                this.updateScenarioExamples(line)
+            } else if (this.previousActionIs(FeatureActions.STEP)) {
+                this.updateStepDataTable(line)
+            } else {
+                throw new MissingExamplesError(line)
+            }
         } else if (
             this.spokenParser.isScenario(line) &&
             this.hasFeature(line)
         ) {
+            this.previousAction = FeatureActions.SCENARIO
+            this.resetStepDataTable()
             this.currentScenarioIndex++
 
             const { title, keyword } = this.spokenParser.getScenarioName(line)
@@ -157,6 +206,9 @@ export class GherkinParser {
             this.spokenParser.isBackground(line) &&
             this.hasFeature(line)
         ) {
+            this.previousAction = FeatureActions.BACKGROUND
+            this.resetStepDataTable()
+
             if (this.currentBackground) {
                 throw new TwiceBackgroundError()
             }
@@ -189,6 +241,9 @@ export class GherkinParser {
             this.spokenParser.isStep(line) &&
             this.hasSteppable(line)
         ) {
+            this.previousAction = FeatureActions.STEP
+            this.resetStepDataTable()
+
             const stepType = this.spokenParser.getStepType(line)
             const { keyword, title } = this.spokenParser.getStepDetails(
                 line,
@@ -196,6 +251,7 @@ export class GherkinParser {
             )
             const newStep = new Step(stepType, title, keyword)
 
+            this.lastStep = newStep
             this.currentScenario.addStep(newStep)
         } else if (this.currentExample !== null) {
             if (this.currentExample.length === 0) {
@@ -254,13 +310,14 @@ export class GherkinParser {
         return exampleVariables
     }
 
-    private getObjectWithValuesFromLine(line: string) {
+    // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+    private getObjectWithValuesFromLine(line: string, keys: any) {
         const exampleVariables = this.getVariablesFromLine(line)
         // biome-ignore lint/suspicious/noExplicitAny: <explanation>
         const res = exampleVariables.reduce((acc: any, cur, index) => {
             // biome-ignore lint/suspicious/noAssignInExpressions: <explanation>
             // biome-ignore lint/style/noCommaOperator: <explanation>
-            return (acc[this.exampleKeys[index]] = cur), acc
+            return (acc[keys[index]] = cur), acc
         }, {})
 
         return res
@@ -290,6 +347,20 @@ export class GherkinParser {
         }
     }
 
+    private updateStepDataTable(line: string) {
+        if (this.currentDataTable) {
+            this.currentStepDataTableLine++
+
+            if (this.currentStepDataTableLine === 0) {
+                this.dataTanleKeys = this.getVariablesFromLine(line)
+            } else {
+                this.currentDataTable.push(
+                    this.getObjectWithValuesFromLine(line, this.dataTanleKeys),
+                )
+            }
+        }
+    }
+
     private updateScenarioExamples(line: string) {
         if (this.currentExample) {
             this.currentExampleLine++
@@ -297,7 +368,9 @@ export class GherkinParser {
             if (this.currentExampleLine === 0) {
                 this.exampleKeys = this.getVariablesFromLine(line)
             } else {
-                this.currentExample.push(this.getObjectWithValuesFromLine(line))
+                this.currentExample.push(
+                    this.getObjectWithValuesFromLine(line, this.exampleKeys),
+                )
             }
         }
     }

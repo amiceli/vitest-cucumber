@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test'
 import { expect } from 'vitest'
-import { StepTypes } from '../../step'
+import { StepTypes } from '../../models/step'
 import { SpokenParserFactory } from '../SpokenParser'
 
 describe('SpokenParser', () => {
