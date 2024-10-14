@@ -72,7 +72,6 @@ export class GherkinParser {
         this.currentStepDataTableLine = -1
         this.dataTanleKeys = []
         this.lastStep = null
-        // this.previousAction = null
     }
 
     public constructor(options?: ParserOptions) {
