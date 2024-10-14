@@ -27,11 +27,11 @@
   "author": "amiceli",
   "license": "ISC",
   "devDependencies": {
-    "@biomejs/biome": "1.9.2",
+    "@biomejs/biome": "1.9.3",
     "@types/node": "^20.4.5",
     "@vitest/coverage-v8": "^2.1.1",
     "esbuild": "0.24.0",
-    "lefthook": "^1.7.17",
+    "lefthook": "^1.7.18",
     "typescript": "^5.6.2"
   },
   "dependencies": {
