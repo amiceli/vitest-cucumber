@@ -18,7 +18,7 @@ export async function loadFeature(
 ): Promise<Feature> {
     const callerFileDir = getCallerPath()
 
-    const [feature] = await FeatureFileReader.fromPath({
+    const feature = await FeatureFileReader.fromPath({
         featureFilePath,
         callerFileDir,
         options,

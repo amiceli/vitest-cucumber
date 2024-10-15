@@ -39,7 +39,7 @@ export class FeatureFileReader {
         return featureFilePath
     }
 
-    public async parseFile(): Promise<Feature[]> {
+    public async parseFile(): Promise<Feature> {
         if (!fs.existsSync(this.path)) {
             throw new FeatureFileNotFoundError(this.path).message
         }
