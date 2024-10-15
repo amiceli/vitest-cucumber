@@ -1,5 +1,5 @@
 import path from 'node:path'
-import { configDefaults, defineConfig } from 'vitest/config'
+import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
     test: {
@@ -9,10 +9,12 @@ export default defineConfig({
             provider: 'v8',
             exclude: [
                 'src/module.ts',
-                '.eslintrc.js',
+                'vitest.config.ts',
                 'commitlint.config.js',
                 'src/vitest/types.ts',
                 'scripts/cli-generate.ts',
+                '**/__mocks__/*',
+                '**/__tests__/*',
             ],
         },
         exclude: ['examples/vue-example.spec.ts', 'node_modules'],
