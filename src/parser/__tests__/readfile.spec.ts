@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'vitest'
+import { getVitestCucumberConfiguration } from '../../vitest/configuration'
 import { type Step, StepTypes } from '../models/step'
 import { FeatureFileReader } from '../readfile'
 
@@ -6,6 +7,7 @@ describe(`Parse feature file`, async () => {
     const path = `src/parser/__tests__/readline.feature`
     const features = await FeatureFileReader.fromPath({
         featureFilePath: path,
+        options: getVitestCucumberConfiguration(),
     }).parseFile()
 
     const [feature] = features

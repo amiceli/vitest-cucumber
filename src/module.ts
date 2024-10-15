@@ -1,4 +1,6 @@
-import { describeFeature } from './vitest/describe-feature'
-import { loadFeature } from './vitest/load-feature'
-
-export { loadFeature, describeFeature }
+export {
+    type VitestCucumberOptions,
+    setVitestCucumberConfiguration,
+} from './vitest/configuration'
+export { describeFeature } from './vitest/describe-feature'
+export { loadFeature } from './vitest/load-feature'

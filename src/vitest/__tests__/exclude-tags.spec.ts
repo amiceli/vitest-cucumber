@@ -8,7 +8,7 @@ describe(`Ignore scenario with a tag`, async () => {
         `    Scenario: Simple scenario`,
         `        Given vitest-cucumber is running`,
         `        Then  It check I am executed`,
-        `    @ignored`,
+        `    @beta`,
         `    Scenario: Ignored scenario`,
         `        Given vitest-cucumber is running`,
         `        Then  Don't check if I am called    `,
@@ -24,7 +24,7 @@ describe(`Ignore scenario with a tag`, async () => {
                 expect(
                     feature
                         .getScenarioByName(`Ignored scenario`)
-                        ?.matchTags([`ignored`]),
+                        ?.matchTags([`beta`]),
                 ).toBe(true)
             })
             Scenario(`Simple scenario`, ({ Given, Then }) => {
@@ -32,7 +32,7 @@ describe(`Ignore scenario with a tag`, async () => {
                 Then(`It check I am executed`, () => {})
             })
         },
-        { excludeTags: [`ignored`] },
+        { excludeTags: [`beta`] },
     )
 })
 
@@ -130,7 +130,7 @@ describe(`excludeTags`, () => {
         const feature = FeatureContentReader.fromString([
             `Feature: excludeTags default value`,
             `   Rule: sample rule`,
-            `       Scenario: excludeTags is optionnal`,
+            `       Scenario: excludeTags is optional`,
             `           Given I have no tags`,
             `           Then  So I'm called`,
         ]).parseContent()
@@ -140,11 +140,11 @@ describe(`excludeTags`, () => {
 
         describeFeature(feature, (f) => {
             f.AfterAllScenarios(() => {
-                expect(featureCheck).toHaveBeenCalledWith([])
-                expect(ruleCheck).toHaveBeenCalledWith([])
+                expect(featureCheck).toHaveBeenCalledWith(['ignore'])
+                expect(ruleCheck).toHaveBeenCalledWith(['ignore'])
             })
             f.Rule(`sample rule`, (r) => {
-                r.RuleScenario(`excludeTags is optionnal`, (s) => {
+                r.RuleScenario(`excludeTags is optional`, (s) => {
                     s.Given(`I have no tags`, () => {})
                     s.Then(`So I'm called`, () => {})
                 })

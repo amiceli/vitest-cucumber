@@ -8,6 +8,7 @@ import {
     OnlyOneFeatureError,
     TwiceBackgroundError,
 } from '../../errors/errors'
+import { getVitestCucumberConfiguration } from '../../vitest/configuration'
 import { describeFeature } from '../../vitest/describe-feature'
 import avalaibleLanguages from '../lang/lang.json'
 import { ScenarioOutline } from '../models/scenario'
@@ -25,7 +26,7 @@ describe(`GherkinParser`, () => {
     let parser: GherkinParser
 
     beforeEach(() => {
-        parser = new GherkinParser()
+        parser = new GherkinParser(getVitestCucumberConfiguration())
     })
 
     function getCurrentScenario(p: GherkinParser) {
@@ -256,7 +257,7 @@ describe(`GherkinParser`, () => {
 
     it(`should handle commented line`, () => {
         const featureTitle = `Awesome unit tests`
-        const newParser = new GherkinParser()
+        const newParser = new GherkinParser(getVitestCucumberConfiguration())
 
         newParser.addLine(`# Feature: ${featureTitle}`)
 
@@ -462,7 +463,7 @@ describe(`GherkinParser`, () => {
                 parser.addLine(`            Given I want another background`)
                 parser.addLine(``)
             }).toThrowError(new TwiceBackgroundError())
-            parser = new GherkinParser()
+            parser = new GherkinParser(getVitestCucumberConfiguration())
             expect(() => {
                 parser.addLine(`Feature: I use background`)
                 parser.addLine(`    Background:`)

@@ -3,6 +3,7 @@ import callsites from 'callsites'
 import type { Feature } from '../parser/models/feature'
 import type { ParserOptions } from '../parser/parser'
 import { FeatureFileReader } from '../parser/readfile'
+import { getVitestCucumberConfiguration } from './configuration'
 
 function getCallerPath(): string | null {
     const { 2: callerFilePath } = callsites()
@@ -21,7 +22,7 @@ export async function loadFeature(
     const [feature] = await FeatureFileReader.fromPath({
         featureFilePath,
         callerFileDir,
-        options,
+        options: getVitestCucumberConfiguration(options),
     }).parseFile()
 
     return feature
