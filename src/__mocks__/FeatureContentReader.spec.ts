@@ -22,7 +22,7 @@ export class FeatureContentReader {
             this.parser.addLine(line)
         }
 
-        const feature = this.parser.finish().at(0)
+        const feature = this.parser.finish()
 
         if (feature) {
             return feature

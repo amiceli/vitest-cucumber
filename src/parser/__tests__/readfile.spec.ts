@@ -4,15 +4,14 @@ import { FeatureFileReader } from '../readfile'
 
 describe(`Parse feature file`, async () => {
     const path = `src/parser/__tests__/readline.feature`
-    const features = await FeatureFileReader.fromPath({
+    const feature = await FeatureFileReader.fromPath({
         featureFilePath: path,
     }).parseFile()
 
-    const [feature] = features
     const [scenario] = feature.scenarii
 
     test(`One feature should be parsed`, () => {
-        expect(features.length).toEqual(1)
+        expect(feature).not.toBeNull()
         expect(feature.name).toEqual(`Use Gherkin in my unit tests`)
     })
 
