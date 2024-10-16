@@ -10,7 +10,8 @@
             "dist/",
             "coverage/",
             "tsconfig.json",
-            "tsconfig.vitest.json"
+            "tsconfig.vitest.json",
+            "src/parser/lang/lang.json"
         ]
     },
     "linter": {
