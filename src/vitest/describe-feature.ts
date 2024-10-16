@@ -1,6 +1,7 @@
 import { afterAll, beforeAll, describe } from 'vitest'
 import type { Feature } from '../parser/models/feature'
 import type { Example } from '../parser/models/scenario'
+import { getVitestCucumberConfiguration } from './configuration'
 import { createBackgroundDescribeHandler } from './describe/describeBackground'
 import { createScenarioDescribeHandler } from './describe/describeScenario'
 import { createScenarioOutlineDescribeHandler } from './describe/describeScenarioOutline'
@@ -32,7 +33,9 @@ export function describeFeature(
     let afterAllScenarioHook: () => MaybePromise = () => {}
     let afterEachScenarioHook: () => MaybePromise = () => {}
 
-    const excludeTags = describeFeatureOptions?.excludeTags || []
+    const excludeTags =
+        describeFeatureOptions?.excludeTags ||
+        getVitestCucumberConfiguration().excludeTags
 
     const describeScenarios: DescribesToRun = []
     const describeRules: DescribesToRun = []

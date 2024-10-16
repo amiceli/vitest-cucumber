@@ -6,6 +6,10 @@ import {
     OnlyOneFeatureError,
     TwiceBackgroundError,
 } from '../errors/errors'
+import type {
+    RequiredVitestCucumberOptions,
+    VitestCucumberOptions,
+} from '../vitest/configuration'
 import { type SpokenParser, SpokenParserFactory } from './lang/SpokenParser'
 import { Background } from './models/Background'
 import { Rule } from './models/Rule'
@@ -13,13 +17,15 @@ import type { StepAble } from './models/Stepable'
 import type { Taggable } from './models/Taggable'
 import { Feature } from './models/feature'
 import { type Example, Scenario, ScenarioOutline } from './models/scenario'
-import { Step, type StepDataTanle, StepTypes } from './models/step'
+import { Step, type StepDataTanle } from './models/step'
 
 type SteppableName = 'Scenario' | 'ScenarioOutline' | 'Background'
 
-export type ParserOptions = {
-    language?: string
-}
+export type ParserOptions = Pick<VitestCucumberOptions, 'language'>
+export type RequiredParserOptions = Pick<
+    RequiredVitestCucumberOptions,
+    'language'
+>
 
 enum FeatureActions {
     FEATURE = 'Feature',
@@ -74,10 +80,8 @@ export class GherkinParser {
         this.lastStep = null
     }
 
-    public constructor(options?: ParserOptions) {
-        this.spokenParser = SpokenParserFactory.fromLang(
-            options?.language || 'en',
-        )
+    public constructor(options: RequiredParserOptions) {
+        this.spokenParser = SpokenParserFactory.fromLang(options.language)
     }
 
     public hasFeature(line: string): boolean {

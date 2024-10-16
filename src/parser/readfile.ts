@@ -1,17 +1,13 @@
 import fs from 'node:fs'
 import readline from 'node:readline'
-import { test, vi } from 'vitest'
-import {
-    FeatureFileNotFoundError,
-    VitestsCucumberError,
-} from '../errors/errors'
+import { FeatureFileNotFoundError } from '../errors/errors'
 import type { Feature } from './models/feature'
-import { GherkinParser, type ParserOptions } from './parser'
+import { GherkinParser, type RequiredParserOptions } from './parser'
 
 type FeatureFileReaderParams = {
     featureFilePath: string
     callerFileDir?: string | null
-    options?: ParserOptions
+    options: RequiredParserOptions
 }
 
 export class FeatureFileReader {
