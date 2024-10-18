@@ -1,4 +1,5 @@
 import { FeatureUknowRuleError, RuleNotCalledError } from '../../errors/errors'
+import type { RequiredDescribeFeatureOptions } from '../../vitest/describe-feature'
 import { Rule } from './Rule'
 import { ScenarioParent } from './ScenarioParent'
 
@@ -14,9 +15,15 @@ export class Feature extends ScenarioParent {
         return this.rules.find((rule) => rule.name === name)
     }
 
-    public getFirstRuleNotCalled(tags: string[]): Rule | undefined {
+    public getFirstRuleNotCalled(
+        options: RequiredDescribeFeatureOptions,
+    ): Rule | undefined {
         return this.rules.find(
-            (rule) => rule.isCalled === false && rule.matchTags(tags) === false,
+            (rule) =>
+                rule.isCalled === false &&
+                (options.includeTags.length <= 0 ||
+                    rule.matchTags(options.includeTags) === true) &&
+                rule.matchTags(options.excludeTags) === false,
         )
     }
 
@@ -24,8 +31,8 @@ export class Feature extends ScenarioParent {
         return this.rules.some((rule) => rule.isCalled === true)
     }
 
-    public checkUncalledRule(tags: string[]) {
-        const uncalled = this.getFirstRuleNotCalled(tags)
+    public checkUncalledRule(options: RequiredDescribeFeatureOptions) {
+        const uncalled = this.getFirstRuleNotCalled(options)
 
         if (uncalled) {
             throw new RuleNotCalledError(uncalled)

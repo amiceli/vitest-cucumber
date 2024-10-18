@@ -1,7 +1,11 @@
 import { afterAll, beforeAll, describe } from 'vitest'
 import type { Feature } from '../parser/models/feature'
 import type { Example } from '../parser/models/scenario'
-import { getVitestCucumberConfiguration } from './configuration'
+import {
+    type TagFilterItem,
+    type VitestCucumberOptions,
+    getVitestCucumberConfiguration,
+} from './configuration'
 import { createBackgroundDescribeHandler } from './describe/describeBackground'
 import { createScenarioDescribeHandler } from './describe/describeScenario'
 import { createScenarioOutlineDescribeHandler } from './describe/describeScenarioOutline'
@@ -14,14 +18,33 @@ import type {
     StepTest,
 } from './types'
 
-export type DescribeFeatureOptions = {
-    excludeTags?: string[]
-}
+export type DescribeFeatureOptions = Pick<
+    VitestCucumberOptions,
+    'includeTags' | 'excludeTags'
+>
+export type RequiredDescribeFeatureOptions = Required<DescribeFeatureOptions>
 
 type DescribesToRun = Array<{
     describeTitle: string
     describeHandler: () => void
 }>
+
+/**
+ * Extract tag filters by removing the `@` prefix if present
+ */
+const extractTagFilters = (filterItems: TagFilterItem[]): TagFilterItem[] => {
+    return filterItems.map((filterItem) => {
+        if (Array.isArray(filterItem)) {
+            return extractTagFilters(filterItem) as TagFilterItem
+        }
+
+        if (filterItem.startsWith('@')) {
+            return filterItem.replace('@', '') as TagFilterItem
+        }
+
+        return filterItem as TagFilterItem
+    })
+}
 
 export function describeFeature(
     feature: Feature,
@@ -33,9 +56,15 @@ export function describeFeature(
     let afterAllScenarioHook: () => MaybePromise = () => {}
     let afterEachScenarioHook: () => MaybePromise = () => {}
 
-    const excludeTags =
-        describeFeatureOptions?.excludeTags ||
-        getVitestCucumberConfiguration().excludeTags
+    const configuration = getVitestCucumberConfiguration()
+    const options = {
+        includeTags: extractTagFilters(
+            describeFeatureOptions?.includeTags || configuration.includeTags,
+        ),
+        excludeTags: extractTagFilters(
+            describeFeatureOptions?.excludeTags || configuration.excludeTags,
+        ),
+    }
 
     const describeScenarios: DescribesToRun = []
     const describeRules: DescribesToRun = []
@@ -170,8 +199,8 @@ export function describeFeature(
             })
 
             currentRule
-                .checkUncalledScenario(excludeTags)
-                .checkUncalledBackground(excludeTags)
+                .checkUncalledScenario(options)
+                .checkUncalledBackground(options)
 
             describeRules.push({
                 describeTitle: currentRule.getTitle(),
@@ -222,9 +251,9 @@ export function describeFeature(
     describeFeatureCallback(descibeFeatureParams)
 
     feature
-        .checkUncalledRule(excludeTags)
-        .checkUncalledScenario(excludeTags)
-        .checkUncalledBackground(excludeTags)
+        .checkUncalledRule(options)
+        .checkUncalledScenario(options)
+        .checkUncalledBackground(options)
 
     describe(feature.getTitle(), async () => {
         beforeAll(async () => {

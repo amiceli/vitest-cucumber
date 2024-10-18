@@ -40,6 +40,7 @@ describe('getVitestCucumberConfiguration', () => {
     it('default configuration', () => {
         expect(getVitestCucumberConfiguration()).toEqual({
             language: 'en',
+            includeTags: [],
             excludeTags: ['ignore'],
         })
     })
@@ -47,11 +48,13 @@ describe('getVitestCucumberConfiguration', () => {
     it('full configuration', () => {
         const config = {
             language: 'fr',
+            includeTags: ['alpha'],
             excludeTags: ['beta'],
         }
 
         expect(getVitestCucumberConfiguration(config)).toEqual({
             language: 'fr',
+            includeTags: ['alpha'],
             excludeTags: ['beta'],
         })
     })
@@ -65,6 +68,7 @@ describe('setVitestCucumberConfiguration', () => {
 
         expect(getVitestCucumberConfiguration()).toEqual({
             language: 'en',
+            includeTags: [],
             excludeTags: ['ignore'],
         })
     })
@@ -79,6 +83,7 @@ describe('setVitestCucumberConfiguration', () => {
 
         expect(getVitestCucumberConfiguration()).toEqual({
             language: 'fr',
+            includeTags: [],
             excludeTags: ['beta'],
         })
     })
@@ -97,6 +102,7 @@ describe('setVitestCucumberConfiguration', () => {
 
         expect(getVitestCucumberConfiguration()).toEqual({
             language: 'fr',
+            includeTags: [],
             excludeTags: ['ignore'],
         })
     })

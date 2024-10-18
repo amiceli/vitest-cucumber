@@ -2,14 +2,14 @@ import { describe, expect, vi } from 'vitest'
 import { FeatureContentReader } from '../../__mocks__/FeatureContentReader.spec'
 import { describeFeature } from '../describe-feature'
 
-describe(`Execute all scenarii if no exclusion tag`, async () => {
+describe(`Run scenario selected with a tag`, async () => {
     const feature = FeatureContentReader.fromString([
         `Feature: detect uncalled rules`,
-        `    Scenario: Simple scenario`,
+        `    Scenario: Ignored scenario`,
         `        Given vitest-cucumber is running`,
-        `        Then  It check I am executed`,
+        `        Then  Don't check if I am called`,
         `    @beta`,
-        `    Scenario: Beta scenario`,
+        `    Scenario: Selected scenario`,
         `        Given vitest-cucumber is running`,
         `        Then  It check I am executed    `,
     ]).parseContent()
@@ -19,41 +19,36 @@ describe(`Execute all scenarii if no exclusion tag`, async () => {
         ({ Scenario, AfterAllScenarios }) => {
             AfterAllScenarios(() => {
                 expect(
-                    feature.getScenarioByName(`Simple scenario`)?.isCalled,
-                ).toBe(true)
-
+                    feature.getScenarioByName(`Ignored scenario`)?.isCalled,
+                ).toBe(false)
                 expect(
-                    feature.getScenarioByName(`Beta scenario`)?.isCalled,
+                    feature.getScenarioByName(`Selected scenario`)?.isCalled,
                 ).toBe(true)
                 expect(
                     feature
-                        .getScenarioByName(`Beta scenario`)
+                        .getScenarioByName(`Selected scenario`)
                         ?.matchTags([`beta`]),
                 ).toBe(true)
             })
-            Scenario(`Simple scenario`, ({ Given, Then }) => {
-                Given(`vitest-cucumber is running`, () => {})
-                Then(`It check I am executed`, () => {})
-            })
-            Scenario(`Beta scenario`, ({ Given, Then }) => {
+            Scenario(`Selected scenario`, ({ Given, Then }) => {
                 Given(`vitest-cucumber is running`, () => {})
                 Then(`It check I am executed`, () => {})
             })
         },
-        { excludeTags: [] },
+        { includeTags: [`beta`] },
     )
 })
 
-describe(`Ignore scenario with a tag`, async () => {
+describe(`Run scenario selected with a tag (alternative with an @ prefix)`, async () => {
     const feature = FeatureContentReader.fromString([
         `Feature: detect uncalled rules`,
-        `    Scenario: Simple scenario`,
-        `        Given vitest-cucumber is running`,
-        `        Then  It check I am executed`,
-        `    @beta`,
         `    Scenario: Ignored scenario`,
         `        Given vitest-cucumber is running`,
-        `        Then  Don't check if I am called    `,
+        `        Then  Don't check if I am called`,
+        `    @beta`,
+        `    Scenario: Selected scenario`,
+        `        Given vitest-cucumber is running`,
+        `        Then  It check I am executed    `,
     ]).parseContent()
 
     describeFeature(
@@ -64,55 +59,24 @@ describe(`Ignore scenario with a tag`, async () => {
                     feature.getScenarioByName(`Ignored scenario`)?.isCalled,
                 ).toBe(false)
                 expect(
+                    feature.getScenarioByName(`Selected scenario`)?.isCalled,
+                ).toBe(true)
+                expect(
                     feature
-                        .getScenarioByName(`Ignored scenario`)
+                        .getScenarioByName(`Selected scenario`)
                         ?.matchTags([`beta`]),
                 ).toBe(true)
             })
-            Scenario(`Simple scenario`, ({ Given, Then }) => {
+            Scenario(`Selected scenario`, ({ Given, Then }) => {
                 Given(`vitest-cucumber is running`, () => {})
                 Then(`It check I am executed`, () => {})
             })
         },
-        { excludeTags: [`beta`] },
+        { includeTags: [`@beta`] },
     )
 })
 
-describe(`Ignore scenario with a tag (alternative with an @ prefix)`, async () => {
-    const feature = FeatureContentReader.fromString([
-        `Feature: detect uncalled rules`,
-        `    Scenario: Simple scenario`,
-        `        Given vitest-cucumber is running`,
-        `        Then  It check I am executed`,
-        `    @beta`,
-        `    Scenario: Ignored scenario`,
-        `        Given vitest-cucumber is running`,
-        `        Then  Don't check if I am called    `,
-    ]).parseContent()
-
-    describeFeature(
-        feature,
-        ({ Scenario, AfterAllScenarios }) => {
-            AfterAllScenarios(() => {
-                expect(
-                    feature.getScenarioByName(`Ignored scenario`)?.isCalled,
-                ).toBe(false)
-                expect(
-                    feature
-                        .getScenarioByName(`Ignored scenario`)
-                        ?.matchTags([`beta`]),
-                ).toBe(true)
-            })
-            Scenario(`Simple scenario`, ({ Given, Then }) => {
-                Given(`vitest-cucumber is running`, () => {})
-                Then(`It check I am executed`, () => {})
-            })
-        },
-        { excludeTags: [`@beta`] },
-    )
-})
-
-describe(`Ignore rule with a tag`, async () => {
+describe(`Run rule with a tag`, async () => {
     const feature = FeatureContentReader.fromString([
         `Feature: detect uncalled rules`,
         `    @awesome`,
@@ -146,11 +110,11 @@ describe(`Ignore rule with a tag`, async () => {
                 Then(`check if I am called`, () => {})
             })
         },
-        { excludeTags: [`normal`] },
+        { includeTags: [`awesome`] },
     )
 })
 
-describe(`Ignore scenario in rule with a tag`, async () => {
+describe(`Run scenario in rule with a tag`, async () => {
     const feature = FeatureContentReader.fromString([
         `Feature: detect uncalled rules`,
         `    @awesome`,
@@ -197,16 +161,16 @@ describe(`Ignore scenario in rule with a tag`, async () => {
                 })
             })
         },
-        { excludeTags: [`ignored`] },
+        { includeTags: [`inside`] },
     )
 })
 
-describe(`excludeTags`, () => {
+describe(`includeTags`, () => {
     describe(`default value`, () => {
         const feature = FeatureContentReader.fromString([
-            `Feature: excludeTags default value`,
+            `Feature: includeTags default value`,
             `   Rule: sample rule`,
-            `       Scenario: excludeTags is optional`,
+            `       Scenario: includeTags is optional`,
             `           Given I have no tags`,
             `           Then  So I'm called`,
         ]).parseContent()
@@ -226,16 +190,16 @@ describe(`excludeTags`, () => {
                 })
             })
             f.Rule(`sample rule`, (r) => {
-                r.RuleScenario(`excludeTags is optional`, (s) => {
+                r.RuleScenario(`includeTags is optional`, (s) => {
                     s.Given(`I have no tags`, () => {})
                     s.Then(`So I'm called`, () => {})
                 })
             })
         })
     })
-    describe(`exclude Rule and Scenario`, () => {
+    describe(`include Rule and Scenario`, () => {
         const feature = FeatureContentReader.fromString([
-            `Feature: excludeTags used`,
+            `Feature: includeTags used`,
             `   @ignored-scenario`,
             `   Scenario: A Feature ignored Scenario`,
             `       Given I have a tag`,
@@ -289,8 +253,8 @@ describe(`excludeTags`, () => {
 
                     for (const fn of checks) {
                         expect(fn).toHaveBeenCalledWith({
-                            includeTags: [],
-                            excludeTags: [`ignored-scenario`, `ignored-rule`],
+                            includeTags: [`simple`],
+                            excludeTags: [],
                         })
                     }
 
@@ -326,7 +290,8 @@ describe(`excludeTags`, () => {
                 })
             },
             {
-                excludeTags: [`ignored-scenario`, `ignored-rule`],
+                includeTags: [`simple`],
+                excludeTags: [],
             },
         )
     })

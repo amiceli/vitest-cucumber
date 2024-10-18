@@ -329,7 +329,9 @@ export class GherkinParser {
 
     private addTagToParent(parent: Taggable) {
         if (this.lastTags.length > 0) {
-            parent.tags.push(...this.lastTags)
+            for (const tag of this.lastTags) {
+                parent.tags.add(tag)
+            }
             this.lastTags = []
         }
     }
