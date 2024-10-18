@@ -83,7 +83,7 @@ describe(`Models`, () => {
             secondRule.isCalled = false
             const uncalledRuleWithTag = new Rule(`with tag`)
             uncalledRuleWithTag.isCalled = true
-            uncalledRuleWithTag.tags.push(`ignore`)
+            uncalledRuleWithTag.tags.add(`ignore`)
 
             feature.rules.push(rule)
             expect(
@@ -113,7 +113,7 @@ describe(`Models`, () => {
         test(`Throw an error if a Rule isn't called`, () => {
             const feature = new Feature(`test`)
             const rule = new Rule(`rule`)
-            rule.tags.push(`ignore`)
+            rule.tags.add(`ignore`)
 
             feature.rules.push(rule)
 
@@ -419,7 +419,7 @@ describe(`Models`, () => {
         })
 
         describe('scenario with a single tag', () => {
-            scenario.tags = [`vitests`]
+            scenario.tags = new Set([`vitests`])
 
             test(`false if not matching`, () => {
                 expect(scenario.matchTags([`test`])).toBe(false)
@@ -430,7 +430,7 @@ describe(`Models`, () => {
         })
 
         describe('scenario with multiple tags', () => {
-            scenario.tags = [`vitests`, `another`]
+            scenario.tags = new Set([`vitests`, `another`])
 
             test(`true if at least one tag matches`, () => {
                 expect(scenario.matchTags([`vitests`, `test`])).toBe(true)

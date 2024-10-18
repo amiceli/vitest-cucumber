@@ -1,17 +1,15 @@
 import type { TagFilterItem } from '../../vitest/configuration'
 
-const matchFilter = (filterItem: TagFilterItem, tags: string[]) => {
+const matchFilter = (filterItem: TagFilterItem, tags: Set<string>) => {
     if (Array.isArray(filterItem)) {
-        return filterItem.every((item) => tags.includes(item))
+        return filterItem.every((item) => tags.has(item))
     }
 
-    return tags.some((tag) => {
-        return filterItem === tag
-    })
+    return tags.has(filterItem)
 }
 
 export abstract class Taggable {
-    public tags: string[] = []
+    public tags = new Set<string>()
 
     /**
      * Simple matching filter mostly following the cucumber expression tag rules,

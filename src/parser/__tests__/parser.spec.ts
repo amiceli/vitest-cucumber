@@ -371,8 +371,8 @@ describe(`GherkinParser`, () => {
         const [oneTag, manyLineTags, oneLineTags] = currentFeature.scenarii
 
         expect(oneTag.tags).toContain(`example`)
-        expect(manyLineTags.tags).toEqual([`example`, `awesome`, `again`])
-        expect(oneLineTags.tags).toEqual([`example`, `awesome`, `again`])
+        expect([...manyLineTags.tags]).toEqual([`example`, `awesome`, `again`])
+        expect([...oneLineTags.tags]).toEqual([`example`, `awesome`, `again`])
     })
 
     it(`should ignore tags without @`, () => {
@@ -386,8 +386,8 @@ describe(`GherkinParser`, () => {
         const currentFeature = getCurrentFeaut(parser)
         const [noTag, twoTags] = currentFeature.scenarii
 
-        expect(noTag.tags.length).toBe(0)
-        expect(twoTags.tags).toEqual([`example`, `again`])
+        expect(noTag.tags.size).toBe(0)
+        expect([...twoTags.tags]).toEqual([`example`, `again`])
     })
 
     it(`should be able to add tag to Feature`, () => {
