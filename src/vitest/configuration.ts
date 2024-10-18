@@ -1,7 +1,9 @@
+export type TagFilterItem = string | string[]
+
 export type VitestCucumberOptions = {
     language?: string
-    includeTags?: string[]
-    excludeTags?: string[]
+    includeTags?: TagFilterItem[]
+    excludeTags?: TagFilterItem[]
 }
 
 export type RequiredVitestCucumberOptions = Required<VitestCucumberOptions>

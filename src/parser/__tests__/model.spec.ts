@@ -410,13 +410,45 @@ describe(`Models`, () => {
     })
 
     describe(`Taggable`, () => {
-        test(`check if Taggable match tags`, () => {
-            const scenario = new Scenario(`test`)
+        const scenario = new Scenario(`test`)
+
+        describe('scenario without tag', () => {
+            test(`false if not present`, () => {
+                expect(scenario.matchTags([`test`])).toBe(false)
+            })
+        })
+
+        describe('scenario with a single tag', () => {
             scenario.tags = [`vitests`]
 
-            expect(scenario.matchTags([`test`])).toBe(false)
-            expect(scenario.matchTags([`vitests`])).toBe(true)
-            expect(scenario.matchTags([`vitests`, `another`])).toBe(true)
+            test(`false if not matching`, () => {
+                expect(scenario.matchTags([`test`])).toBe(false)
+            })
+            test(`true if one tag matches`, () => {
+                expect(scenario.matchTags([`vitests`, `another`])).toBe(true)
+            })
+        })
+
+        describe('scenario with multiple tags', () => {
+            scenario.tags = [`vitests`, `another`]
+
+            test(`true if at least one tag matches`, () => {
+                expect(scenario.matchTags([`vitests`, `test`])).toBe(true)
+            })
+            test(`true if all tags matches`, () => {
+                expect(scenario.matchTags([`vitests`, `another`])).toBe(true)
+            })
+            test(`false if no tag match`, () => {
+                expect(scenario.matchTags([`test`])).toBe(false)
+            })
+            test(`false if 'AND' operation does not match`, () => {
+                const operation = [`vitests`, `test`]
+                expect(scenario.matchTags([operation])).toBe(false)
+            })
+            test(`true if 'AND' operation does match`, () => {
+                const operation = [`vitests`, `another`]
+                expect(scenario.matchTags([operation])).toBe(true)
+            })
         })
     })
 

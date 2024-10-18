@@ -2,6 +2,48 @@ import { describe, expect, vi } from 'vitest'
 import { FeatureContentReader } from '../../__mocks__/FeatureContentReader.spec'
 import { describeFeature } from '../describe-feature'
 
+describe(`Execute all scenarii if no exclusion tag`, async () => {
+    const feature = FeatureContentReader.fromString([
+        `Feature: detect uncalled rules`,
+        `    Scenario: Simple scenario`,
+        `        Given vitest-cucumber is running`,
+        `        Then  It check I am executed`,
+        `    @beta`,
+        `    Scenario: Beta scenario`,
+        `        Given vitest-cucumber is running`,
+        `        Then  It check I am executed    `,
+    ]).parseContent()
+
+    describeFeature(
+        feature,
+        ({ Scenario, AfterAllScenarios }) => {
+            AfterAllScenarios(() => {
+                expect(
+                    feature.getScenarioByName(`Simple scenario`)?.isCalled,
+                ).toBe(true)
+
+                expect(
+                    feature.getScenarioByName(`Beta scenario`)?.isCalled,
+                ).toBe(true)
+                expect(
+                    feature
+                        .getScenarioByName(`Beta scenario`)
+                        ?.matchTags([`beta`]),
+                ).toBe(true)
+            })
+            Scenario(`Simple scenario`, ({ Given, Then }) => {
+                Given(`vitest-cucumber is running`, () => {})
+                Then(`It check I am executed`, () => {})
+            })
+            Scenario(`Beta scenario`, ({ Given, Then }) => {
+                Given(`vitest-cucumber is running`, () => {})
+                Then(`It check I am executed`, () => {})
+            })
+        },
+        { excludeTags: [] },
+    )
+})
+
 describe(`Ignore scenario with a tag`, async () => {
     const feature = FeatureContentReader.fromString([
         `Feature: detect uncalled rules`,
