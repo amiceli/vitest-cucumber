@@ -39,11 +39,12 @@ export function describeFeature(
     let afterEachScenarioHook: () => MaybePromise = () => {}
 
     const configuration = getVitestCucumberConfiguration()
-
-    const includeTags =
-        describeFeatureOptions?.includeTags || configuration.includeTags
-    const excludeTags =
-        describeFeatureOptions?.excludeTags || configuration.excludeTags
+    const options = {
+        includeTags:
+            describeFeatureOptions?.includeTags || configuration.includeTags,
+        excludeTags:
+            describeFeatureOptions?.excludeTags || configuration.excludeTags,
+    }
 
     const describeScenarios: DescribesToRun = []
     const describeRules: DescribesToRun = []
@@ -178,8 +179,8 @@ export function describeFeature(
             })
 
             currentRule
-                .checkUncalledScenario({ includeTags, excludeTags })
-                .checkUncalledBackground({ includeTags, excludeTags })
+                .checkUncalledScenario(options)
+                .checkUncalledBackground(options)
 
             describeRules.push({
                 describeTitle: currentRule.getTitle(),
@@ -230,9 +231,9 @@ export function describeFeature(
     describeFeatureCallback(descibeFeatureParams)
 
     feature
-        .checkUncalledRule({ includeTags, excludeTags })
-        .checkUncalledScenario({ includeTags, excludeTags })
-        .checkUncalledBackground({ includeTags, excludeTags })
+        .checkUncalledRule(options)
+        .checkUncalledScenario(options)
+        .checkUncalledBackground(options)
 
     describe(feature.getTitle(), async () => {
         beforeAll(async () => {
