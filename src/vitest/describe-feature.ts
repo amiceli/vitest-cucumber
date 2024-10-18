@@ -2,6 +2,7 @@ import { afterAll, beforeAll, describe } from 'vitest'
 import type { Feature } from '../parser/models/feature'
 import type { Example } from '../parser/models/scenario'
 import {
+    type TagFilterItem,
     type VitestCucumberOptions,
     getVitestCucumberConfiguration,
 } from './configuration'
@@ -28,6 +29,23 @@ type DescribesToRun = Array<{
     describeHandler: () => void
 }>
 
+/**
+ * Extract tag filters by removing the `@` prefix if present
+ */
+const extractTagFilters = (filterItems: TagFilterItem[]): TagFilterItem[] => {
+    return filterItems.map((filterItem) => {
+        if (Array.isArray(filterItem)) {
+            return extractTagFilters(filterItem) as TagFilterItem
+        }
+
+        if (filterItem.startsWith('@')) {
+            return filterItem.replace('@', '') as TagFilterItem
+        }
+
+        return filterItem as TagFilterItem
+    })
+}
+
 export function describeFeature(
     feature: Feature,
     describeFeatureCallback: DescribeFeatureCallback,
@@ -40,10 +58,12 @@ export function describeFeature(
 
     const configuration = getVitestCucumberConfiguration()
     const options = {
-        includeTags:
+        includeTags: extractTagFilters(
             describeFeatureOptions?.includeTags || configuration.includeTags,
-        excludeTags:
+        ),
+        excludeTags: extractTagFilters(
             describeFeatureOptions?.excludeTags || configuration.excludeTags,
+        ),
     }
 
     const describeScenarios: DescribesToRun = []

@@ -78,6 +78,40 @@ describe(`Ignore scenario with a tag`, async () => {
     )
 })
 
+describe(`Ignore scenario with a tag (alternative with an @ prefix)`, async () => {
+    const feature = FeatureContentReader.fromString([
+        `Feature: detect uncalled rules`,
+        `    Scenario: Simple scenario`,
+        `        Given vitest-cucumber is running`,
+        `        Then  It check I am executed`,
+        `    @beta`,
+        `    Scenario: Ignored scenario`,
+        `        Given vitest-cucumber is running`,
+        `        Then  Don't check if I am called    `,
+    ]).parseContent()
+
+    describeFeature(
+        feature,
+        ({ Scenario, AfterAllScenarios }) => {
+            AfterAllScenarios(() => {
+                expect(
+                    feature.getScenarioByName(`Ignored scenario`)?.isCalled,
+                ).toBe(false)
+                expect(
+                    feature
+                        .getScenarioByName(`Ignored scenario`)
+                        ?.matchTags([`beta`]),
+                ).toBe(true)
+            })
+            Scenario(`Simple scenario`, ({ Given, Then }) => {
+                Given(`vitest-cucumber is running`, () => {})
+                Then(`It check I am executed`, () => {})
+            })
+        },
+        { excludeTags: [`@beta`] },
+    )
+})
+
 describe(`Ignore rule with a tag`, async () => {
     const feature = FeatureContentReader.fromString([
         `Feature: detect uncalled rules`,

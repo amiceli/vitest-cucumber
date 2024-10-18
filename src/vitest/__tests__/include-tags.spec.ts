@@ -39,6 +39,43 @@ describe(`Run scenario selected with a tag`, async () => {
     )
 })
 
+describe(`Run scenario selected with a tag (alternative with an @ prefix)`, async () => {
+    const feature = FeatureContentReader.fromString([
+        `Feature: detect uncalled rules`,
+        `    Scenario: Ignored scenario`,
+        `        Given vitest-cucumber is running`,
+        `        Then  Don't check if I am called`,
+        `    @beta`,
+        `    Scenario: Selected scenario`,
+        `        Given vitest-cucumber is running`,
+        `        Then  It check I am executed    `,
+    ]).parseContent()
+
+    describeFeature(
+        feature,
+        ({ Scenario, AfterAllScenarios }) => {
+            AfterAllScenarios(() => {
+                expect(
+                    feature.getScenarioByName(`Ignored scenario`)?.isCalled,
+                ).toBe(false)
+                expect(
+                    feature.getScenarioByName(`Selected scenario`)?.isCalled,
+                ).toBe(true)
+                expect(
+                    feature
+                        .getScenarioByName(`Selected scenario`)
+                        ?.matchTags([`beta`]),
+                ).toBe(true)
+            })
+            Scenario(`Selected scenario`, ({ Given, Then }) => {
+                Given(`vitest-cucumber is running`, () => {})
+                Then(`It check I am executed`, () => {})
+            })
+        },
+        { includeTags: [`@beta`] },
+    )
+})
+
 describe(`Run rule with a tag`, async () => {
     const feature = FeatureContentReader.fromString([
         `Feature: detect uncalled rules`,
