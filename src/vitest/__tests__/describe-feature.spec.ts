@@ -1,4 +1,5 @@
-import { afterAll, describe, expect, vi } from 'vitest'
+import { beforeEach } from 'node:test'
+import { afterAll, beforeAll, describe, expect, vi } from 'vitest'
 import { FeatureContentReader } from '../../__mocks__/FeatureContentReader.spec'
 import {
     BackgroundNotCalledError,
@@ -15,6 +16,7 @@ import {
 import { Rule as RuleType } from '../../parser/models/Rule'
 import { Scenario as ScenarioType } from '../../parser/models/scenario'
 import { Step, StepTypes } from '../../parser/models/step'
+import { setVitestCucumberConfiguration } from '../configuration'
 import { describeFeature } from '../describe-feature'
 
 describe(`Feature`, () => {
@@ -543,6 +545,39 @@ describe('use language for feature', () => {
                 s.When('Je lance les tests', () => {})
                 s.Then("Je n'ai pas d'erreur", () => {})
                 s.But('Ça me rassure', () => {})
+            })
+        })
+    })
+})
+
+describe('Use onStepError', () => {
+    beforeEach(() => {
+        setVitestCucumberConfiguration({})
+    })
+
+    describe('Scenario', () => {
+        const feature = FeatureContentReader.fromString([
+            `Feature: onStepError options`,
+            `   Scenario: Simple scenario`,
+            `       Given I throw an error`,
+            `       Then  my onStepError is called`,
+        ]).parseContent()
+
+        const onStepError = vi.fn()
+        setVitestCucumberConfiguration({ onStepError })
+
+        describeFeature(feature, (f) => {
+            f.Scenario('Simple scenario', (s) => {
+                s.Given('I throw an error', () => {
+                    throw new Error('test')
+                })
+                s.Then('my onStepError is called', () => {
+                    expect(onStepError).toHaveBeenCalledWith({
+                        error: new Error('test'),
+                        step: feature.scenarii[0]?.steps[0],
+                        ctx: expect.any(Function),
+                    })
+                })
             })
         })
     })

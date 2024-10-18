@@ -1,6 +1,7 @@
-import { afterAll, beforeAll, test } from 'vitest'
+import { afterAll, beforeAll, onTestFailed, test } from 'vitest'
 import { ExpressionStep } from '../../parser/expression/ExpressionStep'
 import type { Scenario } from '../../parser/models/scenario'
+import { getVitestCucumberConfiguration } from '../configuration'
 import type {
     CallbackWithParamsAndContext,
     CallbackWithSingleContext,
@@ -24,6 +25,7 @@ export function createScenarioDescribeHandler({
     beforeEachScenarioHook,
 }: DescribeScenarioArgs): () => void {
     const scenarioStepsToRun: ScenarioSteps[] = []
+    const cucumberConfiguration = getVitestCucumberConfiguration()
 
     const createScenarioStepCallback = (
         stepType: string,
@@ -83,6 +85,13 @@ export function createScenarioDescribeHandler({
                 return [s.key, s]
             }),
         )(`%s`, async ([, scenarioStep], ctx) => {
+            onTestFailed((e) => {
+                cucumberConfiguration.onStepError({
+                    error: new Error(e.errors?.at(0)?.message || 'Error'),
+                    ctx,
+                    step: scenarioStep.step,
+                })
+            })
             await scenarioStep.fn(ctx, ...scenarioStep.params)
         })
     }
