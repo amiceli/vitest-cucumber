@@ -86,16 +86,31 @@ describe(`Models`, () => {
             uncalledRuleWithTag.tags.push(`ignore`)
 
             feature.rules.push(rule)
-            expect(feature.getFirstRuleNotCalled([])).toBeUndefined()
+            expect(
+                feature.getFirstRuleNotCalled({
+                    includeTags: [],
+                    excludeTags: [],
+                }),
+            ).toBeUndefined()
 
             feature.rules.push(uncalledRuleWithTag)
-            expect(feature.getFirstRuleNotCalled([`ignore`])).toBeUndefined()
+            expect(
+                feature.getFirstRuleNotCalled({
+                    includeTags: [],
+                    excludeTags: [`ignore`],
+                }),
+            ).toBeUndefined()
 
             feature.rules.push(secondRule)
-            expect(feature.getFirstRuleNotCalled([])).toEqual(secondRule)
+            expect(
+                feature.getFirstRuleNotCalled({
+                    includeTags: [],
+                    excludeTags: [],
+                }),
+            ).toEqual(secondRule)
         })
 
-        test(`Trhow an error if a Rule isn't called`, () => {
+        test(`Throw an error if a Rule isn't called`, () => {
             const feature = new Feature(`test`)
             const rule = new Rule(`rule`)
             rule.tags.push(`ignore`)
@@ -103,21 +118,40 @@ describe(`Models`, () => {
             feature.rules.push(rule)
 
             expect(() => {
-                feature.checkUncalledRule([])
+                feature.checkUncalledRule({
+                    includeTags: [],
+                    excludeTags: [],
+                })
             }).toThrowError(new RuleNotCalledError(rule))
 
             expect(() => {
-                feature.checkUncalledRule([`test`])
+                feature.checkUncalledRule({
+                    includeTags: [],
+                    excludeTags: [`test`],
+                })
             }).toThrowError(new RuleNotCalledError(rule))
 
             expect(() => {
-                feature.checkUncalledRule([`ignore`])
+                feature.checkUncalledRule({
+                    includeTags: [`ignore`],
+                    excludeTags: [],
+                })
+            }).toThrowError(new RuleNotCalledError(rule))
+
+            expect(() => {
+                feature.checkUncalledRule({
+                    includeTags: [],
+                    excludeTags: [`ignore`],
+                })
             }).not.toThrowError()
 
             rule.isCalled = true
 
             expect(() => {
-                feature.checkUncalledRule([])
+                feature.checkUncalledRule({
+                    includeTags: [],
+                    excludeTags: [],
+                })
             }).not.toThrowError()
         })
 

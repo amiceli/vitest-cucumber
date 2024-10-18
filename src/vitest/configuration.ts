@@ -1,5 +1,6 @@
 export type VitestCucumberOptions = {
     language?: string
+    includeTags?: string[]
     excludeTags?: string[]
 }
 
@@ -7,6 +8,7 @@ export type RequiredVitestCucumberOptions = Required<VitestCucumberOptions>
 
 const defaultConfiguration: VitestCucumberOptions = {
     language: 'en',
+    includeTags: [],
     excludeTags: ['ignore'],
 }
 

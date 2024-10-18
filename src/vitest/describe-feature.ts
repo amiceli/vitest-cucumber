@@ -1,7 +1,10 @@
 import { afterAll, beforeAll, describe } from 'vitest'
 import type { Feature } from '../parser/models/feature'
 import type { Example } from '../parser/models/scenario'
-import { getVitestCucumberConfiguration } from './configuration'
+import {
+    type VitestCucumberOptions,
+    getVitestCucumberConfiguration,
+} from './configuration'
 import { createBackgroundDescribeHandler } from './describe/describeBackground'
 import { createScenarioDescribeHandler } from './describe/describeScenario'
 import { createScenarioOutlineDescribeHandler } from './describe/describeScenarioOutline'
@@ -14,9 +17,11 @@ import type {
     StepTest,
 } from './types'
 
-export type DescribeFeatureOptions = {
-    excludeTags?: string[]
-}
+export type DescribeFeatureOptions = Pick<
+    VitestCucumberOptions,
+    'includeTags' | 'excludeTags'
+>
+export type RequiredDescribeFeatureOptions = Required<DescribeFeatureOptions>
 
 type DescribesToRun = Array<{
     describeTitle: string
@@ -33,9 +38,12 @@ export function describeFeature(
     let afterAllScenarioHook: () => MaybePromise = () => {}
     let afterEachScenarioHook: () => MaybePromise = () => {}
 
+    const configuration = getVitestCucumberConfiguration()
+
+    const includeTags =
+        describeFeatureOptions?.includeTags || configuration.includeTags
     const excludeTags =
-        describeFeatureOptions?.excludeTags ||
-        getVitestCucumberConfiguration().excludeTags
+        describeFeatureOptions?.excludeTags || configuration.excludeTags
 
     const describeScenarios: DescribesToRun = []
     const describeRules: DescribesToRun = []
@@ -170,8 +178,8 @@ export function describeFeature(
             })
 
             currentRule
-                .checkUncalledScenario(excludeTags)
-                .checkUncalledBackground(excludeTags)
+                .checkUncalledScenario({ includeTags, excludeTags })
+                .checkUncalledBackground({ includeTags, excludeTags })
 
             describeRules.push({
                 describeTitle: currentRule.getTitle(),
@@ -222,9 +230,9 @@ export function describeFeature(
     describeFeatureCallback(descibeFeatureParams)
 
     feature
-        .checkUncalledRule(excludeTags)
-        .checkUncalledScenario(excludeTags)
-        .checkUncalledBackground(excludeTags)
+        .checkUncalledRule({ includeTags, excludeTags })
+        .checkUncalledScenario({ includeTags, excludeTags })
+        .checkUncalledBackground({ includeTags, excludeTags })
 
     describe(feature.getTitle(), async () => {
         beforeAll(async () => {
