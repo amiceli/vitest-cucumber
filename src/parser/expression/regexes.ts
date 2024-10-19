@@ -98,6 +98,25 @@ export class StringRegex extends ExpressionRegex<string> {
     }
 }
 
+export class EmailRegex extends ExpressionRegex<string> {
+    public constructor() {
+        super({
+            keyword: `{email}`,
+            groupName: `email`,
+            keywordRegex: /{email}/g,
+        })
+    }
+
+    public getRegex(index: number) {
+        const emailRegex = `[^\\s@]+@[^\\s@]+\\.[^\\s@]+`
+        return `\\b(?<email${index}>${emailRegex})\\b`
+    }
+
+    public getValue(str: string): string {
+        return str.replace(/^["']|["']$/g, ``)
+    }
+}
+
 export class NumberRegex extends ExpressionRegex<number> {
     public constructor() {
         super({
