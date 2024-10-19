@@ -1,6 +1,7 @@
 import { StepExpressionMatchError } from '../../errors/errors'
 import type { Step } from '../models/step'
 import {
+    BooleanRegex,
     type ExpressionRegex,
     FloatRegex,
     ListRegex,
@@ -11,6 +12,7 @@ import {
 // biome-ignore lint/complexity/noStaticOnlyClass: <explanation>
 export class ExpressionStep {
     public static readonly expressionRegEx: ExpressionRegex[] = [
+        new BooleanRegex(),
         new StringRegex(),
         new NumberRegex(),
         new FloatRegex(),
@@ -23,6 +25,10 @@ export class ExpressionStep {
         const groupCount: {
             [key: string]: number
         } = {}
+
+        // escape special characters
+        // TODO : among [-\/\\^$*+?.()|[\]{}] which characters need to be escaped?
+        regexString = regexString.replace(/[?]/g, `\\$&`)
 
         for (const r of ExpressionStep.expressionRegEx) {
             groupCount[r.groupName] = 0
@@ -74,8 +80,7 @@ export class ExpressionStep {
         const allValues = result
             .flat()
             .filter((t) => t !== undefined)
-            // biome-ignore lint/style/noNonNullAssertion: <explanation>
-            .map((r) => r!.value)
+            .map((r) => r.value)
 
         const hasRegex = ExpressionStep.expressionRegEx.some((r) => {
             return stepExpression.includes(r.keyword)
