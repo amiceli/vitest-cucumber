@@ -56,6 +56,50 @@ describe(`ExpressionStep`, () => {
         })
     })
 
+    describe('{char}', () => {
+        it(`should match {char}`, () => {
+            const step = new Step(StepTypes.GIVEN, `I got an A grade`)
+            const params = ExpressionStep.matchStep(
+                step,
+                `I got an {char} grade`,
+            )
+            expect(params).toEqual([`A`])
+        })
+
+        it(`should match multiple {char}`, () => {
+            const step = new Step(
+                StepTypes.GIVEN,
+                `A grade between A and C is required to pass the exam`,
+            )
+            const params = ExpressionStep.matchStep(
+                step,
+                `A grade between {char} and {char} is required to pass the exam`,
+            )
+            expect(params).toEqual([`A`, `C`])
+        })
+
+        it(`should match {char} inside a word`, () => {
+            const step = new Step(
+                StepTypes.GIVEN,
+                `should be the 7th char of the word "Alphabet"`,
+            )
+            const params = ExpressionStep.matchStep(
+                step,
+                `should be the 7th char of the word "Alphab{char}t`,
+            )
+            expect(params).toEqual([`e`])
+        })
+
+        it(`should match consecutive {char}`, () => {
+            const step = new Step(StepTypes.GIVEN, `ATCG`)
+            const params = ExpressionStep.matchStep(
+                step,
+                `{char}{char}{char}{char}`,
+            )
+            expect(params).toEqual([`A`, `T`, `C`, `G`])
+        })
+    })
+
     describe('{string}', () => {
         it(`should match {string}`, () => {
             const step = new Step(StepTypes.GIVEN, `I love 'Vue'`)

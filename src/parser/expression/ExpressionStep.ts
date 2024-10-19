@@ -2,6 +2,7 @@ import { StepExpressionMatchError } from '../../errors/errors'
 import type { Step } from '../models/step'
 import {
     BooleanRegex,
+    CharRegex,
     type ExpressionRegex,
     FloatRegex,
     ListRegex,
@@ -15,6 +16,7 @@ export class ExpressionStep {
     public static readonly expressionRegEx: ExpressionRegex[] = [
         new BooleanRegex(),
         new WordRegex(),
+        new CharRegex(),
         new StringRegex(),
         new NumberRegex(),
         new FloatRegex(),

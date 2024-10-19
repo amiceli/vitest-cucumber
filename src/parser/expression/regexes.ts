@@ -62,6 +62,24 @@ export class WordRegex extends ExpressionRegex<string> {
     }
 }
 
+export class CharRegex extends ExpressionRegex<string> {
+    public constructor() {
+        super({
+            keyword: `{char}`,
+            groupName: `char`,
+            keywordRegex: /{char}/g,
+        })
+    }
+
+    public getRegex(index: number) {
+        return `(?<char${index}>\\w)`
+    }
+
+    public getValue(str: string): string {
+        return str
+    }
+}
+
 export class StringRegex extends ExpressionRegex<string> {
     public constructor() {
         super({
