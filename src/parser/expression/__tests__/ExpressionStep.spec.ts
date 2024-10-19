@@ -351,4 +351,14 @@ describe(`ExpressionStep`, () => {
 
         expect(params).toEqual([])
     })
+
+    it(`should match full step expression`, () => {
+        const step = new Step(StepTypes.GIVEN, `I love "Vue" 3.2`)
+
+        expect(() => {
+            ExpressionStep.matchStep(step, `I love "Vue" {char}`)
+        }).toThrowError(
+            new StepExpressionMatchError(step, `I love "Vue" {char}`),
+        )
+    })
 })
