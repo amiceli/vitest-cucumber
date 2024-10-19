@@ -85,7 +85,7 @@ describe(`ExpressionStep`, () => {
             )
             const params = ExpressionStep.matchStep(
                 step,
-                `should be the 7th char of the word "Alphab{char}t`,
+                `should be the 7th char of the word "Alphab{char}t"`,
             )
             expect(params).toEqual([`e`])
         })
@@ -146,14 +146,41 @@ describe(`ExpressionStep`, () => {
         })
     })
 
-    describe('{number}', () => {
-        it(`should match {number}`, () => {
+    describe('{int}', () => {
+        it(`should match {int}`, () => {
             const step = new Step(StepTypes.GIVEN, `I love Vue 3`)
-            const params = ExpressionStep.matchStep(step, `I love Vue {number}`)
+            const params = ExpressionStep.matchStep(step, `I love Vue {int}`)
             expect(params).toEqual([3])
         })
 
-        it.skip(`should match multiple {number}`, () => {
+        it(`should match multiple {int}`, () => {
+            const step = new Step(StepTypes.GIVEN, `I love Vue 2 or 3`)
+            const params = ExpressionStep.matchStep(
+                step,
+                `I love Vue {int} or {int}`,
+            )
+            expect(params).toEqual([2, 3])
+        })
+
+        it(`should fail to match {int}`, () => {
+            const step = new Step(StepTypes.GIVEN, `I love Vue 3.1`)
+
+            expect(() => {
+                ExpressionStep.matchStep(step, `I love Vue {int}`)
+            }).toThrowError(
+                new StepExpressionMatchError(step, `I love Vue {int}`),
+            )
+        })
+    })
+
+    describe('{number}', () => {
+        it(`should match {number}`, () => {
+            const step = new Step(StepTypes.GIVEN, `I love Vue 3.1`)
+            const params = ExpressionStep.matchStep(step, `I love Vue {number}`)
+            expect(params).toEqual([3.1])
+        })
+
+        it(`should match multiple {number}`, () => {
             const step = new Step(StepTypes.GIVEN, `I love Vue 3.1 or 3.2`)
             const params = ExpressionStep.matchStep(
                 step,
@@ -161,22 +188,11 @@ describe(`ExpressionStep`, () => {
             )
             expect(params).toEqual([3.1, 3.2])
         })
-    })
 
-    describe('{float}', () => {
-        it(`should match {float}`, () => {
-            const step = new Step(StepTypes.GIVEN, `I love Vue 3.1`)
-            const params = ExpressionStep.matchStep(step, `I love Vue {float}`)
-            expect(params).toEqual([3.1])
-        })
-
-        it(`should match multiple {float}`, () => {
-            const step = new Step(StepTypes.GIVEN, `I love Vue 3.1 or 3.2`)
-            const params = ExpressionStep.matchStep(
-                step,
-                `I love Vue {float} or {float}`,
-            )
-            expect(params).toEqual([3.1, 3.2])
+        it(`should match integer {number}`, () => {
+            const step = new Step(StepTypes.GIVEN, `I love Vue 3`)
+            const params = ExpressionStep.matchStep(step, `I love Vue {number}`)
+            expect(params).toEqual([3])
         })
     })
 

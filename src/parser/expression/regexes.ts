@@ -117,6 +117,24 @@ export class EmailRegex extends ExpressionRegex<string> {
     }
 }
 
+export class IntRegex extends ExpressionRegex<number> {
+    public constructor() {
+        super({
+            keyword: `{int}`,
+            groupName: `int`,
+            keywordRegex: /{int}/g,
+        })
+    }
+
+    public getRegex(index: number) {
+        return `\\b(?<int${index}>\\d+)\\b`
+    }
+
+    public getValue(str: string): number {
+        return Number(str)
+    }
+}
+
 export class NumberRegex extends ExpressionRegex<number> {
     public constructor() {
         super({
@@ -127,33 +145,11 @@ export class NumberRegex extends ExpressionRegex<number> {
     }
 
     public getRegex(index: number) {
-        return `(?<number${index}>\\$?\\d+(\\.\\d+)?)`
+        return `\\b(?<number${index}>\\d+(\\.\\d+)?)\\b`
     }
 
     public getValue(str: string): number {
-        if (str.startsWith(`$`)) {
-            return Number.parseInt(str.replace(`$`, ``), 10)
-        }
-
-        return Number.parseInt(str, 10)
-    }
-}
-
-export class FloatRegex extends ExpressionRegex<number> {
-    public constructor() {
-        super({
-            keyword: `{float}`,
-            groupName: `float`,
-            keywordRegex: /{float}/g,
-        })
-    }
-
-    public getRegex(index: number) {
-        return `\\b(?<float${index}>\\d+\\.\\d+)\\b`
-    }
-
-    public getValue(str: string): number {
-        return Number.parseFloat(str)
+        return Number(str)
     }
 }
 
