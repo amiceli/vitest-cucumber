@@ -138,6 +138,30 @@ export class FloatRegex extends ExpressionRegex<number> {
     }
 }
 
+export class DateRegex extends ExpressionRegex<Date> {
+    public constructor() {
+        super({
+            keyword: `{date}`,
+            groupName: `date`,
+            keywordRegex: /{date}/g,
+        })
+    }
+
+    public getRegex(index: number) {
+        const dateRegex = `[0-9]{1,2}\/[0-9]{1,2}\/[0-9]{4}(?: [0-9]{2}:[0-9]{2}:[0-9]{2})?`
+        const isoDateRegex = `(?:\\d{4})-(?:\\d{2})-(?:\\d{2})`
+        const isoDatetimeRegex = `(?:\\d{4})-(?:\\d{2})-(?:\\d{2})T(?:\\d{2}):(?:\\d{2}):(?:\\d{2}(?:\\.\\d*)?)(?:(?:-(?:\\d{2}):(?:\\d{2})|Z)?)`
+
+        // TODO : handle more date formats
+
+        return `\\b(?<date${index}>(${dateRegex})|(${isoDateRegex})|(${isoDatetimeRegex}))\\b`
+    }
+
+    public getValue(str: string): Date {
+        return new Date(str)
+    }
+}
+
 export class ListRegex extends ExpressionRegex<string[]> {
     public constructor() {
         super({
