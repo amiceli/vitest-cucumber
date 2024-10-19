@@ -117,6 +117,35 @@ describe(`ExpressionStep`, () => {
         })
     })
 
+    describe('{email}', () => {
+        it(`should match {email}`, () => {
+            const step = new Step(
+                StepTypes.GIVEN,
+                `This message will be sent to john.smith@example.com`,
+            )
+            const params = ExpressionStep.matchStep(
+                step,
+                `This message will be sent to {email}`,
+            )
+            expect(params).toEqual([`john.smith@example.com`])
+        })
+
+        it(`should match multiple {email}`, () => {
+            const step = new Step(
+                StepTypes.GIVEN,
+                `This message will be sent to john.smith@example.com and jane.doe@example.com`,
+            )
+            const params = ExpressionStep.matchStep(
+                step,
+                `This message will be sent to {email} and {email}`,
+            )
+            expect(params).toEqual([
+                `john.smith@example.com`,
+                `jane.doe@example.com`,
+            ])
+        })
+    })
+
     describe('{number}', () => {
         it(`should match {number}`, () => {
             const step = new Step(StepTypes.GIVEN, `I love Vue 3`)
