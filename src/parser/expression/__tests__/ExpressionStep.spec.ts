@@ -151,6 +151,110 @@ describe(`ExpressionStep`, () => {
         })
     })
 
+    describe('{date}', () => {
+        describe('MM/DD/YYYY format', () => {
+            it(`should match {date}`, () => {
+                const step = new Step(
+                    StepTypes.GIVEN,
+                    `the order was created at 12/01/2022`,
+                )
+                const params = ExpressionStep.matchStep(
+                    step,
+                    `the order was created at {date}`,
+                )
+                expect(params).toEqual([new Date(2022, 11, 1)])
+            })
+
+            it(`should match multiple {date}`, () => {
+                const step = new Step(
+                    StepTypes.GIVEN,
+                    `You should place your order between 01/01/2023 and 12/12/2023`,
+                )
+                const params = ExpressionStep.matchStep(
+                    step,
+                    `You should place your order between {date} and {date}`,
+                )
+                expect(params).toEqual([
+                    new Date(2023, 0, 1),
+                    new Date(2023, 11, 12),
+                ])
+            })
+        })
+
+        describe('YYYY-MM-DD format', () => {
+            // 💡 this format acts as UTC timezone
+
+            it(`should match {date}`, () => {
+                const step = new Step(
+                    StepTypes.GIVEN,
+                    `the order was created at 2022-12-01`,
+                )
+                const params = ExpressionStep.matchStep(
+                    step,
+                    `the order was created at {date}`,
+                )
+                expect(params).toEqual([new Date(Date.UTC(2022, 11, 1))])
+            })
+
+            it(`should match multiple {date}`, () => {
+                const step = new Step(
+                    StepTypes.GIVEN,
+                    `You should place your order between 2023-01-01 and 2023-12-12`,
+                )
+                const params = ExpressionStep.matchStep(
+                    step,
+                    `You should place your order between {date} and {date}`,
+                )
+                expect(params).toEqual([
+                    new Date(Date.UTC(2023, 0, 1)),
+                    new Date(Date.UTC(2023, 11, 12)),
+                ])
+            })
+        })
+
+        describe('MM/DD/YYYY HH:MM:SS format', () => {
+            it(`should match {date}`, () => {
+                const step = new Step(
+                    StepTypes.GIVEN,
+                    `The log was created at 05/23/2017 15:02:27`,
+                )
+                const params = ExpressionStep.matchStep(
+                    step,
+                    `The log was created at {date}`,
+                )
+                expect(params).toEqual([new Date(2017, 4, 23, 15, 2, 27)])
+            })
+        })
+
+        describe('YYYY-MM-DD with time format', () => {
+            it(`should match {date}`, () => {
+                const step = new Step(
+                    StepTypes.GIVEN,
+                    `The log was created at 2017-05-23T15:02:27`,
+                )
+                const params = ExpressionStep.matchStep(
+                    step,
+                    `The log was created at {date}`,
+                )
+                expect(params).toEqual([new Date(2017, 4, 23, 15, 2, 27)])
+            })
+
+            it(`should match {date} with UTC timezone`, () => {
+                const step = new Step(
+                    StepTypes.GIVEN,
+                    `The log was created at 2017-05-23T15:02:27Z`,
+                )
+                const params = ExpressionStep.matchStep(
+                    step,
+                    `The log was created at {date}`,
+                )
+                expect(params).toEqual([
+                    new Date(Date.UTC(2017, 4, 23, 15, 2, 27)),
+                ])
+            })
+        })
+    })
+
     describe('{list}', () => {
         it(`should match {list}`, () => {
             const step = new Step(

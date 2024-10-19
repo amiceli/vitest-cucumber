@@ -3,6 +3,7 @@ import type { Step } from '../models/step'
 import {
     BooleanRegex,
     CharRegex,
+    DateRegex,
     type ExpressionRegex,
     FloatRegex,
     ListRegex,
@@ -20,6 +21,7 @@ export class ExpressionStep {
         new StringRegex(),
         new NumberRegex(),
         new FloatRegex(),
+        new DateRegex(),
         new ListRegex(),
     ]
 
