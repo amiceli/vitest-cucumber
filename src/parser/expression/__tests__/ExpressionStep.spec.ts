@@ -36,6 +36,26 @@ describe(`ExpressionStep`, () => {
         })
     })
 
+    describe('{word}', () => {
+        it(`should match {word}`, () => {
+            const step = new Step(StepTypes.GIVEN, `This is a special reward`)
+            const params = ExpressionStep.matchStep(
+                step,
+                `This is a {word} reward`,
+            )
+            expect(params).toEqual([`special`])
+        })
+
+        it(`should match multiple {word}`, () => {
+            const step = new Step(StepTypes.GIVEN, `Either a book or a movie`)
+            const params = ExpressionStep.matchStep(
+                step,
+                `Either a {word} or a {word}`,
+            )
+            expect(params).toEqual([`book`, `movie`])
+        })
+    })
+
     describe('{string}', () => {
         it(`should match {string}`, () => {
             const step = new Step(StepTypes.GIVEN, `I love 'Vue'`)

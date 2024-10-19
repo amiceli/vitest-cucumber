@@ -44,6 +44,24 @@ export class BooleanRegex extends ExpressionRegex<boolean> {
     }
 }
 
+export class WordRegex extends ExpressionRegex<string> {
+    public constructor() {
+        super({
+            keyword: `{word}`,
+            groupName: `word`,
+            keywordRegex: /{word}/g,
+        })
+    }
+
+    public getRegex(index: number) {
+        return `\\b(?<word${index}>\\w+)\\b`
+    }
+
+    public getValue(str: string): string {
+        return str
+    }
+}
+
 export class StringRegex extends ExpressionRegex<string> {
     public constructor() {
         super({

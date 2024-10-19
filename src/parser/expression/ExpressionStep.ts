@@ -7,12 +7,14 @@ import {
     ListRegex,
     NumberRegex,
     StringRegex,
+    WordRegex,
 } from './regexes'
 
 // biome-ignore lint/complexity/noStaticOnlyClass: <explanation>
 export class ExpressionStep {
     public static readonly expressionRegEx: ExpressionRegex[] = [
         new BooleanRegex(),
+        new WordRegex(),
         new StringRegex(),
         new NumberRegex(),
         new FloatRegex(),
