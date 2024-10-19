@@ -1,6 +1,8 @@
 import { StepExpressionMatchError } from '../../errors/errors'
 import type { Step } from '../models/step'
 import {
+    AnonymousRegex,
+    AnyRegex,
     BooleanRegex,
     CharRegex,
     DateRegex,
@@ -25,6 +27,8 @@ export class ExpressionStep {
         new NumberRegex(),
         new DateRegex(),
         new ListRegex(),
+        new AnonymousRegex(),
+        new AnyRegex(),
     ]
 
     // biome-ignore lint/suspicious/noExplicitAny: <explanation>

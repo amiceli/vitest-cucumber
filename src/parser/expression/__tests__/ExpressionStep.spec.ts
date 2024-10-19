@@ -328,6 +328,30 @@ describe(`ExpressionStep`, () => {
         })
     })
 
+    describe('{}', () => {
+        it(`should match {}`, () => {
+            const step = new Step(
+                StepTypes.GIVEN,
+                `should catch the rest of the string`,
+            )
+            const params = ExpressionStep.matchStep(step, `should catch {}`)
+
+            expect(params).toEqual([`the rest of the string`])
+        })
+    })
+
+    describe('{any}', () => {
+        it(`should match {}`, () => {
+            const step = new Step(
+                StepTypes.GIVEN,
+                `should catch the rest of the string`,
+            )
+            const params = ExpressionStep.matchStep(step, `should catch {any}`)
+
+            expect(params).toEqual([`the rest of the string`])
+        })
+    })
+
     it(`should match both {string} and {number}`, () => {
         const step = new Step(StepTypes.GIVEN, `I love "Vue" 3 and 12`)
         const params = ExpressionStep.matchStep(
