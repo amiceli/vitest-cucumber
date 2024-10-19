@@ -6,6 +6,7 @@ import {
     NotScenarioOutlineError,
     ScenarioNotCalledError,
 } from '../../errors/errors'
+import type { RequiredDescribeFeatureOptions } from '../../vitest/describe-feature'
 import type { Background } from './Background'
 import { Taggable } from './Taggable'
 import { type Example, Scenario, ScenarioOutline } from './scenario'
@@ -44,12 +45,14 @@ export abstract class ScenarioParent extends Taggable {
     }
 
     public getFirstNotCalledScenario(
-        tags: string[],
+        options: RequiredDescribeFeatureOptions,
     ): Scenario | ScenarioOutline | undefined {
         return this.scenarii.find((scenario: Scenario) => {
             return (
                 scenario.isCalled === false &&
-                scenario.matchTags(tags) === false
+                (options.includeTags.length <= 0 ||
+                    scenario.matchTags(options.includeTags) === true) &&
+                scenario.matchTags(options.excludeTags) === false
             )
         })
     }
@@ -66,8 +69,8 @@ export abstract class ScenarioParent extends Taggable {
         return `${this.title}: ${this.name}`
     }
 
-    public checkUncalledScenario(tags: string[]) {
-        const uncalled = this.getFirstNotCalledScenario(tags)
+    public checkUncalledScenario(options: RequiredDescribeFeatureOptions) {
+        const uncalled = this.getFirstNotCalledScenario(options)
 
         if (uncalled) {
             throw new ScenarioNotCalledError(uncalled)
@@ -76,9 +79,14 @@ export abstract class ScenarioParent extends Taggable {
         return this
     }
 
-    public checkUncalledBackground(tags: string[]) {
+    public checkUncalledBackground(options: RequiredDescribeFeatureOptions) {
         if (this.background) {
-            if (!this.background.isCalled && !this.background.matchTags(tags)) {
+            if (
+                this.background.isCalled === false &&
+                (options.includeTags.length <= 0 ||
+                    this.background.matchTags(options.includeTags) === true) &&
+                this.background.matchTags(options.excludeTags) === false
+            ) {
                 throw new BackgroundNotCalledError(this.background)
             }
         }

@@ -83,41 +83,75 @@ describe(`Models`, () => {
             secondRule.isCalled = false
             const uncalledRuleWithTag = new Rule(`with tag`)
             uncalledRuleWithTag.isCalled = true
-            uncalledRuleWithTag.tags.push(`ignore`)
+            uncalledRuleWithTag.tags.add(`ignore`)
 
             feature.rules.push(rule)
-            expect(feature.getFirstRuleNotCalled([])).toBeUndefined()
+            expect(
+                feature.getFirstRuleNotCalled({
+                    includeTags: [],
+                    excludeTags: [],
+                }),
+            ).toBeUndefined()
 
             feature.rules.push(uncalledRuleWithTag)
-            expect(feature.getFirstRuleNotCalled([`ignore`])).toBeUndefined()
+            expect(
+                feature.getFirstRuleNotCalled({
+                    includeTags: [],
+                    excludeTags: [`ignore`],
+                }),
+            ).toBeUndefined()
 
             feature.rules.push(secondRule)
-            expect(feature.getFirstRuleNotCalled([])).toEqual(secondRule)
+            expect(
+                feature.getFirstRuleNotCalled({
+                    includeTags: [],
+                    excludeTags: [],
+                }),
+            ).toEqual(secondRule)
         })
 
-        test(`Trhow an error if a Rule isn't called`, () => {
+        test(`Throw an error if a Rule isn't called`, () => {
             const feature = new Feature(`test`)
             const rule = new Rule(`rule`)
-            rule.tags.push(`ignore`)
+            rule.tags.add(`ignore`)
 
             feature.rules.push(rule)
 
             expect(() => {
-                feature.checkUncalledRule([])
+                feature.checkUncalledRule({
+                    includeTags: [],
+                    excludeTags: [],
+                })
             }).toThrowError(new RuleNotCalledError(rule))
 
             expect(() => {
-                feature.checkUncalledRule([`test`])
+                feature.checkUncalledRule({
+                    includeTags: [],
+                    excludeTags: [`test`],
+                })
             }).toThrowError(new RuleNotCalledError(rule))
 
             expect(() => {
-                feature.checkUncalledRule([`ignore`])
+                feature.checkUncalledRule({
+                    includeTags: [`ignore`],
+                    excludeTags: [],
+                })
+            }).toThrowError(new RuleNotCalledError(rule))
+
+            expect(() => {
+                feature.checkUncalledRule({
+                    includeTags: [],
+                    excludeTags: [`ignore`],
+                })
             }).not.toThrowError()
 
             rule.isCalled = true
 
             expect(() => {
-                feature.checkUncalledRule([])
+                feature.checkUncalledRule({
+                    includeTags: [],
+                    excludeTags: [],
+                })
             }).not.toThrowError()
         })
 
@@ -376,13 +410,45 @@ describe(`Models`, () => {
     })
 
     describe(`Taggable`, () => {
-        test(`check if Taggable match tags`, () => {
-            const scenario = new Scenario(`test`)
-            scenario.tags = [`vitests`]
+        const scenario = new Scenario(`test`)
 
-            expect(scenario.matchTags([`test`])).toBe(false)
-            expect(scenario.matchTags([`vitests`])).toBe(true)
-            expect(scenario.matchTags([`vitests`, `another`])).toBe(true)
+        describe('scenario without tag', () => {
+            test(`false if not present`, () => {
+                expect(scenario.matchTags([`test`])).toBe(false)
+            })
+        })
+
+        describe('scenario with a single tag', () => {
+            scenario.tags = new Set([`vitests`])
+
+            test(`false if not matching`, () => {
+                expect(scenario.matchTags([`test`])).toBe(false)
+            })
+            test(`true if one tag matches`, () => {
+                expect(scenario.matchTags([`vitests`, `another`])).toBe(true)
+            })
+        })
+
+        describe('scenario with multiple tags', () => {
+            scenario.tags = new Set([`vitests`, `another`])
+
+            test(`true if at least one tag matches`, () => {
+                expect(scenario.matchTags([`vitests`, `test`])).toBe(true)
+            })
+            test(`true if all tags matches`, () => {
+                expect(scenario.matchTags([`vitests`, `another`])).toBe(true)
+            })
+            test(`false if no tag match`, () => {
+                expect(scenario.matchTags([`test`])).toBe(false)
+            })
+            test(`false if 'AND' operation does not match`, () => {
+                const operation = [`vitests`, `test`]
+                expect(scenario.matchTags([operation])).toBe(false)
+            })
+            test(`true if 'AND' operation does match`, () => {
+                const operation = [`vitests`, `another`]
+                expect(scenario.matchTags([operation])).toBe(true)
+            })
         })
     })
 
