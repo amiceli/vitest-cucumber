@@ -6,7 +6,7 @@ import {
     DateRegex,
     EmailRegex,
     type ExpressionRegex,
-    FloatRegex,
+    IntRegex,
     ListRegex,
     NumberRegex,
     StringRegex,
@@ -21,8 +21,8 @@ export class ExpressionStep {
         new CharRegex(),
         new StringRegex(),
         new EmailRegex(),
+        new IntRegex(),
         new NumberRegex(),
-        new FloatRegex(),
         new DateRegex(),
         new ListRegex(),
     ]
@@ -34,7 +34,7 @@ export class ExpressionStep {
             [key: string]: number
         } = {}
 
-        // escape special characters
+        // 💡 escape special characters
         // TODO : among [-\/\\^$*+?.()|[\]{}] which characters need to be escaped?
         regexString = regexString.replace(/[?]/g, `\\$&`)
 
