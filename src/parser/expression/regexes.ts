@@ -1,3 +1,5 @@
+import parsecurrency, { type ParsedCurrency } from 'parsecurrency'
+
 type ExpressionRegexConstructor = {
     keyword: string
     keywordRegex: RegExp
@@ -173,7 +175,36 @@ export class DateRegex extends ExpressionRegex<Date> {
     }
 
     public getValue(str: string): Date {
+        // TODO : handle invalid dates?
         return new Date(str)
+    }
+}
+
+export class CurrencyRegex extends ExpressionRegex<ParsedCurrency> {
+    public constructor() {
+        super({
+            keyword: `{currency}`,
+            groupName: `currency`,
+            keywordRegex: /{currency}/g,
+        })
+    }
+
+    public getRegex(index: number) {
+        const dollarRegex = `-?\\$\\d+(?:\\.\\d{1,2})?`
+        const euroRegex = `-?\\d+(?:\\.\\d{1,2})?€`
+
+        // TODO : handle more currency formats
+
+        return `(?<!\\S)(?<currency${index}>(${dollarRegex})|(${euroRegex}))(?!\\S)`
+    }
+
+    public getValue(str: string): ParsedCurrency {
+        const value = parsecurrency(str)
+        if (!value) {
+            throw new Error(`Invalid currency format`) // TODO : create a custom error
+        }
+
+        return value
     }
 }
 

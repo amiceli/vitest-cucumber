@@ -300,6 +300,83 @@ describe(`ExpressionStep`, () => {
         })
     })
 
+    describe('{currency}', () => {
+        it(`should match {currency}`, () => {
+            const step = new Step(StepTypes.GIVEN, `I have $200 in the bank`)
+            const params = ExpressionStep.matchStep(
+                step,
+                `I have {currency} in the bank`,
+            )
+            const parsedValue = {
+                currency: '',
+                decimalSeparator: '',
+                decimals: '',
+                groupSeparator: '',
+                integer: '200',
+                raw: '$200',
+                sign: '',
+                symbol: '$',
+                value: 200,
+            }
+
+            expect(params).toEqual([parsedValue])
+        })
+
+        it(`should match multiple {number}`, () => {
+            const step = new Step(StepTypes.GIVEN, `This item costs $2.5 or 3€`)
+            const params = ExpressionStep.matchStep(
+                step,
+                `This item costs {currency} or {currency}`,
+            )
+
+            const parsedValue1 = {
+                currency: '',
+                decimalSeparator: '.',
+                decimals: '.5',
+                groupSeparator: '',
+                integer: '2',
+                raw: '$2.5',
+                sign: '',
+                symbol: '$',
+                value: 2.5,
+            }
+            const parsedValue2 = {
+                currency: '',
+                decimalSeparator: '',
+                decimals: '',
+                groupSeparator: '',
+                integer: '3',
+                raw: '3€',
+                sign: '',
+                symbol: '€',
+                value: 3,
+            }
+
+            expect(params).toEqual([parsedValue1, parsedValue2])
+        })
+
+        it(`should match negative {currency}`, () => {
+            const step = new Step(StepTypes.GIVEN, `I have -$50 in the bank`)
+            const params = ExpressionStep.matchStep(
+                step,
+                `I have {currency} in the bank`,
+            )
+            const parsedValue = {
+                currency: '',
+                decimalSeparator: '',
+                decimals: '',
+                groupSeparator: '',
+                integer: '-50',
+                raw: '-$50',
+                sign: '-',
+                symbol: '$',
+                value: -50,
+            }
+
+            expect(params).toEqual([parsedValue])
+        })
+    })
+
     describe('{list}', () => {
         it(`should match {list}`, () => {
             const step = new Step(
