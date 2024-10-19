@@ -4,6 +4,38 @@ import { Step, StepTypes } from '../../models/step'
 import { ExpressionStep } from '../ExpressionStep'
 
 describe(`ExpressionStep`, () => {
+    describe('{boolean}', () => {
+        it(`should match {boolean}`, () => {
+            const step = new Step(StepTypes.GIVEN, `This information is true`)
+            const params = ExpressionStep.matchStep(
+                step,
+                `This information is {boolean}`,
+            )
+            expect(params).toEqual([true])
+        })
+
+        it(`should match multiple {boolean}`, () => {
+            const step = new Step(StepTypes.GIVEN, `Is it true or false?`)
+            const params = ExpressionStep.matchStep(
+                step,
+                `Is it {boolean} or {boolean}?`,
+            )
+            expect(params).toEqual([true, false])
+        })
+
+        it(`should not match {boolean} that start with expected keyword`, () => {
+            const step = new Step(StepTypes.GIVEN, `This information is truely`)
+            expect(() =>
+                ExpressionStep.matchStep(step, `This information is {boolean}`),
+            ).toThrowError(
+                new StepExpressionMatchError(
+                    step,
+                    `This information is {boolean}`,
+                ),
+            )
+        })
+    })
+
     describe('{string}', () => {
         it(`should match {string}`, () => {
             const step = new Step(StepTypes.GIVEN, `I love 'Vue'`)

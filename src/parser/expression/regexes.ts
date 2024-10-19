@@ -26,6 +26,24 @@ export abstract class ExpressionRegex<T = unknown> {
     }
 }
 
+export class BooleanRegex extends ExpressionRegex<boolean> {
+    public constructor() {
+        super({
+            keyword: `{boolean}`,
+            groupName: `boolean`,
+            keywordRegex: /{boolean}/g,
+        })
+    }
+
+    public getRegex(index: number) {
+        return `\\b(?<boolean${index}>(true|false))\\b`
+    }
+
+    public getValue(str: string): boolean {
+        return str === 'true'
+    }
+}
+
 export class StringRegex extends ExpressionRegex<string> {
     public constructor() {
         super({
