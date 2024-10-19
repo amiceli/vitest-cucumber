@@ -6,8 +6,6 @@ import { describeFeature } from '../describe-feature'
 
 describe(`step with expressions`, () => {
     describe(`Scenario`, () => {
-        return // skipped for now
-        // biome-ignore lint/correctness/noUnreachable: <explanation>
         const feature = FeatureContentReader.fromString([
             `Feature: Background run before scenario tests`,
             `    Scenario: scenario with expression`,
@@ -35,8 +33,10 @@ describe(`step with expressions`, () => {
                 )
                 s.And(
                     `I use typescript for {currency}`,
-                    (ctx: TaskContext, num: number) => {
-                        expect(num).toEqual(2)
+                    // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+                    (ctx: TaskContext, currency: any) => {
+                        expect(currency.raw).toEqual('$2')
+                        expect(currency.value).toEqual(2)
                         expect(ctx.task.name).toEqual(
                             `And I use typescript for $2`,
                         )
