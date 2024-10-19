@@ -194,3 +194,39 @@ export class ListRegex extends ExpressionRegex<string[]> {
         return str.split(`,`).map((t) => t.trim())
     }
 }
+
+export class AnonymousRegex extends ExpressionRegex<string> {
+    public constructor() {
+        super({
+            keyword: `{}`,
+            groupName: `anonymous`,
+            keywordRegex: /{}/g,
+        })
+    }
+
+    public getRegex(index: number) {
+        return `(?<anonymous${index}>.+)`
+    }
+
+    public getValue(str: string): string {
+        return str
+    }
+}
+
+export class AnyRegex extends ExpressionRegex<string> {
+    public constructor() {
+        super({
+            keyword: `{any}`,
+            groupName: `any`,
+            keywordRegex: /{any}/g,
+        })
+    }
+
+    public getRegex(index: number) {
+        return `(?<any${index}>.+)`
+    }
+
+    public getValue(str: string): string {
+        return str
+    }
+}
