@@ -50,6 +50,9 @@ export class ExpressionStep {
             })
         }
 
+        // 💡 should match the full string
+        regexString = `^${regexString}$`
+
         const regex = new RegExp(regexString, `g`)
         const matches = [...step.details.matchAll(regex)]
 
