@@ -18,10 +18,10 @@ describe(`errors`, () => {
         const rule = new Rule(`rule`)
 
         expect(new BackgroundNotExistsError(feature).message).toEqual(
-            `Feature: test hasn't background`,
+            `Feature: test has no background`,
         )
         expect(new BackgroundNotExistsError(rule).message).toEqual(
-            `Rule: rule hasn't background`,
+            `Rule: rule has no background`,
         )
     })
 })

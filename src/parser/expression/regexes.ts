@@ -1,3 +1,5 @@
+import parsecurrency, { type ParsedCurrency } from 'parsecurrency'
+
 type ExpressionRegexConstructor = {
     keyword: string
     keywordRegex: RegExp
@@ -26,6 +28,60 @@ export abstract class ExpressionRegex<T = unknown> {
     }
 }
 
+export class BooleanRegex extends ExpressionRegex<boolean> {
+    public constructor() {
+        super({
+            keyword: `{boolean}`,
+            groupName: `boolean`,
+            keywordRegex: /{boolean}/g,
+        })
+    }
+
+    public getRegex(index: number) {
+        return `\\b(?<boolean${index}>(true|false))\\b`
+    }
+
+    public getValue(str: string): boolean {
+        return str === 'true'
+    }
+}
+
+export class WordRegex extends ExpressionRegex<string> {
+    public constructor() {
+        super({
+            keyword: `{word}`,
+            groupName: `word`,
+            keywordRegex: /{word}/g,
+        })
+    }
+
+    public getRegex(index: number) {
+        return `\\b(?<word${index}>\\w+)\\b`
+    }
+
+    public getValue(str: string): string {
+        return str
+    }
+}
+
+export class CharRegex extends ExpressionRegex<string> {
+    public constructor() {
+        super({
+            keyword: `{char}`,
+            groupName: `char`,
+            keywordRegex: /{char}/g,
+        })
+    }
+
+    public getRegex(index: number) {
+        return `(?<char${index}>\\w)`
+    }
+
+    public getValue(str: string): string {
+        return str
+    }
+}
+
 export class StringRegex extends ExpressionRegex<string> {
     public constructor() {
         super({
@@ -44,6 +100,43 @@ export class StringRegex extends ExpressionRegex<string> {
     }
 }
 
+export class EmailRegex extends ExpressionRegex<string> {
+    public constructor() {
+        super({
+            keyword: `{email}`,
+            groupName: `email`,
+            keywordRegex: /{email}/g,
+        })
+    }
+
+    public getRegex(index: number) {
+        const emailRegex = `[^\\s@]+@[^\\s@]+\\.[^\\s@]+`
+        return `\\b(?<email${index}>${emailRegex})\\b`
+    }
+
+    public getValue(str: string): string {
+        return str.replace(/^["']|["']$/g, ``)
+    }
+}
+
+export class IntRegex extends ExpressionRegex<number> {
+    public constructor() {
+        super({
+            keyword: `{int}`,
+            groupName: `int`,
+            keywordRegex: /{int}/g,
+        })
+    }
+
+    public getRegex(index: number) {
+        return `\\b(?<int${index}>\\d+)\\b`
+    }
+
+    public getValue(str: string): number {
+        return Number(str)
+    }
+}
+
 export class NumberRegex extends ExpressionRegex<number> {
     public constructor() {
         super({
@@ -54,33 +147,64 @@ export class NumberRegex extends ExpressionRegex<number> {
     }
 
     public getRegex(index: number) {
-        return `(?<number${index}>\\$?\\d+(\\.\\d+)?)`
+        return `\\b(?<number${index}>\\d+(\\.\\d+)?)\\b`
     }
 
     public getValue(str: string): number {
-        if (str.startsWith(`$`)) {
-            return Number.parseInt(str.replace(`$`, ``), 10)
-        }
-
-        return Number.parseInt(str, 10)
+        return Number(str)
     }
 }
 
-export class FloatRegex extends ExpressionRegex<number> {
+export class DateRegex extends ExpressionRegex<Date> {
     public constructor() {
         super({
-            keyword: `{float}`,
-            groupName: `float`,
-            keywordRegex: /{float}/g,
+            keyword: `{date}`,
+            groupName: `date`,
+            keywordRegex: /{date}/g,
         })
     }
 
     public getRegex(index: number) {
-        return `\\b(?<float${index}>\\d+\\.\\d+)\\b`
+        const dateRegex = `[0-9]{1,2}\/[0-9]{1,2}\/[0-9]{4}(?: [0-9]{2}:[0-9]{2}:[0-9]{2})?`
+        const isoDateRegex = `(?:\\d{4})-(?:\\d{2})-(?:\\d{2})`
+        const isoDatetimeRegex = `(?:\\d{4})-(?:\\d{2})-(?:\\d{2})T(?:\\d{2}):(?:\\d{2}):(?:\\d{2}(?:\\.\\d*)?)(?:(?:-(?:\\d{2}):(?:\\d{2})|Z)?)`
+
+        // TODO : handle more date formats
+
+        return `\\b(?<date${index}>(${dateRegex})|(${isoDateRegex})|(${isoDatetimeRegex}))\\b`
     }
 
-    public getValue(str: string): number {
-        return Number.parseFloat(str)
+    public getValue(str: string): Date {
+        // TODO : handle invalid dates?
+        return new Date(str)
+    }
+}
+
+export class CurrencyRegex extends ExpressionRegex<ParsedCurrency> {
+    public constructor() {
+        super({
+            keyword: `{currency}`,
+            groupName: `currency`,
+            keywordRegex: /{currency}/g,
+        })
+    }
+
+    public getRegex(index: number) {
+        const dollarRegex = `-?\\$\\d+(?:\\.\\d{1,2})?`
+        const euroRegex = `-?\\d+(?:\\.\\d{1,2})?€`
+
+        // TODO : handle more currency formats
+
+        return `(?<!\\S)(?<currency${index}>(${dollarRegex})|(${euroRegex}))(?!\\S)`
+    }
+
+    public getValue(str: string): ParsedCurrency {
+        const value = parsecurrency(str)
+        if (!value) {
+            throw new Error(`Invalid currency format`) // TODO : create a custom error
+        }
+
+        return value
     }
 }
 
@@ -99,5 +223,41 @@ export class ListRegex extends ExpressionRegex<string[]> {
 
     public getValue(str: string): string[] {
         return str.split(`,`).map((t) => t.trim())
+    }
+}
+
+export class AnonymousRegex extends ExpressionRegex<string> {
+    public constructor() {
+        super({
+            keyword: `{}`,
+            groupName: `anonymous`,
+            keywordRegex: /{}/g,
+        })
+    }
+
+    public getRegex(index: number) {
+        return `(?<anonymous${index}>.+)`
+    }
+
+    public getValue(str: string): string {
+        return str
+    }
+}
+
+export class AnyRegex extends ExpressionRegex<string> {
+    public constructor() {
+        super({
+            keyword: `{any}`,
+            groupName: `any`,
+            keywordRegex: /{any}/g,
+        })
+    }
+
+    public getRegex(index: number) {
+        return `(?<any${index}>.+)`
+    }
+
+    public getValue(str: string): string {
+        return str
     }
 }
