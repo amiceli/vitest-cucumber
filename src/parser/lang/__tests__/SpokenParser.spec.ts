@@ -116,7 +116,7 @@ describe('SpokenParser', () => {
     })
 
     it('should check if line is a Rule', () => {
-        expect(SpokenParserFactory.fromLang('fr').isRule('Règles: test')).toBe(
+        expect(SpokenParserFactory.fromLang('fr').isRule('Règle: test')).toBe(
             true,
         )
         expect(
