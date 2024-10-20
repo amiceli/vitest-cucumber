@@ -86,8 +86,12 @@ export function createScenarioDescribeHandler({
             }),
         )(`%s`, async ([, scenarioStep], ctx) => {
             onTestFailed((e) => {
+                const message = e.errors?.at(0)?.message
+
                 cucumberConfiguration.onStepError({
-                    error: new Error(e.errors?.at(0)?.message || 'Error'),
+                    error: new Error(
+                        message || `${scenarioStep.step.details} failed`,
+                    ),
                     ctx,
                     step: scenarioStep.step,
                 })
