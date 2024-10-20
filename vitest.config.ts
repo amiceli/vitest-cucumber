@@ -15,6 +15,7 @@ export default defineConfig({
                 'scripts/cli-generate.ts',
                 '**/__mocks__/*',
                 '**/__tests__/*',
+                'dist/',
             ],
         },
         exclude: ['examples/vue-example.spec.ts', 'node_modules'],
