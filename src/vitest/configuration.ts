@@ -1,9 +1,12 @@
 import type { TaskContext } from 'vitest'
 import type { Step } from '../parser/models/step'
 
+export type TagFilterItem = string | string[]
+
 export type VitestCucumberOptions = {
     language?: string
-    excludeTags?: string[]
+    includeTags?: TagFilterItem[]
+    excludeTags?: TagFilterItem[]
     onStepError?: (args: {
         error: Error
         ctx: TaskContext
@@ -15,6 +18,7 @@ export type RequiredVitestCucumberOptions = Required<VitestCucumberOptions>
 
 const defaultConfiguration: VitestCucumberOptions = {
     language: 'en',
+    includeTags: [],
     excludeTags: ['ignore'],
     onStepError: ({ error }) => {
         throw error

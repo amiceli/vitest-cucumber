@@ -41,6 +41,7 @@ describe('getVitestCucumberConfiguration', () => {
     it('default configuration', () => {
         expect(getVitestCucumberConfiguration()).toEqual({
             language: 'en',
+            includeTags: [],
             excludeTags: ['ignore'],
             onStepError: expect.any(Function),
         })
@@ -51,6 +52,7 @@ describe('getVitestCucumberConfiguration', () => {
 
         const config = {
             language: 'fr',
+            includeTags: ['alpha'],
             excludeTags: ['beta'],
             onStepError: fn,
         }
@@ -64,6 +66,7 @@ describe('getVitestCucumberConfiguration', () => {
 
         expect(newConfig).toEqual({
             language: 'fr',
+            includeTags: ['alpha'],
             excludeTags: ['beta'],
             onStepError: expect.any(Function),
         })
@@ -79,6 +82,7 @@ describe('setVitestCucumberConfiguration', () => {
 
         expect(getVitestCucumberConfiguration()).toEqual({
             language: 'en',
+            includeTags: [],
             excludeTags: ['ignore'],
             onStepError: expect.any(Function),
         })
@@ -94,6 +98,7 @@ describe('setVitestCucumberConfiguration', () => {
 
         expect(getVitestCucumberConfiguration()).toEqual({
             language: 'fr',
+            includeTags: [],
             excludeTags: ['beta'],
             onStepError: expect.any(Function),
         })
@@ -128,6 +133,7 @@ describe('setVitestCucumberConfiguration', () => {
         expect(fn).not.toHaveBeenCalled()
         expect(lastConfiguration).toEqual({
             language: 'fr',
+            includeTags: [],
             excludeTags: ['ignore'],
             onStepError: expect.any(Function),
         })
