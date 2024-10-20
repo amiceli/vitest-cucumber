@@ -25,7 +25,7 @@ export function createScenarioDescribeHandler({
     beforeEachScenarioHook,
 }: DescribeScenarioArgs): () => void {
     const scenarioStepsToRun: ScenarioSteps[] = []
-    const cucumberConfiguration = getVitestCucumberConfiguration()
+    const config = getVitestCucumberConfiguration()
 
     const createScenarioStepCallback = (
         stepType: string,
@@ -88,7 +88,7 @@ export function createScenarioDescribeHandler({
             onTestFailed((e) => {
                 const message = e.errors?.at(0)?.message
 
-                cucumberConfiguration.onStepError({
+                config.onStepError({
                     error: new Error(
                         message || `${scenarioStep.step.details} failed`,
                     ),
