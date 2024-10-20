@@ -1,5 +1,6 @@
 import { describe, it } from 'node:test'
 import { expect } from 'vitest'
+import { SpokenKeywordError } from '../../../errors/errors'
 import { StepTypes } from '../../models/step'
 import { SpokenParserFactory } from '../SpokenParser'
 
@@ -116,12 +117,31 @@ describe('SpokenParser', () => {
     })
 
     it('should check if line is a Rule', () => {
-        expect(SpokenParserFactory.fromLang('fr').isRule('Règle: test')).toBe(
-            true,
+        const frSpoken = SpokenParserFactory.fromLang('fr')
+        const itSopekn = SpokenParserFactory.fromLang('it')
+
+        expect(frSpoken.isRule('Règle: test')).toBe(true)
+        expect(frSpoken.isRule('Test ça marche pas')).toBe(false)
+        expect(itSopekn.isRule('Regola:')).toBe(true)
+    })
+
+    it('should throw an error if no keyword found', () => {
+        const spoken = SpokenParserFactory.fromLang('fr')
+
+        expect(() => {
+            spoken.getRuleName('Fail: rule')
+        }).toThrowError(
+            new SpokenKeywordError('Fail: rule', spoken.details.rule),
         )
-        expect(
-            SpokenParserFactory.fromLang('fr').isRule('Test ça marche pas'),
-        ).toBe(false)
-        expect(SpokenParserFactory.fromLang('it').isRule('Regola:')).toBe(true)
+    })
+
+    it('should throw an error if no step keyword found', () => {
+        const spoken = SpokenParserFactory.fromLang('fr')
+
+        expect(() => {
+            spoken.getStepDetails('Then I test', StepTypes.THEN)
+        }).toThrowError(
+            new SpokenKeywordError('Then I test', spoken.details.then),
+        )
     })
 })
