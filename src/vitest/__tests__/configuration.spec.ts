@@ -1,5 +1,6 @@
-import { describe, expect, it } from 'vitest'
+import { type TaskContext, describe, expect, it, vi } from 'vitest'
 import { FeatureContentReader } from '../../__mocks__/FeatureContentReader.spec'
+import { Step, StepTypes } from '../../parser/models/step'
 import {
     getVitestCucumberConfiguration,
     setVitestCucumberConfiguration,
@@ -42,21 +43,34 @@ describe('getVitestCucumberConfiguration', () => {
             language: 'en',
             includeTags: [],
             excludeTags: ['ignore'],
+            onStepError: expect.any(Function),
         })
     })
 
     it('full configuration', () => {
+        const fn = vi.fn()
+
         const config = {
             language: 'fr',
             includeTags: ['alpha'],
             excludeTags: ['beta'],
+            onStepError: fn,
         }
 
-        expect(getVitestCucumberConfiguration(config)).toEqual({
+        const newConfig = getVitestCucumberConfiguration(config)
+        newConfig.onStepError({
+            error: new Error(''),
+            ctx: {} as TaskContext,
+            step: new Step(StepTypes.THEN, 'test'),
+        })
+
+        expect(newConfig).toEqual({
             language: 'fr',
             includeTags: ['alpha'],
             excludeTags: ['beta'],
+            onStepError: expect.any(Function),
         })
+        expect(fn).toHaveBeenCalled()
     })
 })
 
@@ -70,6 +84,7 @@ describe('setVitestCucumberConfiguration', () => {
             language: 'en',
             includeTags: [],
             excludeTags: ['ignore'],
+            onStepError: expect.any(Function),
         })
     })
 
@@ -85,12 +100,15 @@ describe('setVitestCucumberConfiguration', () => {
             language: 'fr',
             includeTags: [],
             excludeTags: ['beta'],
+            onStepError: expect.any(Function),
         })
     })
 
     it('override configuration defaults to empty configuration', () => {
+        const fn = vi.fn()
         const config1 = {
             excludeTags: ['beta'],
+            onStepError: fn,
         }
 
         const config2 = {
@@ -100,10 +118,24 @@ describe('setVitestCucumberConfiguration', () => {
         setVitestCucumberConfiguration(config1)
         setVitestCucumberConfiguration(config2)
 
-        expect(getVitestCucumberConfiguration()).toEqual({
+        const lastConfiguration = getVitestCucumberConfiguration()
+
+        try {
+            lastConfiguration.onStepError({
+                error: new Error(''),
+                ctx: {} as TaskContext,
+                step: new Step(StepTypes.THEN, 'test'),
+            })
+        } catch {
+            // nothing to handle
+        }
+
+        expect(fn).not.toHaveBeenCalled()
+        expect(lastConfiguration).toEqual({
             language: 'fr',
             includeTags: [],
             excludeTags: ['ignore'],
+            onStepError: expect.any(Function),
         })
     })
 })

@@ -1,6 +1,7 @@
-import { test } from 'vitest'
+import { onTestFailed, test } from 'vitest'
 import { ExpressionStep } from '../../parser/expression/ExpressionStep'
 import type { Background } from '../../parser/models/Background'
+import { getVitestCucumberConfiguration } from '../configuration'
 import type {
     BackgroundStepTest,
     CallbackWithParamsAndContext,
@@ -20,6 +21,7 @@ export function createBackgroundDescribeHandler({
     backgroundCallback,
 }: DescribeScenarioArgs): () => void {
     const backgroundStepsToRun: ScenarioSteps[] = []
+    const config = getVitestCucumberConfiguration()
 
     const createScenarioStepCallback = (
         stepType: string,
@@ -71,6 +73,17 @@ export function createBackgroundDescribeHandler({
                 return [s.key, s]
             }),
         )(`%s`, async ([, scenarioStep], ctx) => {
+            onTestFailed((e) => {
+                const message = e.errors?.at(0)?.message
+
+                config.onStepError({
+                    error: new Error(
+                        message || `${scenarioStep.step.details} failed`,
+                    ),
+                    ctx,
+                    step: scenarioStep.step,
+                })
+            })
             await scenarioStep.fn(ctx, ...scenarioStep.params)
         })
     }

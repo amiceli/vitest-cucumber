@@ -199,3 +199,14 @@ export class MissingExamplesError extends VitestsCucumberError {
         )
     }
 }
+
+export class SpokenKeywordError extends VitestsCucumberError {
+    public constructor(line: string, keywords: string[]) {
+        super(
+            [
+                `No keywords match for: ${line}`,
+                `   Avalaible keywords : ${keywords.join(', ')}`,
+            ].join('\n'),
+        )
+    }
+}

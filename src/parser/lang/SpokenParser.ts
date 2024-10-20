@@ -1,3 +1,4 @@
+import { SpokenKeywordError } from '../../errors/errors'
 import { StepTypes } from '../models/step'
 import avalaibleLanguages from './lang.json'
 
@@ -73,7 +74,7 @@ export class SpokenParser {
         )
 
         if (!foundKeyword) {
-            throw 'Error de ouf'
+            throw new SpokenKeywordError(line, keys)
         }
 
         return {
@@ -125,7 +126,7 @@ export class SpokenParser {
             }
         }
 
-        throw 'Failed'
+        throw new SpokenKeywordError(line, matches?.keys || [])
     }
 
     public getStepType(line: string): StepTypes {
