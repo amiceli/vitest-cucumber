@@ -222,12 +222,8 @@ export class CurrencyRegex extends ExpressionRegex<ParsedCurrency> {
     }
 
     public getRegex(index: number) {
-        const dollarRegex = `-?\\$\\d+(?:\\.\\d{1,2})?`
-        const euroRegex = `-?\\d+(?:\\.\\d{1,2})?€`
-
-        // TODO : handle more currency formats
-
-        return `(?<!\\S)(?<currency${index}>(${dollarRegex})|(${euroRegex}))(?!\\S)`
+        const currencyRegex = `(?:([-+]{1}) ?)?(?:([A-Z]{3}) ?)?(?:([^\\d ]+?) ?)?(((?:\\d{1,3}([,. ’'\\u00A0\\u202F]))*?\\d{1,})(([,.])\\d{1,2})?)(?: ?([^\\d]+?))??(?: ?([A-Z]{3}))?`
+        return `(?<!\\S)(?<currency${index}>(${currencyRegex}))(?!\\S)`
     }
 
     public getValue(str: string): ParsedCurrency {
