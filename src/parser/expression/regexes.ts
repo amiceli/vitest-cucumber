@@ -1,4 +1,5 @@
 import parsecurrency, { type ParsedCurrency } from 'parsecurrency'
+import { InvalidDateParameterError } from '../../errors/errors'
 
 type ExpressionRegexConstructor = {
     keyword: string
@@ -207,8 +208,14 @@ export class DateRegex extends ExpressionRegex<Date> {
     }
 
     public getValue(str: string): Date {
-        // TODO : handle invalid dates?
-        return new Date(str)
+        const value = new Date(str)
+        // biome-ignore lint/suspicious/noGlobalIsNan: <explanation>
+        // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+        if (isNaN(value as any)) {
+            throw new InvalidDateParameterError(str)
+        }
+
+        return value
     }
 }
 

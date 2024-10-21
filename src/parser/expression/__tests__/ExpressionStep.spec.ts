@@ -1,5 +1,8 @@
-import { describe, expect, it } from 'vitest'
-import { StepExpressionMatchError } from '../../../errors/errors'
+import { describe, expect, it, test } from 'vitest'
+import {
+    InvalidDateParameterError,
+    StepExpressionMatchError,
+} from '../../../errors/errors'
 import { Step, StepTypes } from '../../models/step'
 import { ExpressionStep } from '../ExpressionStep'
 
@@ -386,6 +389,19 @@ describe(`ExpressionStep`, () => {
                 const params = ExpressionStep.matchStep(step, `today is {date}`)
                 expect(params).toEqual([new Date(2015, 0, 25)])
             })
+        })
+
+        test('invalid date format', () => {
+            const step = new Step(
+                StepTypes.GIVEN,
+                `the order was created at 31/31/2022`,
+            )
+            expect(() =>
+                ExpressionStep.matchStep(
+                    step,
+                    `the order was created at {date}`,
+                ),
+            ).toThrowError(new InvalidDateParameterError('31/31/2022'))
         })
     })
 

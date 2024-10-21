@@ -207,7 +207,7 @@ export class SpokenKeywordError extends VitestsCucumberError {
         super(
             [
                 `No keywords match for: ${line}`,
-                `   Avalaible keywords : ${keywords.join(', ')}`,
+                `   Available keywords : ${keywords.join(', ')}`,
             ].join('\n'),
         )
     }
@@ -216,5 +216,11 @@ export class SpokenKeywordError extends VitestsCucumberError {
 export class ParentWithoutScenario extends VitestsCucumberError {
     public constructor(feature: ScenarioParent) {
         super(`${feature.getTitle()} must have at least one scenario`)
+    }
+}
+
+export class InvalidDateParameterError extends VitestsCucumberError {
+    public constructor(arg: string) {
+        super(`String '${arg}' was not recognized as a valid Date`)
     }
 }
