@@ -224,3 +224,9 @@ export class InvalidDateParameterError extends VitestsCucumberError {
         super(`String '${arg}' was not recognized as a valid Date`)
     }
 }
+
+export class InvalidCurrencyParameterError extends VitestsCucumberError {
+    public constructor(arg: string) {
+        super(`String '${arg}' was not recognized as a valid currency`)
+    }
+}

@@ -1,5 +1,8 @@
 import parsecurrency, { type ParsedCurrency } from 'parsecurrency'
-import { InvalidDateParameterError } from '../../errors/errors'
+import {
+    InvalidCurrencyParameterError,
+    InvalidDateParameterError,
+} from '../../errors/errors'
 
 type ExpressionRegexConstructor = {
     keyword: string
@@ -236,7 +239,7 @@ export class CurrencyRegex extends ExpressionRegex<ParsedCurrency> {
     public getValue(str: string): ParsedCurrency {
         const value = parsecurrency(str)
         if (!value) {
-            throw new Error(`Invalid currency format`) // TODO : create a custom error
+            throw new InvalidCurrencyParameterError(str)
         }
 
         return value
