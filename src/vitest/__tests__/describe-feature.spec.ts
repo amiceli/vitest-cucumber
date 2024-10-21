@@ -7,7 +7,7 @@ import {
     FeatureUknowScenarioError,
     IsScenarioOutlineError,
     NotScenarioOutlineError,
-    ParentWithScenarioError,
+    ParentWithoutScenario,
     RuleNotCalledError,
     ScenarioNotCalledError,
     StepAbleStepsNotCalledError,
@@ -576,9 +576,7 @@ describe('Feature / Rule without Scenario', () => {
                 `      Given vitest-cucumber is running`,
             ]).parseContent()
         }).toThrowError(
-            new ParentWithScenarioError(
-                new Feature('feature without scenario'),
-            ),
+            new ParentWithoutScenario(new Feature('feature without scenario')),
         )
     })
     describe('Rule without scenario', () => {
@@ -590,7 +588,7 @@ describe('Feature / Rule without Scenario', () => {
                 `          Given vitest-cucumber is running`,
             ]).parseContent()
         }).toThrowError(
-            new ParentWithScenarioError(new Rule('rule without scenario')),
+            new ParentWithoutScenario(new Rule('rule without scenario')),
         )
     })
     describe('Feature with scenario and Rule', () => {
@@ -604,7 +602,7 @@ describe('Feature / Rule without Scenario', () => {
                 `          Given vitest-cucumber is running`,
             ]).parseContent()
         }).toThrowError(
-            new ParentWithScenarioError(new Rule('rule without scenario')),
+            new ParentWithoutScenario(new Rule('rule without scenario')),
         )
     })
     describe('Feature without scenario but rule with scenario', () => {
