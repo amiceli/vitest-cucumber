@@ -4,6 +4,7 @@ import {
     FeatureUknowScenarioError,
     IsScenarioOutlineError,
     NotScenarioOutlineError,
+    ParentWithoutScenario,
     ScenarioNotCalledError,
 } from '../../errors/errors'
 import type { RequiredDescribeFeatureOptions } from '../../vitest/describe-feature'
@@ -143,5 +144,11 @@ export abstract class ScenarioParent extends Taggable {
         this.scenarioShouldBeOutline(scenario)
 
         return scenario
+    }
+
+    public mustHaveScenario() {
+        if (this.scenarii.length === 0) {
+            throw new ParentWithoutScenario(this)
+        }
     }
 }

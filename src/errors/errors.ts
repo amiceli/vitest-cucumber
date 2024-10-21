@@ -210,3 +210,9 @@ export class SpokenKeywordError extends VitestsCucumberError {
         )
     }
 }
+
+export class ParentWithoutScenario extends VitestsCucumberError {
+    public constructor(feature: ScenarioParent) {
+        super(`${feature.getTitle()} must have at least one scenario`)
+    }
+}
