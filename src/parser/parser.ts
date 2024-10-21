@@ -301,6 +301,8 @@ export class GherkinParser {
             )
         }
 
+        this.currentFeature?.mustHaveScenarioOrRules()
+
         return this.features
     }
 

@@ -7,12 +7,14 @@ import {
     FeatureUknowScenarioError,
     IsScenarioOutlineError,
     NotScenarioOutlineError,
+    ParentWithScenarioError,
     RuleNotCalledError,
     ScenarioNotCalledError,
     StepAbleStepsNotCalledError,
     StepAbleUnknowStepError,
 } from '../../errors/errors'
-import { Rule as RuleType } from '../../parser/models/Rule'
+import { Rule, Rule as RuleType } from '../../parser/models/Rule'
+import { Feature } from '../../parser/models/feature'
 import { Scenario as ScenarioType } from '../../parser/models/scenario'
 import { Step, StepTypes } from '../../parser/models/step'
 import { describeFeature } from '../describe-feature'
@@ -20,8 +22,8 @@ import { describeFeature } from '../describe-feature'
 describe(`Feature`, () => {
     describe(`should detect uncalled Rule`, () => {
         const feature = FeatureContentReader.fromString([
-            `Feature: one scenario with missing steps`,
-            `   Rule: simple rule`,
+            `Feature: detect uncalled Rule`,
+            `   Rule: uncalled rule`,
             `      Scenario: Simple scenario`,
             `          Given vitest-cucumber is running`,
             `          Then  check if I am called`,
@@ -37,7 +39,7 @@ describe(`Feature`, () => {
     })
     describe(`should detect if rule exists`, () => {
         const feature = FeatureContentReader.fromString([
-            `Feature: one scenario with missing steps`,
+            `Feature: check if Rule exists`,
             `   Rule: simple rule`,
             `      Scenario: Simple scenario`,
             `          Given vitest-cucumber is running`,
@@ -54,17 +56,22 @@ describe(`Feature`, () => {
     })
     describe(`Should detect uncalled Background`, () => {
         const feature = FeatureContentReader.fromString([
-            `Feature: one scenario with missing steps`,
+            `Feature: detect uncalled background`,
             `   Background:`,
             `       Given vitest-cucumber is running`,
+            `   Scenario: child scenario`,
+            `       Given I am a scenario`,
+            `       Then  I am called after background`,
         ]).parseContent()
+
+        feature.scenarii[0].isCalled = true
 
         afterAll(() => {
             expect(feature.background?.isCalled).toBe(false)
         })
 
         expect(() => {
-            describeFeature(feature, () => {})
+            describeFeature(feature, (f) => {})
         }).toThrowError(
             // biome-ignore lint/style/noNonNullAssertion: <explanation>
             new BackgroundNotCalledError(feature.background!),
@@ -72,7 +79,7 @@ describe(`Feature`, () => {
     })
     describe(`should detect uncalled Scenario`, () => {
         const feature = FeatureContentReader.fromString([
-            `Feature: one scenario with missing steps`,
+            `Feature: detect uncalled scenario`,
             `   Scenario: Simple scenario`,
             `       Given vitest-cucumber is running`,
             `       Then  check if I am called`,
@@ -88,7 +95,7 @@ describe(`Feature`, () => {
     })
     describe(`should detect uncalled ScenarioOutline`, () => {
         const feature = FeatureContentReader.fromString([
-            `Feature: one scenario with missing steps`,
+            `Feature: detect uncalled ScenarioOutline`,
             `   Scenario Outline: Simple scenario`,
             `       Given vitest-cucumber is <state>`,
             `       Then  check if I am called`,
@@ -109,7 +116,7 @@ describe(`Feature`, () => {
     })
     describe(`should detect if background exists`, () => {
         const feature = FeatureContentReader.fromString([
-            `Feature: one scenario with missing steps`,
+            `Feature: detect if background exists`,
             `   Scenario: Simple scenario`,
             `       Given vitest-cucumber is running`,
             `       Then  check if I am called`,
@@ -123,7 +130,7 @@ describe(`Feature`, () => {
     })
     describe(`should detetc if Scenario is Outline`, () => {
         const feature = FeatureContentReader.fromString([
-            `Feature: one scenario with missing steps`,
+            `Feature: detect if scenario is outline`,
             `   Scenario Outline: Simple scenario`,
             `       Given vitest-cucumber is <state>`,
             `       Then  check if I am called`,
@@ -142,7 +149,7 @@ describe(`Feature`, () => {
     })
     describe(`should detetc if Scenario isn't Outline`, () => {
         const feature = FeatureContentReader.fromString([
-            `Feature: one scenario with missing steps`,
+            `Feature: detect if scenario isn't outline`,
             `   Scenario: Simple scenario`,
             `       Given vitest-cucumber is <state>`,
             `       Then  check if I am called`,
@@ -157,7 +164,7 @@ describe(`Feature`, () => {
     })
     describe(`should detetc if Scenario exists`, () => {
         const feature = FeatureContentReader.fromString([
-            `Feature: one scenario with missing steps`,
+            `Feature: detect if scenario exists`,
             `   Scenario: Simple scenario`,
             `       Given vitest-cucumber is <state>`,
             `       Then  check if I am called`,
@@ -180,11 +187,15 @@ describe(`Feature`, () => {
 describe(`Rule`, () => {
     describe(`Should detect uncalled Background`, () => {
         const feature = FeatureContentReader.fromString([
-            `Feature: one scenario with missing steps`,
-            `   Rule: simple rule`,
+            `Feature: detect uncalled rule background`,
+            `   Rule: simple rule with background`,
             `      Background:`,
             `          Given vitest-cucumber is running`,
+            `       Scenario: rule scenario`,
+            `           Given I am called after background`,
         ]).parseContent()
+
+        feature.rules[0].scenarii[0].isCalled = true
 
         afterAll(() => {
             expect(feature.rules[0].background?.isCalled).toBe(false)
@@ -192,7 +203,7 @@ describe(`Rule`, () => {
 
         describeFeature(feature, (f) => {
             expect(() => {
-                f.Rule(`simple rule`, () => {})
+                f.Rule(`simple rule with background`, () => {})
             }).toThrowError(
                 // biome-ignore lint/style/noNonNullAssertion: <explanation>
                 new BackgroundNotCalledError(feature.rules[0].background!),
@@ -201,8 +212,8 @@ describe(`Rule`, () => {
     })
     describe(`Should detect uncalled Scenario`, () => {
         const feature = FeatureContentReader.fromString([
-            `Feature: one scenario with missing steps`,
-            `   Rule: simple rule`,
+            `Feature: detect uncalled scenario`,
+            `   Rule: simple rule with scenario`,
             `      Scenario: test`,
             `          Given vitest-cucumber is running`,
         ]).parseContent()
@@ -213,7 +224,7 @@ describe(`Rule`, () => {
 
         describeFeature(feature, (f) => {
             expect(() => {
-                f.Rule(`simple rule`, () => {})
+                f.Rule(`simple rule with scenario`, () => {})
             }).toThrowError(
                 new ScenarioNotCalledError(feature.rules[0].scenarii[0]),
             )
@@ -221,8 +232,8 @@ describe(`Rule`, () => {
     })
     describe(`should detect uncalled ScenarioOutline`, () => {
         const feature = FeatureContentReader.fromString([
-            `Feature: one scenario with missing steps`,
-            `   Rule: simple rule`,
+            `Feature: detect uncalled scenario outline`,
+            `   Rule: simple rule with scenario outline`,
             `      Scenario Outline: Simple scenario`,
             `          Given vitest-cucumber is <state>`,
             `          Then  check if I am called`,
@@ -239,7 +250,7 @@ describe(`Rule`, () => {
 
         describeFeature(feature, (f) => {
             expect(() => {
-                f.Rule(`simple rule`, () => {})
+                f.Rule(`simple rule with scenario outline`, () => {})
             }).toThrowError(
                 new ScenarioNotCalledError(feature.rules[0].scenarii[0]),
             )
@@ -247,7 +258,7 @@ describe(`Rule`, () => {
     })
     describe(`should detect if background exists`, () => {
         const feature = FeatureContentReader.fromString([
-            `Feature: one scenario with missing steps`,
+            `Feature: detect if background exists`,
             `   Rule: simple rule`,
             `      Scenario: Simple scenario`,
             `          Given vitest-cucumber is running`,
@@ -264,7 +275,7 @@ describe(`Rule`, () => {
     })
     describe(`should detetc if Scenario is Outline`, () => {
         const feature = FeatureContentReader.fromString([
-            `Feature: one scenario with missing steps`,
+            `Feature: detect if scenario is outline`,
             `   Rule: simple rule`,
             `      Scenario Outline: Simple scenario`,
             `          Given vitest-cucumber is <state>`,
@@ -288,7 +299,7 @@ describe(`Rule`, () => {
     })
     describe(`should detetc if Scenario isn't Outline`, () => {
         const feature = FeatureContentReader.fromString([
-            `Feature: one scenario with missing steps`,
+            `Feature: detect if scenario isn't outline`,
             `   Rule: simple rule`,
             `      Scenario: Simple scenario`,
             `          Given vitest-cucumber is <state>`,
@@ -308,7 +319,7 @@ describe(`Rule`, () => {
     })
     describe(`should detetc if Scenario exists`, () => {
         const feature = FeatureContentReader.fromString([
-            `Feature: one scenario with missing steps`,
+            `Feature: detect if scenario exists`,
             `   Rule: simple rule`,
             `      Scenario: Simple scenario`,
             `          Given vitest-cucumber is <state>`,
@@ -334,7 +345,7 @@ describe(`Rule`, () => {
 describe(`Scenario`, () => {
     describe(`should detect uncalled Scenario step`, () => {
         const feature = FeatureContentReader.fromString([
-            `Feature: one scenario with missing steps`,
+            `Feature: detect uncalled scenario step`,
             `   Scenario: Simple scenario`,
             `       Given vitest-cucumber is running`,
             `       Then  check if I am called`,
@@ -366,7 +377,7 @@ describe(`Scenario`, () => {
     })
     describe(`should detect if step exists`, () => {
         const feature = FeatureContentReader.fromString([
-            `Feature: one scenario with missing steps`,
+            `Feature: check if step exists`,
             `   Scenario: Simple scenario`,
             `       Given vitest-cucumber is running`,
             `       Then  check if I am called`,
@@ -390,10 +401,14 @@ describe(`Scenario`, () => {
 describe(`Background`, () => {
     describe(`should detect uncalled Background step`, () => {
         const feature = FeatureContentReader.fromString([
-            `Feature: one scenario with missing steps`,
+            `Feature: detect uncalled Background step`,
             `   Background:`,
             `       Given vitest-cucumber is running`,
+            `   Scenario: simple scenario`,
+            `       Given I am just a scenario`,
         ]).parseContent()
+
+        feature.scenarii[0].isCalled = true
 
         afterAll(() => {
             expect(feature.background?.steps[0].isCalled).toBe(false)
@@ -414,10 +429,14 @@ describe(`Background`, () => {
     })
     describe(`should detect if step exists`, () => {
         const feature = FeatureContentReader.fromString([
-            `Feature: one scenario with missing steps`,
+            `Feature: detect if background step exist`,
             `   Background:`,
             `       Given vitest-cucumber is running`,
+            `   Scenario: simple scenario`,
+            `       Given I am just a scenario`,
         ]).parseContent()
+
+        feature.scenarii[0].isCalled = true
 
         describeFeature(feature, (f) => {
             expect(() => {
@@ -438,7 +457,7 @@ describe(`Background`, () => {
 describe(`ScenarioOutline`, () => {
     describe(`should detect uncalled ScenarioOutline step`, () => {
         const feature = FeatureContentReader.fromString([
-            `Feature: one scenario with missing steps`,
+            `Feature: detect uncalled scenario outline step`,
             `   Scenario Outline: Simple scenario`,
             `       Given vitest-cucumber is <state>`,
             `       Then  check if I am called`,
@@ -467,7 +486,7 @@ describe(`ScenarioOutline`, () => {
     })
     describe(`should detect if step exists`, () => {
         const feature = FeatureContentReader.fromString([
-            `Feature: one scenario with missing steps`,
+            `Feature: detect if step exists`,
             `   Scenario Outline: Simple scenario`,
             `       Given vitest-cucumber is <state>`,
             `       Then  check if I am called`,
@@ -545,5 +564,57 @@ describe('use language for feature', () => {
                 s.But('Ça me rassure', () => {})
             })
         })
+    })
+})
+
+describe('Feature / Rule without Scenario', () => {
+    describe('Feature without scenario', () => {
+        expect(() => {
+            FeatureContentReader.fromString([
+                `Feature: feature without scenario`,
+                `   Background:`,
+                `      Given vitest-cucumber is running`,
+            ]).parseContent()
+        }).toThrowError(
+            new ParentWithScenarioError(
+                new Feature('feature without scenario'),
+            ),
+        )
+    })
+    describe('Rule without scenario', () => {
+        expect(() => {
+            FeatureContentReader.fromString([
+                `Feature: feature without scenario`,
+                `   Rule: rule without scenario`,
+                `       Background:`,
+                `          Given vitest-cucumber is running`,
+            ]).parseContent()
+        }).toThrowError(
+            new ParentWithScenarioError(new Rule('rule without scenario')),
+        )
+    })
+    describe('Feature with scenario and Rule', () => {
+        expect(() => {
+            FeatureContentReader.fromString([
+                `Feature: feature without scenario`,
+                `   Scenario: simple scenario`,
+                `       Given I am a scenario`,
+                `   Rule: rule without scenario`,
+                `       Background:`,
+                `          Given vitest-cucumber is running`,
+            ]).parseContent()
+        }).toThrowError(
+            new ParentWithScenarioError(new Rule('rule without scenario')),
+        )
+    })
+    describe('Feature without scenario but rule with scenario', () => {
+        expect(() => {
+            FeatureContentReader.fromString([
+                `Feature: feature without scenario`,
+                `   Rule: rule without scenario`,
+                `       Scenario: simple scenario`,
+                `           Given I am a scenario`,
+            ]).parseContent()
+        }).not.toThrowError()
     })
 })

@@ -50,4 +50,14 @@ export class Feature extends ScenarioParent {
 
         return foundRule
     }
+
+    public mustHaveScenarioOrRules() {
+        if (this.rules.length > 0) {
+            for (const rule of this.rules) {
+                rule.mustHaveScenario()
+            }
+        } else {
+            this.mustHaveScenario()
+        }
+    }
 }
