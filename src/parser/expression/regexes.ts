@@ -129,7 +129,7 @@ export class IntRegex extends ExpressionRegex<number> {
     }
 
     public getRegex(index: number) {
-        return `\\b(?<int${index}>\\d+)\\b`
+        return `(?<int${index}>-?\\d+)`
     }
 
     public getValue(str: string): number {
@@ -147,7 +147,7 @@ export class NumberRegex extends ExpressionRegex<number> {
     }
 
     public getRegex(index: number) {
-        return `\\b(?<number${index}>\\d+(\\.\\d+)?)\\b`
+        return `(?<number${index}>-?\\d+(\\.\\d+)?)`
     }
 
     public getValue(str: string): number {

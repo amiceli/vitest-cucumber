@@ -171,6 +171,12 @@ describe(`ExpressionStep`, () => {
                 new StepExpressionMatchError(step, `I love Vue {int}`),
             )
         })
+
+        it(`should match negative {int}`, () => {
+            const step = new Step(StepTypes.GIVEN, `It is cold. -14°C`)
+            const params = ExpressionStep.matchStep(step, `It is cold. {int}°C`)
+            expect(params).toEqual([-14])
+        })
     })
 
     describe('{number}', () => {
@@ -193,6 +199,15 @@ describe(`ExpressionStep`, () => {
             const step = new Step(StepTypes.GIVEN, `I love Vue 3`)
             const params = ExpressionStep.matchStep(step, `I love Vue {number}`)
             expect(params).toEqual([3])
+        })
+
+        it(`should match negative {number}`, () => {
+            const step = new Step(StepTypes.GIVEN, `It is cold. -4.73°C`)
+            const params = ExpressionStep.matchStep(
+                step,
+                `It is cold. {number}°C`,
+            )
+            expect(params).toEqual([-4.73])
         })
     })
 
