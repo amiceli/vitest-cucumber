@@ -167,11 +167,43 @@ export class DateRegex extends ExpressionRegex<Date> {
     public getRegex(index: number) {
         const dateRegex = `[0-9]{1,2}\/[0-9]{1,2}\/[0-9]{4}(?: [0-9]{2}:[0-9]{2}:[0-9]{2})?`
         const isoDateRegex = `(?:\\d{4})-(?:\\d{2})-(?:\\d{2})`
-        const isoDatetimeRegex = `(?:\\d{4})-(?:\\d{2})-(?:\\d{2})T(?:\\d{2}):(?:\\d{2}):(?:\\d{2}(?:\\.\\d*)?)(?:(?:-(?:\\d{2}):(?:\\d{2})|Z)?)`
+        const isoDatetimeRegex = `(?:\\d{4})-(?:\\d{2})-(?:\\d{2})T(?:\\d{2}):(?:\\d{2}):(?:\\d{2}(?:\\.\\d*)?)(?:(?:[-|+](?:\\d{2}):(?:\\d{2})|Z)?)`
 
-        // TODO : handle more date formats
+        const shortMonths = [
+            'Jan',
+            'Feb',
+            'Mar',
+            'Apr',
+            'May',
+            'Jun',
+            'Jul',
+            'Aug',
+            'Sep',
+            'Oct',
+            'Nov',
+            'Dec',
+        ]
+        const longMonths = [
+            'January',
+            'February',
+            'March',
+            'April',
+            'May',
+            'June',
+            'July',
+            'August',
+            'September',
+            'October',
+            'November',
+            'December',
+        ]
 
-        return `\\b(?<date${index}>(${dateRegex})|(${isoDateRegex})|(${isoDatetimeRegex}))\\b`
+        const shortOrLongMonthsRegex = shortMonths.concat(longMonths).join('|')
+
+        const shortOrLongDateRegex = `\\d{1,2},? (:?${shortOrLongMonthsRegex}),? \\d{4}`
+        const altShortOrLongDateRegex = `(:?${shortOrLongMonthsRegex}),? \\d{1,2},? \\d{4}`
+
+        return `\\b(?<date${index}>(${dateRegex})|(${isoDateRegex})|(${isoDatetimeRegex})|(${shortOrLongDateRegex})|(${altShortOrLongDateRegex}))\\b`
     }
 
     public getValue(str: string): Date {

@@ -312,6 +312,80 @@ describe(`ExpressionStep`, () => {
                     new Date(Date.UTC(2017, 4, 23, 15, 2, 27)),
                 ])
             })
+
+            it(`should match {date} with positive timezone`, () => {
+                const step = new Step(
+                    StepTypes.GIVEN,
+                    `The log was created at 2017-05-23T15:02:27+02:00`,
+                )
+                const params = ExpressionStep.matchStep(
+                    step,
+                    `The log was created at {date}`,
+                )
+                expect(params).toEqual([
+                    new Date(Date.UTC(2017, 4, 23, 13, 2, 27)),
+                ])
+            })
+
+            it(`should match {date} with negative timezone`, () => {
+                const step = new Step(
+                    StepTypes.GIVEN,
+                    `The log was created at 2017-05-23T15:02:27-03:30`,
+                )
+                const params = ExpressionStep.matchStep(
+                    step,
+                    `The log was created at {date}`,
+                )
+                expect(params).toEqual([
+                    new Date(Date.UTC(2017, 4, 23, 18, 32, 27)),
+                ])
+            })
+        })
+
+        describe('short date format', () => {
+            it(`should match {date}`, () => {
+                const step = new Step(StepTypes.GIVEN, `today is Jan 25 2015`)
+                const params = ExpressionStep.matchStep(step, `today is {date}`)
+                expect(params).toEqual([new Date(2015, 0, 25)])
+            })
+
+            it(`should match {date} starting with day`, () => {
+                const step = new Step(StepTypes.GIVEN, `today is 03 Mar 2016`)
+                const params = ExpressionStep.matchStep(step, `today is {date}`)
+                expect(params).toEqual([new Date(2016, 2, 3)])
+            })
+
+            it(`should match {date} with optional commas`, () => {
+                const step = new Step(StepTypes.GIVEN, `today is Jan, 25, 2015`)
+                const params = ExpressionStep.matchStep(step, `today is {date}`)
+                expect(params).toEqual([new Date(2015, 0, 25)])
+            })
+        })
+
+        describe('long date format', () => {
+            it(`should match {date}`, () => {
+                const step = new Step(
+                    StepTypes.GIVEN,
+                    `today is January 25 2015`,
+                )
+                const params = ExpressionStep.matchStep(step, `today is {date}`)
+                expect(params).toEqual([new Date(2015, 0, 25)])
+            })
+
+            it(`should match {date} starting with day`, () => {
+                const step = new Step(StepTypes.GIVEN, `today is 03 March 2016`)
+                const params = ExpressionStep.matchStep(step, `today is {date}`)
+                expect(params).toEqual([new Date(2016, 2, 3)])
+            })
+
+            it(`should match {date} with optional commas`, () => {
+                const step = new Step(
+                    StepTypes.GIVEN,
+                    `today is January, 25, 2015`,
+                )
+                const params = ExpressionStep.matchStep(step, `today is {date}`)
+                expect(params).toEqual([new Date(2015, 0, 25)])
+            })
         })
     })
 
