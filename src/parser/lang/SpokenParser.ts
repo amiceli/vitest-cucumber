@@ -1,38 +1,21 @@
 import { SpokenKeywordError } from '../../errors/errors'
 import { StepTypes } from '../models/step'
-import avalaibleLanguages from './lang.json'
+import availableLanguages from './lang.json'
 
-type GherkinLanguageDetails = {
-    and: string[]
-    background: string[]
-    but: string[]
-    examples: string[]
-    feature: string[]
-    given: string[]
-    rule: string[]
-    scenario: string[]
-    scenarioOutline: string[]
-    then: string[]
-    when: string[]
-}
+type Languages = keyof typeof availableLanguages
+type GherkinLanguageDetails = (typeof availableLanguages)['en']
 
 type LineDetails = { keyword: string; title: string }
-
-type GherkinLanguage = {
-    [key: string]: GherkinLanguageDetails
-}
 
 // biome-ignore lint/complexity/noStaticOnlyClass: <explanation>
 export abstract class SpokenParserFactory {
     public static fromLang(lang: string): SpokenParser {
-        const details = (avalaibleLanguages as GherkinLanguage)[lang]
-        const defaultDetails = (avalaibleLanguages as GherkinLanguage).en
+        const details =
+            lang in availableLanguages
+                ? availableLanguages[lang as Languages]
+                : availableLanguages.en
 
-        if (details) {
-            return new SpokenParser(details)
-        }
-
-        return new SpokenParser(defaultDetails)
+        return new SpokenParser(details)
     }
 }
 
