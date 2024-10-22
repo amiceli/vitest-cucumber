@@ -101,6 +101,25 @@ describe(`GherkinParser`, () => {
         expect(currentStep.isCalled).toBeFalsy()
     })
 
+    describe('asterisk steps', () => {
+        // reference: https://cucumber.io/docs/gherkin/reference/#Asterisk
+        it(`should be able to parse asterisk as 'And' after a 'Given' line`, () => {
+            parser.addLine(`Feature: awesome feature`)
+            parser.addLine(`Scenario: Example scenario`)
+            parser.addLine(`Given I run unit tests with vitest`)
+            parser.addLine(`* I load a web page`)
+
+            const currentScenario = getCurrentScenario(parser)
+            const [_, currentStep] = currentScenario.steps
+            console.log(currentStep)
+
+            expect(currentScenario.steps.length).toEqual(2)
+            expect(currentStep.type).toEqual(StepTypes.AND)
+            expect(currentStep.details).toEqual(`I load a web page`)
+            expect(currentStep.isCalled).toBeFalsy()
+        })
+    })
+
     it(`should trim Scenario / Feature line title`, () => {
         const lineTitle = `Scenario:    remove space `
 
