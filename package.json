@@ -14,7 +14,7 @@
     "lefthook:prepare": "lefthook install",
     "lint": "biome check",
     "lint:fix": "biome check --write",
-    "prebuild" : "wget -q -O src/parser/lang/lang.json 'https://raw.githubusercontent.com/cucumber/gherkin/1667cf8ed6920093ccf0ad1111bceb823ae43730/gherkin-languages.json'",
+    "prebuild" : "node prebuild.js",
     "test:unit": "npm run prebuild && vitest",
     "test:silent": "npm run prebuild && vitest --silent --run",
     "test:coverage": "npm run prebuild && vitest run --coverage"

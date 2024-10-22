@@ -5,12 +5,6 @@ import availableLanguages from './lang.json'
 type Languages = keyof typeof availableLanguages
 type GherkinLanguageDetails = (typeof availableLanguages)['en']
 
-type StringArrayProps<T> = {
-    [K in keyof T]: T[K] extends string[] ? K : never
-}[keyof T]
-
-type StringArrayKeys = StringArrayProps<GherkinLanguageDetails>
-
 type LineDetails = { keyword: string; title: string }
 
 // biome-ignore lint/complexity/noStaticOnlyClass: <explanation>
@@ -20,23 +14,6 @@ export abstract class SpokenParserFactory {
             lang in availableLanguages
                 ? availableLanguages[lang as Languages]
                 : availableLanguages.en
-
-        for (const propertyName in details) {
-            if (propertyName === 'and') {
-                continue
-            }
-
-            const property =
-                details[propertyName as keyof GherkinLanguageDetails]
-
-            if (!Array.isArray(property)) {
-                continue
-            }
-
-            details[propertyName as StringArrayKeys] = property.filter(
-                (value) => value !== '* ',
-            )
-        }
 
         return new SpokenParser(details)
     }

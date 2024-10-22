@@ -111,7 +111,6 @@ describe(`GherkinParser`, () => {
 
             const currentScenario = getCurrentScenario(parser)
             const [_, currentStep] = currentScenario.steps
-            console.log(currentStep)
 
             expect(currentScenario.steps.length).toEqual(2)
             expect(currentStep.type).toEqual(StepTypes.AND)
