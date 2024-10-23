@@ -486,18 +486,6 @@ describe(`ExpressionStep`, () => {
         })
     })
 
-    describe('{}', () => {
-        it(`should match {}`, () => {
-            const step = new Step(
-                StepTypes.GIVEN,
-                `should catch the rest of the string`,
-            )
-            const params = ExpressionStep.matchStep(step, `should catch {}`)
-
-            expect(params).toEqual([`the rest of the string`])
-        })
-    })
-
     describe('{any}', () => {
         it(`should match {}`, () => {
             const step = new Step(

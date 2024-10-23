@@ -1,7 +1,6 @@
 import { StepExpressionMatchError } from '../../errors/errors'
 import type { Step } from '../models/step'
 import {
-    AnonymousRegex,
     AnyRegex,
     BooleanRegex,
     CharRegex,
@@ -29,7 +28,6 @@ export class ExpressionStep {
         new DateRegex(),
         new CurrencyRegex(),
         new ListRegex(),
-        new AnonymousRegex(),
         new AnyRegex(),
     ]
 

@@ -278,24 +278,6 @@ export class ListRegex extends ExpressionRegex<string[]> {
     }
 }
 
-export class AnonymousRegex extends ExpressionRegex<string> {
-    public constructor() {
-        super({
-            keyword: `{}`,
-            groupName: `anonymous`,
-            keywordRegex: /{}/g,
-        })
-    }
-
-    public getRegex(index: number) {
-        return `(?<anonymous${index}>.+)`
-    }
-
-    public getValue(str: string): string {
-        return str
-    }
-}
-
 export class AnyRegex extends ExpressionRegex<string> {
     public constructor() {
         super({
