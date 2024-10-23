@@ -236,3 +236,15 @@ export class InvalidCurrencyParameterError extends VitestsCucumberError {
         super(`String '${arg}' was not recognized as a valid currency`)
     }
 }
+
+export class BuiltinParameterExpressionAlreadyExistsError extends VitestsCucumberError {
+    public constructor(expressionName: string) {
+        super(`You cannot redefine the built-in expression '${expressionName}'`)
+    }
+}
+
+export class CustomParameterExpressionAlreadyExistsError extends VitestsCucumberError {
+    public constructor(expressionName: string) {
+        super(`The custom expression '${expressionName}' already exists`)
+    }
+}

@@ -1,11 +1,14 @@
-import { describe, expect, it, test } from 'vitest'
+import { beforeEach, describe, expect, it, test } from 'vitest'
 import {
+    BuiltinParameterExpressionAlreadyExistsError,
+    CustomParameterExpressionAlreadyExistsError,
     InvalidDateParameterError,
     InvalidUrlParameterError,
     StepExpressionMatchError,
 } from '../../../errors/errors'
 import { Step, StepTypes } from '../../models/step'
-import { ExpressionStep } from '../ExpressionStep'
+import { ExpressionStep, builtInExpressionRegEx } from '../ExpressionStep'
+import { customExpressionRegEx, defineParameterExpression } from '../custom'
 
 describe(`ExpressionStep`, () => {
     describe('{boolean}', () => {
@@ -611,5 +614,91 @@ describe(`ExpressionStep`, () => {
         }).toThrowError(
             new StepExpressionMatchError(step, `I love "Vue" {char}`),
         )
+    })
+
+    describe('Custom expression', () => {
+        type Color = 'red' | 'blue' | 'yellow'
+
+        beforeEach(() => {
+            customExpressionRegEx.length = 0
+        })
+
+        const defineColorExpression = () => {
+            defineParameterExpression({
+                name: 'color',
+                regexp: /red|blue|yellow/,
+                transformer: (s) => s as Color,
+            })
+        }
+
+        it('should define a custom parameter expression', () => {
+            defineColorExpression()
+        })
+
+        describe('should fail to define a parameter expression if not unique', () => {
+            it('should not have the same name as another custom expression', () => {
+                defineColorExpression()
+
+                expect(defineColorExpression).toThrowError(
+                    new CustomParameterExpressionAlreadyExistsError('color'),
+                )
+            })
+
+            for (const r of builtInExpressionRegEx) {
+                it(`should not have the same name as built-in expression ${r.groupName}`, () => {
+                    expect(() => {
+                        defineParameterExpression({
+                            name: r.groupName,
+                            regexp: /red|blue|yellow/,
+                            transformer: (s) => s as Color,
+                        })
+                    }).toThrowError(
+                        new BuiltinParameterExpressionAlreadyExistsError(
+                            r.groupName,
+                        ),
+                    )
+                })
+            }
+        })
+
+        it(`should match {color}`, () => {
+            defineColorExpression()
+
+            const step = new Step(StepTypes.GIVEN, `My favorite color is red`)
+            const params = ExpressionStep.matchStep(
+                step,
+                `My favorite color is {color}`,
+            )
+            expect(params).toEqual([`red`])
+        })
+
+        it(`should match multiple {string}`, () => {
+            defineColorExpression()
+
+            const step = new Step(
+                StepTypes.GIVEN,
+                `The english flag has both red and blue colors`,
+            )
+            const params = ExpressionStep.matchStep(
+                step,
+                `The english flag has both {color} and {color} colors`,
+            )
+            expect(params).toEqual([`red`, `blue`])
+        })
+
+        it(`should fail to match {color} expression`, () => {
+            defineColorExpression()
+
+            const step = new Step(StepTypes.GIVEN, `My favorite color is green`)
+
+            expect(() => {
+                ExpressionStep.matchStep(step, `My favorite color is {color}`)
+            }).toThrowError(
+                new StepExpressionMatchError(
+                    step,
+                    `My favorite color is {color}`,
+                ),
+            )
+        })
     })
 })
