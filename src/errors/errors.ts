@@ -216,3 +216,15 @@ export class ParentWithoutScenario extends VitestsCucumberError {
         super(`${feature.getTitle()} must have at least one scenario`)
     }
 }
+
+export class BuiltinParameterExpressionAlreadyExistsError extends VitestsCucumberError {
+    public constructor(expressionName: string) {
+        super(`You cannot redefine the built-in expression '${expressionName}'`)
+    }
+}
+
+export class CustomParameterExpressionAlreadyExistsError extends VitestsCucumberError {
+    public constructor(expressionName: string) {
+        super(`The custom expression '${expressionName}' already exists`)
+    }
+}
