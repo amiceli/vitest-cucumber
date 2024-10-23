@@ -215,9 +215,7 @@ export class DateRegex extends ExpressionRegex<Date> {
 
     public getValue(str: string): Date {
         const value = new Date(str)
-        // biome-ignore lint/suspicious/noGlobalIsNan: <explanation>
-        // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-        if (isNaN(value as any)) {
+        if (Number.isNaN(value.getTime())) {
             throw new InvalidDateParameterError(str)
         }
 
