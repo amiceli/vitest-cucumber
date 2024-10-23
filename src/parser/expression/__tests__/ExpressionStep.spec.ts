@@ -413,14 +413,8 @@ describe(`ExpressionStep`, () => {
                 `I have {currency} in the bank`,
             )
             const parsedValue = {
-                currency: '',
-                decimalSeparator: '',
-                decimals: '',
-                groupSeparator: '',
-                integer: '200',
+                currency: 'USD',
                 raw: '$200',
-                sign: '',
-                symbol: '$',
                 value: 200,
             }
 
@@ -435,25 +429,13 @@ describe(`ExpressionStep`, () => {
             )
 
             const parsedValue1 = {
-                currency: '',
-                decimalSeparator: '.',
-                decimals: '.5',
-                groupSeparator: '',
-                integer: '2',
+                currency: 'USD',
                 raw: '$2.5',
-                sign: '',
-                symbol: '$',
                 value: 2.5,
             }
             const parsedValue2 = {
-                currency: '',
-                decimalSeparator: '',
-                decimals: '',
-                groupSeparator: '',
-                integer: '3',
+                currency: 'EUR',
                 raw: '3€',
-                sign: '',
-                symbol: '€',
                 value: 3,
             }
 
@@ -467,14 +449,8 @@ describe(`ExpressionStep`, () => {
                 `I have {currency} in the bank`,
             )
             const parsedValue = {
-                currency: '',
-                decimalSeparator: '',
-                decimals: '',
-                groupSeparator: '',
-                integer: '-50',
+                currency: 'USD',
                 raw: '-$50',
-                sign: '-',
-                symbol: '$',
                 value: -50,
             }
 

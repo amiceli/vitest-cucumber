@@ -1,8 +1,11 @@
-import parsecurrency, { type ParsedCurrency } from 'parsecurrency'
+import parsecurrency from 'parsecurrency'
 import {
     InvalidCurrencyParameterError,
     InvalidDateParameterError,
 } from '../../errors/errors'
+import symbolToCode from './symbolToCode.json'
+
+type CurrencySymbol = keyof typeof symbolToCode
 
 type ExpressionRegexConstructor = {
     keyword: string
@@ -222,7 +225,13 @@ export class DateRegex extends ExpressionRegex<Date> {
     }
 }
 
-export class CurrencyRegex extends ExpressionRegex<ParsedCurrency> {
+export type Currency = {
+    raw: string
+    value: number
+    currency: string
+}
+
+export class CurrencyRegex extends ExpressionRegex<Currency> {
     public constructor() {
         super({
             keyword: `{currency}`,
@@ -236,13 +245,18 @@ export class CurrencyRegex extends ExpressionRegex<ParsedCurrency> {
         return `(?<!\\S)(?<currency${index}>(${currencyRegex}))(?!\\S)`
     }
 
-    public getValue(str: string): ParsedCurrency {
+    public getValue(str: string): Currency {
         const value = parsecurrency(str)
         if (!value) {
             throw new InvalidCurrencyParameterError(str)
         }
 
-        return value
+        return {
+            raw: value.raw,
+            value: value.value,
+            currency:
+                value.currency || symbolToCode[value.symbol as CurrencySymbol],
+        }
     }
 }
 

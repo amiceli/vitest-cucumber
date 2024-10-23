@@ -1,6 +1,7 @@
 import { type TaskContext, describe, expect } from 'vitest'
 import { FeatureContentReader } from '../../__mocks__/FeatureContentReader.spec'
 import { StepAbleStepExpressionError } from '../../errors/errors'
+import type { Currency } from '../../parser/expression/regexes'
 import { Step, StepTypes } from '../../parser/models/step'
 import { describeFeature } from '../describe-feature'
 
@@ -33,10 +34,10 @@ describe(`step with expressions`, () => {
                 )
                 s.And(
                     `I use typescript for {currency}`,
-                    // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-                    (ctx: TaskContext, currency: any) => {
+                    (ctx: TaskContext, currency: Currency) => {
                         expect(currency.raw).toEqual('$2')
                         expect(currency.value).toEqual(2)
+                        expect(currency.currency).toEqual('USD')
                         expect(ctx.task.name).toEqual(
                             `And I use typescript for $2`,
                         )
