@@ -219,6 +219,12 @@ export class ParentWithoutScenario extends VitestsCucumberError {
     }
 }
 
+export class InvalidUrlParameterError extends VitestsCucumberError {
+    public constructor(arg: string) {
+        super(`String '${arg}' was not recognized as a valid Url`)
+    }
+}
+
 export class InvalidDateParameterError extends VitestsCucumberError {
     public constructor(arg: string) {
         super(`String '${arg}' was not recognized as a valid Date`)

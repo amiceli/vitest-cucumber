@@ -1,6 +1,7 @@
 import { describe, expect, it, test } from 'vitest'
 import {
     InvalidDateParameterError,
+    InvalidUrlParameterError,
     StepExpressionMatchError,
 } from '../../../errors/errors'
 import { Step, StepTypes } from '../../models/step'
@@ -146,6 +147,55 @@ describe(`ExpressionStep`, () => {
                 `john.smith@example.com`,
                 `jane.doe@example.com`,
             ])
+        })
+    })
+
+    describe('{url}', () => {
+        it(`should match {url}`, () => {
+            const step = new Step(
+                StepTypes.GIVEN,
+                `I visit the page http://localhost:8080`,
+            )
+            const params = ExpressionStep.matchStep(
+                step,
+                `I visit the page {url}`,
+            )
+            expect(params).toEqual([new URL('http://localhost:8080')])
+        })
+
+        it(`should match multiple {url}`, () => {
+            const step = new Step(
+                StepTypes.GIVEN,
+                `I visit the page http://localhost:8080 and then navigate to https://example.com`,
+            )
+            const params = ExpressionStep.matchStep(
+                step,
+                `I visit the page {url} and then navigate to {url}`,
+            )
+            expect(params).toEqual([
+                new URL('http://localhost:8080'),
+                new URL('https://example.com'),
+            ])
+        })
+
+        it(`should match {url} with ws protocol`, () => {
+            const step = new Step(
+                StepTypes.GIVEN,
+                `I visit the page ws://localhost:8080`,
+            )
+            const params = ExpressionStep.matchStep(
+                step,
+                `I visit the page {url}`,
+            )
+            expect(params).toEqual([new URL('ws://localhost:8080')])
+        })
+
+        it(`should fail to match {url}`, () => {
+            const step = new Step(StepTypes.GIVEN, `I visit the page localhost`)
+
+            expect(() => {
+                ExpressionStep.matchStep(step, `I visit the page {url}`)
+            }).toThrowError(new InvalidUrlParameterError(`localhost`))
         })
     })
 
@@ -487,7 +537,7 @@ describe(`ExpressionStep`, () => {
     })
 
     describe('{any}', () => {
-        it(`should match {}`, () => {
+        it(`should match {any}`, () => {
             const step = new Step(
                 StepTypes.GIVEN,
                 `should catch the rest of the string`,

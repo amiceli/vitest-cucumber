@@ -12,6 +12,7 @@ import {
     ListRegex,
     NumberRegex,
     StringRegex,
+    UrlRegex,
     WordRegex,
 } from './regexes'
 
@@ -23,6 +24,7 @@ export class ExpressionStep {
         new CharRegex(),
         new StringRegex(),
         new EmailRegex(),
+        new UrlRegex(),
         new IntRegex(),
         new NumberRegex(),
         new DateRegex(),

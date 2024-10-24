@@ -2,6 +2,7 @@ import parsecurrency from 'parsecurrency'
 import {
     InvalidCurrencyParameterError,
     InvalidDateParameterError,
+    InvalidUrlParameterError,
 } from '../../errors/errors'
 import symbolToCode from './symbolToCode.json'
 
@@ -123,6 +124,29 @@ export class EmailRegex extends ExpressionRegex<string> {
 
     public getValue(str: string): string {
         return str.replace(/^["']|["']$/g, ``)
+    }
+}
+
+export class UrlRegex extends ExpressionRegex<URL> {
+    public constructor() {
+        super({
+            keyword: `{url}`,
+            groupName: `url`,
+            keywordRegex: /{url}/g,
+        })
+    }
+
+    public getRegex(index: number) {
+        const urlRegex = `(https?:\/\/)?([^\\s$.?#].[^\\s]*)`
+        return `\\b(?<url${index}>${urlRegex})\\b`
+    }
+
+    public getValue(str: string): URL {
+        try {
+            return new URL(str)
+        } catch {
+            throw new InvalidUrlParameterError(str)
+        }
     }
 }
 
