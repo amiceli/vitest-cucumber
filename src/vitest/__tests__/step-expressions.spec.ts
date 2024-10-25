@@ -1,6 +1,7 @@
 import { type TaskContext, describe, expect } from 'vitest'
 import { FeatureContentReader } from '../../__mocks__/FeatureContentReader.spec'
 import { StepAbleStepExpressionError } from '../../errors/errors'
+import type { Currency } from '../../parser/expression/regexes'
 import { Step, StepTypes } from '../../parser/models/step'
 import { describeFeature } from '../describe-feature'
 
@@ -17,7 +18,7 @@ describe(`step with expressions`, () => {
         describeFeature(feature, (f) => {
             f.Scenario(`scenario with expression`, (s) => {
                 s.Given(
-                    `I use {string} {float}`,
+                    `I use {string} {number}`,
                     (ctx: TaskContext, framework: string, version: number) => {
                         expect(framework).toEqual(`Vue`)
                         expect(version).toEqual(3.2)
@@ -32,9 +33,11 @@ describe(`step with expressions`, () => {
                     },
                 )
                 s.And(
-                    `I use typescript for {number}`,
-                    (ctx: TaskContext, num: number) => {
-                        expect(num).toEqual(2)
+                    `I use typescript for {currency}`,
+                    (ctx: TaskContext, currency: Currency) => {
+                        expect(currency.raw).toEqual('$2')
+                        expect(currency.value).toEqual(2)
+                        expect(currency.currency).toEqual('USD')
                         expect(ctx.task.name).toEqual(
                             `And I use typescript for $2`,
                         )
@@ -47,7 +50,7 @@ describe(`step with expressions`, () => {
             describeFeature(feature, (f) => {
                 f.Scenario(`scenario with expression`, (s) => {
                     s.Given(
-                        `I use {number} {float}`,
+                        `I use {number} {number}`,
                         (ctx, framework: string, version: number) => {
                             expect(framework).toEqual(`Vue`)
                             expect(version).toEqual(3.2)
@@ -58,7 +61,7 @@ describe(`step with expressions`, () => {
         }).toThrowError(
             new StepAbleStepExpressionError(
                 feature.scenarii[0],
-                new Step(StepTypes.GIVEN, `I use {number} {float}`),
+                new Step(StepTypes.GIVEN, `I use {number} {number}`),
             ),
         )
     })
@@ -73,7 +76,7 @@ describe(`step with expressions`, () => {
 
         describeFeature(feature, (f) => {
             f.Background((b) => {
-                b.Given(`I use "Vue" {float}`, (ctx, version: number) => {
+                b.Given(`I use "Vue" {number}`, (ctx, version: number) => {
                     expect(version).toEqual(3.2)
                     expect(ctx.task.name).toEqual(`Given I use "Vue" 3.2`)
                 })
@@ -96,7 +99,7 @@ describe(`step with expressions`, () => {
         describeFeature(feature, (f) => {
             f.Rule(`test`, (r) => {
                 r.RuleBackground((b) => {
-                    b.Given(`I use "Vue" {float}`, (ctx, version: number) => {
+                    b.Given(`I use "Vue" {number}`, (ctx, version: number) => {
                         expect(version).toEqual(3.2)
                         expect(ctx.task.name).toEqual(`Given I use "Vue" 3.2`)
                     })
@@ -125,7 +128,7 @@ describe(`step with expressions`, () => {
                 `scenario outline with expression`,
                 (s, variables) => {
                     s.Given(
-                        `I use {string} {float}`,
+                        `I use {string} {number}`,
                         (ctx, framework: string, version: number) => {
                             expect(framework).toEqual(`Vue`)
                             expect(version).toEqual(3.2)
@@ -163,7 +166,7 @@ describe(`step with expressions`, () => {
                     `scenario outline with expression`,
                     (s, variables) => {
                         s.Given(
-                            `I use {string} {float}`,
+                            `I use {string} {number}`,
                             (ctx, framework: string, version: number) => {
                                 expect(framework).toEqual(`Vue`)
                                 expect(version).toEqual(3.2)
@@ -204,7 +207,7 @@ describe(`step with expressions`, () => {
         describeFeature(feature, (f) => {
             f.Scenario(`scenario with expression`, (s) => {
                 s.Given(
-                    `I use {string} {float}`,
+                    `I use {string} {number}`,
                     (ctx: TaskContext, framework: string, version: number) => {
                         expect(framework).toEqual(`Vue`)
                         expect(version).toEqual(3.2)

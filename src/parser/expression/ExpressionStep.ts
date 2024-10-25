@@ -1,20 +1,36 @@
 import { StepExpressionMatchError } from '../../errors/errors'
 import type { Step } from '../models/step'
 import {
+    AnyRegex,
+    BooleanRegex,
+    CharRegex,
+    CurrencyRegex,
+    DateRegex,
+    EmailRegex,
     type ExpressionRegex,
-    FloatRegex,
+    IntRegex,
     ListRegex,
     NumberRegex,
     StringRegex,
+    UrlRegex,
+    WordRegex,
 } from './regexes'
 
 // biome-ignore lint/complexity/noStaticOnlyClass: <explanation>
 export class ExpressionStep {
     public static readonly expressionRegEx: ExpressionRegex[] = [
+        new BooleanRegex(),
+        new WordRegex(),
+        new CharRegex(),
         new StringRegex(),
+        new EmailRegex(),
+        new UrlRegex(),
+        new IntRegex(),
         new NumberRegex(),
-        new FloatRegex(),
+        new DateRegex(),
+        new CurrencyRegex(),
         new ListRegex(),
+        new AnyRegex(),
     ]
 
     // biome-ignore lint/suspicious/noExplicitAny: <explanation>
@@ -23,6 +39,10 @@ export class ExpressionStep {
         const groupCount: {
             [key: string]: number
         } = {}
+
+        // 💡 escape special characters
+        // TODO : among [-\/\\^$*+?.()|[\]{}] which characters need to be escaped?
+        regexString = regexString.replace(/[?]/g, `\\$&`)
 
         for (const r of ExpressionStep.expressionRegEx) {
             groupCount[r.groupName] = 0
@@ -35,6 +55,9 @@ export class ExpressionStep {
                 return r.getRegex(groupCount[r.groupName])
             })
         }
+
+        // 💡 should match the full string
+        regexString = `^${regexString}$`
 
         const regex = new RegExp(regexString, `g`)
         const matches = [...step.details.matchAll(regex)]
@@ -74,8 +97,7 @@ export class ExpressionStep {
         const allValues = result
             .flat()
             .filter((t) => t !== undefined)
-            // biome-ignore lint/style/noNonNullAssertion: <explanation>
-            .map((r) => r!.value)
+            .map((r) => r.value)
 
         const hasRegex = ExpressionStep.expressionRegEx.some((r) => {
             return stepExpression.includes(r.keyword)

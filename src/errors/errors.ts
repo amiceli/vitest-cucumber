@@ -55,14 +55,14 @@ export class ScenarioOulineWithoutExamplesError extends VitestsCucumberError {
 
 export class ScenarioOutlineVariablesDeclaredWithoutExamplesError extends VitestsCucumberError {
     public constructor(scenario: ScenarioOutline) {
-        super(`${scenario.getTitle()} \n variables declarated without Examples`)
+        super(`${scenario.getTitle()} \n variables declared without Examples`)
     }
 }
 
 export class MissingScenarioOutlineVariableValueError extends VitestsCucumberError {
     public constructor(scenario: ScenarioOutline, variableName: string) {
         super(
-            `${scenario.getTitle()} \n missing ${variableName} value in Excamples`,
+            `${scenario.getTitle()} \n missing ${variableName} value in Examples`,
         )
     }
 }
@@ -70,7 +70,7 @@ export class MissingScenarioOutlineVariableValueError extends VitestsCucumberErr
 export class FeatureUknowScenarioError extends VitestsCucumberError {
     public constructor(feature: ScenarioParent, scenario: Scenario) {
         super(
-            `${scenario.getTitle()} doesn't exist in \n ${feature.getTitle()}`,
+            `${scenario.getTitle()} does not exist in \n ${feature.getTitle()}`,
         )
     }
 }
@@ -78,7 +78,7 @@ export class FeatureUknowScenarioError extends VitestsCucumberError {
 export class StepAbleUnknowStepError extends VitestsCucumberError {
     public constructor(stepable: StepAble, step: Step) {
         super(
-            `${stepable.getTitle()} \n ${step.type} ${step.details} doesn't exist`,
+            `${stepable.getTitle()} \n ${step.type} ${step.details} does not exist`,
         )
     }
 }
@@ -118,43 +118,45 @@ export class RuleNotCalledError extends VitestsCucumberError {
 
 export class FeatureUknowRuleError extends VitestsCucumberError {
     public constructor(feature: Feature, rule: Rule) {
-        super(`${rule.getTitle()} doesn't exist in \n Feature: ${feature.name}`)
+        super(
+            `${rule.getTitle()} does not exist in \n Feature: ${feature.name}`,
+        )
     }
 }
 
 export class FeatureFileNotFoundError extends VitestsCucumberError {
     public constructor(path: string) {
-        super(`feature file ${path} doesn't exist`)
+        super(`feature file ${path} does not exist`)
     }
 }
 
 export class NotAllowedBackgroundStepTypeError extends VitestsCucumberError {
     public constructor(type: StepTypes) {
-        super(`${type} step isn't allow in Background`)
+        super(`${type} step is not allowed in Background`)
     }
 }
 
 export class TwiceBackgroundError extends VitestsCucumberError {
     public constructor() {
-        super(`A background already exists`)
+        super(`A background already exist`)
     }
 }
 
 export class BackgroundNotExistsError extends VitestsCucumberError {
     public constructor(parent: ScenarioParent) {
-        super(`${parent.getTitle()} hasn't background`)
+        super(`${parent.getTitle()} has no background`)
     }
 }
 
 export class OnlyOneFeatureError extends VitestsCucumberError {
     public constructor() {
-        super(`Gherkin rule: only one Feature by file`)
+        super(`Gherkin rule: only one Feature per file`)
     }
 }
 
 export class StepExpressionMatchError extends VitestsCucumberError {
     public constructor(step: Step, expression: string) {
-        super(`${expression} no mtach with ${step.details}`)
+        super(`${expression} no match with ${step.details}`)
     }
 }
 
@@ -205,7 +207,7 @@ export class SpokenKeywordError extends VitestsCucumberError {
         super(
             [
                 `No keywords match for: ${line}`,
-                `   Avalaible keywords : ${keywords.join(', ')}`,
+                `   Available keywords : ${keywords.join(', ')}`,
             ].join('\n'),
         )
     }
@@ -214,5 +216,23 @@ export class SpokenKeywordError extends VitestsCucumberError {
 export class ParentWithoutScenario extends VitestsCucumberError {
     public constructor(feature: ScenarioParent) {
         super(`${feature.getTitle()} must have at least one scenario`)
+    }
+}
+
+export class InvalidUrlParameterError extends VitestsCucumberError {
+    public constructor(arg: string) {
+        super(`String '${arg}' was not recognized as a valid Url`)
+    }
+}
+
+export class InvalidDateParameterError extends VitestsCucumberError {
+    public constructor(arg: string) {
+        super(`String '${arg}' was not recognized as a valid Date`)
+    }
+}
+
+export class InvalidCurrencyParameterError extends VitestsCucumberError {
+    public constructor(arg: string) {
+        super(`String '${arg}' was not recognized as a valid currency`)
     }
 }
