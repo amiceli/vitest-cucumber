@@ -148,6 +148,24 @@ describe(`ExpressionStep`, () => {
                 `jane.doe@example.com`,
             ])
         })
+
+        it(`should failed to match invalid {email}`, () => {
+            const step = new Step(
+                StepTypes.GIVEN,
+                `This message will be sent to john.smith@example.`,
+            )
+            expect(() =>
+                ExpressionStep.matchStep(
+                    step,
+                    `This message will be sent to {email}`,
+                ),
+            ).toThrowError(
+                new StepExpressionMatchError(
+                    step,
+                    `This message will be sent to {email}`,
+                ),
+            )
+        })
     })
 
     describe('{url}', () => {
