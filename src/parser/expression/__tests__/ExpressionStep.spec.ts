@@ -564,6 +564,19 @@ describe(`ExpressionStep`, () => {
 
             expect(params).toEqual([`the rest of the string`])
         })
+
+        it(`should match {any} within text`, () => {
+            const step = new Step(
+                StepTypes.GIVEN,
+                `should catch a single part of the string`,
+            )
+            const params = ExpressionStep.matchStep(
+                step,
+                `should catch {any} of the string`,
+            )
+
+            expect(params).toEqual([`a single part`])
+        })
     })
 
     it(`should match both {string} and {number}`, () => {
