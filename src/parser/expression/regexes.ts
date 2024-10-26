@@ -21,23 +21,21 @@ export abstract class ExpressionRegex<T = unknown, U = unknown> {
 
     public readonly groupName: string
 
-    protected options: U = {}
-
     public constructor(options: ExpressionRegexConstructor) {
         this.keyword = options.keyword
         this.keywordRegex = options.keywordRegex
         this.groupName = options.groupName
     }
 
-    public abstract getRegex(index: number): string
+    public abstract getRegex(index: number, originalRegex: string): string
 
-    public abstract getValue(str: string): T
+    public abstract getValue(str: string, index: number): T
 
     public matchGroupName(str: string): boolean {
         return str.startsWith(this.groupName)
     }
 
-    public matchOptions(regex: string) {}
+    public reset() {}
 }
 
 export class BooleanRegex extends ExpressionRegex<boolean> {
@@ -297,23 +295,27 @@ export class ListRegex extends ExpressionRegex<string[], ListRegexOptions> {
         })
     }
 
-    public getRegex(index: number) {
-        console.debug({
-            opt: this.options.separator,
-            regex: `(?<list${index}>[a-zA-Z]+(?:${this.options.separator} ?[a-zA-Z]+)*)`,
-        })
-        return `(?<list${index}>[a-zA-Z]+(?:${this.options.separator} ?[a-zA-Z]+)*)`
+    public usedSeparators: string[] = []
+
+    public reset() {
+        this.usedSeparators = []
     }
 
-    public getValue(str: string): string[] {
-        return str.split(this.options.separator).map((t) => t.trim())
+    public getRegex(index: number, originalRegex: string) {
+        const clone = new RegExp(
+            this.keywordRegex.source,
+            this.keywordRegex.flags,
+        )
+        const separator = clone.exec(originalRegex)
+        const s = separator?.at(2) || ','
+
+        this.usedSeparators.push(s)
+
+        return `(?<list${index}>[a-zA-Z]+(?:${s} ?[a-zA-Z]+)*)`
     }
 
-    public matchOptions(stepExpression: string) {
-        super.matchOptions(stepExpression)
-        const match = this.keywordRegex.exec(stepExpression)
-
-        this.options.separator = match?.at(2) || ','
+    public getValue(str: string, index: number): string[] {
+        return str.split(this.usedSeparators[index]).map((t) => t.trim())
     }
 }
 

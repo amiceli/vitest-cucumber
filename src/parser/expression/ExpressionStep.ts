@@ -50,16 +50,19 @@ export class ExpressionStep {
         regexString = regexString.replace(/[?]/g, `\\$&`)
 
         for (const r of allExpressionRegEx) {
+            r.reset()
             groupCount[r.groupName] = 0
         }
 
         for (const r of allExpressionRegEx) {
-            r.matchOptions(stepExpression)
-            regexString = regexString.replace(r.keywordRegex, () => {
-                groupCount[r.groupName] += 1
+            regexString = regexString.replace(
+                r.keywordRegex,
+                (originalRegex) => {
+                    groupCount[r.groupName] += 1
 
-                return r.getRegex(groupCount[r.groupName])
-            })
+                    return r.getRegex(groupCount[r.groupName], originalRegex)
+                },
+            )
         }
 
         // 💡 should match the full string
@@ -86,7 +89,7 @@ export class ExpressionStep {
                     res.push({
                         index,
                         // biome-ignore lint/style/noNonNullAssertion: <explanation>
-                        value: matchRegex.getValue(match.groups![key]),
+                        value: matchRegex.getValue(match.groups![key], index),
                     })
                 } else {
                     res.push({
@@ -108,7 +111,6 @@ export class ExpressionStep {
         const hasRegex = allExpressionRegEx.some((r) => {
             return stepExpression.includes(r.keyword)
         })
-        console.debug({ hasRegex, allValues })
 
         if (hasRegex && allValues.length === 0) {
             throw new StepExpressionMatchError(step, stepExpression)
