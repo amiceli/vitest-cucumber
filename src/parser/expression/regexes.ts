@@ -14,7 +14,7 @@ type ExpressionRegexConstructor = {
     groupName: string
 }
 
-export abstract class ExpressionRegex<T = unknown, U = unknown> {
+export abstract class ExpressionRegex<T = unknown> {
     public readonly keyword: string
 
     public readonly keywordRegex: RegExp
@@ -288,9 +288,7 @@ export class CurrencyRegex extends ExpressionRegex<Currency> {
     }
 }
 
-type ListRegexOptions = { separator: string }
-
-export class ListRegex extends ExpressionRegex<string[], ListRegexOptions> {
+export class ListRegex extends ExpressionRegex<string[]> {
     public constructor() {
         super({
             keyword: `{list}`,
