@@ -544,7 +544,7 @@ describe(`ExpressionStep`, () => {
         it(`should match multiple {list}`, () => {
             const step = new Step(
                 StepTypes.GIVEN,
-                `I use React, Astro, TypeScript and I also use Vue, Svelte, Angular`,
+                `I use React, Astro, TypeScript and I also use Vue,Svelte,Angular`,
             )
             const params = ExpressionStep.matchStep(
                 step,
