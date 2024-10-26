@@ -54,6 +54,7 @@ export class ExpressionStep {
         }
 
         for (const r of allExpressionRegEx) {
+            r.matchOptions(stepExpression)
             regexString = regexString.replace(r.keywordRegex, () => {
                 groupCount[r.groupName] += 1
 
@@ -107,6 +108,7 @@ export class ExpressionStep {
         const hasRegex = allExpressionRegEx.some((r) => {
             return stepExpression.includes(r.keyword)
         })
+        console.debug({ hasRegex, allValues })
 
         if (hasRegex && allValues.length === 0) {
             throw new StepExpressionMatchError(step, stepExpression)

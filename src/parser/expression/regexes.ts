@@ -14,12 +14,14 @@ type ExpressionRegexConstructor = {
     groupName: string
 }
 
-export abstract class ExpressionRegex<T = unknown> {
+export abstract class ExpressionRegex<T = unknown, U = unknown> {
     public readonly keyword: string
 
     public readonly keywordRegex: RegExp
 
     public readonly groupName: string
+
+    protected options: U = {}
 
     public constructor(options: ExpressionRegexConstructor) {
         this.keyword = options.keyword
@@ -34,6 +36,8 @@ export abstract class ExpressionRegex<T = unknown> {
     public matchGroupName(str: string): boolean {
         return str.startsWith(this.groupName)
     }
+
+    public matchOptions(regex: string) {}
 }
 
 export class BooleanRegex extends ExpressionRegex<boolean> {
@@ -282,21 +286,34 @@ export class CurrencyRegex extends ExpressionRegex<Currency> {
     }
 }
 
-export class ListRegex extends ExpressionRegex<string[]> {
+type ListRegexOptions = { separator: string }
+
+export class ListRegex extends ExpressionRegex<string[], ListRegexOptions> {
     public constructor() {
         super({
             keyword: `{list}`,
             groupName: `list`,
-            keywordRegex: /{list}/g,
+            keywordRegex: /{list(?::(["'])([^"']?)\1)?\}/g,
         })
     }
 
     public getRegex(index: number) {
-        return `(?<list${index}>[a-zA-Z]+(?:, ?[a-zA-Z]+)*)`
+        console.debug({
+            opt: this.options.separator,
+            regex: `(?<list${index}>[a-zA-Z]+(?:${this.options.separator} ?[a-zA-Z]+)*)`,
+        })
+        return `(?<list${index}>[a-zA-Z]+(?:${this.options.separator} ?[a-zA-Z]+)*)`
     }
 
     public getValue(str: string): string[] {
-        return str.split(`,`).map((t) => t.trim())
+        return str.split(this.options.separator).map((t) => t.trim())
+    }
+
+    public matchOptions(stepExpression: string) {
+        super.matchOptions(stepExpression)
+        const match = this.keywordRegex.exec(stepExpression)
+
+        this.options.separator = match?.at(2) || ','
     }
 }
 
