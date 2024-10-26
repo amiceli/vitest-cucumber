@@ -50,7 +50,7 @@ export class ExpressionStep {
         regexString = regexString.replace(/[?]/g, `\\$&`)
 
         for (const r of allExpressionRegEx) {
-            r.reset()
+            r.resetExpressionStates()
             groupCount[r.groupName] = 0
         }
 

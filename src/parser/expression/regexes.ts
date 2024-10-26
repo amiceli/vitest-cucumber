@@ -35,7 +35,11 @@ export abstract class ExpressionRegex<T = unknown, U = unknown> {
         return str.startsWith(this.groupName)
     }
 
-    public reset() {}
+    public get cloneKeywordRegex() {
+        return new RegExp(this.keywordRegex.source, this.keywordRegex.flags)
+    }
+
+    public resetExpressionStates() {}
 }
 
 export class BooleanRegex extends ExpressionRegex<boolean> {
@@ -295,27 +299,23 @@ export class ListRegex extends ExpressionRegex<string[], ListRegexOptions> {
         })
     }
 
-    public usedSeparators: string[] = []
+    private regexMatchSeparators: string[] = []
 
-    public reset() {
-        this.usedSeparators = []
+    public resetExpressionStates() {
+        this.regexMatchSeparators = []
     }
 
     public getRegex(index: number, originalRegex: string) {
-        const clone = new RegExp(
-            this.keywordRegex.source,
-            this.keywordRegex.flags,
-        )
-        const separator = clone.exec(originalRegex)
+        const separator = this.cloneKeywordRegex.exec(originalRegex)
         const s = separator?.at(2) || ','
 
-        this.usedSeparators.push(s)
+        this.regexMatchSeparators.push(s)
 
         return `(?<list${index}>[a-zA-Z]+(?:${s} ?[a-zA-Z]+)*)`
     }
 
     public getValue(str: string, index: number): string[] {
-        return str.split(this.usedSeparators[index]).map((t) => t.trim())
+        return str.split(this.regexMatchSeparators[index]).map((t) => t.trim())
     }
 }
 
