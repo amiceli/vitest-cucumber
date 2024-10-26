@@ -36,6 +36,9 @@ export const builtInExpressionRegEx: ExpressionRegex[] = [
 export class ExpressionStep {
     // biome-ignore lint/suspicious/noExplicitAny: <explanation>
     public static matchStep(step: Step, stepExpression: string): any[] {
+        // TODO use a feactory to have one ExpressionRegex by regex
+        // TODO to remove used of index and resetExpressionStates for regex options like {list} with separator
+
         const allExpressionRegEx = builtInExpressionRegEx.concat(
             customExpressionRegEx,
         )
