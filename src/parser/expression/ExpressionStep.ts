@@ -36,6 +36,9 @@ export const builtInExpressionRegEx: ExpressionRegex[] = [
 export class ExpressionStep {
     // biome-ignore lint/suspicious/noExplicitAny: <explanation>
     public static matchStep(step: Step, stepExpression: string): any[] {
+        // TODO use a feactory to have one ExpressionRegex by regex
+        // TODO to remove used of index and resetExpressionStates for regex options like {list} with separator
+
         const allExpressionRegEx = builtInExpressionRegEx.concat(
             customExpressionRegEx,
         )
@@ -50,15 +53,19 @@ export class ExpressionStep {
         regexString = regexString.replace(/[?]/g, `\\$&`)
 
         for (const r of allExpressionRegEx) {
+            r.resetExpressionStates()
             groupCount[r.groupName] = 0
         }
 
         for (const r of allExpressionRegEx) {
-            regexString = regexString.replace(r.keywordRegex, () => {
-                groupCount[r.groupName] += 1
+            regexString = regexString.replace(
+                r.keywordRegex,
+                (originalRegex) => {
+                    groupCount[r.groupName] += 1
 
-                return r.getRegex(groupCount[r.groupName])
-            })
+                    return r.getRegex(groupCount[r.groupName], originalRegex)
+                },
+            )
         }
 
         // 💡 should match the full string
@@ -85,7 +92,7 @@ export class ExpressionStep {
                     res.push({
                         index,
                         // biome-ignore lint/style/noNonNullAssertion: <explanation>
-                        value: matchRegex.getValue(match.groups![key]),
+                        value: matchRegex.getValue(match.groups![key], index),
                     })
                 } else {
                     res.push({

@@ -544,11 +544,46 @@ describe(`ExpressionStep`, () => {
         it(`should match multiple {list}`, () => {
             const step = new Step(
                 StepTypes.GIVEN,
-                `I use React, Astro, TypeScript and I also use Vue, Svelte, Angular`,
+                `I use React, Astro, TypeScript and I also use Vue,Svelte,Angular`,
             )
             const params = ExpressionStep.matchStep(
                 step,
                 `I use {list} and I also use {list}`,
+            )
+            const expectedList1 = ['React', 'Astro', 'TypeScript']
+            const expectedList2 = ['Vue', 'Svelte', 'Angular']
+
+            expect(params).toEqual([expectedList1, expectedList2])
+        })
+
+        describe('with weparators', () => {
+            const separators = ["';'", '"/"', "':'", '"_"', "' '", "'-'"]
+
+            for (const separator of separators) {
+                it(`should match {list} with separator - {list:${separator}}`, () => {
+                    const str = separator.replace(/["']/g, '')
+                    const step = new Step(
+                        StepTypes.GIVEN,
+                        `I read line id${str}name${str}city`,
+                    )
+                    const params = ExpressionStep.matchStep(
+                        step,
+                        `I read line {list:${separator}}`,
+                    )
+                    const expectedList = ['id', 'name', 'city']
+                    expect(params).toEqual([expectedList])
+                })
+            }
+        })
+
+        it(`should match multiple {list} with separator`, () => {
+            const step = new Step(
+                StepTypes.GIVEN,
+                `I use React, Astro, TypeScript and I also use Vue; Svelte; Angular`,
+            )
+            const params = ExpressionStep.matchStep(
+                step,
+                `I use {list} and I also use {list:";"}`,
             )
             const expectedList1 = ['React', 'Astro', 'TypeScript']
             const expectedList2 = ['Vue', 'Svelte', 'Angular']

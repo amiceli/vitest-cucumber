@@ -27,13 +27,19 @@ export abstract class ExpressionRegex<T = unknown> {
         this.groupName = options.groupName
     }
 
-    public abstract getRegex(index: number): string
+    public abstract getRegex(index: number, originalRegex: string): string
 
-    public abstract getValue(str: string): T
+    public abstract getValue(str: string, index: number): T
 
     public matchGroupName(str: string): boolean {
         return str.startsWith(this.groupName)
     }
+
+    public get cloneKeywordRegex() {
+        return new RegExp(this.keywordRegex.source, this.keywordRegex.flags)
+    }
+
+    public resetExpressionStates() {}
 }
 
 export class BooleanRegex extends ExpressionRegex<boolean> {
@@ -287,16 +293,27 @@ export class ListRegex extends ExpressionRegex<string[]> {
         super({
             keyword: `{list}`,
             groupName: `list`,
-            keywordRegex: /{list}/g,
+            keywordRegex: /{list(?::(["'])([^"']?)\1)?\}/g,
         })
     }
 
-    public getRegex(index: number) {
-        return `(?<list${index}>[a-zA-Z]+(?:, ?[a-zA-Z]+)*)`
+    private regexMatchSeparators: string[] = []
+
+    public resetExpressionStates() {
+        this.regexMatchSeparators = []
     }
 
-    public getValue(str: string): string[] {
-        return str.split(`,`).map((t) => t.trim())
+    public getRegex(index: number, originalRegex: string) {
+        const separator = this.cloneKeywordRegex.exec(originalRegex)
+        const s = separator?.at(2) || ','
+
+        this.regexMatchSeparators.push(s)
+
+        return `(?<list${index}>[a-zA-Z]+(?:${s} ?[a-zA-Z]+)*)`
+    }
+
+    public getValue(str: string, index: number): string[] {
+        return str.split(this.regexMatchSeparators[index]).map((t) => t.trim())
     }
 }
 
