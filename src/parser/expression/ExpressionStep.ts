@@ -1,5 +1,6 @@
 import { StepExpressionMatchError } from '../../errors/errors'
 import type { Step } from '../models/step'
+import { customExpressionRegEx } from './custom'
 import {
     AnyRegex,
     BooleanRegex,
@@ -16,25 +17,29 @@ import {
     WordRegex,
 } from './regexes'
 
+export const builtInExpressionRegEx: ExpressionRegex[] = [
+    new BooleanRegex(),
+    new WordRegex(),
+    new CharRegex(),
+    new StringRegex(),
+    new EmailRegex(),
+    new UrlRegex(),
+    new IntRegex(),
+    new NumberRegex(),
+    new DateRegex(),
+    new CurrencyRegex(),
+    new ListRegex(),
+    new AnyRegex(),
+]
+
 // biome-ignore lint/complexity/noStaticOnlyClass: <explanation>
 export class ExpressionStep {
-    public static readonly expressionRegEx: ExpressionRegex[] = [
-        new BooleanRegex(),
-        new WordRegex(),
-        new CharRegex(),
-        new StringRegex(),
-        new EmailRegex(),
-        new UrlRegex(),
-        new IntRegex(),
-        new NumberRegex(),
-        new DateRegex(),
-        new CurrencyRegex(),
-        new ListRegex(),
-        new AnyRegex(),
-    ]
-
     // biome-ignore lint/suspicious/noExplicitAny: <explanation>
     public static matchStep(step: Step, stepExpression: string): any[] {
+        const allExpressionRegEx = builtInExpressionRegEx.concat(
+            customExpressionRegEx,
+        )
+
         let regexString = stepExpression
         const groupCount: {
             [key: string]: number
@@ -44,11 +49,11 @@ export class ExpressionStep {
         // TODO : among [-\/\\^$*+?.()|[\]{}] which characters need to be escaped?
         regexString = regexString.replace(/[?]/g, `\\$&`)
 
-        for (const r of ExpressionStep.expressionRegEx) {
+        for (const r of allExpressionRegEx) {
             groupCount[r.groupName] = 0
         }
 
-        for (const r of ExpressionStep.expressionRegEx) {
+        for (const r of allExpressionRegEx) {
             regexString = regexString.replace(r.keywordRegex, () => {
                 groupCount[r.groupName] += 1
 
@@ -73,7 +78,7 @@ export class ExpressionStep {
             }
 
             Object.keys(match.groups).forEach((key, index) => {
-                const matchRegex = ExpressionStep.expressionRegEx.find((r) =>
+                const matchRegex = allExpressionRegEx.find((r) =>
                     r.matchGroupName(key),
                 )
                 if (matchRegex) {
@@ -99,7 +104,7 @@ export class ExpressionStep {
             .filter((t) => t !== undefined)
             .map((r) => r.value)
 
-        const hasRegex = ExpressionStep.expressionRegEx.some((r) => {
+        const hasRegex = allExpressionRegEx.some((r) => {
             return stepExpression.includes(r.keyword)
         })
 
@@ -111,7 +116,11 @@ export class ExpressionStep {
     }
 
     public static stepContainsRegex(expression: string): boolean {
-        return ExpressionStep.expressionRegEx.some((r) => {
+        const allExpressionRegEx = builtInExpressionRegEx.concat(
+            customExpressionRegEx,
+        )
+
+        return allExpressionRegEx.some((r) => {
             return expression.includes(r.keyword)
         })
     }
