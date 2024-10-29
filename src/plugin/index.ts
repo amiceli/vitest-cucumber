@@ -30,7 +30,7 @@ export function VitestCucumberPlugin() {
                     const realPath = `src/${filename}`
                     featureFileIsOk(realPath).then((res) => {
                         if (res) {
-                            writeSpecFile(res, 'awesome.spec.ts', zeubi)
+                            writeSpecFile(res, 'awesome.spec.ts', realPath)
                         }
                     })
 
