@@ -12,4 +12,4 @@ pre-push:
 commit-msg:
   commands:
     lint:
-      run: docker run --platform linux/amd64 -v $PWD:/app --workdir /app commitlint/commitlint --edit "$1"
+      run: npx --no -- commitlint --edit $1
