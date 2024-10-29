@@ -3,8 +3,12 @@
 import { loadFeature } from '../src/vitest/load-feature'
 import { writeSpecFile } from './generateFile'
 
-const [filePath, outPath] = process.argv.slice(2)
+const [featureFilePath, specFilePath] = process.argv.slice(2)
 
-loadFeature(filePath).then((feature) => {
-    writeSpecFile(feature, outPath, filePath)
+loadFeature(featureFilePath).then((feature) => {
+    writeSpecFile({
+        feature,
+        featureFilePath,
+        specFilePath,
+    })
 })

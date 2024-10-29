@@ -19,18 +19,35 @@ async function featureFileIsOk(featureFilePath: string) {
     }
 }
 
-export function VitestCucumberPlugin() {
+type VitestCucumberPluginOptions = {
+    featureFilesDir: string
+    specFilesDir: string
+}
+
+export function VitestCucumberPlugin(options: VitestCucumberPluginOptions) {
     return {
         name: 'vitest-plugin-feature-watch',
         configureServer(server: ViteDevServer) {
-            const featureDir = path.resolve(process.cwd(), 'src') // Remplacez 'src' par votre dossier de fichiers .feature
+            const featureDir = path.resolve(
+                process.cwd(),
+                options.featureFilesDir,
+            )
 
             fs.watch(featureDir, { recursive: true }, (eventType, filename) => {
                 if (filename?.endsWith('.feature')) {
-                    const realPath = `src/${filename}`
-                    featureFileIsOk(realPath).then((res) => {
-                        if (res) {
-                            writeSpecFile(res, 'awesome.spec.ts', realPath)
+                    const featureFilePath = `${options.featureFilesDir}${filename}`
+                    const specFilePath = featureFilePath.replace(
+                        '.feature',
+                        '.spec.ts',
+                    )
+
+                    featureFileIsOk(featureFilePath).then((feature) => {
+                        if (feature) {
+                            writeSpecFile({
+                                feature,
+                                featureFilePath,
+                                specFilePath,
+                            })
                         }
                     })
 

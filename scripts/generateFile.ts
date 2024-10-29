@@ -110,11 +110,17 @@ function generateRules(rules: Rule[]) {
     return fileContent
 }
 
-export async function writeSpecFile(
-    feature: Feature,
-    specFilePath: string,
-    filePath: string,
-) {
+type WriteSpecFileOptions = {
+    feature: Feature
+    specFilePath: string
+    featureFilePath: string
+}
+
+export async function writeSpecFile({
+    feature,
+    specFilePath,
+    featureFilePath,
+}: WriteSpecFileOptions) {
     const featureHasBackground = feature.background !== null
     const featureHasScenario = feature.scenarii.some(
         (s) => !(s instanceof ScenarioOutline),
@@ -148,7 +154,9 @@ export async function writeSpecFile(
         'import { loadFeature, describeFeature } from "@amiceli/vitest-cucumber"',
     )
     fileContentLines.push('')
-    fileContentLines.push(`const feature = await loadFeature('${filePath}')`)
+    fileContentLines.push(
+        `const feature = await loadFeature('${featureFilePath}')`,
+    )
     fileContentLines.push('')
     fileContentLines.push(
         `describeFeature(feature, ({ ${describeFeatureArgs.join(', ')} }) => {`,
