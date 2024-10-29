@@ -1,12 +1,9 @@
-#!/usr/bin/env node
-
 import fs from 'node:fs/promises'
 import type { Background } from '../src/parser/models/Background'
 import type { Rule } from '../src/parser/models/Rule'
+import type { Feature } from '../src/parser/models/feature'
 import { type Scenario, ScenarioOutline } from '../src/parser/models/scenario'
-import { loadFeature } from '../src/vitest/load-feature'
-
-const [filePath, outPath] = process.argv.slice(2)
+import type { StepTypes } from '../src/parser/models/step'
 
 function generateScenarii(
     scenarii: (Scenario | ScenarioOutline)[],
@@ -26,7 +23,7 @@ function generateScenarii(
         ].filter((step) =>
             scenario.steps
                 .map((scenarioSteps) => scenarioSteps.type)
-                .includes(step),
+                .includes(step as StepTypes),
         )
         let scenarioType = 'Scenario'
 
@@ -91,10 +88,10 @@ function generateRules(rules: Rule[]) {
         if (r.background) {
             rulesHook.push('RuleBackground')
         }
-        if (r.scenarii.some((s) => s.examples)) {
+        if (r.scenarii.some((s) => s instanceof ScenarioOutline)) {
             rulesHook.push('RuleScenarioOutline')
         }
-        if (r.scenarii.some((s) => s.examples === undefined)) {
+        if (r.scenarii.some((s) => !(s instanceof ScenarioOutline))) {
             rulesHook.push('RuleScenario')
         }
 
@@ -113,7 +110,11 @@ function generateRules(rules: Rule[]) {
     return fileContent
 }
 
-loadFeature(filePath).then(async (feature) => {
+export async function writeSpecFile(
+    feature: Feature,
+    specFilePath: string,
+    filePath: string,
+) {
     const featureHasBackground = feature.background !== null
     const featureHasScenario = feature.scenarii.some(
         (s) => !(s instanceof ScenarioOutline),
@@ -158,7 +159,8 @@ loadFeature(filePath).then(async (feature) => {
     }
 
     if (featureHasBackground) {
-        fileContentLines.push(...generateBackground(feature.background))
+        // biome-ignore lint/style/noNonNullAssertion: <explanation>
+        fileContentLines.push(...generateBackground(feature.background!))
     }
 
     fileContentLines.push(
@@ -169,5 +171,5 @@ loadFeature(filePath).then(async (feature) => {
     fileContentLines.push('')
     fileContentLines.push(`})`)
 
-    await fs.writeFile(outPath, fileContentLines.join('\n'))
-})
+    await fs.writeFile(specFilePath, fileContentLines.join('\n'))
+}
