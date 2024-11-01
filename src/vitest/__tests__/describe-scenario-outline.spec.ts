@@ -4,7 +4,6 @@ import {
     MissingScenarioOutlineVariableValueError,
     ScenarioOulineWithoutExamplesError,
     ScenarioOutlineVariableNotCalledInStepsError,
-    ScenarioOutlineVariablesDeclaredWithoutExamplesError,
 } from '../../errors/errors'
 import type { ScenarioOutline as ScenarioOutlineType } from '../../parser/scenario'
 import { describeFeature } from '../describe-feature'

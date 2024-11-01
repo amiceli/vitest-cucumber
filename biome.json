@@ -21,6 +21,9 @@
             "style": {
                 "noUnusedTemplateLiteral": "off",
                 "noInferrableTypes": "off"
+            },
+            "correctness": {
+                "noUnusedImports": "error"
             }
         }
     },

@@ -1,10 +1,6 @@
 import fs from 'node:fs/promises'
 import { expect, test } from 'vitest'
-import {
-    FeatureFileNotFoundError,
-    MissingFeature,
-    VitestsCucumberError,
-} from '../../errors/errors'
+import { FeatureFileNotFoundError, MissingFeature } from '../../errors/errors'
 import { loadFeature } from '../load-feature'
 
 test(`should be able to load feature file`, async () => {
