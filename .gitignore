@@ -6,3 +6,4 @@ dist-common/
 .stryker-tmp
 reports/
 src/parser/lang/lang.json
+.vscode/
