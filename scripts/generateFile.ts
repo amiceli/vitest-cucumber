@@ -5,7 +5,7 @@ import type { Feature } from '../src/parser/models/feature'
 import { type Scenario, ScenarioOutline } from '../src/parser/models/scenario'
 import type { StepTypes } from '../src/parser/models/step'
 
-function generateScenarii(
+export function generateScenarii(
     scenarii: (Scenario | ScenarioOutline)[],
     forRule = false,
 ) {
@@ -55,7 +55,7 @@ function generateScenarii(
     return fileContent
 }
 
-function generateBackground(back: Background, forRule = false) {
+export function generateBackground(back: Background, forRule = false) {
     const fileContent = ['']
 
     const scenarioStepTypes = ['Given', 'When', 'Then', 'And', 'But'].filter(
@@ -79,7 +79,7 @@ function generateBackground(back: Background, forRule = false) {
     return fileContent
 }
 
-function generateRules(rules: Rule[]) {
+export function generateRules(rules: Rule[]) {
     const fileContent: string[] = []
 
     for (const r of rules) {
