@@ -76,21 +76,39 @@ export class FeatureAst {
                     .getDescendantsOfKind(SyntaxKind.CallExpression)
                     .filter((call) => call.getText().includes('Scenario('))
                     .map((call) => {
-                        return call
-                            .getArguments()
-                            .find((arg) => {
-                                return this.stringTypes.includes(arg.getKind())
-                            })
-                            ?.getText()
-                            .replace(/^['"`]|['"`]$/g, '')
+                        return {
+                            name: call
+                                .getArguments()
+                                .find((arg) => this.isString(arg.getKind()))
+                                ?.getText()
+                                .replace(/^['"`]|['"`]$/g, ''),
+                            call,
+                        }
                     })
                     .filter((scenario) => scenario !== undefined)
 
                 const missingScenarii = this.feature?.scenarii.filter(
                     (scenario) => {
-                        return scenarii.includes(scenario.description) === false
+                        return (
+                            scenarii
+                                .map((s) => s.name)
+                                .includes(scenario.description) === false
+                        )
                     },
                 )
+                const shouldBeRemoved = scenarii.filter((scenario) => {
+                    return (
+                        scenario.name &&
+                        this.feature?.scenarii
+                            .map((s) => s.description)
+                            .includes(scenario.name) === false
+                    )
+                })
+                for (const s of shouldBeRemoved) {
+                    describeFeatureCallback.removeStatement(
+                        s.call.getChildIndex(),
+                    )
+                }
 
                 describeFeatureCallback.addStatements(
                     generateScenarii(missingScenarii || []),
@@ -99,11 +117,9 @@ export class FeatureAst {
         }
     }
 
-    private finish() {
+    private async finish() {
         this.sourceFile.formatText()
-        // await this.sourceFile.save()
-
-        console.debug(this.sourceFile.getText())
+        await this.sourceFile.save()
     }
 
     // getters
@@ -116,11 +132,11 @@ export class FeatureAst {
             )
     }
 
-    public get stringTypes() {
+    public isString(kind: SyntaxKind) {
         return [
             SyntaxKind.StringLiteral,
             SyntaxKind.NoSubstitutionTemplateLiteral,
             SyntaxKind.TemplateExpression,
-        ]
+        ].includes(kind)
     }
 }
