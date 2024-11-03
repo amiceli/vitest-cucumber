@@ -630,6 +630,27 @@ describe(`GherkinParser`, () => {
                 })
             })
         })
+
+        describe('Disable parse for lines in docstrings', () => {
+            const feature = FeatureContentReader.fromString([
+                `Feature: DocStrings with scenario`,
+                `    Scenario: I use docstrings with gherkin example`,
+                `        Then I can check it twice`,
+                `            """`,
+                `            Scenario: as docstrings value`,
+                `                Given I'm a step`,
+                `            """`,
+                `    Scenario: should be parse`,
+                `       Given I am after docstrings`,
+            ]).parseContent()
+            const [scenario] = feature.scenarii
+            const [then] = scenario.steps
+
+            expect(
+                then.docStrings?.includes('Scenario: as docstrings value'),
+            ).toBe(true)
+            expect(then.docStrings?.includes("Given I'm a step")).toBe(true)
+        })
     })
 })
 
