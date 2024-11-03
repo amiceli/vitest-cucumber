@@ -17,7 +17,7 @@ export function VitestCucumberPlugin(options: VitestCucumberPluginOptions) {
                 options.featureFilesDir,
             )
 
-            fs.watch(featureDir, { recursive: true }, (eventType, filename) => {
+            fs.watch(featureDir, { recursive: true }, async (_, filename) => {
                 if (filename?.endsWith('.feature')) {
                     const featureFilePath = `${options.featureFilesDir}${filename}`
                     const specFilePath = featureFilePath.replace(
@@ -26,7 +26,11 @@ export function VitestCucumberPlugin(options: VitestCucumberPluginOptions) {
                     )
 
                     try {
-                        FeatureAst.fromOptions({
+                        if (fs.existsSync(specFilePath) === false) {
+                            fs.writeFileSync(specFilePath, '')
+                        }
+
+                        await FeatureAst.fromOptions({
                             featureFilePath,
                             specFilePath,
                         }).updateSpecFile()
