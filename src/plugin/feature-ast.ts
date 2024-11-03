@@ -1,3 +1,4 @@
+import path from 'node:path'
 import { Project, type SourceFile, SyntaxKind } from 'ts-morph'
 import { generateScenarii } from '../../scripts/generateFile'
 import type { Feature } from '../parser/models/feature'
@@ -21,13 +22,13 @@ export class FeatureAst {
         this.options = options
         this.project.addSourceFilesAtPaths(options.specFilePath)
 
-        const sourceFile = this.project
-            .getSourceFiles(options.specFilePath)
-            .at(0)
+        const realSpecPath = path.resolve(process.cwd(), options.specFilePath)
+        const sourceFile = this.project.getSourceFiles(realSpecPath).at(0)
+
         if (sourceFile) {
             this.sourceFile = sourceFile
         } else {
-            throw new Error('sourcefile not found')
+            throw new Error(`sourcefile not found : ${realSpecPath}`)
         }
     }
 
@@ -52,7 +53,7 @@ export class FeatureAst {
         this.handleDescribeFeature()
         this.handleScenarii()
 
-        this.finish()
+        await this.finish()
     }
 
     private handleDescribeFeature() {
@@ -66,54 +67,48 @@ export class FeatureAst {
     }
 
     private handleScenarii() {
-        if (this.describeFeature) {
-            const describeFeatureCallback = this.describeFeature
-                .getArguments()
-                .find((arg) => arg.isKind(SyntaxKind.ArrowFunction))
-
-            if (describeFeatureCallback) {
-                const scenarii = describeFeatureCallback
-                    .getDescendantsOfKind(SyntaxKind.CallExpression)
-                    .filter((call) => call.getText().includes('Scenario('))
-                    .map((call) => {
-                        return {
-                            name: call
-                                .getArguments()
-                                .find((arg) => this.isString(arg.getKind()))
-                                ?.getText()
-                                .replace(/^['"`]|['"`]$/g, ''),
-                            call,
-                        }
-                    })
-                    .filter((scenario) => scenario !== undefined)
-
-                const missingScenarii = this.feature?.scenarii.filter(
-                    (scenario) => {
-                        return (
-                            scenarii
-                                .map((s) => s.name)
-                                .includes(scenario.description) === false
-                        )
-                    },
-                )
-                const shouldBeRemoved = scenarii.filter((scenario) => {
-                    return (
-                        scenario.name &&
-                        this.feature?.scenarii
-                            .map((s) => s.description)
-                            .includes(scenario.name) === false
-                    )
+        if (this.describeFeatureCallback) {
+            const scenarii = this.describeFeatureCallback
+                .getDescendantsOfKind(SyntaxKind.CallExpression)
+                .filter((call) => call.getText().includes('Scenario('))
+                .map((callExpression) => {
+                    return {
+                        name: callExpression
+                            .getArguments()
+                            .find((arg) => this.isString(arg.getKind()))
+                            ?.getText()
+                            .replace(/^['"`]|['"`]$/g, ''),
+                        callExpression,
+                    }
                 })
-                for (const s of shouldBeRemoved) {
-                    describeFeatureCallback.removeStatement(
-                        s.call.getChildIndex(),
-                    )
-                }
+                .filter((scenario) => scenario !== undefined)
 
-                describeFeatureCallback.addStatements(
-                    generateScenarii(missingScenarii || []),
+            const missingScenarii = this.feature?.scenarii.filter(
+                (scenario) => {
+                    return (
+                        scenarii
+                            .map((s) => s.name)
+                            .includes(scenario.description) === false
+                    )
+                },
+            )
+            const shouldBeRemoved = scenarii.filter((scenario) => {
+                return (
+                    scenario.name &&
+                    this.feature?.scenarii
+                        .map((s) => s.description)
+                        .includes(scenario.name) === false
+                )
+            })
+            for (const s of shouldBeRemoved) {
+                this.describeFeatureCallback.removeStatement(
+                    s.callExpression.getChildIndex(),
                 )
             }
+
+            this.describeFeatureCallback.addStatements(
+                generateScenarii(missingScenarii || []),
+            )
         }
     }
 
@@ -130,6 +125,16 @@ export class FeatureAst {
             .find(
                 (call) => call.getExpression().getText() === 'describeFeature',
             )
+    }
+
+    private get describeFeatureCallback() {
+        if (this.describeFeature) {
+            return this.describeFeature
+                .getArguments()
+                .find((arg) => arg.isKind(SyntaxKind.ArrowFunction))
+        }
+
+        return undefined
     }
 
     public isString(kind: SyntaxKind) {
