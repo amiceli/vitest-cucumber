@@ -3,6 +3,7 @@ import { Project, type SourceFile, SyntaxKind } from 'ts-morph'
 import { generateScenarii } from '../../scripts/generateFile'
 import type { Feature } from '../parser/models/feature'
 import { FeatureFileReader } from '../parser/readfile'
+import { getCallExpression, isString } from './ast-utils'
 
 type FeatureAstOptions = {
     specFilePath: string
@@ -60,7 +61,6 @@ export class FeatureAst {
         if (!this.describeFeature) {
             this.sourceFile.addStatements([
                 'describeFeature(feature, () => {',
-                '   console.debug(true)',
                 '})',
             ])
         }
@@ -75,7 +75,7 @@ export class FeatureAst {
                     return {
                         name: callExpression
                             .getArguments()
-                            .find((arg) => this.isString(arg.getKind()))
+                            .find((arg) => isString(arg.getKind()))
                             ?.getText()
                             .replace(/^['"`]|['"`]$/g, ''),
                         callExpression,
@@ -120,11 +120,10 @@ export class FeatureAst {
     // getters
 
     private get describeFeature() {
-        return this.sourceFile
-            .getDescendantsOfKind(SyntaxKind.CallExpression)
-            .find(
-                (call) => call.getExpression().getText() === 'describeFeature',
-            )
+        return getCallExpression({
+            sourceFile: this.sourceFile,
+            text: 'describeFeature',
+        })
     }
 
     private get describeFeatureCallback() {
@@ -135,13 +134,5 @@ export class FeatureAst {
         }
 
         return undefined
-    }
-
-    public isString(kind: SyntaxKind) {
-        return [
-            SyntaxKind.StringLiteral,
-            SyntaxKind.NoSubstitutionTemplateLiteral,
-            SyntaxKind.TemplateExpression,
-        ].includes(kind)
     }
 }
