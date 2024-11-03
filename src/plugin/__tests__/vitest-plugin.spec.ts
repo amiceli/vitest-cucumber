@@ -1,104 +1,201 @@
 import fs from 'node:fs'
-import { expect } from 'vitest'
-import { describeFeature, loadFeature } from '../../../src/module'
+import { expect, vi } from 'vitest'
+import {
+    VitestCucumberPlugin,
+    describeFeature,
+    loadFeature,
+} from '../../../src/module'
+import {
+    getCallExpression,
+    getCallExpressionWithArg,
+    getSourceFileFromPath,
+} from '../ast-utils'
 import { FeatureAst } from '../feature-ast'
 
 const feature = await loadFeature('src/plugin/__tests__/vitest-plugin.feature')
 
-describeFeature(feature, ({ BeforeAllScenarios, Background, Scenario }) => {
-    BeforeAllScenarios(() => {
-        fs.rmSync('src/__tests__/awesome.spec.ts', { force: true })
-        fs.rmSync('src/__tests__/awesome.feature', { force: true })
-        fs.rmSync('src/__tests__/', { recursive: true })
-
-        fs.mkdirSync('src/__tests__/')
-        fs.writeFileSync('src/__tests__/awesome.spec.ts', '')
-        fs.writeFileSync('src/__tests__/awesome.feature', '')
+describeFeature(feature, (f) => {
+    f.AfterEachScenario(() => {
+        fs.rmSync('src/__tests__/awesome.spec.ts')
+        fs.rmSync('src/__tests__/awesome.feature')
     })
 
-    let featureFilePath: string
-    let specFilePath: string
-    let featureAst: FeatureAst
-
-    Background(({ Given, And }) => {
-        Given(
-            `My feature files are in {string}`,
-            (ctx, featurePath: string) => {
-                featureFilePath = featurePath
+    f.Scenario('Create spec file for new feature file', (s) => {
+        const fakeServer = {
+            ws: {
+                send: vi.fn(),
             },
-        )
-        And(`My spec files are in {string}`, (ctx, specPath: string) => {
-            specFilePath = specPath
-            featureAst = FeatureAst.fromOptions({
-                specFilePath: 'src/__tests__/awesome.spec.ts',
-                featureFilePath: 'src/__tests__/awesome.feature',
+            // biome-ignore lint/suspicious/noExplicitAny: mock vitest server
+        } as any
+
+        s.Given("{string} doesn't exists", (_, specPath: string) => {
+            fs.rmSync(specPath, { force: true })
+        })
+        s.When('I write {string}', async (_, featurePath: string) => {
+            vi.spyOn(fs, 'watch').mockImplementation(
+                // @ts-ignore
+                (_: unknown, __: unknown, cb) => {
+                    cb('', 'awesome.feature')
+                },
+            )
+
+            fs.writeFileSync(
+                featurePath,
+                `
+                Feature: new feature
+                    Scenario: new scenario
+                        Given I am a step
+            `,
+            )
+            VitestCucumberPlugin({
+                specFilesDir: 'src/__tests__/',
+                featureFilesDir: 'src/__tests__/',
+            }).configureServer(fakeServer)
+            await new Promise((resolve) => setTimeout(resolve, 300))
+        })
+        s.Then('vitest-cucumber create {string}', (_, specPath: string) => {
+            const sourceFile = getSourceFileFromPath(specPath)
+
+            if (sourceFile) {
+                expect(
+                    getCallExpression({
+                        sourceFile,
+                        text: 'describeFeature',
+                    }),
+                ).not.toBe(undefined)
+                expect(fs.existsSync(specPath)).toBe(true)
+                expect(fakeServer.ws.send).toHaveBeenCalled()
+            } else {
+                expect.fail('sourceFile should not be undefined')
+            }
+        })
+    })
+
+    f.Rule('Update spec file when feature changed', (r) => {
+        let featureAst: FeatureAst
+
+        r.RuleBackground(({ Given, And }) => {
+            let featureFilePath: string
+            Given(`My feature file is {string}`, (_, featurePath: string) => {
+                featureFilePath = featurePath
+                fs.writeFileSync(featurePath, '')
+            })
+            And(`My spec file is {string}`, (_, specFilePath: string) => {
+                fs.writeFileSync(specFilePath, '')
+                featureAst = FeatureAst.fromOptions({
+                    specFilePath,
+                    featureFilePath,
+                })
             })
         })
-    })
 
-    Scenario(`Add scenario to spec file`, ({ Given, When, Then }) => {
-        Given(`{string} hasn't scenario`, (ctx, specPath: string) => {
-            fs.writeFileSync(specPath, '')
+        r.RuleScenario('Add scenario to spec file', (s) => {
+            s.Given("{string} hasn't scenario", (_, specPath: string) => {
+                const sourceFile = getSourceFileFromPath(specPath)
+
+                if (sourceFile) {
+                    expect(
+                        getCallExpression({
+                            sourceFile,
+                            text: 'Scenario',
+                        }),
+                    ).toBeUndefined()
+                } else {
+                    expect.fail('sourceFile should not be undefined')
+                }
+            })
+            s.When(
+                'I add a scenario into {string}',
+                (_, featurePath: string, docString: string) => {
+                    fs.writeFileSync(featurePath, docString)
+                },
+            )
+            s.Then(
+                'vitest-cucumber add new scenario in {string}',
+                async (_, specPath: string) => {
+                    await featureAst.updateSpecFile()
+
+                    const sourceFile = getSourceFileFromPath(specPath)
+
+                    if (sourceFile) {
+                        expect(
+                            getCallExpression({
+                                sourceFile,
+                                text: 'Scenario',
+                            }),
+                        ).not.toBeUndefined()
+                    } else {
+                        expect.fail('sourceFile should not be undefined')
+                    }
+                },
+            )
         })
-        When(
-            `I add a scenario into {string}`,
-            (ctx, featurePath: string, docsString: string) => {
-                fs.writeFileSync(featurePath, docsString)
-            },
-        )
-        Then(
-            `vitest-cucumber add new scenario in {string}`,
-            async (ctx, specPath: string) => {
-                await featureAst.updateSpecFile()
-                const content = fs.readFileSync(specPath).toString()
 
-                expect(content.includes('Scenario(`new scenario`')).toBe(true)
-            },
-        )
-    })
-    Scenario(`Remove scenario in feature file`, ({ Given, When, Then }) => {
-        Given(
-            '{string} has {string} scenario',
-            async (ctx, featurePath: string, name: string) => {
-                fs.writeFileSync('src/__tests__/awesome.spec.ts', '')
-                fs.writeFileSync(
-                    featurePath,
-                    [
-                        'Feature: test',
-                        `   Scenario: ${name}`,
-                        '       Given I am a step',
-                        `   Scenario: another`,
-                        '       Given I am a step again',
-                    ].join('\n'),
-                )
-                await featureAst.updateSpecFile()
-            },
-        )
-        When(
-            `I remove {string} scenario in {string}`,
-            async (ctx, scenario: string, featurePath: string) => {
-                fs.writeFileSync(
-                    featurePath,
-                    [
-                        'Feature: test',
-                        `   Scenario: another`,
-                        '       Given I am a stepagain',
-                    ].join('\n'),
-                )
-                await featureAst.updateSpecFile()
-            },
-        )
-        Then(
-            `vitest-cucumber remove {string} scenario in {string}`,
-            (ctx, scenario: string, spcedFile: string) => {
-                const content = fs.readFileSync(spcedFile).toString()
-                console.debug({
-                    content,
-                })
+        r.RuleScenario('Remove scenario in feature file', (s) => {
+            s.Given(
+                '{string} has "example" scenario',
+                (_, featurePath: string, docstrings) => {
+                    fs.writeFileSync(featurePath, docstrings)
+                },
+            )
+            s.And(
+                '{string} has "example" scenario',
+                async (_, specPath: string) => {
+                    await featureAst.updateSpecFile()
+                    const sourceFile = getSourceFileFromPath(specPath)
 
-                expect(content.includes(`Scenario(\`${scenario}\``)).toBe(false)
-                expect(content.includes(`another`)).toBe(true)
-            },
-        )
+                    if (sourceFile) {
+                        expect(
+                            getCallExpressionWithArg({
+                                sourceFile,
+                                text: 'Scenario',
+                                arg: 'example',
+                            }),
+                        ).not.toBeUndefined()
+                        expect(
+                            getCallExpressionWithArg({
+                                sourceFile,
+                                text: 'Scenario',
+                                arg: 'another',
+                            }),
+                        ).not.toBeUndefined()
+                    } else {
+                        expect.fail('sourceFile should not be undefined')
+                    }
+                },
+            )
+            s.When(
+                'I remove "example" scenario in {string}',
+                (_, featurePath: string, docstrings: string) => {
+                    fs.writeFileSync(featurePath, docstrings)
+                },
+            )
+            s.Then(
+                'vitest-cucumber remove "example" scenario in {string}',
+                async (_, specPath: string) => {
+                    await featureAst.updateSpecFile()
+                    const sourceFile = getSourceFileFromPath(specPath)
+
+                    if (sourceFile) {
+                        expect(
+                            getCallExpressionWithArg({
+                                sourceFile,
+                                text: 'Scenario',
+                                arg: 'example',
+                            }),
+                        ).toBeUndefined()
+                        expect(
+                            getCallExpressionWithArg({
+                                sourceFile,
+                                text: 'Scenario',
+                                arg: 'another',
+                            }),
+                        ).not.toBeUndefined()
+                    } else {
+                        expect.fail('sourceFile should not be undefined')
+                    }
+                },
+            )
+        })
     })
 })
