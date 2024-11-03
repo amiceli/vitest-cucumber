@@ -121,7 +121,9 @@ export class GherkinParser {
                 this.lastStep.dataTables = this.currentDataTable
             }
         }
-        if (this.spokenParser.isFeature(line)) {
+        if (this.parsingDocStrings && !this.isDocStrings(line)) {
+            this.currentDocStrings.push(line.trim())
+        } else if (this.spokenParser.isFeature(line)) {
             this.previousAction = FeatureActions.FEATURE
             this.resetStepDataTable()
 
@@ -269,8 +271,6 @@ export class GherkinParser {
 
             this.currentExample = null
             this.currentExampleLine = -1
-        } else if (this.parsingDocStrings) {
-            this.currentDocStrings.push(line.trim())
         }
     }
 
