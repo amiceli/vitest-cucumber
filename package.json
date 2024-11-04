@@ -1,6 +1,6 @@
 {
   "name": "@amiceli/vitest-cucumber",
-  "version": "4.0.1",
+  "version": "4.1.1-alpha.1",
   "description": "vitest tools to use Gherkin feature in unit tests",
   "main": "dist/module.js",
   "bin": "dist/cli-generate.js",
@@ -10,7 +10,7 @@
   "scripts": {
     "build": "npx tsc --declaration --project tsconfig.json",
     "build:watch": "npx tsc -w --declaration --project tsconfig.json",
-    "build:script": "esbuild scripts/cli-generate.ts --bundle --platform=node > dist/cli-generate.js",
+    "build:script": "esbuild scripts/cli.ts --bundle --platform=node > dist/cli-generate.js",
     "build:all": "npm run build && npm run build:script",
     "lefthook:prepare": "lefthook install",
     "lint": "biome check",
