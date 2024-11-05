@@ -20,9 +20,10 @@ Since `v3.4.4` vitest-cucumber required vitest `>=2.0.0`.
 
 ## Examples
 
-You can take a look on [vitest-cucumber-example](https://github.com/amiceli/vitest-cucumber-example).
+You can take a look on :
 
-It's a Vue example project using **vitest-cucumber**.
+- [vitest-cucumber-example](https://github.com/amiceli/vitest-cucumber-example). Is a `Vue` project example.
+- [vitest-cucumber_rtl_template](https://github.com/Agriculture-Intelligence/vitest-cucumber_rtl_template). Is a `React` project example.
 
 ## How it works
 
