@@ -3,7 +3,7 @@ import { Project, type SourceFile, SyntaxKind } from 'ts-morph'
 import { generateScenarii } from '../../scripts/generateFile'
 import type { Feature } from '../parser/models/feature'
 import { FeatureFileReader } from '../parser/readfile'
-import { getCallExpression, isString } from './ast-utils'
+import { getCallExpression, isString } from './ast/ast-utils'
 
 type FeatureAstOptions = {
     specFilePath: string

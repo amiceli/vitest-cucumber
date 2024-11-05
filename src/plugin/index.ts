@@ -1,7 +1,7 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import type { ViteDevServer } from 'vite'
-import { FeatureAst } from './feature-ast'
+import { FeatureAst } from './ast/FeatureAst'
 
 type VitestCucumberPluginOptions = {
     featureFilesDir: string
