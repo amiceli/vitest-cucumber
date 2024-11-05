@@ -5,7 +5,7 @@ import {
     getCallExpressionWithArg,
     getSourceFileFromPath,
     isString,
-} from '../ast-utils'
+} from '../ast/ast-utils'
 
 describe('ast-utils', () => {
     const testFilePath = 'src/plugin/ast/example.ts'

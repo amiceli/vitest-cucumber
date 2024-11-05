@@ -1,16 +1,17 @@
 import fs from 'node:fs'
+import { SyntaxKind } from 'ts-morph'
 import { expect, vi } from 'vitest'
 import {
     VitestCucumberPlugin,
     describeFeature,
     loadFeature,
 } from '../../../src/module'
+import { FeatureAst } from '../ast/FeatureAst'
 import {
     getCallExpression,
     getCallExpressionWithArg,
     getSourceFileFromPath,
-} from '../ast-utils'
-import { FeatureAst } from '../feature-ast'
+} from '../ast/ast-utils'
 
 const feature = await loadFeature('src/plugin/__tests__/vitest-plugin.feature')
 
@@ -71,7 +72,7 @@ describeFeature(feature, (f) => {
         })
     })
 
-    f.Rule('Update spec file when feature changed', (r) => {
+    f.Rule('Update scenario when feature changed', (r) => {
         let featureAst: FeatureAst
 
         r.RuleBackground(({ Given, And }) => {
@@ -196,6 +197,97 @@ describeFeature(feature, (f) => {
                     }
                 },
             )
+        })
+    })
+    f.Rule('Update scenario steps when feature changed', (r) => {
+        let featureAst: FeatureAst
+
+        r.RuleBackground((b) => {
+            let featureFilePath: string
+            let specFilePath: string
+
+            b.Given('My feature file is {string}', (_, featurePath: string) => {
+                featureFilePath = featurePath
+            })
+            b.And('My spec file is {string}', (_, specPath: string) => {
+                specFilePath = specPath
+
+                fs.writeFileSync(specFilePath, '')
+                featureAst = FeatureAst.fromOptions({
+                    specFilePath,
+                    featureFilePath,
+                })
+            })
+            b.And(
+                'I have "example" Scenario',
+                async (_, docStrings: string) => {
+                    fs.writeFileSync(featureFilePath, docStrings)
+                    await featureAst.updateSpecFile()
+                },
+            )
+            r.RuleScenario('add new step in Scenario', (s) => {
+                s.Given(
+                    `{string} has {string} scenario`,
+                    (_, featurePath: string, scenario: string) => {
+                        const content = fs.readFileSync(featurePath).toString()
+
+                        expect(content.includes(`Scenario: ${scenario}`)).toBe(
+                            true,
+                        )
+                    },
+                )
+                s.When(
+                    `I add a step in {string} for {string} scenario`,
+                    async (
+                        _,
+                        featurePath: string,
+                        scenario: string,
+                        docString: string,
+                    ) => {
+                        fs.writeFileSync(featurePath, docString)
+                        const feature = await loadFeature(featurePath)
+
+                        expect(
+                            feature.scenarii.find(
+                                (s) => s.description === scenario,
+                            )?.steps.length,
+                        ).toBe(2)
+                    },
+                )
+                s.Then(
+                    `{string} scenario has {int} steps`,
+                    async (_, scenario: string, count: number) => {
+                        await featureAst.updateSpecFile()
+                        const sourceFile = getSourceFileFromPath(specFilePath)
+
+                        if (sourceFile) {
+                            const call = getCallExpressionWithArg({
+                                sourceFile,
+                                text: 'Scenario',
+                                arg: scenario,
+                            })
+                            expect(
+                                call?.getDescendantsOfKind(
+                                    SyntaxKind.CallExpression,
+                                ).length,
+                            ).toBe(count)
+                        } else {
+                            expect.fail('sourceFile should not be undefined')
+                        }
+                    },
+                )
+            })
+            r.RuleScenario('remove a step in Scenario', (s) => {
+                s.Given(
+                    `'src/__tests__/awesome.feature' has "example" scenario`,
+                    () => {},
+                )
+                s.When(
+                    `I remove a step in "src/__tests__/awesome.feature" for "example" scenario`,
+                    () => {},
+                )
+                s.Then(`"example" scenario has 1 step`, () => {})
+            })
         })
     })
 })

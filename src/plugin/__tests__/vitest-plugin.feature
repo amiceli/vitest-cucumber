@@ -5,7 +5,7 @@ Feature: vitest-cucumber plugin
         When  I write "src/__tests__/awesome.feature"
         Then  vitest-cucumber create "src/__tests__/awesome.spec.ts"
 
-    Rule: Update spec file when feature changed
+    Rule: Update scenario when feature changed
         Background:
             Given My feature file is "src/__tests__/awesome.feature"
             And   My spec file is "src/__tests__/awesome.spec.ts"
@@ -38,4 +38,31 @@ Feature: vitest-cucumber plugin
                         Given I'm example scenario step
             """
             Then  vitest-cucumber remove "example" scenario in "src/__tests__/awesome.spec.ts"
+
+    Rule: Update scenario steps when feature changed
+        Background:
+            Given My feature file is "src/__tests__/awesome.feature"
+            And   My spec file is "src/__tests__/awesome.spec.ts"
+            And   I have "example" Scenario
+            """
+            Feature: example
+                Scenario: example
+                    Given I am first step
+            """
+
+        Scenario: add new step in Scenario
+            Given 'src/__tests__/awesome.feature' has "example" scenario
+            When  I add a step in "src/__tests__/awesome.feature" for "example" scenario
+            """
+            Feature: example
+                Scenario: example
+                    Given I am first step
+                    Then  I am last step
+            """
+            Then  "example" scenario has 2 steps
+
+        Scenario: remove a step in Scenario
+            Given 'src/__tests__/awesome.feature' has "example" scenario
+            When  I remove a step in "src/__tests__/awesome.feature" for "example" scenario
+            Then  "example" scenario has 1 step
 
