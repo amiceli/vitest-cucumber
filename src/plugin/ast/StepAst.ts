@@ -1,11 +1,16 @@
 import { type ArrowFunction, type CallExpression, SyntaxKind } from 'ts-morph'
 import { generateStep } from '../../../scripts/generateFile'
-import type { Scenario, ScenarioOutline, Step } from '../../parser/models'
+import type {
+    Background,
+    Scenario,
+    ScenarioOutline,
+    Step,
+} from '../../parser/models'
 import { type AstOptions, BaseAst } from './BaseAst'
 import { isString } from './ast-utils'
 
 type StepAstOptions = AstOptions & {
-    stepParent: Scenario | ScenarioOutline
+    stepParent: Scenario | ScenarioOutline | Background
     stepParentFunction: ArrowFunction
 }
 
@@ -15,7 +20,7 @@ type StepExpression = {
 }
 
 export class StepAst extends BaseAst {
-    private stepParent: Scenario | ScenarioOutline
+    private stepParent: Scenario | ScenarioOutline | Background
 
     private stepParentFunction: ArrowFunction
 

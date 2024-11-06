@@ -32,17 +32,17 @@ export class ScenarioAst extends BaseAst {
     public handleScenarii() {
         const scenariiArrow = this.getScenariiArrowFunction()
 
-        const missingScenarii = this.getMissingScenarri(scenariiArrow)
-        const shouldBeRemoved = this.getScenariiToRemove(scenariiArrow)
+        const scenariiToAdd = this.getMissingScenarri(scenariiArrow)
+        const scenariiToRemove = this.getScenariiToRemove(scenariiArrow)
 
-        for (const s of shouldBeRemoved) {
+        for (const s of scenariiToRemove) {
             this.scenarioParentFunction.removeStatement(
                 s.callExpression.getChildIndex(),
             )
         }
 
         this.scenarioParentFunction.addStatements(
-            generateScenarii(missingScenarii || []),
+            generateScenarii(scenariiToAdd || [], this.forRule),
         )
 
         for (const scenario of this.scenarioParent.scenarii) {
@@ -103,8 +103,8 @@ export class ScenarioAst extends BaseAst {
         return this.callExpressionMatchRegExp(
             this.scenarioParentFunction,
             this.forRule
-                ? /\b(RuleScenario|RuleScenarioOutline)\b/
-                : /\b(Scenario|ScenarioOutline)\b/,
+                ? /\b(RuleScenario|RuleScenarioOutline)\(/
+                : /\b(Scenario|ScenarioOutline)\(/,
         )
     }
 }
