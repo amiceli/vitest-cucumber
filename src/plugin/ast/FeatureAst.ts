@@ -2,6 +2,7 @@ import { SyntaxKind } from 'ts-morph'
 import type { Feature } from '../../parser/models/feature'
 import { FeatureFileReader } from '../../parser/readfile'
 import { type AstOptions, BaseAst } from './BaseAst'
+import { RuleAst } from './RuleAst'
 import { ScenarioAst } from './ScenarioAst'
 import { getCallExpression } from './ast-utils'
 
@@ -52,6 +53,11 @@ export class FeatureAst extends BaseAst {
                 scenarioParent: this.feature,
                 scenarioParentFunction: this.describeFeatureCallback,
             }).handleScenarii()
+            RuleAst.fromOptions({
+                ...this.options,
+                ruleParent: this.feature,
+                ruleParentFunction: this.describeFeatureCallback,
+            }).handleRules()
         }
     }
 
