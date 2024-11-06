@@ -19,12 +19,13 @@ export type VitestCallExpression = {
 }
 
 export abstract class BaseAst {
-    protected options: AstOptions
-    protected project = new Project({})
-    protected sourceFile: SourceFile
+    protected readonly options: AstOptions
+    protected readonly project: Project
+    protected readonly sourceFile: SourceFile
 
     protected constructor(options: AstOptions) {
         this.options = options
+        this.project = new Project({})
         this.project.addSourceFilesAtPaths(options.specFilePath)
 
         this.sourceFile = this.checkSourceFile()
@@ -50,7 +51,9 @@ export abstract class BaseAst {
     ): VitestCallExpression[] {
         return parent
             .getDescendantsOfKind(SyntaxKind.CallExpression)
-            .filter((call) => regex.test(call.getText()))
+            .filter((call) => {
+                return regex.test(call.getText())
+            })
             .map((callExpression) => {
                 return {
                     name: this.getFirstArgumentAsString(callExpression),

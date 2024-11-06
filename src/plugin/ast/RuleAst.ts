@@ -1,6 +1,7 @@
 import { type ArrowFunction, SyntaxKind } from 'ts-morph'
 import { generateRules } from '../../../scripts/generateFile'
 import type { Feature, Rule } from '../../parser/models'
+import { BackgroundAst } from './BackgroundAst'
 import { type AstOptions, BaseAst, type VitestCallExpression } from './BaseAst'
 import { ScenarioAst } from './ScenarioAst'
 
@@ -49,6 +50,12 @@ export class RuleAst extends BaseAst {
                     scenarioParentFunction: ruleArrowFunction,
                     forRule: true,
                 }).handleScenarii()
+                BackgroundAst.fromOptions({
+                    ...this.options,
+                    backgroundParent: rule,
+                    backgroundParentFunction: ruleArrowFunction,
+                    forRule: true,
+                }).handleBackground()
             }
         }
     }
@@ -88,7 +95,7 @@ export class RuleAst extends BaseAst {
     private getRulesArrowFunction(): VitestCallExpression[] {
         return this.callExpressionMatchRegExp(
             this.ruleParentFunction,
-            /\b(Rule)\b/,
+            /\bRule\(/,
         )
     }
 }
