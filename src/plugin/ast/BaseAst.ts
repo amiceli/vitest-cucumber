@@ -1,9 +1,21 @@
 import path from 'node:path'
-import { Project, type SourceFile } from 'ts-morph'
+import {
+    type ArrowFunction,
+    type CallExpression,
+    Project,
+    type SourceFile,
+    SyntaxKind,
+} from 'ts-morph'
+import { isString } from './ast-utils'
 
 export type AstOptions = {
     specFilePath: string
     featureFilePath: string
+}
+
+export type VitestCallExpression = {
+    name: string
+    callExpression: CallExpression
 }
 
 export abstract class BaseAst {
@@ -30,5 +42,33 @@ export abstract class BaseAst {
         }
 
         throw new Error(`sourcefile not found : ${realSpecPath}`)
+    }
+
+    protected callExpressionMatchRegExp(
+        parent: ArrowFunction,
+        regex: RegExp,
+    ): VitestCallExpression[] {
+        return parent
+            .getDescendantsOfKind(SyntaxKind.CallExpression)
+            .filter((call) => regex.test(call.getText()))
+            .map((callExpression) => {
+                return {
+                    name: this.getFirstArgumentAsString(callExpression),
+                    callExpression,
+                }
+            })
+            .filter((step): step is VitestCallExpression => {
+                return step?.name !== undefined
+            })
+    }
+
+    protected getFirstArgumentAsString(
+        callExpression: CallExpression,
+    ): string | undefined {
+        return callExpression
+            .getArguments()
+            .find((arg) => isString(arg.getKind()))
+            ?.getText()
+            .replace(/^['"`]|['"`]$/g, '')
     }
 }

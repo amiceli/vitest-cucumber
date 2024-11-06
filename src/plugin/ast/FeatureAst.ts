@@ -60,8 +60,6 @@ export class FeatureAst extends BaseAst {
         await this.sourceFile.save()
     }
 
-    // getters
-
     private get describeFeature() {
         return getCallExpression({
             sourceFile: this.sourceFile,
