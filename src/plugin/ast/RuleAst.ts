@@ -40,13 +40,14 @@ export class RuleAst extends BaseAst {
         this.ruleParentFunction.addStatements(generateRules(rulesToAdd || []))
 
         for (const rule of this.ruleParent.rules) {
-            const ruleArrowFunction = this.getRuleArrowFunction(scenario)
+            const ruleArrowFunction = this.getRuleArrowFunction(rule)
 
             if (ruleArrowFunction) {
                 ScenarioAst.fromOptions({
                     ...this.options,
                     scenarioParent: rule,
                     scenarioParentFunction: ruleArrowFunction,
+                    forRule: true,
                 }).handleScenarii()
             }
         }

@@ -7,6 +7,7 @@ import { StepAst } from './StepAst'
 type ScenarioAstOptions = AstOptions & {
     scenarioParent: ScenarioParent
     scenarioParentFunction: ArrowFunction
+    forRule?: boolean
 }
 
 export class ScenarioAst extends BaseAst {
@@ -14,11 +15,14 @@ export class ScenarioAst extends BaseAst {
 
     private scenarioParentFunction: ArrowFunction
 
+    private readonly forRule: boolean
+
     private constructor(options: ScenarioAstOptions) {
         super(options)
 
         this.scenarioParent = options.scenarioParent
         this.scenarioParentFunction = options.scenarioParentFunction
+        this.forRule = options.forRule === true
     }
 
     public static fromOptions(options: ScenarioAstOptions): ScenarioAst {
@@ -98,7 +102,9 @@ export class ScenarioAst extends BaseAst {
     private getScenariiArrowFunction(): VitestCallExpression[] {
         return this.callExpressionMatchRegExp(
             this.scenarioParentFunction,
-            /\b(Scenario|ScenarioOutline)\b/,
+            this.forRule
+                ? /\b(RuleScenario|RuleScenarioOutline)\b/
+                : /\b(Scenario|ScenarioOutline)\b/,
         )
     }
 }

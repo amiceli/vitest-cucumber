@@ -199,13 +199,13 @@ describeFeature(feature, (f) => {
             )
         })
     })
+
     f.Rule('Update scenario steps when feature changed', (r) => {
         let featureAst: FeatureAst
+        let featureFilePath: string
+        let specFilePath: string
 
         r.RuleBackground((b) => {
-            let featureFilePath: string
-            let specFilePath: string
-
             b.Given('My feature file is {string}', (_, featurePath: string) => {
                 featureFilePath = featurePath
             })
@@ -225,69 +225,198 @@ describeFeature(feature, (f) => {
                     await featureAst.updateSpecFile()
                 },
             )
-            r.RuleScenario('add new step in Scenario', (s) => {
-                s.Given(
-                    `{string} has {string} scenario`,
-                    (_, featurePath: string, scenario: string) => {
-                        const content = fs.readFileSync(featurePath).toString()
+        })
 
-                        expect(content.includes(`Scenario: ${scenario}`)).toBe(
-                            true,
-                        )
-                    },
-                )
-                s.When(
-                    `I add a step in {string} for {string} scenario`,
-                    async (
-                        _,
-                        featurePath: string,
-                        scenario: string,
-                        docString: string,
-                    ) => {
-                        fs.writeFileSync(featurePath, docString)
-                        const feature = await loadFeature(featurePath)
+        r.RuleScenario('add new step in Scenario', (s) => {
+            s.Given(
+                `{string} has {string} scenario`,
+                (_, featurePath: string, scenario: string) => {
+                    const content = fs.readFileSync(featurePath).toString()
 
+                    expect(content.includes(`Scenario: ${scenario}`)).toBe(true)
+                },
+            )
+            s.When(
+                `I add a step in {string} for {string} scenario`,
+                async (
+                    _,
+                    featurePath: string,
+                    scenario: string,
+                    docString: string,
+                ) => {
+                    fs.writeFileSync(featurePath, docString)
+                    const feature = await loadFeature(featurePath)
+
+                    expect(
+                        feature.scenarii.find((s) => s.description === scenario)
+                            ?.steps.length,
+                    ).toBe(2)
+                },
+            )
+            s.Then(
+                `{string} scenario has {int} steps`,
+                async (_, scenario: string, count: number) => {
+                    await featureAst.updateSpecFile()
+                    const sourceFile = getSourceFileFromPath(specFilePath)
+
+                    if (sourceFile) {
+                        const call = getCallExpressionWithArg({
+                            sourceFile,
+                            text: 'Scenario',
+                            arg: scenario,
+                        })
                         expect(
-                            feature.scenarii.find(
-                                (s) => s.description === scenario,
-                            )?.steps.length,
-                        ).toBe(2)
-                    },
-                )
-                s.Then(
-                    `{string} scenario has {int} steps`,
-                    async (_, scenario: string, count: number) => {
-                        await featureAst.updateSpecFile()
-                        const sourceFile = getSourceFileFromPath(specFilePath)
+                            call?.getDescendantsOfKind(
+                                SyntaxKind.CallExpression,
+                            ).length,
+                        ).toBe(count)
+                    } else {
+                        expect.fail('sourceFile should not be undefined')
+                    }
+                },
+            )
+        })
 
-                        if (sourceFile) {
-                            const call = getCallExpressionWithArg({
+        r.RuleScenario('remove a step in Scenario', (s) => {
+            s.Given(
+                `'src/__tests__/awesome.feature' has "example" scenario`,
+                () => {},
+            )
+            s.When(
+                `I remove a step in "src/__tests__/awesome.feature" for "example" scenario`,
+                () => {},
+            )
+            s.Then(`"example" scenario has 1 step`, () => {})
+        })
+    })
+
+    f.Rule('Update rule when feature changed', (r) => {
+        let featureAst: FeatureAst
+        let featureFilePath: string
+        let specFilePath: string
+
+        r.RuleBackground((b) => {
+            b.Given('My feature file is {string}', (_, featurePath: string) => {
+                featureFilePath = featurePath
+            })
+            b.And('My spec file is {string}', (_, specPath: string) => {
+                specFilePath = specPath
+
+                fs.writeFileSync(specFilePath, '')
+                featureAst = FeatureAst.fromOptions({
+                    specFilePath,
+                    featureFilePath,
+                })
+            })
+        })
+
+        r.RuleScenario('Add rule to spec file', (s) => {
+            s.Given("{string} hasn't rule", (_, specPath: string) => {
+                const sourceFile = getSourceFileFromPath(specPath)
+
+                if (sourceFile) {
+                    expect(
+                        getCallExpression({
+                            sourceFile,
+                            text: 'Rule',
+                        }),
+                    ).toBeUndefined()
+                } else {
+                    expect.fail('sourceFile should not be undefined')
+                }
+            })
+            s.When(
+                'I add a Rule into {string}',
+                (_, featurePath: string, docString: string) => {
+                    fs.writeFileSync(featurePath, docString)
+                },
+            )
+            s.Then(
+                'vitest-cucumber add new rule in {string}',
+                async (_, specPath: string) => {
+                    await featureAst.updateSpecFile()
+
+                    const sourceFile = getSourceFileFromPath(specPath)
+
+                    if (sourceFile) {
+                        expect(
+                            getCallExpression({
                                 sourceFile,
-                                text: 'Scenario',
-                                arg: scenario,
-                            })
-                            expect(
-                                call?.getDescendantsOfKind(
-                                    SyntaxKind.CallExpression,
-                                ).length,
-                            ).toBe(count)
-                        } else {
-                            expect.fail('sourceFile should not be undefined')
-                        }
-                    },
-                )
-            })
-            r.RuleScenario('remove a step in Scenario', (s) => {
-                s.Given(
-                    `'src/__tests__/awesome.feature' has "example" scenario`,
-                    () => {},
-                )
-                s.When(
-                    `I remove a step in "src/__tests__/awesome.feature" for "example" scenario`,
-                    () => {},
-                )
-                s.Then(`"example" scenario has 1 step`, () => {})
-            })
+                                text: 'Rule',
+                            }),
+                        ).not.toBeUndefined()
+                    } else {
+                        expect.fail('sourceFile should not be undefined')
+                    }
+                },
+            )
+        })
+
+        r.RuleScenario('Remove rule in feature file', (s) => {
+            s.Given(
+                '{string} has "awesome rule" rule',
+                (_, featurePath: string, docstrings: string) => {
+                    fs.writeFileSync(featurePath, docstrings)
+                },
+            )
+            s.And(
+                '{string} has "awesome rule" rule',
+                async (_, specPath: string) => {
+                    await featureAst.updateSpecFile()
+                    const sourceFile = getSourceFileFromPath(specPath)
+
+                    if (sourceFile) {
+                        expect(
+                            getCallExpressionWithArg({
+                                sourceFile,
+                                text: 'Rule',
+                                arg: 'awesome rule',
+                            }),
+                        ).not.toBeUndefined()
+                        expect(
+                            getCallExpressionWithArg({
+                                sourceFile,
+                                text: 'Rule',
+                                arg: 'another rule',
+                            }),
+                        ).not.toBeUndefined()
+                    } else {
+                        expect.fail('sourceFile should not be undefined')
+                    }
+                },
+            )
+            s.When(
+                'I remove "awesome rule" rule in {string}',
+                (_, featurePath: string, docstrings: string) => {
+                    fs.writeFileSync(featurePath, docstrings)
+                },
+            )
+            s.Then(
+                'vitest-cucumber remove "awesome rule" rule in {string}',
+                async (_, specPath: string) => {
+                    await featureAst.updateSpecFile()
+                    const sourceFile = getSourceFileFromPath(specPath)
+
+                    if (sourceFile) {
+                        expect(
+                            getCallExpressionWithArg({
+                                sourceFile,
+                                text: 'Rule',
+                                arg: 'awesome rule',
+                            }),
+                        ).toBeUndefined()
+                        expect(
+                            getCallExpressionWithArg({
+                                sourceFile,
+                                text: 'Rule',
+                                arg: 'another rule',
+                            }),
+                        ).not.toBeUndefined()
+                    } else {
+                        expect.fail('sourceFile should not be undefined')
+                    }
+                },
+            )
         })
     })
 })
