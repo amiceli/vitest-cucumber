@@ -6,6 +6,9 @@ import { type Scenario, ScenarioOutline } from '../src/parser/models/scenario'
 import type { Step, StepTypes } from '../src/parser/models/step'
 
 export function generateStep(step: Step) {
+    if (step.docStrings) {
+        return `      ${step.type}(\`${step.details}\`, (_, docString: string) => { })`
+    }
     return `      ${step.type}(\`${step.details}\`, () => { })`
 }
 
