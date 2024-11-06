@@ -3,7 +3,11 @@ import type { Background } from '../src/parser/models/Background'
 import type { Rule } from '../src/parser/models/Rule'
 import type { Feature } from '../src/parser/models/feature'
 import { type Scenario, ScenarioOutline } from '../src/parser/models/scenario'
-import type { StepTypes } from '../src/parser/models/step'
+import type { Step, StepTypes } from '../src/parser/models/step'
+
+export function generateStep(step: Step) {
+    return `      ${step.type}(\`${step.details}\`, () => { })`
+}
 
 export function generateScenarii(
     scenarii: (Scenario | ScenarioOutline)[],
@@ -44,9 +48,7 @@ export function generateScenarii(
         }
 
         for (const step of scenario.steps) {
-            fileContent.push(
-                `      ${step.type}(\`${step.details}\`, () => { })`,
-            )
+            fileContent.push(generateStep(step))
         }
 
         fileContent.push(`  })`)

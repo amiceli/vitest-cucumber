@@ -21,7 +21,7 @@ export class Step {
 
     public dataTables: StepDataTanle = []
 
-    private readonly title: string
+    public readonly title: string
 
     public constructor(type: StepTypes, details: string, title?: string) {
         this.details = details
