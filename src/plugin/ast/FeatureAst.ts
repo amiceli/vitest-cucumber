@@ -1,4 +1,5 @@
 import { SyntaxKind } from 'ts-morph'
+import { VitestsCucumberError } from '../../errors/errors'
 import type { Feature } from '../../parser/models/feature'
 import { FeatureFileReader } from '../../parser/readfile'
 import { BackgroundAst } from './BackgroundAst'
@@ -30,12 +31,17 @@ export class FeatureAst extends BaseAst {
     }
 
     public async updateSpecFile() {
-        this.feature = await this.loadFeautreFromFile()
+        try {
+            this.feature = await this.loadFeautreFromFile()
+            this.handleDescribeFeature()
+            this.handleScenarii()
 
-        this.handleDescribeFeature()
-        this.handleScenarii()
-
-        await this.finish()
+            await this.finish()
+        } catch (e) {
+            throw new VitestsCucumberError(
+                `FeatureAst error: ${(e as Error).message}`,
+            )
+        }
     }
 
     private handleDescribeFeature() {
