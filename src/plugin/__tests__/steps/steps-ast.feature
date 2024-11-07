@@ -1,8 +1,8 @@
 Feature: update Scenario, Background, ScenarioOutline steps
 
     Background:
-        Given My feature file is "src/__tests__/awesome.feature"
-        And   My spec file is "src/__tests__/awesome.spec.ts"
+        Given My feature file is "src/__tests__/step-ast.feature"
+        And   My spec file is "src/__tests__/step-ast.spec.ts"
 
     Scenario Outline: Add steps in Scenario
         Given "main" Scenario one step

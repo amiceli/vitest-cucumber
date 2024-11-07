@@ -1,8 +1,8 @@
 Feature: update Rule and Feature Background
 
     Background:
-        Given My feature file is "src/__tests__/awesome.feature"
-        And   My spec file is "src/__tests__/awesome.spec.ts"
+        Given My feature file is "src/__tests__/background-ast.feature"
+        And   My spec file is "src/__tests__/background-ast.spec.ts"
 
     Scenario: Add Background in Feautre 
         Given Feature has no Background

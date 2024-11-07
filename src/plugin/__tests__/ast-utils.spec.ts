@@ -53,24 +53,20 @@ describe('ast-utils', () => {
     it('should be able to find call expression with args', () => {
         const sourceFile = getSourceFileFromPath(testFilePath)
 
-        if (sourceFile) {
-            expect(
-                getCallExpressionWithArg({
-                    sourceFile,
-                    text: 'Scenario',
-                    arg: 'awesome',
-                }),
-            ).not.toBeUndefined()
-            expect(
-                getCallExpressionWithArg({
-                    sourceFile,
-                    text: 'Scenario',
-                    arg: 'another',
-                }),
-            ).toBeUndefined()
-        } else {
-            expect.fail('sourceFile should not be undefined')
-        }
+        expect(
+            getCallExpressionWithArg({
+                sourceFile,
+                text: 'Scenario',
+                arg: 'awesome',
+            }),
+        ).not.toBeUndefined()
+        expect(
+            getCallExpressionWithArg({
+                sourceFile,
+                text: 'Scenario',
+                arg: 'another',
+            }),
+        ).toBeUndefined()
     })
     it('should be able to detect all string types', () => {
         fs.writeFileSync(
@@ -83,31 +79,28 @@ describe('ast-utils', () => {
         `,
         )
         const sourceFile = getSourceFileFromPath(testFilePath)
-        if (sourceFile) {
-            for (const text of ['Background', 'Scenario', 'Rule']) {
-                const call = getCallExpression({
-                    sourceFile,
-                    text,
-                })
-                const arg = call?.getArguments().at(0)?.getKind()
-                if (arg) {
-                    expect(isString(arg)).toBe(true)
-                } else {
-                    expect.fail(`arg should not be undefined for ${text}`)
-                }
-            }
+
+        for (const text of ['Background', 'Scenario', 'Rule']) {
             const call = getCallExpression({
                 sourceFile,
-                text: 'Step',
+                text,
             })
             const arg = call?.getArguments().at(0)?.getKind()
             if (arg) {
-                expect(isString(arg)).toBe(false)
+                expect(isString(arg)).toBe(true)
             } else {
-                expect.fail(`arg should not be undefined for Step`)
+                expect.fail(`arg should not be undefined for ${text}`)
             }
+        }
+        const call = getCallExpression({
+            sourceFile,
+            text: 'Step',
+        })
+        const arg = call?.getArguments().at(0)?.getKind()
+        if (arg) {
+            expect(isString(arg)).toBe(false)
         } else {
-            expect.fail('sourceFile should not be undefined')
+            expect.fail(`arg should not be undefined for Step`)
         }
     })
 })

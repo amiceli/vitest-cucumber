@@ -1,8 +1,8 @@
 Feature: update Rule and Feature Scenario
 
     Background:
-        Given My feature file is "src/__tests__/awesome.feature"
-        And   My spec file is "src/__tests__/awesome.spec.ts"
+        Given My feature file is "src/__tests__/scenario-ast.feature"
+        And   My spec file is "src/__tests__/scenario-ast.spec.ts"
 
     Scenario: Add Scenario in Feautre 
         Given Feature has one Scenario

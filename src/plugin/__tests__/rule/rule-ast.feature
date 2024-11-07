@@ -1,8 +1,8 @@
 Feature: update Rule in Feature
 
     Background:
-        Given My feature file is "src/__tests__/awesome.feature"
-        And   My spec file is "src/__tests__/awesome.spec.ts"
+        Given My feature file is "src/__tests__/rule-ast.feature"
+        And   My spec file is "src/__tests__/rule-ast.spec.ts"
 
     Scenario: Add Rule in Feautre 
         Given Feature has one Rule
