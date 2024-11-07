@@ -1,14 +1,7 @@
 import path from 'node:path'
 import { defineConfig } from 'vitest/config'
-import { VitestCucumberPlugin } from './src/plugin/index'
 
 export default defineConfig({
-    plugins: [
-        VitestCucumberPlugin({
-            specFilesDir: 'src/plugin/ast/',
-            featureFilesDir: 'src/plugin/ast/',
-        }),
-    ],
     test: {
         passWithNoTests: true,
         globals: true,
@@ -29,6 +22,7 @@ export default defineConfig({
             'examples/vue-example.spec.ts',
             'node_modules',
             'samples/*.spec.ts',
+            'src/__tests__/**',
         ],
         typecheck: {
             tsconfig: 'tsconfig.vitest.json',
