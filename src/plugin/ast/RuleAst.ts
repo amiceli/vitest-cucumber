@@ -32,10 +32,10 @@ export class RuleAst extends BaseAst {
         const rulesToAdd = this.getMissingRules(rulesArrow)
         const rulesToRemove = this.getRulesToRemove(rulesArrow)
 
-        for (const s of rulesToRemove) {
-            this.ruleParentFunction.removeStatement(
-                s.callExpression.getChildIndex(),
-            )
+        for (const rule of rulesToRemove) {
+            rule.callExpression
+                .getParentIfKind(SyntaxKind.ExpressionStatement)
+                ?.remove()
         }
 
         this.ruleParentFunction.addStatements(generateRules(rulesToAdd || []))
