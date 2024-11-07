@@ -5,11 +5,16 @@ import {
     SyntaxKind,
 } from 'ts-morph'
 
-export function getSourceFileFromPath(path: string): SourceFile | undefined {
+export function getSourceFileFromPath(path: string): SourceFile {
     const porject = new Project()
     porject.addSourceFilesAtPaths(path)
+    const srouceFile = porject.getSourceFiles(path).at(0)
 
-    return porject.getSourceFiles(path).at(0)
+    if (srouceFile) {
+        return srouceFile
+    }
+
+    throw new Error(`sourceFile not found for ${path}`)
 }
 
 export function getCallExpression(options: {
