@@ -28,30 +28,27 @@ describe('ast-utils', () => {
     })
     it('should be able to get sourceFile from path', () => {
         const sourceFile = getSourceFileFromPath(testFilePath)
-        const anotherSourceFile = getSourceFileFromPath('another.ts')
 
         expect(sourceFile).not.toBeUndefined()
-        expect(anotherSourceFile).toBeUndefined()
+        expect(() => {
+            const anotherSourceFile = getSourceFileFromPath('another.ts')
+        }).toThrowError()
     })
     it('should be able to find call expression', () => {
         const sourceFile = getSourceFileFromPath(testFilePath)
 
-        if (sourceFile) {
-            expect(
-                getCallExpression({
-                    sourceFile,
-                    text: 'Scenario',
-                }),
-            ).not.toBeUndefined()
-            expect(
-                getCallExpression({
-                    sourceFile,
-                    text: 'Rule',
-                }),
-            ).toBeUndefined()
-        } else {
-            expect.fail('sourceFile should not be undefined')
-        }
+        expect(
+            getCallExpression({
+                sourceFile,
+                text: 'Scenario',
+            }),
+        ).not.toBeUndefined()
+        expect(
+            getCallExpression({
+                sourceFile,
+                text: 'Rule',
+            }),
+        ).toBeUndefined()
     })
     it('should be able to find call expression with args', () => {
         const sourceFile = getSourceFileFromPath(testFilePath)
