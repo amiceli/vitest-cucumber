@@ -36,9 +36,9 @@ export class ScenarioAst extends BaseAst {
         const scenariiToRemove = this.getScenariiToRemove(scenariiArrow)
 
         for (const s of scenariiToRemove) {
-            this.scenarioParentFunction.removeStatement(
-                s.callExpression.getChildIndex(),
-            )
+            s.callExpression
+                .getParentIfKind(SyntaxKind.ExpressionStatement)
+                ?.remove()
         }
 
         this.scenarioParentFunction.addStatements(
