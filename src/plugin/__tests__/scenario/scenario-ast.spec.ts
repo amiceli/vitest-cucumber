@@ -205,4 +205,50 @@ describeFeature(feature, ({ Background, Scenario }) => {
             ).toBeUndefined()
         })
     })
+
+    Scenario(`Add ScenarioOutline in Feautre`, ({ Given, When, Then }) => {
+        Given(`Feature has one Scenario`, async (_, docString: string) => {
+            fs.writeFileSync(featureFilePath, docString)
+            await featureAst.updateSpecFile()
+
+            expect(
+                getCallExpressionWithArg({
+                    sourceFile: getSourceFileFromPath(specFilePath),
+                    text: 'Scenario',
+                    arg: 'A normal scenario',
+                }),
+            ).not.toBeUndefined()
+
+            expect(
+                getCallExpressionWithArg({
+                    sourceFile: getSourceFileFromPath(specFilePath),
+                    text: 'ScenarioOutline',
+                    arg: 'Another scenario',
+                }),
+            ).toBeUndefined()
+        })
+        When(
+            `I add a Scenario Outline in Feature`,
+            async (_, docString: string) => {
+                fs.writeFileSync(featureFilePath, docString)
+                await featureAst.updateSpecFile()
+            },
+        )
+        Then(`vitest-cucumber add a Scenario Outline in Feature`, () => {
+            expect(
+                getCallExpressionWithArg({
+                    sourceFile: getSourceFileFromPath(specFilePath),
+                    text: 'Scenario',
+                    arg: 'A normal scenario',
+                }),
+            ).not.toBeUndefined()
+            expect(
+                getCallExpressionWithArg({
+                    sourceFile: getSourceFileFromPath(specFilePath),
+                    text: 'ScenarioOutline',
+                    arg: 'Another scenario',
+                }),
+            ).not.toBeUndefined()
+        })
+    })
 })

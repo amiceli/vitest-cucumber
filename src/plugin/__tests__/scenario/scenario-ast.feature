@@ -38,6 +38,27 @@ Feature: update Rule and Feature Scenario
             """
         Then  vitest-cucumber remove Scenario from Feature
 
+    Scenario: Add ScenarioOutline in Feautre 
+        Given Feature has one Scenario
+            """
+            Feature: I love Scenario
+                Scenario: A normal scenario
+                    Given I am a Scenario step
+            """
+        When  I add a Scenario Outline in Feature
+            """
+            Feature: I love Scenario
+                Scenario: A normal scenario
+                    Given I am a Scenario step
+                Scenario Outline: Another scenario
+                    Given I love <lib>
+                    Examples:
+                        | lib             |
+                        | Vue             |
+                        | vitest-cucumber |
+            """
+        Then  vitest-cucumber add a Scenario Outline in Feature
+
     Scenario: Add Scenario in Rule 
         Given Rule has one Scenario
             """
