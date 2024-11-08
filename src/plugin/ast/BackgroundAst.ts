@@ -75,31 +75,6 @@ export class BackgroundAst extends BaseAst {
             .find((arg) => arg.isKind(SyntaxKind.ArrowFunction))
     }
 
-    // private getScenariiToRemove(
-    //     parentScenarii: VitestCallExpression[],
-    // ): VitestCallExpression[] {
-    //     return parentScenarii.filter((scenario) => {
-    //         return (
-    //             scenario.name &&
-    //             this.backgroundParent.scenarii
-    //                 .map((s) => s.description)
-    //                 .includes(scenario.name) === false
-    //         )
-    //     })
-    // }
-
-    // private getMissingBackground(
-    //     parentScenarii: CallExpression,
-    // ): Scenario[] {
-    //     return this.backgroundParent.scenarii.filter((scenario) => {
-    //         return (
-    //             parentScenarii
-    //                 .map((s) => s.name)
-    //                 .includes(scenario.description) === false
-    //         )
-    //     })
-    // }
-
     private getBackgroundArrowFunction(): CallExpression | undefined {
         const regex = this.forRule ? /\bRuleBackground\(/ : /\bBackground\(/
 

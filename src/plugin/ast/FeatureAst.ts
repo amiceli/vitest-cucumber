@@ -34,9 +34,9 @@ export class FeatureAst extends BaseAst {
         try {
             this.feature = await this.loadFeautreFromFile()
             this.handleDescribeFeature()
-            this.handleScenarii()
+            this.handleFeature()
 
-            await this.finish()
+            await this.formatAndSave()
         } catch (e) {
             throw new VitestsCucumberError(
                 `FeatureAst error: ${(e as Error).message}`,
@@ -53,7 +53,7 @@ export class FeatureAst extends BaseAst {
         }
     }
 
-    private handleScenarii() {
+    private handleFeature() {
         if (this.describeFeatureCallback && this.feature) {
             ScenarioAst.fromOptions({
                 ...this.options,
@@ -73,7 +73,7 @@ export class FeatureAst extends BaseAst {
         }
     }
 
-    private async finish() {
+    private async formatAndSave() {
         this.sourceFile.formatText()
         await this.sourceFile.save()
     }
