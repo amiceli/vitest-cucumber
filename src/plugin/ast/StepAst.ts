@@ -6,6 +6,7 @@ import type {
     ScenarioOutline,
     Step,
 } from '../../parser/models'
+import type { StepAble } from '../../parser/models/Stepable'
 import { type AstOptions, BaseAst } from './BaseAst'
 import { isString } from './ast-utils'
 
@@ -20,14 +21,14 @@ type StepExpression = {
 }
 
 export class StepAst extends BaseAst {
-    private stepParent: Scenario | ScenarioOutline | Background
+    private stepableParent: StepAble
 
     private stepParentFunction: ArrowFunction
 
     private constructor(options: StepAstOptions) {
         super(options)
 
-        this.stepParent = options.stepParent
+        this.stepableParent = options.stepParent
         this.stepParentFunction = options.stepParentFunction
     }
 
@@ -36,37 +37,42 @@ export class StepAst extends BaseAst {
     }
 
     public handleSteps() {
-        const parentScenarii = this.getParentArrowSteps()
+        const stepExpressions = this.getStepExpressions()
 
-        const stepsToAdd = this.getMissingScenarri(parentScenarii)
-        const stepsToRemove = this.getScenariiToRemove(parentScenarii)
+        const stepsToAdd = this.getStepsToAdd(stepExpressions)
+        const stepsToRemove = this.getStepsToRemove(stepExpressions)
 
         for (const s of stepsToRemove) {
-            this.stepParentFunction.removeStatement(
-                s.callExpression.getChildIndex(),
-            )
+            if (this.shouldComment) {
+                this.commentExpression(
+                    this.stepParentFunction,
+                    s.callExpression,
+                )
+            } else {
+                this.removeChildFromParent(
+                    this.stepParentFunction,
+                    s.callExpression,
+                )
+            }
         }
         for (const step of stepsToAdd) {
             this.stepParentFunction.addStatements(generateStep(step))
         }
     }
 
-    private getScenariiToRemove(
-        parentSteps: StepExpression[],
-    ): StepExpression[] {
+    private getStepsToRemove(parentSteps: StepExpression[]): StepExpression[] {
         return parentSteps.filter((step) => {
             return (
-                step.name &&
-                this.stepParent.steps
-                    .map((s) => s.title)
+                this.stepableParent.steps
+                    .map((s) => s.details)
                     .includes(step.name) === false
             )
         })
     }
 
-    private getMissingScenarri(parentSteps: StepExpression[]): Step[] {
-        return this.stepParent.steps.filter((step) => {
-            return parentSteps.map((s) => s.name).includes(step.type) === false
+    private getStepsToAdd(parentSteps: StepExpression[]): Step[] {
+        return this.stepableParent.steps.filter((step) => {
+            return !parentSteps.map((s) => s.name).includes(step.details)
         })
     }
 
@@ -76,7 +82,7 @@ export class StepAst extends BaseAst {
         return regex.test(line)
     }
 
-    private getParentArrowSteps(): StepExpression[] {
+    private getStepExpressions(): StepExpression[] {
         return this.stepParentFunction
             .getDescendantsOfKind(SyntaxKind.CallExpression)
             .filter((call) => this.isStepLine(call.getText()))

@@ -11,6 +11,7 @@ import { isString } from './ast-utils'
 export type AstOptions = {
     specFilePath: string
     featureFilePath: string
+    onDeleteAction?: 'comment' | 'delete'
 }
 
 export type VitestCallExpression = {
@@ -22,9 +23,12 @@ export abstract class BaseAst {
     protected readonly options: AstOptions
     protected readonly project: Project
     protected readonly sourceFile: SourceFile
+    protected readonly onDeleteAction: 'comment' | 'delete'
 
     protected constructor(options: AstOptions) {
         this.options = options
+        this.onDeleteAction = options.onDeleteAction || 'delete'
+
         this.project = new Project({})
         this.project.addSourceFilesAtPaths(options.specFilePath)
 
@@ -73,5 +77,32 @@ export abstract class BaseAst {
             .find((arg) => isString(arg.getKind()))
             ?.getText()
             .replace(/^['"`]|['"`]$/g, '')
+    }
+
+    protected removeChildFromParent(
+        parent: ArrowFunction,
+        child: CallExpression,
+    ) {
+        const childParentNode = child.getParent()
+
+        if (childParentNode) {
+            parent.removeStatement(childParentNode.getChildIndex())
+        }
+    }
+
+    protected commentExpression(parent: ArrowFunction, child: CallExpression) {
+        const code = child
+            .getText()
+            .split('\n')
+            .map((line) => `// ${line}`)
+            .join('\n')
+
+        this.removeChildFromParent(parent, child)
+
+        parent.addStatements(code)
+    }
+
+    protected get shouldComment(): boolean {
+        return this.onDeleteAction === 'comment'
     }
 }
