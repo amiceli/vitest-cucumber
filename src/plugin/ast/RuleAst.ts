@@ -33,9 +33,17 @@ export class RuleAst extends BaseAst {
         const rulesToRemove = this.getRulesToRemove(rulesArrow)
 
         for (const rule of rulesToRemove) {
-            rule.callExpression
-                .getParentIfKind(SyntaxKind.ExpressionStatement)
-                ?.remove()
+            if (this.shouldComment) {
+                this.commentExpression(
+                    this.ruleParentFunction,
+                    rule.callExpression,
+                )
+            } else {
+                this.removeChildFromParent(
+                    this.ruleParentFunction,
+                    rule.callExpression,
+                )
+            }
         }
 
         this.ruleParentFunction.addStatements(generateRules(rulesToAdd || []))
