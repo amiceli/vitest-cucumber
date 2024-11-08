@@ -30,7 +30,7 @@ export class BackgroundAst extends BaseAst {
     }
 
     public handleBackground() {
-        const backgroundCallExpression = this.getBackgroundArrowFunction()
+        const backgroundCallExpression = this.getBackgroundCallExpression()
 
         if (
             backgroundCallExpression === undefined &&
@@ -49,16 +49,24 @@ export class BackgroundAst extends BaseAst {
             backgroundCallExpression !== undefined &&
             this.backgroundParent.background === null
         ) {
-            backgroundCallExpression
-                .getParentIfKind(SyntaxKind.ExpressionStatement)
-                ?.remove()
+            if (this.shouldComment) {
+                this.commentExpression(
+                    this.backgroundParentFunction,
+                    backgroundCallExpression,
+                )
+            } else {
+                this.removeChildFromParent(
+                    this.backgroundParentFunction,
+                    backgroundCallExpression,
+                )
+            }
         }
 
         if (
             backgroundCallExpression !== undefined &&
             this.backgroundParent.background !== null
         ) {
-            const arrowFunction = this.zeubi()
+            const arrowFunction = this.getBackgroundArrowFunction()
             if (arrowFunction) {
                 StepAst.fromOptions({
                     ...this.options,
@@ -69,13 +77,13 @@ export class BackgroundAst extends BaseAst {
         }
     }
 
-    private zeubi(): ArrowFunction | undefined {
-        return this.getBackgroundArrowFunction()
+    private getBackgroundArrowFunction(): ArrowFunction | undefined {
+        return this.getBackgroundCallExpression()
             ?.getArguments()
             .find((arg) => arg.isKind(SyntaxKind.ArrowFunction))
     }
 
-    private getBackgroundArrowFunction(): CallExpression | undefined {
+    private getBackgroundCallExpression(): CallExpression | undefined {
         const regex = this.forRule ? /\bRuleBackground\(/ : /\bBackground\(/
 
         return this.backgroundParentFunction

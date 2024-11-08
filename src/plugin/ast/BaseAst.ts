@@ -83,7 +83,9 @@ export abstract class BaseAst {
         parent: ArrowFunction,
         child: CallExpression,
     ) {
-        const childParentNode = child.getParent()
+        const childParentNode = child.getParentIfKind(
+            SyntaxKind.ExpressionStatement,
+        )
 
         if (childParentNode) {
             parent.removeStatement(childParentNode.getChildIndex())
