@@ -3,6 +3,7 @@ import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
     test: {
+        setupFiles: ['vitest.setup.ts'],
         passWithNoTests: true,
         globals: true,
         coverage: {
@@ -15,7 +16,7 @@ export default defineConfig({
                 'scripts/cli-generate.ts',
                 '**/__mocks__/*',
                 '**/__tests__/*',
-                'dist/',
+                'dist/¨¨.',
             ],
         },
         exclude: [

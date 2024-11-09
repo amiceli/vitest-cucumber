@@ -99,26 +99,13 @@ export class FeatureAst extends BaseAst {
             SyntaxKind.ObjectBindingPattern,
         )
 
-        console.group('updateFeatureArguments')
-        console.debug({
-            // stepTypesArg,
-            // currentArg: currentArg?.getText(),
-            featureArrowFunction: featureArrowFunction.getText(),
-        })
-
         if (currentArg) {
             currentArg.replaceWithText(stepTypesArg)
         } else {
             featureArrowFunction.insertParameter(0, {
-                // name: 'param1',
-                // type: 'string',
                 name: stepTypesArg,
             })
         }
-        console.debug({
-            featureArrowFunction: featureArrowFunction.getText(),
-        })
-        console.groupEnd()
     }
 
     private async formatAndSave() {
