@@ -5,18 +5,18 @@ Feature: update Scenario, Background, ScenarioOutline steps
         And   My spec file is "src/__tests__/step-ast.spec.ts"
 
     Scenario Outline: Add steps in Scenario
-        Given "main" Scenario one step
+        Given "add step" Scenario one step
             """
             Feature: add steps to Scenario
-                Scenario: main
-                    Given I am first step
+                Scenario: add step
+                    Given I am already in scenario
             """
         When  I add a <type> <title> step
-        Then  "main" Scenario has two steps
+        Then  "add step" Scenario has two steps
 
         Examples:
             | type | title                    |
-            | And  | I am another step        |
+            | And  | I am new scenario step   |
             | Then | We are added in scenario |
 
     Scenario: Remove step from Scenario

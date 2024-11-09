@@ -1,5 +1,5 @@
 import fs from 'node:fs'
-import { expect } from 'vitest'
+import { expect, it } from 'vitest'
 import { describeFeature, loadFeature } from '../../../../src/module'
 import { FeatureAst } from '../../ast/FeatureAst'
 import {
@@ -50,35 +50,38 @@ describeFeature(feature, ({ Background, ScenarioOutline, Scenario }) => {
         ({ Given, When, Then }, variables) => {
             const { type, title } = variables as StepVariables
 
-            Given(`"main" Scenario one step`, async (_, docString: string) => {
-                fs.writeFileSync(featureFilePath, docString)
-                await featureAst.updateSpecFile()
+            Given(
+                `"add step" Scenario one step`,
+                async (_, docString: string) => {
+                    fs.writeFileSync(featureFilePath, docString)
+                    await featureAst.updateSpecFile()
 
-                expect(
-                    getCallExpressionWithArg({
-                        sourceFile: getSourceFileFromPath(specFilePath),
-                        text: 'Given',
-                        arg: 'I am first step',
-                    }),
-                ).not.toBeUndefined()
-                expect(
-                    getCallExpressionWithArg({
-                        sourceFile: getSourceFileFromPath(specFilePath),
-                        text: type,
-                        arg: title,
-                    }),
-                ).toBeUndefined()
-            })
+                    expect(
+                        getCallExpressionWithArg({
+                            sourceFile: getSourceFileFromPath(specFilePath),
+                            text: 'Given',
+                            arg: 'I am already in scenario',
+                        }),
+                    ).not.toBeUndefined()
+                    expect(
+                        getCallExpressionWithArg({
+                            sourceFile: getSourceFileFromPath(specFilePath),
+                            text: type,
+                            arg: title,
+                        }),
+                    ).toBeUndefined()
+                },
+            )
             When(`I add a <type> <title> step`, async () => {
                 writeLine(featureFilePath, `${type} ${title}`)
                 await featureAst.updateSpecFile()
             })
-            Then(`"main" Scenario has two steps`, () => {
+            Then(`"add step" Scenario has two steps`, () => {
                 expect(
                     getCallExpressionWithArg({
                         sourceFile: getSourceFileFromPath(specFilePath),
                         text: 'Given',
-                        arg: 'I am first step',
+                        arg: 'I am already in scenario',
                     }),
                 ).not.toBeUndefined()
                 expect(
@@ -230,4 +233,41 @@ describeFeature(feature, ({ Background, ScenarioOutline, Scenario }) => {
             ).toBeUndefined()
         })
     })
+})
+
+it('should match step with expression before remove it', async () => {
+    const featureFilePath = 'src/__tests__/step-comment-ast.feature'
+    const specFilePath = 'src/__tests__/step-comment-ast.spec.ts'
+    fs.writeFileSync(
+        featureFilePath,
+        `
+        Feature: I love Scenario
+            Scenario: A normal scenario
+                Given I am a "Given" scenario step
+        `,
+    )
+    fs.writeFileSync(
+        specFilePath,
+        `
+        describeFeature(feature, ({ Scenario }) => {
+            Scenario("A normal scenario", ({ Given, Then }) => {
+                Given('I am a {string} scenario step', (_, name: string) => {
+                    console.debug({ name })
+                })
+            })
+        })
+        `,
+    )
+    const featureAst = FeatureAst.fromOptions({
+        specFilePath,
+        featureFilePath,
+    })
+    await featureAst.updateSpecFile()
+
+    expect(
+        fs
+            .readFileSync(specFilePath)
+            .toString()
+            .includes('I am a {string} scenario step'),
+    ).toBeTruthy()
 })

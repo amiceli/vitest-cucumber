@@ -1,5 +1,6 @@
 import { type ArrowFunction, type CallExpression, SyntaxKind } from 'ts-morph'
 import { generateStep } from '../../../scripts/generateFile'
+import { ExpressionStep } from '../../parser/expression/ExpressionStep'
 import type {
     Background,
     Scenario,
@@ -61,19 +62,34 @@ export class StepAst extends BaseAst {
     }
 
     private getStepsToRemove(parentSteps: StepExpression[]): StepExpression[] {
-        return parentSteps.filter((step) => {
-            return (
-                this.stepableParent.steps
-                    .map((s) => s.details)
-                    .includes(step.name) === false
+        return parentSteps.filter((stepExpression) => {
+            const stepExistsInScenario = this.stepableParent.steps.some(
+                (step) => {
+                    return this.stepMatchCallExpression(stepExpression, step)
+                },
             )
+
+            return stepExistsInScenario === false
         })
     }
 
     private getStepsToAdd(parentSteps: StepExpression[]): Step[] {
         return this.stepableParent.steps.filter((step) => {
-            return !parentSteps.map((s) => s.name).includes(step.details)
+            const stepIsInScenarioSpec = parentSteps.every((stepExpression) => {
+                return this.stepMatchCallExpression(stepExpression, step)
+            })
+
+            return !stepIsInScenarioSpec
         })
+    }
+
+    private stepMatchCallExpression(
+        stepExpression: StepExpression,
+        step: Step,
+    ): boolean {
+        const match = ExpressionStep.matchStep(step, stepExpression.name)
+
+        return match.length > 0 || stepExpression.name === step.details
     }
 
     private isStepLine(line: string): boolean {
