@@ -1,31 +1,16 @@
 import { type ArrowFunction, SyntaxKind } from 'ts-morph'
 import { generateScenarii } from '../../../scripts/generateFile'
-import type { Scenario, ScenarioParent } from '../../parser/models'
-import { type AstOptions, BaseAst, type VitestCallExpression } from './BaseAst'
+import type { Scenario } from '../../parser/models'
+import type { VitestCallExpression } from './BaseAst'
 import { StepAst } from './StepAst'
+import { StepableAst, type StepableAstOptions } from './StepableAst'
 
-type ScenarioAstOptions = AstOptions & {
-    scenarioParent: ScenarioParent
-    scenarioParentFunction: ArrowFunction
-    forRule?: boolean
-}
-
-export class ScenarioAst extends BaseAst {
-    private scenarioParent: ScenarioParent
-
-    private scenarioParentFunction: ArrowFunction
-
-    private readonly forRule: boolean
-
-    private constructor(options: ScenarioAstOptions) {
+export class ScenarioAst extends StepableAst {
+    private constructor(options: StepableAstOptions) {
         super(options)
-
-        this.scenarioParent = options.scenarioParent
-        this.scenarioParentFunction = options.scenarioParentFunction
-        this.forRule = options.forRule === true
     }
 
-    public static fromOptions(options: ScenarioAstOptions): ScenarioAst {
+    public static fromOptions(options: StepableAstOptions): ScenarioAst {
         return new ScenarioAst(options)
     }
 
@@ -38,22 +23,22 @@ export class ScenarioAst extends BaseAst {
         for (const s of scenariiToRemove) {
             if (this.shouldComment) {
                 this.commentExpression(
-                    this.scenarioParentFunction,
+                    this.stepableParentFunction,
                     s.callExpression,
                 )
             } else {
                 this.removeChildFromParent(
-                    this.scenarioParentFunction,
+                    this.stepableParentFunction,
                     s.callExpression,
                 )
             }
         }
 
-        this.scenarioParentFunction.addStatements(
+        this.stepableParentFunction.addStatements(
             generateScenarii(scenariiToAdd || [], this.forRule),
         )
 
-        for (const scenario of this.scenarioParent.scenarii) {
+        for (const scenario of this.stepableParent.scenarii) {
             const scenarioArrowFunction =
                 this.getScenarioArrowFunction(scenario)
 
@@ -63,6 +48,7 @@ export class ScenarioAst extends BaseAst {
                     stepParent: scenario,
                     stepParentFunction: scenarioArrowFunction,
                 }).handleSteps()
+                this.updateStepableArguments(scenario, scenarioArrowFunction)
             }
         }
     }
@@ -88,7 +74,7 @@ export class ScenarioAst extends BaseAst {
         return parentScenarii.filter((scenario) => {
             return (
                 scenario.name &&
-                this.scenarioParent.scenarii
+                this.stepableParent.scenarii
                     .map((s) => s.description)
                     .includes(scenario.name) === false
             )
@@ -98,7 +84,7 @@ export class ScenarioAst extends BaseAst {
     private getMissingScenarri(
         parentScenarii: VitestCallExpression[],
     ): Scenario[] {
-        return this.scenarioParent.scenarii.filter((scenario) => {
+        return this.stepableParent.scenarii.filter((scenario) => {
             return (
                 parentScenarii
                     .map((s) => s.name)
@@ -109,7 +95,7 @@ export class ScenarioAst extends BaseAst {
 
     private getScenariiArrowFunction(): VitestCallExpression[] {
         return this.callExpressionMatchRegExp(
-            this.scenarioParentFunction,
+            this.stepableParentFunction,
             this.forRule
                 ? /\b(RuleScenario|RuleScenarioOutline)\(/
                 : /\b(Scenario|ScenarioOutline)\(/,

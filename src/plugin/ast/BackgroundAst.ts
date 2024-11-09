@@ -1,31 +1,14 @@
 import { type ArrowFunction, type CallExpression, SyntaxKind } from 'ts-morph'
 import { generateBackground } from '../../../scripts/generateFile'
-import type { ScenarioParent } from '../../parser/models'
-import { type AstOptions, BaseAst } from './BaseAst'
 import { StepAst } from './StepAst'
+import { StepableAst, type StepableAstOptions } from './StepableAst'
 
-type BackgroundAstOptions = AstOptions & {
-    backgroundParent: ScenarioParent
-    backgroundParentFunction: ArrowFunction
-    forRule?: boolean
-}
-
-export class BackgroundAst extends BaseAst {
-    private backgroundParent: ScenarioParent
-
-    private backgroundParentFunction: ArrowFunction
-
-    private readonly forRule: boolean
-
-    private constructor(options: BackgroundAstOptions) {
+export class BackgroundAst extends StepableAst {
+    private constructor(options: StepableAstOptions) {
         super(options)
-
-        this.backgroundParent = options.backgroundParent
-        this.backgroundParentFunction = options.backgroundParentFunction
-        this.forRule = options.forRule === true
     }
 
-    public static fromOptions(options: BackgroundAstOptions): BackgroundAst {
+    public static fromOptions(options: StepableAstOptions): BackgroundAst {
         return new BackgroundAst(options)
     }
 
@@ -34,12 +17,12 @@ export class BackgroundAst extends BaseAst {
 
         if (
             backgroundCallExpression === undefined &&
-            this.backgroundParent.background !== null
+            this.stepableParent.background !== null
         ) {
-            this.backgroundParentFunction.insertStatements(
+            this.stepableParentFunction.insertStatements(
                 0,
                 generateBackground(
-                    this.backgroundParent.background,
+                    this.stepableParent.background,
                     this.forRule,
                 ),
             )
@@ -47,16 +30,16 @@ export class BackgroundAst extends BaseAst {
 
         if (
             backgroundCallExpression !== undefined &&
-            this.backgroundParent.background === null
+            this.stepableParent.background === null
         ) {
             if (this.shouldComment) {
                 this.commentExpression(
-                    this.backgroundParentFunction,
+                    this.stepableParentFunction,
                     backgroundCallExpression,
                 )
             } else {
                 this.removeChildFromParent(
-                    this.backgroundParentFunction,
+                    this.stepableParentFunction,
                     backgroundCallExpression,
                 )
             }
@@ -64,15 +47,19 @@ export class BackgroundAst extends BaseAst {
 
         if (
             backgroundCallExpression !== undefined &&
-            this.backgroundParent.background !== null
+            this.stepableParent.background !== null
         ) {
             const arrowFunction = this.getBackgroundArrowFunction()
             if (arrowFunction) {
                 StepAst.fromOptions({
                     ...this.options,
-                    stepParent: this.backgroundParent.background,
+                    stepParent: this.stepableParent.background,
                     stepParentFunction: arrowFunction,
                 }).handleSteps()
+                this.updateStepableArguments(
+                    this.stepableParent.background,
+                    arrowFunction,
+                )
             }
         }
     }
@@ -86,7 +73,7 @@ export class BackgroundAst extends BaseAst {
     private getBackgroundCallExpression(): CallExpression | undefined {
         const regex = this.forRule ? /\bRuleBackground\(/ : /\bBackground\(/
 
-        return this.backgroundParentFunction
+        return this.stepableParentFunction
             .getDescendantsOfKind(SyntaxKind.CallExpression)
             .find((call) => {
                 return regex.test(call.getText())

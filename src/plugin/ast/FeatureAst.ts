@@ -57,8 +57,8 @@ export class FeatureAst extends BaseAst {
         if (this.describeFeatureCallback && this.feature) {
             ScenarioAst.fromOptions({
                 ...this.options,
-                scenarioParent: this.feature,
-                scenarioParentFunction: this.describeFeatureCallback,
+                stepableParent: this.feature,
+                stepableParentFunction: this.describeFeatureCallback,
             }).handleScenarii()
             RuleAst.fromOptions({
                 ...this.options,
@@ -67,8 +67,8 @@ export class FeatureAst extends BaseAst {
             }).handleRules()
             BackgroundAst.fromOptions({
                 ...this.options,
-                backgroundParent: this.feature,
-                backgroundParentFunction: this.describeFeatureCallback,
+                stepableParent: this.feature,
+                stepableParentFunction: this.describeFeatureCallback,
             }).handleBackground()
         }
     }

@@ -54,14 +54,14 @@ export class RuleAst extends BaseAst {
             if (ruleArrowFunction) {
                 ScenarioAst.fromOptions({
                     ...this.options,
-                    scenarioParent: rule,
-                    scenarioParentFunction: ruleArrowFunction,
+                    stepableParent: rule,
+                    stepableParentFunction: ruleArrowFunction,
                     forRule: true,
                 }).handleScenarii()
                 BackgroundAst.fromOptions({
                     ...this.options,
-                    backgroundParent: rule,
-                    backgroundParentFunction: ruleArrowFunction,
+                    stepableParent: rule,
+                    stepableParentFunction: ruleArrowFunction,
                     forRule: true,
                 }).handleBackground()
             }
