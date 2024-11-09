@@ -2,6 +2,7 @@ import { type ArrowFunction, SyntaxKind } from 'ts-morph'
 import { VitestsCucumberError } from '../../errors/errors'
 import type { Feature } from '../../parser/models/feature'
 import { FeatureFileReader } from '../../parser/readfile'
+import { getVitestCucumberConfiguration } from '../../vitest/configuration'
 import { BackgroundAst } from './BackgroundAst'
 import { type AstOptions, BaseAst } from './BaseAst'
 import { RuleAst } from './RuleAst'
@@ -23,8 +24,7 @@ export class FeatureAst extends BaseAst {
         const [feature] = await FeatureFileReader.fromPath({
             featureFilePath: this.options.featureFilePath,
             callerFileDir: null,
-            options: { language: 'en' },
-            // options: getVitestCucumberConfiguration(options),
+            options: getVitestCucumberConfiguration(),
         }).parseFile()
 
         return feature
@@ -78,7 +78,7 @@ export class FeatureAst extends BaseAst {
         }
     }
 
-    public updateFeatureArguments(
+    private updateFeatureArguments(
         feature: Feature,
         featureArrowFunction: ArrowFunction,
     ) {
