@@ -1,8 +1,10 @@
 import fs from 'node:fs'
+import { SyntaxKind } from 'ts-morph'
 import { expect, it } from 'vitest'
 import { describeFeature, loadFeature } from '../../../../src/module'
 import { FeatureAst } from '../../ast/FeatureAst'
 import {
+    getCallExpression,
     getCallExpressionWithArg,
     getSourceFileFromPath,
 } from '../../ast/ast-utils'
@@ -18,16 +20,42 @@ type StepVariables = {
     'before-count': number
 }
 
+function getScenarioArgument(
+    specFilePath: string,
+    scenarioName: string,
+): string | undefined {
+    const scenarioCallback = getCallExpressionWithArg({
+        sourceFile: getSourceFileFromPath(specFilePath),
+        text: 'Scenario',
+        arg: scenarioName,
+    })
+    const scenarioArrowFunction = scenarioCallback
+        ?.getArguments()
+        .find((arg) => arg.getKind() === SyntaxKind.ArrowFunction)
+
+    return scenarioArrowFunction
+        ?.getFirstDescendantByKind(SyntaxKind.ObjectBindingPattern)
+        ?.getText()
+}
+
+function getBackgroundArgument(specFilePath: string): string | undefined {
+    const scenarioCallback = getCallExpression({
+        sourceFile: getSourceFileFromPath(specFilePath),
+        text: 'Background',
+    })
+    const scenarioArrowFunction = scenarioCallback
+        ?.getArguments()
+        .find((arg) => arg.getKind() === SyntaxKind.ArrowFunction)
+
+    return scenarioArrowFunction
+        ?.getFirstDescendantByKind(SyntaxKind.ObjectBindingPattern)
+        ?.getText()
+}
+
 describeFeature(feature, ({ Background, ScenarioOutline, Scenario }) => {
     let featureAst: FeatureAst
     let featureFilePath: string
     let specFilePath: string
-
-    function writeLine(file: string, line: string) {
-        const content = fs.readFileSync(file).toString()
-
-        fs.writeFileSync(file, [content, line].join('\n'))
-    }
 
     Background(({ Given, And }) => {
         Given(`My feature file is {string}`, (_, featurePath: string) => {
@@ -51,11 +79,17 @@ describeFeature(feature, ({ Background, ScenarioOutline, Scenario }) => {
             const { type, title } = variables as StepVariables
 
             Given(
-                `"add step" Scenario one step`,
-                async (_, docString: string) => {
+                `{string} Scenario one step`,
+                async (_, scenarioName: string, docString: string) => {
                     fs.writeFileSync(featureFilePath, docString)
                     await featureAst.updateSpecFile()
 
+                    expect(
+                        getScenarioArgument(specFilePath, scenarioName),
+                    ).toContain('Given')
+                    expect(
+                        getScenarioArgument(specFilePath, scenarioName),
+                    ).not.toContain(type)
                     expect(
                         getCallExpressionWithArg({
                             sourceFile: getSourceFileFromPath(specFilePath),
@@ -72,49 +106,72 @@ describeFeature(feature, ({ Background, ScenarioOutline, Scenario }) => {
                     ).toBeUndefined()
                 },
             )
-            When(`I add a <type> <title> step`, async () => {
-                writeLine(featureFilePath, `${type} ${title}`)
-                await featureAst.updateSpecFile()
-            })
-            Then(`"add step" Scenario has two steps`, () => {
-                expect(
-                    getCallExpressionWithArg({
-                        sourceFile: getSourceFileFromPath(specFilePath),
-                        text: 'Given',
-                        arg: 'I am already in scenario',
-                    }),
-                ).not.toBeUndefined()
-                expect(
-                    getCallExpressionWithArg({
-                        sourceFile: getSourceFileFromPath(specFilePath),
-                        text: type,
-                        arg: title,
-                    }),
-                ).not.toBeUndefined()
-            })
+            When(
+                `I add a <type> <title> step`,
+                async (_, docString: string) => {
+                    fs.writeFileSync(featureFilePath, docString)
+                    await featureAst.updateSpecFile()
+                },
+            )
+            Then(
+                `{string} Scenario has two steps`,
+                (_, scenarioName: string) => {
+                    expect(
+                        getCallExpressionWithArg({
+                            sourceFile: getSourceFileFromPath(specFilePath),
+                            text: 'Given',
+                            arg: 'I am already in scenario',
+                        }),
+                    ).not.toBeUndefined()
+                    expect(
+                        getCallExpressionWithArg({
+                            sourceFile: getSourceFileFromPath(specFilePath),
+                            text: type,
+                            arg: title,
+                        }),
+                    ).not.toBeUndefined()
+
+                    expect(
+                        getScenarioArgument(specFilePath, scenarioName),
+                    ).toContain('Given')
+                    expect(
+                        getScenarioArgument(specFilePath, scenarioName),
+                    ).toContain(type)
+                },
+            )
         },
     )
 
     Scenario(`Remove step from Scenario`, ({ Given, When, Then }) => {
-        Given(`"main" Scenario has two steps`, async (_, docString: string) => {
-            fs.writeFileSync(featureFilePath, docString)
-            await featureAst.updateSpecFile()
+        Given(
+            `{string} Scenario has two steps`,
+            async (_, scenarioName: string, docString: string) => {
+                fs.writeFileSync(featureFilePath, docString)
+                await featureAst.updateSpecFile()
 
-            expect(
-                getCallExpressionWithArg({
-                    sourceFile: getSourceFileFromPath(specFilePath),
-                    text: 'Given',
-                    arg: 'I am first step',
-                }),
-            ).not.toBeUndefined()
-            expect(
-                getCallExpressionWithArg({
-                    sourceFile: getSourceFileFromPath(specFilePath),
-                    text: 'Then',
-                    arg: 'I  am last step',
-                }),
-            ).not.toBeUndefined()
-        })
+                expect(
+                    getCallExpressionWithArg({
+                        sourceFile: getSourceFileFromPath(specFilePath),
+                        text: 'Given',
+                        arg: 'I am first step',
+                    }),
+                ).not.toBeUndefined()
+                expect(
+                    getCallExpressionWithArg({
+                        sourceFile: getSourceFileFromPath(specFilePath),
+                        text: 'Then',
+                        arg: 'I  am last step',
+                    }),
+                ).not.toBeUndefined()
+
+                expect(
+                    getScenarioArgument(specFilePath, scenarioName),
+                ).toContain('Given')
+                expect(
+                    getScenarioArgument(specFilePath, scenarioName),
+                ).toContain('Then')
+            },
+        )
         When(
             `I remove a step in "main" Scenario`,
             async (_, docString: string) => {
@@ -122,7 +179,7 @@ describeFeature(feature, ({ Background, ScenarioOutline, Scenario }) => {
                 await featureAst.updateSpecFile()
             },
         )
-        Then(`"main" scenario has one step`, () => {
+        Then(`{string} scenario has one step`, (_, scenarioName: string) => {
             expect(
                 getCallExpressionWithArg({
                     sourceFile: getSourceFileFromPath(specFilePath),
@@ -137,6 +194,13 @@ describeFeature(feature, ({ Background, ScenarioOutline, Scenario }) => {
                     arg: 'I  am last step',
                 }),
             ).not.toBeUndefined()
+
+            expect(
+                getScenarioArgument(specFilePath, scenarioName),
+            ).not.toContain('Given')
+            expect(getScenarioArgument(specFilePath, scenarioName)).toContain(
+                'Then',
+            )
         })
     })
 
@@ -165,12 +229,21 @@ describeFeature(feature, ({ Background, ScenarioOutline, Scenario }) => {
                             arg: title,
                         }),
                     ).toBeUndefined()
+                    expect(getBackgroundArgument(specFilePath)).toContain(
+                        'Given',
+                    )
+                    expect(getBackgroundArgument(specFilePath)).not.toContain(
+                        type,
+                    )
                 },
             )
-            When(`I add a <type> <title> step in Background`, async () => {
-                writeLine(featureFilePath, `${type} ${title}`)
-                await featureAst.updateSpecFile()
-            })
+            When(
+                `I add a <type> <title> step in Background`,
+                async (_, docString: string) => {
+                    fs.writeFileSync(featureFilePath, docString)
+                    await featureAst.updateSpecFile()
+                },
+            )
             Then(`Background has two steps`, () => {
                 expect(
                     getCallExpressionWithArg({
@@ -186,9 +259,13 @@ describeFeature(feature, ({ Background, ScenarioOutline, Scenario }) => {
                         arg: title,
                     }),
                 ).not.toBeUndefined()
+
+                expect(getBackgroundArgument(specFilePath)).toContain('Given')
+                expect(getBackgroundArgument(specFilePath)).toContain(type)
             })
         },
     )
+
     Scenario(`Remove step from Background`, ({ Given, When, Then }) => {
         Given(`Background has two steps`, async (_, docString: string) => {
             fs.writeFileSync(featureFilePath, docString)
@@ -208,6 +285,9 @@ describeFeature(feature, ({ Background, ScenarioOutline, Scenario }) => {
                     arg: 'I am last background step',
                 }),
             ).not.toBeUndefined()
+
+            expect(getBackgroundArgument(specFilePath)).toContain('Given')
+            expect(getBackgroundArgument(specFilePath)).toContain('And')
         })
         When(
             `I remove a step in "main" Scenario`,
@@ -231,6 +311,9 @@ describeFeature(feature, ({ Background, ScenarioOutline, Scenario }) => {
                     arg: 'I am last background step',
                 }),
             ).toBeUndefined()
+
+            expect(getBackgroundArgument(specFilePath)).toContain('Given')
+            expect(getBackgroundArgument(specFilePath)).not.toContain('And')
         })
     })
 })

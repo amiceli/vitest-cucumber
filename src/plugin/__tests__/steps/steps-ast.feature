@@ -12,6 +12,12 @@ Feature: update Scenario, Background, ScenarioOutline steps
                     Given I am already in scenario
             """
         When  I add a <type> <title> step
+            """
+            Feature: add steps to Scenario
+                Scenario: add step
+                    Given I am already in scenario
+                    <type> <title>
+            """
         Then  "add step" Scenario has two steps
 
         Examples:
@@ -45,12 +51,20 @@ Feature: update Scenario, Background, ScenarioOutline steps
                     When A scenrio should be here
             """
         When  I add a <type> <title> step in Background
+            """
+            Feature: add steps to Background
+                Background:
+                    Given I am first background step
+                    <type> <title>
+                Scenario: test
+                    When A scenrio should be here
+            """
         Then  Background has two steps
 
         Examples:
             | type | title                        |
             | And  | I am another background step |
-            | And | We are added in Background   |
+            | And  | We are added in Background   |
 
     Scenario: Remove step from Background
         Given Background has two steps

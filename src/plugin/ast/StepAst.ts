@@ -59,6 +59,18 @@ export class StepAst extends BaseAst {
         for (const step of stepsToAdd) {
             this.stepParentFunction.addStatements(generateStep(step))
         }
+
+        this.updateParentArguments()
+    }
+
+    private updateParentArguments() {
+        const currentArg = this.stepParentFunction.getFirstDescendantByKind(
+            SyntaxKind.ObjectBindingPattern,
+        )
+
+        if (currentArg) {
+            currentArg.replaceWithText(this.stepTypesAsArguments)
+        }
     }
 
     private getStepsToRemove(parentSteps: StepExpression[]): StepExpression[] {
@@ -113,5 +125,11 @@ export class StepAst extends BaseAst {
                 }
             })
             .filter((step): step is StepExpression => step?.name !== undefined)
+    }
+
+    private get stepTypesAsArguments(): string {
+        const stepTypes = this.stepableParent.steps.map((step) => step.type)
+
+        return `{ ${stepTypes.join(',')} }`
     }
 }
