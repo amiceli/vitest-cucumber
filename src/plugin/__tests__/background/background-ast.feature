@@ -39,7 +39,7 @@ Feature: update Rule and Feature Background
         Then  vitest-cucumber remove Background in Feature
 
     Scenario: Add Background in Rule 
-        Given Rule has no Background
+        Given "I want Background" Rule has no Background
             """
             Feature: Add Background in Rule 
                 Rule: I want Background
@@ -55,12 +55,12 @@ Feature: update Rule and Feature Background
                     Scenario: My parent Rule has no Background
                         Given I am a RuleScenario step
             """
-        Then  vitest-cucumber add a Background in Rule
+        Then  vitest-cucumber add a Background in "I want Background" Rule
 
     Scenario: Remove Background in Rule
-        Given Rule has Background
+        Given "I love Background" Rule has Background
             """
-            Feature: I use Background
+            Feature: parent
                 Rule: I love Background
                     Background:
                         Given I am as Background step
@@ -69,9 +69,9 @@ Feature: update Rule and Feature Background
             """
         When  I remove Background from Rule
             """
-            Feature: I use Background
+            Feature: parent
                 Rule: I love Background
                     Scenario: My rule parent has no Background
                         Given I am a Scenario step
             """
-        Then  vitest-cucumber remove Background from Rule
+        Then  vitest-cucumber remove Background from "I love Background" Rule

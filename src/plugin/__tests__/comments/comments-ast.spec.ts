@@ -14,10 +14,15 @@ const feature = await loadFeature(
     'src/plugin/__tests__/comments/comments-ast.feature',
 )
 
-describeFeature(feature, ({ Background, Scenario }) => {
+describeFeature(feature, ({ Background, Scenario, AfterAllScenarios }) => {
     let featureAst: FeatureAst
     let featureFilePath: string
     let specFilePath: string
+
+    AfterAllScenarios(() => {
+        fs.rmSync(featureFilePath)
+        fs.rmSync(specFilePath)
+    })
 
     Background(({ Given, And }) => {
         Given(`My feature file is {string}`, (_, featurePath: string) => {

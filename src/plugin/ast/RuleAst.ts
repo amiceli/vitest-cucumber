@@ -64,7 +64,32 @@ export class RuleAst extends BaseAst {
                     stepableParentFunction: ruleArrowFunction,
                     forRule: true,
                 }).handleBackground()
+
+                this.updateRuleArgument(rule, ruleArrowFunction)
             }
+        }
+    }
+
+    public updateRuleArgument(rule: Rule, ruleArrowFunction: ArrowFunction) {
+        const args: string[] = []
+        if (rule.background) {
+            args.push('RuleBackground')
+        }
+        if (rule.hasScenarioOutline) {
+            args.push('RuleScenarioOutline')
+        }
+        if (rule.hasScenario) {
+            args.push('RuleScenario')
+        }
+
+        const ruleArguments = `{ ${args.join(',')} }`
+
+        const currentArg = ruleArrowFunction.getFirstDescendantByKind(
+            SyntaxKind.ObjectBindingPattern,
+        )
+
+        if (currentArg) {
+            currentArg.replaceWithText(ruleArguments)
         }
     }
 

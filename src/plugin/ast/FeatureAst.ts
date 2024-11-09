@@ -1,4 +1,4 @@
-import { SyntaxKind } from 'ts-morph'
+import { type ArrowFunction, SyntaxKind } from 'ts-morph'
 import { VitestsCucumberError } from '../../errors/errors'
 import type { Feature } from '../../parser/models/feature'
 import { FeatureFileReader } from '../../parser/readfile'
@@ -70,7 +70,55 @@ export class FeatureAst extends BaseAst {
                 stepableParent: this.feature,
                 stepableParentFunction: this.describeFeatureCallback,
             }).handleBackground()
+
+            this.updateFeatureArguments(
+                this.feature,
+                this.describeFeatureCallback,
+            )
         }
+    }
+
+    public updateFeatureArguments(
+        feature: Feature,
+        featureArrowFunction: ArrowFunction,
+    ) {
+        const args: string[] = []
+        if (feature.background) {
+            args.push('Background')
+        }
+        if (feature.hasScenarioOutline) {
+            args.push('ScenarioOutline')
+        }
+        if (feature.hasScenario) {
+            args.push('Scenario')
+        }
+
+        const stepTypesArg = `{ ${args.join(',')} }`
+
+        const currentArg = featureArrowFunction.getFirstChildByKind(
+            SyntaxKind.ObjectBindingPattern,
+        )
+
+        console.group('updateFeatureArguments')
+        console.debug({
+            // stepTypesArg,
+            // currentArg: currentArg?.getText(),
+            featureArrowFunction: featureArrowFunction.getText(),
+        })
+
+        if (currentArg) {
+            currentArg.replaceWithText(stepTypesArg)
+        } else {
+            featureArrowFunction.insertParameter(0, {
+                // name: 'param1',
+                // type: 'string',
+                name: stepTypesArg,
+            })
+        }
+        console.debug({
+            featureArrowFunction: featureArrowFunction.getText(),
+        })
+        console.groupEnd()
     }
 
     private async formatAndSave() {

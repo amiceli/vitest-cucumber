@@ -151,4 +151,16 @@ export abstract class ScenarioParent extends Taggable {
             throw new ParentWithoutScenario(this)
         }
     }
+
+    public get hasScenarioOutline(): boolean {
+        return this.scenarii.some((scenario) =>
+            scenario.getTitle().includes('Outline'),
+        )
+    }
+
+    public get hasScenario(): boolean {
+        return this.scenarii.some(
+            (scenario) => scenario.getTitle().includes('Outline') === false,
+        )
+    }
 }

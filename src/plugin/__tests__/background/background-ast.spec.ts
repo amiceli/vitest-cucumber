@@ -1,17 +1,65 @@
 import fs from 'node:fs'
+import { SyntaxKind } from 'ts-morph'
 import { expect } from 'vitest'
 import { describeFeature, loadFeature } from '../../../../src/module'
 import { FeatureAst } from '../../ast/FeatureAst'
-import { getCallExpression, getSourceFileFromPath } from '../../ast/ast-utils'
+import {
+    getCallExpression,
+    getCallExpressionWithArg,
+    getSourceFileFromPath,
+} from '../../ast/ast-utils'
 
 const feature = await loadFeature(
     'src/plugin/__tests__/background/background-ast.feature',
 )
 
-describeFeature(feature, ({ Background, Scenario }) => {
+function getFeatureArgument(specFilePath: string): string | undefined {
+    const scenarioCallback = getCallExpression({
+        sourceFile: getSourceFileFromPath(specFilePath),
+        text: 'describeFeature',
+    })
+
+    const scenarioArrowFunction = scenarioCallback
+        ?.getArguments()
+        .find((arg) => arg.getKind() === SyntaxKind.ArrowFunction)
+
+    const res = scenarioArrowFunction
+        ?.getFirstDescendantByKind(SyntaxKind.ObjectBindingPattern)
+        ?.getText()
+
+    return res
+}
+
+function getRuleArgument(
+    specFilePath: string,
+    ruleName: string,
+): string | undefined {
+    const scenarioCallback = getCallExpressionWithArg({
+        sourceFile: getSourceFileFromPath(specFilePath),
+        text: 'Rule',
+        arg: ruleName,
+    })
+
+    const scenarioArrowFunction = scenarioCallback
+        ?.getArguments()
+        .find((arg) => arg.getKind() === SyntaxKind.ArrowFunction)
+
+    const res = scenarioArrowFunction
+        ?.getFirstDescendantByKind(SyntaxKind.ObjectBindingPattern)
+        ?.getText()
+
+    return res
+}
+
+describeFeature(feature, ({ Background, Scenario, AfterAllScenarios }) => {
     let featureAst: FeatureAst
     let featureFilePath: string
     let specFilePath: string
+
+    AfterAllScenarios(() => {
+        fs.rmSync(featureFilePath)
+        fs.rmSync(specFilePath)
+    })
 
     Background(({ Given, And }) => {
         Given(`My feature file is {string}`, (_, featurePath: string) => {
@@ -40,6 +88,9 @@ describeFeature(feature, ({ Background, Scenario }) => {
                     text: 'Background',
                 }),
             ).toBeUndefined()
+
+            expect(getFeatureArgument(specFilePath)).toContain('Scenario')
+            expect(getFeatureArgument(specFilePath)).not.toContain('Background')
         })
         When(`I add a Background in Feature`, async (_, docString: string) => {
             fs.writeFileSync(featureFilePath, docString)
@@ -52,6 +103,9 @@ describeFeature(feature, ({ Background, Scenario }) => {
                     text: 'Background',
                 }),
             ).not.toBeUndefined()
+
+            expect(getFeatureArgument(specFilePath)).toContain('Scenario')
+            expect(getFeatureArgument(specFilePath)).toContain('Background')
         })
     })
 
@@ -66,6 +120,9 @@ describeFeature(feature, ({ Background, Scenario }) => {
                     text: 'Background',
                 }),
             ).not.toBeUndefined()
+
+            expect(getFeatureArgument(specFilePath)).toContain('Scenario')
+            expect(getFeatureArgument(specFilePath)).toContain('Background')
         })
         When(
             `I remove Background from Feature`,
@@ -81,58 +138,100 @@ describeFeature(feature, ({ Background, Scenario }) => {
                     text: 'Background',
                 }),
             ).toBeUndefined()
+
+            expect(getFeatureArgument(specFilePath)).toContain('Scenario')
+            expect(getFeatureArgument(specFilePath)).not.toContain('Background')
         })
     })
 
     Scenario(`Add Background in Rule`, ({ Given, When, Then }) => {
-        Given(`Rule has no Background`, async (_, docString: string) => {
-            fs.writeFileSync(featureFilePath, docString)
-            await featureAst.updateSpecFile()
+        Given(
+            `{string} Rule has no Background`,
+            async (_, ruleName: string, docString: string) => {
+                fs.writeFileSync(featureFilePath, docString)
+                await featureAst.updateSpecFile()
 
-            expect(
-                getCallExpression({
-                    sourceFile: getSourceFileFromPath(specFilePath),
-                    text: 'RuleBackground',
-                }),
-            ).toBeUndefined()
-        })
+                expect(
+                    getCallExpression({
+                        sourceFile: getSourceFileFromPath(specFilePath),
+                        text: 'RuleBackground',
+                    }),
+                ).toBeUndefined()
+
+                expect(getRuleArgument(specFilePath, ruleName)).toContain(
+                    'RuleScenario',
+                )
+                expect(getRuleArgument(specFilePath, ruleName)).not.toContain(
+                    'RuleBackground',
+                )
+            },
+        )
         When(`I add a Background in Rule`, async (_, docString: string) => {
             fs.writeFileSync(featureFilePath, docString)
             await featureAst.updateSpecFile()
         })
-        Then(`vitest-cucumber add a Background in Rule`, () => {
-            expect(
-                getCallExpression({
-                    sourceFile: getSourceFileFromPath(specFilePath),
-                    text: 'RuleBackground',
-                }),
-            ).not.toBeUndefined()
-        })
+        Then(
+            `vitest-cucumber add a Background in {string} Rule`,
+            (_, ruleName: string) => {
+                expect(
+                    getCallExpression({
+                        sourceFile: getSourceFileFromPath(specFilePath),
+                        text: 'RuleBackground',
+                    }),
+                ).not.toBeUndefined()
+
+                expect(getRuleArgument(specFilePath, ruleName)).toContain(
+                    'RuleScenario',
+                )
+                expect(getRuleArgument(specFilePath, ruleName)).toContain(
+                    'RuleBackground',
+                )
+            },
+        )
     })
 
     Scenario(`Remove Background in Rule`, ({ Given, When, Then }) => {
-        Given(`Rule has Background`, async (_, docString: string) => {
-            fs.writeFileSync(featureFilePath, docString)
-            await featureAst.updateSpecFile()
+        Given(
+            `{string} Rule has Background`,
+            async (_, ruleName: string, docString: string) => {
+                fs.writeFileSync(featureFilePath, docString)
+                await featureAst.updateSpecFile()
 
-            expect(
-                getCallExpression({
-                    sourceFile: getSourceFileFromPath(specFilePath),
-                    text: 'RuleBackground',
-                }),
-            ).not.toBeUndefined()
-        })
+                expect(
+                    getCallExpression({
+                        sourceFile: getSourceFileFromPath(specFilePath),
+                        text: 'RuleBackground',
+                    }),
+                ).not.toBeUndefined()
+
+                expect(getRuleArgument(specFilePath, ruleName)).toContain(
+                    'RuleScenario',
+                )
+                expect(getRuleArgument(specFilePath, ruleName)).toContain(
+                    'RuleBackground',
+                )
+            },
+        )
         When(`I remove Background from Rule`, async (_, docString: string) => {
             fs.writeFileSync(featureFilePath, docString)
             await featureAst.updateSpecFile()
         })
-        Then(`vitest-cucumber remove Background from Rule`, () => {
-            expect(
-                getCallExpression({
-                    sourceFile: getSourceFileFromPath(specFilePath),
-                    text: 'RuleBackground',
-                }),
-            ).toBeUndefined()
-        })
+        Then(
+            `vitest-cucumber remove Background from {string} Rule`,
+            (_, ruleName: string) => {
+                expect(
+                    getCallExpression({
+                        sourceFile: getSourceFileFromPath(specFilePath),
+                        text: 'RuleBackground',
+                    }),
+                ).toBeUndefined()
+                expect(getRuleArgument(specFilePath, ruleName)).toContain(
+                    'RuleScenario',
+                )
+                expect(getRuleArgument(specFilePath, ruleName)).not.toContain(
+                    'RuleBackground',
+                )
+            },
+        )
     })
 })
