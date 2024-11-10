@@ -5,8 +5,9 @@ import {
     loadFeature,
     setVitestCucumberConfiguration,
 } from '../../../../src/module'
+import { AstUtils } from '../../ast/AstUtils'
 import { FeatureAst } from '../../ast/FeatureAst'
-import { getCallExpression, getSourceFileFromPath } from '../../ast/ast-utils'
+import { getSourceFileFromPath } from '../spec-utils'
 
 const feature = await loadFeature(
     'src/plugin/__tests__/lang/lang-ast.feature',
@@ -59,10 +60,12 @@ describeFeature(
                     await featureAst.updateSpecFile()
 
                     expect(
-                        getCallExpression({
-                            sourceFile: getSourceFileFromPath(specFilePath),
-                            text: stepName,
-                        }),
+                        AstUtils.fromSourceFile(
+                            getSourceFileFromPath(specFilePath),
+                        )
+                            .listDescendantCallExpressions()
+                            .matchExpressionName(stepName)
+                            .getOne(),
                     ).not.toBeUndefined()
                 },
             )
@@ -72,16 +75,16 @@ describeFeature(
             })
             s.Then('Le scénario "test" a 2 staps', () => {
                 expect(
-                    getCallExpression({
-                        sourceFile: getSourceFileFromPath(specFilePath),
-                        text: 'Given',
-                    }),
+                    AstUtils.fromSourceFile(getSourceFileFromPath(specFilePath))
+                        .listDescendantCallExpressions()
+                        .matchExpressionName('Given')
+                        .getOne(),
                 ).not.toBeUndefined()
                 expect(
-                    getCallExpression({
-                        sourceFile: getSourceFileFromPath(specFilePath),
-                        text: 'Then',
-                    }),
+                    AstUtils.fromSourceFile(getSourceFileFromPath(specFilePath))
+                        .listDescendantCallExpressions()
+                        .matchExpressionName('Then')
+                        .getOne(),
                 ).not.toBeUndefined()
             })
         })

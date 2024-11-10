@@ -1,11 +1,9 @@
 import fs from 'node:fs'
 import { expect } from 'vitest'
 import { describeFeature, loadFeature } from '../../../../src/module'
+import { AstUtils } from '../../ast/AstUtils'
 import { FeatureAst } from '../../ast/FeatureAst'
-import {
-    getCallExpressionWithArg,
-    getSourceFileFromPath,
-} from '../../ast/ast-utils'
+import { getSourceFileFromPath } from '../spec-utils'
 
 const feature = await loadFeature(
     'src/plugin/__tests__/scenario/scenario-ast.feature',
@@ -43,19 +41,19 @@ describeFeature(feature, ({ Background, Scenario, AfterAllScenarios }) => {
             await featureAst.updateSpecFile()
 
             expect(
-                getCallExpressionWithArg({
-                    sourceFile: getSourceFileFromPath(specFilePath),
-                    text: 'Scenario',
-                    arg: 'A normal scenario',
-                }),
+                AstUtils.fromSourceFile(getSourceFileFromPath(specFilePath))
+                    .listDescendantCallExpressions()
+                    .matchExpressionName('Scenario')
+                    .matchExpressionArg('A normal scenario')
+                    .getOne(),
             ).not.toBeUndefined()
 
             expect(
-                getCallExpressionWithArg({
-                    sourceFile: getSourceFileFromPath(specFilePath),
-                    text: 'Scenario',
-                    arg: 'Another scenario',
-                }),
+                AstUtils.fromSourceFile(getSourceFileFromPath(specFilePath))
+                    .listDescendantCallExpressions()
+                    .matchExpressionName('Scenario')
+                    .matchExpressionArg('Another scenario')
+                    .getOne(),
             ).toBeUndefined()
         })
         When(`I add a Scenario in Feature`, async (_, docString: string) => {
@@ -64,18 +62,18 @@ describeFeature(feature, ({ Background, Scenario, AfterAllScenarios }) => {
         })
         Then(`vitest-cucumber add a Scenario in Feature`, () => {
             expect(
-                getCallExpressionWithArg({
-                    sourceFile: getSourceFileFromPath(specFilePath),
-                    text: 'Scenario',
-                    arg: 'Another scenario',
-                }),
+                AstUtils.fromSourceFile(getSourceFileFromPath(specFilePath))
+                    .listDescendantCallExpressions()
+                    .matchExpressionName('Scenario')
+                    .matchExpressionArg('Another scenario')
+                    .getOne(),
             ).not.toBeUndefined()
             expect(
-                getCallExpressionWithArg({
-                    sourceFile: getSourceFileFromPath(specFilePath),
-                    text: 'Scenario',
-                    arg: 'A normal scenario',
-                }),
+                AstUtils.fromSourceFile(getSourceFileFromPath(specFilePath))
+                    .listDescendantCallExpressions()
+                    .matchExpressionName('Scenario')
+                    .matchExpressionArg('A normal scenario')
+                    .getOne(),
             ).not.toBeUndefined()
         })
     })
@@ -86,19 +84,19 @@ describeFeature(feature, ({ Background, Scenario, AfterAllScenarios }) => {
             await featureAst.updateSpecFile()
 
             expect(
-                getCallExpressionWithArg({
-                    sourceFile: getSourceFileFromPath(specFilePath),
-                    text: 'Scenario',
-                    arg: 'A normal scenario',
-                }),
+                AstUtils.fromSourceFile(getSourceFileFromPath(specFilePath))
+                    .listDescendantCallExpressions()
+                    .matchExpressionName('Scenario')
+                    .matchExpressionArg('A normal scenario')
+                    .getOne(),
             ).not.toBeUndefined()
 
             expect(
-                getCallExpressionWithArg({
-                    sourceFile: getSourceFileFromPath(specFilePath),
-                    text: 'Scenario',
-                    arg: 'Another scenario',
-                }),
+                AstUtils.fromSourceFile(getSourceFileFromPath(specFilePath))
+                    .listDescendantCallExpressions()
+                    .matchExpressionName('Scenario')
+                    .matchExpressionArg('Another scenario')
+                    .getOne(),
             ).not.toBeUndefined()
         })
         When(
@@ -110,19 +108,19 @@ describeFeature(feature, ({ Background, Scenario, AfterAllScenarios }) => {
         )
         Then(`vitest-cucumber remove Scenario from Feature`, () => {
             expect(
-                getCallExpressionWithArg({
-                    sourceFile: getSourceFileFromPath(specFilePath),
-                    text: 'Scenario',
-                    arg: 'A normal scenario',
-                }),
+                AstUtils.fromSourceFile(getSourceFileFromPath(specFilePath))
+                    .listDescendantCallExpressions()
+                    .matchExpressionName('Scenario')
+                    .matchExpressionArg('A normal scenario')
+                    .getOne(),
             ).not.toBeUndefined()
 
             expect(
-                getCallExpressionWithArg({
-                    sourceFile: getSourceFileFromPath(specFilePath),
-                    text: 'Scenario',
-                    arg: 'Another scenario',
-                }),
+                AstUtils.fromSourceFile(getSourceFileFromPath(specFilePath))
+                    .listDescendantCallExpressions()
+                    .matchExpressionName('Scenario')
+                    .matchExpressionArg('Another scenario')
+                    .getOne(),
             ).toBeUndefined()
         })
     })
@@ -133,18 +131,18 @@ describeFeature(feature, ({ Background, Scenario, AfterAllScenarios }) => {
             await featureAst.updateSpecFile()
 
             expect(
-                getCallExpressionWithArg({
-                    sourceFile: getSourceFileFromPath(specFilePath),
-                    text: 'RuleScenario',
-                    arg: 'A normal scenario',
-                }),
+                AstUtils.fromSourceFile(getSourceFileFromPath(specFilePath))
+                    .listDescendantCallExpressions()
+                    .matchExpressionName('RuleScenario')
+                    .matchExpressionArg('A normal scenario')
+                    .getOne(),
             ).not.toBeUndefined()
             expect(
-                getCallExpressionWithArg({
-                    sourceFile: getSourceFileFromPath(specFilePath),
-                    text: 'RuleScenario',
-                    arg: 'Another scenario',
-                }),
+                AstUtils.fromSourceFile(getSourceFileFromPath(specFilePath))
+                    .listDescendantCallExpressions()
+                    .matchExpressionName('RuleScenario')
+                    .matchExpressionArg('Another scenario')
+                    .getOne(),
             ).toBeUndefined()
         })
         When(`I add a Scenario in Rule`, async (_, docString: string) => {
@@ -153,18 +151,18 @@ describeFeature(feature, ({ Background, Scenario, AfterAllScenarios }) => {
         })
         Then(`vitest-cucumber add a Scenario in Rule`, () => {
             expect(
-                getCallExpressionWithArg({
-                    sourceFile: getSourceFileFromPath(specFilePath),
-                    text: 'RuleScenario',
-                    arg: 'A normal scenario',
-                }),
+                AstUtils.fromSourceFile(getSourceFileFromPath(specFilePath))
+                    .listDescendantCallExpressions()
+                    .matchExpressionName('RuleScenario')
+                    .matchExpressionArg('A normal scenario')
+                    .getOne(),
             ).not.toBeUndefined()
             expect(
-                getCallExpressionWithArg({
-                    sourceFile: getSourceFileFromPath(specFilePath),
-                    text: 'RuleScenario',
-                    arg: 'Another scenario',
-                }),
+                AstUtils.fromSourceFile(getSourceFileFromPath(specFilePath))
+                    .listDescendantCallExpressions()
+                    .matchExpressionName('RuleScenario')
+                    .matchExpressionArg('Another scenario')
+                    .getOne(),
             ).not.toBeUndefined()
         })
     })
@@ -175,18 +173,18 @@ describeFeature(feature, ({ Background, Scenario, AfterAllScenarios }) => {
             await featureAst.updateSpecFile()
 
             expect(
-                getCallExpressionWithArg({
-                    sourceFile: getSourceFileFromPath(specFilePath),
-                    text: 'RuleScenario',
-                    arg: 'A normal scenario',
-                }),
+                AstUtils.fromSourceFile(getSourceFileFromPath(specFilePath))
+                    .listDescendantCallExpressions()
+                    .matchExpressionName('RuleScenario')
+                    .matchExpressionArg('A normal scenario')
+                    .getOne(),
             ).not.toBeUndefined()
             expect(
-                getCallExpressionWithArg({
-                    sourceFile: getSourceFileFromPath(specFilePath),
-                    text: 'RuleScenario',
-                    arg: 'Another scenario',
-                }),
+                AstUtils.fromSourceFile(getSourceFileFromPath(specFilePath))
+                    .listDescendantCallExpressions()
+                    .matchExpressionName('RuleScenario')
+                    .matchExpressionArg('Another scenario')
+                    .getOne(),
             ).not.toBeUndefined()
         })
         When(`I remove a Scenario from Rule`, async (_, docString: string) => {
@@ -195,18 +193,18 @@ describeFeature(feature, ({ Background, Scenario, AfterAllScenarios }) => {
         })
         Then(`vitest-cucumber remove a Scenario from Rule`, () => {
             expect(
-                getCallExpressionWithArg({
-                    sourceFile: getSourceFileFromPath(specFilePath),
-                    text: 'RuleScenario',
-                    arg: 'A normal scenario',
-                }),
+                AstUtils.fromSourceFile(getSourceFileFromPath(specFilePath))
+                    .listDescendantCallExpressions()
+                    .matchExpressionName('RuleScenario')
+                    .matchExpressionArg('A normal scenario')
+                    .getOne(),
             ).not.toBeUndefined()
             expect(
-                getCallExpressionWithArg({
-                    sourceFile: getSourceFileFromPath(specFilePath),
-                    text: 'RuleScenario',
-                    arg: 'Another scenario',
-                }),
+                AstUtils.fromSourceFile(getSourceFileFromPath(specFilePath))
+                    .listDescendantCallExpressions()
+                    .matchExpressionName('RuleScenario')
+                    .matchExpressionArg('Another scenario')
+                    .getOne(),
             ).toBeUndefined()
         })
     })
@@ -217,19 +215,19 @@ describeFeature(feature, ({ Background, Scenario, AfterAllScenarios }) => {
             await featureAst.updateSpecFile()
 
             expect(
-                getCallExpressionWithArg({
-                    sourceFile: getSourceFileFromPath(specFilePath),
-                    text: 'Scenario',
-                    arg: 'A normal scenario',
-                }),
+                AstUtils.fromSourceFile(getSourceFileFromPath(specFilePath))
+                    .listDescendantCallExpressions()
+                    .matchExpressionName('Scenario')
+                    .matchExpressionArg('A normal scenario')
+                    .getOne(),
             ).not.toBeUndefined()
 
             expect(
-                getCallExpressionWithArg({
-                    sourceFile: getSourceFileFromPath(specFilePath),
-                    text: 'ScenarioOutline',
-                    arg: 'Another scenario',
-                }),
+                AstUtils.fromSourceFile(getSourceFileFromPath(specFilePath))
+                    .listDescendantCallExpressions()
+                    .matchExpressionName('ScenarioOutline')
+                    .matchExpressionArg('Another scenario')
+                    .getOne(),
             ).toBeUndefined()
         })
         When(
@@ -241,18 +239,18 @@ describeFeature(feature, ({ Background, Scenario, AfterAllScenarios }) => {
         )
         Then(`vitest-cucumber add a Scenario Outline in Feature`, () => {
             expect(
-                getCallExpressionWithArg({
-                    sourceFile: getSourceFileFromPath(specFilePath),
-                    text: 'Scenario',
-                    arg: 'A normal scenario',
-                }),
+                AstUtils.fromSourceFile(getSourceFileFromPath(specFilePath))
+                    .listDescendantCallExpressions()
+                    .matchExpressionName('Scenario')
+                    .matchExpressionArg('A normal scenario')
+                    .getOne(),
             ).not.toBeUndefined()
             expect(
-                getCallExpressionWithArg({
-                    sourceFile: getSourceFileFromPath(specFilePath),
-                    text: 'ScenarioOutline',
-                    arg: 'Another scenario',
-                }),
+                AstUtils.fromSourceFile(getSourceFileFromPath(specFilePath))
+                    .listDescendantCallExpressions()
+                    .matchExpressionName('ScenarioOutline')
+                    .matchExpressionArg('Another scenario')
+                    .getOne(),
             ).not.toBeUndefined()
         })
     })

@@ -3,12 +3,9 @@ import { expect } from 'vitest'
 import { generateStep } from '../../../../scripts/generateFile'
 import { describeFeature, loadFeature } from '../../../../src/module'
 import { Step, StepTypes } from '../../../parser/models'
+import { AstUtils } from '../../ast/AstUtils'
 import { FeatureAst } from '../../ast/FeatureAst'
-import {
-    getCallExpression,
-    getCallExpressionWithArg,
-    getSourceFileFromPath,
-} from '../../ast/ast-utils'
+import { getSourceFileFromPath } from '../spec-utils'
 
 const feature = await loadFeature(
     'src/plugin/__tests__/comments/comments-ast.feature',
@@ -49,18 +46,18 @@ describeFeature(feature, ({ Background, Scenario, AfterAllScenarios }) => {
                 await featureAst.updateSpecFile()
 
                 expect(
-                    getCallExpressionWithArg({
-                        sourceFile: getSourceFileFromPath(specFilePath),
-                        text: 'Given',
-                        arg: 'I am first step',
-                    }),
+                    AstUtils.fromSourceFile(getSourceFileFromPath(specFilePath))
+                        .listDescendantCallExpressions()
+                        .matchExpressionName('Given')
+                        .matchExpressionArg('I am first step')
+                        .getOne(),
                 ).not.toBeUndefined()
                 expect(
-                    getCallExpressionWithArg({
-                        sourceFile: getSourceFileFromPath(specFilePath),
-                        text: 'Then',
-                        arg: 'I am last step',
-                    }),
+                    AstUtils.fromSourceFile(getSourceFileFromPath(specFilePath))
+                        .listDescendantCallExpressions()
+                        .matchExpressionName('Then')
+                        .matchExpressionArg('I am last step')
+                        .getOne(),
                 ).not.toBeUndefined()
             },
         )
@@ -77,18 +74,18 @@ describeFeature(feature, ({ Background, Scenario, AfterAllScenarios }) => {
             expect(specCode.includes(`// ${stepCode}`)).toBeTruthy()
 
             expect(
-                getCallExpressionWithArg({
-                    sourceFile: getSourceFileFromPath(specFilePath),
-                    text: 'Given',
-                    arg: 'I am first step',
-                }),
+                AstUtils.fromSourceFile(getSourceFileFromPath(specFilePath))
+                    .listDescendantCallExpressions()
+                    .matchExpressionName('Given')
+                    .matchExpressionArg('I am first step')
+                    .getOne(),
             ).toBeUndefined()
             expect(
-                getCallExpressionWithArg({
-                    sourceFile: getSourceFileFromPath(specFilePath),
-                    text: 'Then',
-                    arg: 'I am last step',
-                }),
+                AstUtils.fromSourceFile(getSourceFileFromPath(specFilePath))
+                    .listDescendantCallExpressions()
+                    .matchExpressionName('Then')
+                    .matchExpressionArg('I am last step')
+                    .getOne(),
             ).not.toBeUndefined()
         })
     })
@@ -100,10 +97,11 @@ describeFeature(feature, ({ Background, Scenario, AfterAllScenarios }) => {
             fs.writeFileSync(featureFilePath, docString)
             await featureAst.updateSpecFile()
 
-            const backgroundCall = getCallExpression({
-                sourceFile: getSourceFileFromPath(specFilePath),
-                text: 'Background',
-            })
+            const sourceFile = getSourceFileFromPath(specFilePath)
+            const backgroundCall = AstUtils.fromSourceFile(sourceFile)
+                .listDescendantCallExpressions()
+                .matchExpressionName('Background')
+                .getOne()
 
             originalBackgroundCode = backgroundCall?.getText().split('\n') || []
 
@@ -118,10 +116,10 @@ describeFeature(feature, ({ Background, Scenario, AfterAllScenarios }) => {
         )
         s.Then('vitest-cucumber comments Background in Feature', () => {
             expect(
-                getCallExpression({
-                    sourceFile: getSourceFileFromPath(specFilePath),
-                    text: 'Background',
-                }),
+                AstUtils.fromSourceFile(getSourceFileFromPath(specFilePath))
+                    .listDescendantCallExpressions()
+                    .matchExpressionName('Background')
+                    .getOne(),
             ).toBeUndefined()
 
             const specContent = fs.readFileSync(specFilePath).toString()
@@ -141,11 +139,13 @@ describeFeature(feature, ({ Background, Scenario, AfterAllScenarios }) => {
             fs.writeFileSync(featureFilePath, docString)
             await featureAst.updateSpecFile()
 
-            const scenarioCall = getCallExpressionWithArg({
-                sourceFile: getSourceFileFromPath(specFilePath),
-                text: 'Scenario',
-                arg: 'first scenario',
-            })
+            const scenarioCall = AstUtils.fromSourceFile(
+                getSourceFileFromPath(specFilePath),
+            )
+                .listDescendantCallExpressions()
+                .matchExpressionName('Scenario')
+                .matchExpressionArg('first scenario')
+                .getOne()
 
             originalScenarioCode = scenarioCall?.getText().split('\n') || []
 
@@ -162,11 +162,11 @@ describeFeature(feature, ({ Background, Scenario, AfterAllScenarios }) => {
             'vitest-cucumber comments {string} Scenario in Feature',
             (_, scenarioName: string) => {
                 expect(
-                    getCallExpressionWithArg({
-                        sourceFile: getSourceFileFromPath(specFilePath),
-                        text: 'Scenario',
-                        arg: scenarioName,
-                    }),
+                    AstUtils.fromSourceFile(getSourceFileFromPath(specFilePath))
+                        .listDescendantCallExpressions()
+                        .matchExpressionName('Scenario')
+                        .matchExpressionArg(scenarioName)
+                        .getOne(),
                 ).toBeUndefined()
 
                 const specContent = fs.readFileSync(specFilePath).toString()
@@ -189,15 +189,16 @@ describeFeature(feature, ({ Background, Scenario, AfterAllScenarios }) => {
                 fs.writeFileSync(featureFilePath, docString)
                 await featureAst.updateSpecFile()
 
-                const scenarioCall = getCallExpressionWithArg({
-                    sourceFile: getSourceFileFromPath(specFilePath),
-                    text: 'Rule',
-                    arg: ruleName,
-                })
+                const sourceFile = getSourceFileFromPath(specFilePath)
+                const ruleCall = AstUtils.fromSourceFile(sourceFile)
+                    .listDescendantCallExpressions()
+                    .matchExpressionName('Rule')
+                    .matchExpressionArg(ruleName)
+                    .getOne()
 
-                originalRuleCode = scenarioCall?.getText().split('\n') || []
+                originalRuleCode = ruleCall?.getText().split('\n') || []
 
-                expect(scenarioCall).not.toBeUndefined()
+                expect(ruleCall).not.toBeUndefined()
             },
         )
         s.When(
@@ -210,12 +211,13 @@ describeFeature(feature, ({ Background, Scenario, AfterAllScenarios }) => {
         s.Then(
             'vitest-cucumber comments {string} Rule in Feature',
             (_, ruleName: string) => {
+                const sourceFile = getSourceFileFromPath(specFilePath)
                 expect(
-                    getCallExpressionWithArg({
-                        sourceFile: getSourceFileFromPath(specFilePath),
-                        text: 'Rule',
-                        arg: ruleName,
-                    }),
+                    AstUtils.fromSourceFile(sourceFile)
+                        .listDescendantCallExpressions()
+                        .matchExpressionName('Rule')
+                        .matchExpressionArg(ruleName)
+                        .getOne(),
                 ).toBeUndefined()
 
                 const specContent = fs.readFileSync(specFilePath).toString()

@@ -1,32 +1,11 @@
 import fs from 'node:fs'
-import { SyntaxKind } from 'ts-morph'
 import { expect } from 'vitest'
 import { describeFeature, loadFeature } from '../../../../src/module'
+import { AstUtils } from '../../ast/AstUtils'
 import { FeatureAst } from '../../ast/FeatureAst'
-import {
-    getCallExpression,
-    getCallExpressionWithArg,
-    getSourceFileFromPath,
-} from '../../ast/ast-utils'
+import { getFeatureArgument, getSourceFileFromPath } from '../spec-utils'
 
 const feature = await loadFeature('src/plugin/__tests__/rule/rule-ast.feature')
-
-function getFeatureArgument(specFilePath: string): string | undefined {
-    const scenarioCallback = getCallExpression({
-        sourceFile: getSourceFileFromPath(specFilePath),
-        text: 'describeFeature',
-    })
-
-    const scenarioArrowFunction = scenarioCallback
-        ?.getArguments()
-        .find((arg) => arg.getKind() === SyntaxKind.ArrowFunction)
-
-    const res = scenarioArrowFunction
-        ?.getFirstDescendantByKind(SyntaxKind.ObjectBindingPattern)
-        ?.getText()
-
-    return res
-}
 
 describeFeature(feature, ({ Background, Scenario, AfterAllScenarios }) => {
     let featureAst: FeatureAst
@@ -60,10 +39,10 @@ describeFeature(feature, ({ Background, Scenario, AfterAllScenarios }) => {
             await featureAst.updateSpecFile()
 
             expect(
-                getCallExpression({
-                    sourceFile: getSourceFileFromPath(specFilePath),
-                    text: 'Rule',
-                }),
+                AstUtils.fromSourceFile(getSourceFileFromPath(specFilePath))
+                    .listDescendantCallExpressions()
+                    .matchExpressionName('Rule')
+                    .getOne(),
             ).toBeUndefined()
             expect(getFeatureArgument(specFilePath)).not.toContain('Rule')
         })
@@ -73,11 +52,11 @@ describeFeature(feature, ({ Background, Scenario, AfterAllScenarios }) => {
         })
         Then(`vitest-cucumber add a Rule in Feature`, () => {
             expect(
-                getCallExpressionWithArg({
-                    sourceFile: getSourceFileFromPath(specFilePath),
-                    text: 'Rule',
-                    arg: 'first rule',
-                }),
+                AstUtils.fromSourceFile(getSourceFileFromPath(specFilePath))
+                    .listDescendantCallExpressions()
+                    .matchExpressionName('Rule')
+                    .matchExpressionArg('first rule')
+                    .getOne(),
             ).not.toBeUndefined()
 
             expect(getFeatureArgument(specFilePath)).toContain('Rule')
@@ -91,18 +70,18 @@ describeFeature(feature, ({ Background, Scenario, AfterAllScenarios }) => {
             await featureAst.updateSpecFile()
 
             expect(
-                getCallExpressionWithArg({
-                    sourceFile: getSourceFileFromPath(specFilePath),
-                    text: 'Rule',
-                    arg: 'first rule',
-                }),
+                AstUtils.fromSourceFile(getSourceFileFromPath(specFilePath))
+                    .listDescendantCallExpressions()
+                    .matchExpressionName('Rule')
+                    .matchExpressionArg('first rule')
+                    .getOne(),
             ).not.toBeUndefined()
             expect(
-                getCallExpressionWithArg({
-                    sourceFile: getSourceFileFromPath(specFilePath),
-                    text: 'Rule',
-                    arg: 'second rule',
-                }),
+                AstUtils.fromSourceFile(getSourceFileFromPath(specFilePath))
+                    .listDescendantCallExpressions()
+                    .matchExpressionName('Rule')
+                    .matchExpressionArg('second rule')
+                    .getOne(),
             ).not.toBeUndefined()
         })
         When(`I remove Rule from Feature`, async (_, docString: string) => {
@@ -111,18 +90,18 @@ describeFeature(feature, ({ Background, Scenario, AfterAllScenarios }) => {
         })
         Then(`vitest-cucumber remove Rule from Feature`, () => {
             expect(
-                getCallExpressionWithArg({
-                    sourceFile: getSourceFileFromPath(specFilePath),
-                    text: 'Rule',
-                    arg: 'first rule',
-                }),
+                AstUtils.fromSourceFile(getSourceFileFromPath(specFilePath))
+                    .listDescendantCallExpressions()
+                    .matchExpressionName('Rule')
+                    .matchExpressionArg('first rule')
+                    .getOne(),
             ).not.toBeUndefined()
             expect(
-                getCallExpressionWithArg({
-                    sourceFile: getSourceFileFromPath(specFilePath),
-                    text: 'Rule',
-                    arg: 'second rule',
-                }),
+                AstUtils.fromSourceFile(getSourceFileFromPath(specFilePath))
+                    .listDescendantCallExpressions()
+                    .matchExpressionName('Rule')
+                    .matchExpressionArg('second rule')
+                    .getOne(),
             ).toBeUndefined()
         })
     })

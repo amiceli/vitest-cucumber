@@ -1,13 +1,13 @@
 import fs from 'node:fs'
 import { expect, it } from 'vitest'
 import { describeFeature, loadFeature } from '../../../../src/module'
+import { AstUtils } from '../../ast/AstUtils'
 import { FeatureAst } from '../../ast/FeatureAst'
 import {
-    getAllCallExpression,
-    getCallExpressionWithArg,
+    getBackgroundArgument,
+    getScenarioArgument,
     getSourceFileFromPath,
-} from '../../ast/ast-utils'
-import { getBackgroundArgument, getScenarioArgument } from '../utils.spec'
+} from '../spec-utils'
 
 const feature = await loadFeature(
     'src/plugin/__tests__/steps/steps-ast.feature',
@@ -66,25 +66,32 @@ describeFeature(
                             getScenarioArgument(specFilePath, scenarioName),
                         ).not.toContain(type)
                         expect(
-                            getCallExpressionWithArg({
-                                sourceFile: getSourceFileFromPath(specFilePath),
-                                text: 'Given',
-                                arg: 'I am already in scenario',
-                            }),
+                            AstUtils.fromSourceFile(
+                                getSourceFileFromPath(specFilePath),
+                            )
+                                .listDescendantCallExpressions()
+                                .matchExpressionName('Given')
+                                .matchExpressionArg('I am already in scenario')
+                                .getOne(),
                         ).not.toBeUndefined()
                         expect(
-                            getCallExpressionWithArg({
-                                sourceFile: getSourceFileFromPath(specFilePath),
-                                text: type,
-                                arg: title,
-                            }),
+                            AstUtils.fromSourceFile(
+                                getSourceFileFromPath(specFilePath),
+                            )
+                                .listDescendantCallExpressions()
+                                .matchExpressionName(type)
+                                .matchExpressionArg(title)
+                                .getOne(),
                         ).toBeUndefined()
 
                         expect(
-                            getAllCallExpression({
-                                sourceFile: getSourceFileFromPath(specFilePath),
-                                text: type,
-                            }).length,
+                            AstUtils.fromSourceFile(
+                                getSourceFileFromPath(specFilePath),
+                            )
+                                .listDescendantCallExpressions()
+                                .matchExpressionName(type)
+                                .matchExpressionArg(title)
+                                .getAll().length,
                         ).toBe(0)
                     },
                 )
@@ -99,18 +106,22 @@ describeFeature(
                     `{string} Scenario has two steps`,
                     (_, scenarioName: string) => {
                         expect(
-                            getCallExpressionWithArg({
-                                sourceFile: getSourceFileFromPath(specFilePath),
-                                text: 'Given',
-                                arg: 'I am already in scenario',
-                            }),
+                            AstUtils.fromSourceFile(
+                                getSourceFileFromPath(specFilePath),
+                            )
+                                .listDescendantCallExpressions()
+                                .matchExpressionName('Given')
+                                .matchExpressionArg('I am already in scenario')
+                                .getOne(),
                         ).not.toBeUndefined()
                         expect(
-                            getCallExpressionWithArg({
-                                sourceFile: getSourceFileFromPath(specFilePath),
-                                text: type,
-                                arg: title,
-                            }),
+                            AstUtils.fromSourceFile(
+                                getSourceFileFromPath(specFilePath),
+                            )
+                                .listDescendantCallExpressions()
+                                .matchExpressionName(type)
+                                .matchExpressionArg(title)
+                                .getOne(),
                         ).not.toBeUndefined()
 
                         expect(
@@ -122,11 +133,12 @@ describeFeature(
 
                         for (const stepType of ['Given', 'When', type]) {
                             expect(
-                                getAllCallExpression({
-                                    sourceFile:
-                                        getSourceFileFromPath(specFilePath),
-                                    text: stepType,
-                                }).length,
+                                AstUtils.fromSourceFile(
+                                    getSourceFileFromPath(specFilePath),
+                                )
+                                    .listDescendantCallExpressions()
+                                    .matchExpressionName(stepType)
+                                    .getAll().length,
                             ).toBe(1)
                         }
                     },
@@ -142,18 +154,22 @@ describeFeature(
                     await featureAst.updateSpecFile()
 
                     expect(
-                        getCallExpressionWithArg({
-                            sourceFile: getSourceFileFromPath(specFilePath),
-                            text: 'Given',
-                            arg: 'I am first step',
-                        }),
+                        AstUtils.fromSourceFile(
+                            getSourceFileFromPath(specFilePath),
+                        )
+                            .listDescendantCallExpressions()
+                            .matchExpressionName('Given')
+                            .matchExpressionArg('I am first step')
+                            .getOne(),
                     ).not.toBeUndefined()
                     expect(
-                        getCallExpressionWithArg({
-                            sourceFile: getSourceFileFromPath(specFilePath),
-                            text: 'Then',
-                            arg: 'I  am last step',
-                        }),
+                        AstUtils.fromSourceFile(
+                            getSourceFileFromPath(specFilePath),
+                        )
+                            .listDescendantCallExpressions()
+                            .matchExpressionName('Then')
+                            .matchExpressionArg('I  am last step')
+                            .getOne(),
                     ).not.toBeUndefined()
 
                     expect(
@@ -175,18 +191,22 @@ describeFeature(
                 `{string} scenario has one step`,
                 (_, scenarioName: string) => {
                     expect(
-                        getCallExpressionWithArg({
-                            sourceFile: getSourceFileFromPath(specFilePath),
-                            text: 'Given',
-                            arg: 'I am first step',
-                        }),
+                        AstUtils.fromSourceFile(
+                            getSourceFileFromPath(specFilePath),
+                        )
+                            .listDescendantCallExpressions()
+                            .matchExpressionName('Given')
+                            .matchExpressionArg('I am first step')
+                            .getOne(),
                     ).toBeUndefined()
                     expect(
-                        getCallExpressionWithArg({
-                            sourceFile: getSourceFileFromPath(specFilePath),
-                            text: 'Then',
-                            arg: 'I  am last step',
-                        }),
+                        AstUtils.fromSourceFile(
+                            getSourceFileFromPath(specFilePath),
+                        )
+                            .listDescendantCallExpressions()
+                            .matchExpressionName('Then')
+                            .matchExpressionArg('I  am last step')
+                            .getOne(),
                     ).not.toBeUndefined()
 
                     expect(
@@ -211,18 +231,24 @@ describeFeature(
                         await featureAst.updateSpecFile()
 
                         expect(
-                            getCallExpressionWithArg({
-                                sourceFile: getSourceFileFromPath(specFilePath),
-                                text: 'Given',
-                                arg: 'I am first background step',
-                            }),
+                            AstUtils.fromSourceFile(
+                                getSourceFileFromPath(specFilePath),
+                            )
+                                .listDescendantCallExpressions()
+                                .matchExpressionName('Given')
+                                .matchExpressionArg(
+                                    'I am first background step',
+                                )
+                                .getOne(),
                         ).not.toBeUndefined()
                         expect(
-                            getCallExpressionWithArg({
-                                sourceFile: getSourceFileFromPath(specFilePath),
-                                text: type,
-                                arg: title,
-                            }),
+                            AstUtils.fromSourceFile(
+                                getSourceFileFromPath(specFilePath),
+                            )
+                                .listDescendantCallExpressions()
+                                .matchExpressionName(type)
+                                .matchExpressionArg(title)
+                                .getOne(),
                         ).toBeUndefined()
                         expect(getBackgroundArgument(specFilePath)).toContain(
                             'Given',
@@ -241,18 +267,22 @@ describeFeature(
                 )
                 Then(`Background has two steps`, () => {
                     expect(
-                        getCallExpressionWithArg({
-                            sourceFile: getSourceFileFromPath(specFilePath),
-                            text: 'Given',
-                            arg: 'I am first background step',
-                        }),
+                        AstUtils.fromSourceFile(
+                            getSourceFileFromPath(specFilePath),
+                        )
+                            .listDescendantCallExpressions()
+                            .matchExpressionName('Given')
+                            .matchExpressionArg('I am first background step')
+                            .getOne(),
                     ).not.toBeUndefined()
                     expect(
-                        getCallExpressionWithArg({
-                            sourceFile: getSourceFileFromPath(specFilePath),
-                            text: type,
-                            arg: title,
-                        }),
+                        AstUtils.fromSourceFile(
+                            getSourceFileFromPath(specFilePath),
+                        )
+                            .listDescendantCallExpressions()
+                            .matchExpressionName(type)
+                            .matchExpressionArg(title)
+                            .getOne(),
                     ).not.toBeUndefined()
 
                     expect(getBackgroundArgument(specFilePath)).toContain(
@@ -269,18 +299,18 @@ describeFeature(
                 await featureAst.updateSpecFile()
 
                 expect(
-                    getCallExpressionWithArg({
-                        sourceFile: getSourceFileFromPath(specFilePath),
-                        text: 'Given',
-                        arg: 'I am first background step',
-                    }),
+                    AstUtils.fromSourceFile(getSourceFileFromPath(specFilePath))
+                        .listDescendantCallExpressions()
+                        .matchExpressionName('Given')
+                        .matchExpressionArg('I am first background step')
+                        .getOne(),
                 ).not.toBeUndefined()
                 expect(
-                    getCallExpressionWithArg({
-                        sourceFile: getSourceFileFromPath(specFilePath),
-                        text: 'And',
-                        arg: 'I am last background step',
-                    }),
+                    AstUtils.fromSourceFile(getSourceFileFromPath(specFilePath))
+                        .listDescendantCallExpressions()
+                        .matchExpressionName('And')
+                        .matchExpressionArg('I am last background step')
+                        .getOne(),
                 ).not.toBeUndefined()
 
                 expect(getBackgroundArgument(specFilePath)).toContain('Given')
@@ -295,18 +325,18 @@ describeFeature(
             )
             Then(`Background has one step`, () => {
                 expect(
-                    getCallExpressionWithArg({
-                        sourceFile: getSourceFileFromPath(specFilePath),
-                        text: 'Given',
-                        arg: 'I am first background step',
-                    }),
+                    AstUtils.fromSourceFile(getSourceFileFromPath(specFilePath))
+                        .listDescendantCallExpressions()
+                        .matchExpressionName('Given')
+                        .matchExpressionArg('I am first background step')
+                        .getOne(),
                 ).not.toBeUndefined()
                 expect(
-                    getCallExpressionWithArg({
-                        sourceFile: getSourceFileFromPath(specFilePath),
-                        text: 'And',
-                        arg: 'I am last background step',
-                    }),
+                    AstUtils.fromSourceFile(getSourceFileFromPath(specFilePath))
+                        .listDescendantCallExpressions()
+                        .matchExpressionName('And')
+                        .matchExpressionArg('I am last background step')
+                        .getOne(),
                 ).toBeUndefined()
 
                 expect(getBackgroundArgument(specFilePath)).toContain('Given')

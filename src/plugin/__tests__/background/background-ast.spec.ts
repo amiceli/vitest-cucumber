@@ -1,9 +1,13 @@
 import fs from 'node:fs'
 import { expect, it } from 'vitest'
 import { describeFeature, loadFeature } from '../../../../src/module'
+import { AstUtils } from '../../ast/AstUtils'
 import { FeatureAst } from '../../ast/FeatureAst'
-import { getCallExpression, getSourceFileFromPath } from '../../ast/ast-utils'
-import { getFeatureArgument, getRuleArgument } from '../utils.spec'
+import {
+    getFeatureArgument,
+    getRuleArgument,
+    getSourceFileFromPath,
+} from '../spec-utils'
 
 const feature = await loadFeature(
     'src/plugin/__tests__/background/background-ast.feature',
@@ -41,10 +45,10 @@ describeFeature(feature, ({ Background, Scenario, AfterAllScenarios }) => {
             await featureAst.updateSpecFile()
 
             expect(
-                getCallExpression({
-                    sourceFile: getSourceFileFromPath(specFilePath),
-                    text: 'Background',
-                }),
+                AstUtils.fromSourceFile(getSourceFileFromPath(specFilePath))
+                    .listDescendantCallExpressions()
+                    .matchExpressionName('Background')
+                    .getOne(),
             ).toBeUndefined()
 
             expect(getFeatureArgument(specFilePath)).toContain('Scenario')
@@ -56,10 +60,10 @@ describeFeature(feature, ({ Background, Scenario, AfterAllScenarios }) => {
         })
         Then(`vitest-cucumber add a Background in Feature`, () => {
             expect(
-                getCallExpression({
-                    sourceFile: getSourceFileFromPath(specFilePath),
-                    text: 'Background',
-                }),
+                AstUtils.fromSourceFile(getSourceFileFromPath(specFilePath))
+                    .listDescendantCallExpressions()
+                    .matchExpressionName('Background')
+                    .getOne(),
             ).not.toBeUndefined()
 
             expect(getFeatureArgument(specFilePath)).toContain('Scenario')
@@ -73,10 +77,10 @@ describeFeature(feature, ({ Background, Scenario, AfterAllScenarios }) => {
             await featureAst.updateSpecFile()
 
             expect(
-                getCallExpression({
-                    sourceFile: getSourceFileFromPath(specFilePath),
-                    text: 'Background',
-                }),
+                AstUtils.fromSourceFile(getSourceFileFromPath(specFilePath))
+                    .listDescendantCallExpressions()
+                    .matchExpressionName('Background')
+                    .getOne(),
             ).not.toBeUndefined()
 
             expect(getFeatureArgument(specFilePath)).toContain('Scenario')
@@ -91,10 +95,10 @@ describeFeature(feature, ({ Background, Scenario, AfterAllScenarios }) => {
         )
         Then(`vitest-cucumber remove Background in Feature`, () => {
             expect(
-                getCallExpression({
-                    sourceFile: getSourceFileFromPath(specFilePath),
-                    text: 'Background',
-                }),
+                AstUtils.fromSourceFile(getSourceFileFromPath(specFilePath))
+                    .listDescendantCallExpressions()
+                    .matchExpressionName('Background')
+                    .getOne(),
             ).toBeUndefined()
 
             expect(getFeatureArgument(specFilePath)).toContain('Scenario')
@@ -110,10 +114,10 @@ describeFeature(feature, ({ Background, Scenario, AfterAllScenarios }) => {
                 await featureAst.updateSpecFile()
 
                 expect(
-                    getCallExpression({
-                        sourceFile: getSourceFileFromPath(specFilePath),
-                        text: 'RuleBackground',
-                    }),
+                    AstUtils.fromSourceFile(getSourceFileFromPath(specFilePath))
+                        .listDescendantCallExpressions()
+                        .matchExpressionName('RuleBackground')
+                        .getOne(),
                 ).toBeUndefined()
 
                 expect(getRuleArgument(specFilePath, ruleName)).toContain(
@@ -132,10 +136,10 @@ describeFeature(feature, ({ Background, Scenario, AfterAllScenarios }) => {
             `vitest-cucumber add a Background in {string} Rule`,
             (_, ruleName: string) => {
                 expect(
-                    getCallExpression({
-                        sourceFile: getSourceFileFromPath(specFilePath),
-                        text: 'RuleBackground',
-                    }),
+                    AstUtils.fromSourceFile(getSourceFileFromPath(specFilePath))
+                        .listDescendantCallExpressions()
+                        .matchExpressionName('RuleBackground')
+                        .getOne(),
                 ).not.toBeUndefined()
 
                 expect(getRuleArgument(specFilePath, ruleName)).toContain(
@@ -156,10 +160,10 @@ describeFeature(feature, ({ Background, Scenario, AfterAllScenarios }) => {
                 await featureAst.updateSpecFile()
 
                 expect(
-                    getCallExpression({
-                        sourceFile: getSourceFileFromPath(specFilePath),
-                        text: 'RuleBackground',
-                    }),
+                    AstUtils.fromSourceFile(getSourceFileFromPath(specFilePath))
+                        .listDescendantCallExpressions()
+                        .matchExpressionName('RuleBackground')
+                        .getOne(),
                 ).not.toBeUndefined()
 
                 expect(getRuleArgument(specFilePath, ruleName)).toContain(
@@ -178,10 +182,10 @@ describeFeature(feature, ({ Background, Scenario, AfterAllScenarios }) => {
             `vitest-cucumber remove Background from {string} Rule`,
             (_, ruleName: string) => {
                 expect(
-                    getCallExpression({
-                        sourceFile: getSourceFileFromPath(specFilePath),
-                        text: 'RuleBackground',
-                    }),
+                    AstUtils.fromSourceFile(getSourceFileFromPath(specFilePath))
+                        .listDescendantCallExpressions()
+                        .matchExpressionName('RuleBackground')
+                        .getOne(),
                 ).toBeUndefined()
                 expect(getRuleArgument(specFilePath, ruleName)).toContain(
                     'RuleScenario',

@@ -3,11 +3,11 @@ import { VitestsCucumberError } from '../../errors/errors'
 import type { Feature } from '../../parser/models/feature'
 import { FeatureFileReader } from '../../parser/readfile'
 import { getVitestCucumberConfiguration } from '../../vitest/configuration'
+import { AstUtils } from './AstUtils'
 import { BackgroundAst } from './BackgroundAst'
 import { type AstOptions, BaseAst } from './BaseAst'
 import { RuleAst } from './RuleAst'
 import { ScenarioAst } from './ScenarioAst'
-import { getCallExpression } from './ast-utils'
 
 export class FeatureAst extends BaseAst {
     private feature: Feature | null = null
@@ -98,10 +98,10 @@ export class FeatureAst extends BaseAst {
     }
 
     private get describeFeature() {
-        return getCallExpression({
-            sourceFile: this.sourceFile,
-            text: 'describeFeature',
-        })
+        return AstUtils.fromSourceFile(this.sourceFile)
+            .listDescendantCallExpressions()
+            .matchExpressionName('describeFeature')
+            .getOne()
     }
 
     private get describeFeatureCallback() {

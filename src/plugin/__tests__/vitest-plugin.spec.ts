@@ -5,7 +5,8 @@ import {
     describeFeature,
     loadFeature,
 } from '../../../src/module'
-import { getCallExpression, getSourceFileFromPath } from '../ast/ast-utils'
+import { AstUtils } from '../ast/AstUtils'
+import { getSourceFileFromPath } from './spec-utils'
 
 const feature = await loadFeature('src/plugin/__tests__/vitest-plugin.feature')
 
@@ -49,10 +50,10 @@ describeFeature(feature, (f) => {
 
             if (sourceFile) {
                 expect(
-                    getCallExpression({
-                        sourceFile,
-                        text: 'describeFeature',
-                    }),
+                    AstUtils.fromSourceFile(sourceFile)
+                        .listDescendantCallExpressions()
+                        .matchExpressionName('describeFeature')
+                        .getOne(),
                 ).not.toBe(undefined)
                 expect(fs.existsSync(specPath)).toBe(true)
                 expect(fakeServer.ws.send).toHaveBeenCalled()

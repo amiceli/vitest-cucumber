@@ -6,7 +6,7 @@ import {
     type SourceFile,
     SyntaxKind,
 } from 'ts-morph'
-import { isString } from './ast-utils'
+import { AstUtils } from './AstUtils'
 
 export type AstOptions = {
     specFilePath: string
@@ -53,11 +53,10 @@ export abstract class BaseAst {
         parent: ArrowFunction,
         regex: RegExp,
     ): VitestCallExpression[] {
-        return parent
-            .getDescendantsOfKind(SyntaxKind.CallExpression)
-            .filter((call) => {
-                return regex.test(call.getText())
-            })
+        return AstUtils.fromArrowFunction(parent)
+            .listDescendantCallExpressions()
+            .textMatchRegex(regex)
+            .getAll()
             .map((callExpression) => {
                 return {
                     name: this.getFirstArgumentAsString(callExpression),
@@ -74,7 +73,7 @@ export abstract class BaseAst {
     ): string | undefined {
         return callExpression
             .getArguments()
-            .find((arg) => isString(arg.getKind()))
+            .find((arg) => AstUtils.isString(arg.getKind()))
             ?.getText()
             .replace(/^['"`]|['"`]$/g, '')
     }

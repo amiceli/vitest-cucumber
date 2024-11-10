@@ -8,8 +8,8 @@ import type {
     Step,
 } from '../../parser/models'
 import type { StepAble } from '../../parser/models/Stepable'
+import { AstUtils } from './AstUtils'
 import { type AstOptions, BaseAst } from './BaseAst'
-import { isString } from './ast-utils'
 
 type StepAstOptions = AstOptions & {
     stepParent: Scenario | ScenarioOutline | Background
@@ -42,16 +42,6 @@ export class StepAst extends BaseAst {
 
         const stepsToAdd = this.getStepsToAdd(stepExpressions)
         const stepsToRemove = this.getStepsToRemove(stepExpressions)
-
-        if (this.stepableParent.getTitle().includes('add step')) {
-            console.debug({
-                stepExpressions: stepExpressions.map((s) =>
-                    s.callExpression.getText(),
-                ),
-                stepsToAdd,
-                stepsToRemove,
-            })
-        }
 
         for (const s of stepsToRemove) {
             if (this.shouldComment) {
@@ -116,7 +106,7 @@ export class StepAst extends BaseAst {
                 return {
                     name: callExpression
                         .getArguments()
-                        .find((arg) => isString(arg.getKind()))
+                        .find((arg) => AstUtils.isString(arg.getKind()))
                         ?.getText()
                         .replace(/^['"`]|['"`]$/g, ''),
                     callExpression,
