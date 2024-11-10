@@ -1,6 +1,7 @@
 import { exec } from 'node:child_process'
 import { promisify } from 'node:util'
 import { type ArrowFunction, SyntaxKind } from 'ts-morph'
+import { writeSpecFile } from '../../../scripts/generateFile'
 import { VitestsCucumberError } from '../../errors/errors'
 import type { Feature } from '../../parser/models/feature'
 import { FeatureFileReader } from '../../parser/readfile'
@@ -35,7 +36,7 @@ export class FeatureAst extends BaseAst {
     public async updateSpecFile() {
         try {
             this.feature = await this.loadFeautreFromFile()
-            this.handleDescribeFeature()
+            await this.handleDescribeFeature()
             this.handleFeature()
 
             await this.formatAndSave()
@@ -52,12 +53,14 @@ export class FeatureAst extends BaseAst {
         }
     }
 
-    private handleDescribeFeature() {
-        if (!this.describeFeature) {
-            this.sourceFile.addStatements([
-                'describeFeature(feature, () => {',
-                '})',
-            ])
+    private async handleDescribeFeature() {
+        if (!this.describeFeature && this.feature) {
+            await writeSpecFile({
+                feature: this.feature,
+                specFilePath: this.options.specFilePath,
+                featureFilePath: this.options.featureFilePath,
+            })
+            this.resetProject()
         }
     }
 

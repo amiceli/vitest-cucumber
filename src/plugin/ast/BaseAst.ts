@@ -23,7 +23,7 @@ export type VitestCallExpression = {
 export abstract class BaseAst {
     protected readonly options: AstOptions
     protected readonly project: Project
-    protected readonly sourceFile: SourceFile
+    protected sourceFile: SourceFile
     protected readonly onDeleteAction: 'comment' | 'delete'
     protected readonly formatCommand: string | undefined
 
@@ -35,6 +35,13 @@ export abstract class BaseAst {
         this.project = new Project({})
         this.project.addSourceFilesAtPaths(options.specFilePath)
 
+        this.sourceFile = this.checkSourceFile()
+    }
+
+    protected resetProject() {
+        this.project.removeSourceFile(this.sourceFile)
+
+        this.project.addSourceFilesAtPaths(this.options.specFilePath)
         this.sourceFile = this.checkSourceFile()
     }
 
