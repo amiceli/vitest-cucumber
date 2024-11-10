@@ -17,6 +17,17 @@ export function getSourceFileFromPath(path: string): SourceFile {
     throw new Error(`sourceFile not found for ${path}`)
 }
 
+export function getAllCallExpression(options: {
+    sourceFile: SourceFile
+    text: string
+}): CallExpression[] {
+    return options.sourceFile
+        .getDescendantsOfKind(SyntaxKind.CallExpression)
+        .filter((call) => {
+            return call.getExpression().getText() === options.text
+        })
+}
+
 export function getCallExpression(options: {
     sourceFile: SourceFile
     text: string

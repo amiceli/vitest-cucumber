@@ -1,13 +1,12 @@
 import fs from 'node:fs'
-import { SyntaxKind } from 'ts-morph'
 import { expect, it } from 'vitest'
 import { describeFeature, loadFeature } from '../../../../src/module'
 import { FeatureAst } from '../../ast/FeatureAst'
 import {
-    getCallExpression,
     getCallExpressionWithArg,
     getSourceFileFromPath,
 } from '../../ast/ast-utils'
+import { getBackgroundArgument, getScenarioArgument } from '../utils.spec'
 
 const feature = await loadFeature(
     'src/plugin/__tests__/steps/steps-ast.feature',
@@ -18,38 +17,6 @@ type StepVariables = {
     type: string
     count: number
     'before-count': number
-}
-
-function getScenarioArgument(
-    specFilePath: string,
-    scenarioName: string,
-): string | undefined {
-    const scenarioCallback = getCallExpressionWithArg({
-        sourceFile: getSourceFileFromPath(specFilePath),
-        text: 'Scenario',
-        arg: scenarioName,
-    })
-    const scenarioArrowFunction = scenarioCallback
-        ?.getArguments()
-        .find((arg) => arg.getKind() === SyntaxKind.ArrowFunction)
-
-    return scenarioArrowFunction
-        ?.getFirstDescendantByKind(SyntaxKind.ObjectBindingPattern)
-        ?.getText()
-}
-
-function getBackgroundArgument(specFilePath: string): string | undefined {
-    const scenarioCallback = getCallExpression({
-        sourceFile: getSourceFileFromPath(specFilePath),
-        text: 'Background',
-    })
-    const scenarioArrowFunction = scenarioCallback
-        ?.getArguments()
-        .find((arg) => arg.getKind() === SyntaxKind.ArrowFunction)
-
-    return scenarioArrowFunction
-        ?.getFirstDescendantByKind(SyntaxKind.ObjectBindingPattern)
-        ?.getText()
 }
 
 describeFeature(

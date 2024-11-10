@@ -1,55 +1,13 @@
 import fs from 'node:fs'
-import { SyntaxKind } from 'ts-morph'
 import { expect, it } from 'vitest'
 import { describeFeature, loadFeature } from '../../../../src/module'
 import { FeatureAst } from '../../ast/FeatureAst'
-import {
-    getCallExpression,
-    getCallExpressionWithArg,
-    getSourceFileFromPath,
-} from '../../ast/ast-utils'
+import { getCallExpression, getSourceFileFromPath } from '../../ast/ast-utils'
+import { getFeatureArgument, getRuleArgument } from '../utils.spec'
 
 const feature = await loadFeature(
     'src/plugin/__tests__/background/background-ast.feature',
 )
-
-function getFeatureArgument(specFilePath: string): string | undefined {
-    const scenarioCallback = getCallExpression({
-        sourceFile: getSourceFileFromPath(specFilePath),
-        text: 'describeFeature',
-    })
-
-    const scenarioArrowFunction = scenarioCallback
-        ?.getArguments()
-        .find((arg) => arg.getKind() === SyntaxKind.ArrowFunction)
-
-    const res = scenarioArrowFunction
-        ?.getFirstDescendantByKind(SyntaxKind.ObjectBindingPattern)
-        ?.getText()
-
-    return res
-}
-
-function getRuleArgument(
-    specFilePath: string,
-    ruleName: string,
-): string | undefined {
-    const scenarioCallback = getCallExpressionWithArg({
-        sourceFile: getSourceFileFromPath(specFilePath),
-        text: 'Rule',
-        arg: ruleName,
-    })
-
-    const scenarioArrowFunction = scenarioCallback
-        ?.getArguments()
-        .find((arg) => arg.getKind() === SyntaxKind.ArrowFunction)
-
-    const res = scenarioArrowFunction
-        ?.getFirstDescendantByKind(SyntaxKind.ObjectBindingPattern)
-        ?.getText()
-
-    return res
-}
 
 describeFeature(feature, ({ Background, Scenario, AfterAllScenarios }) => {
     let featureAst: FeatureAst
