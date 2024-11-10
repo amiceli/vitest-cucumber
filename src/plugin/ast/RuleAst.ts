@@ -71,26 +71,13 @@ export class RuleAst extends BaseAst {
     }
 
     public updateRuleArgument(rule: Rule, ruleArrowFunction: ArrowFunction) {
-        const args: string[] = []
-        if (rule.background) {
-            args.push('RuleBackground')
-        }
-        if (rule.hasScenarioOutline) {
-            args.push('RuleScenarioOutline')
-        }
-        if (rule.hasScenario) {
-            args.push('RuleScenario')
-        }
+        const ruleRequiredArgs: string[] = [
+            rule.background ? 'RuleBackground' : undefined,
+            rule.hasScenarioOutline ? 'RuleScenarioOutline' : undefined,
+            rule.hasScenario ? 'RuleScenario' : undefined,
+        ].filter((s) => s !== undefined)
 
-        const ruleArguments = `{ ${args.join(',')} }`
-
-        const currentArg = ruleArrowFunction.getFirstDescendantByKind(
-            SyntaxKind.ObjectBindingPattern,
-        )
-
-        if (currentArg) {
-            currentArg.replaceWithText(ruleArguments)
-        }
+        this.updateSyntaxListChild(ruleArrowFunction, ruleRequiredArgs)
     }
 
     private getRuleArrowFunction(rule: Rule): ArrowFunction | undefined {

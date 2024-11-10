@@ -82,30 +82,13 @@ export class FeatureAst extends BaseAst {
         feature: Feature,
         featureArrowFunction: ArrowFunction,
     ) {
-        const args: string[] = []
-        if (feature.background) {
-            args.push('Background')
-        }
-        if (feature.hasScenarioOutline) {
-            args.push('ScenarioOutline')
-        }
-        if (feature.hasScenario) {
-            args.push('Scenario')
-        }
+        const featureRequiredArgs: string[] = [
+            feature.background !== null ? 'Background' : undefined,
+            feature.hasScenarioOutline ? 'ScenarioOutline' : undefined,
+            feature.hasScenario ? 'Scenario' : undefined,
+        ].filter((a) => a !== undefined)
 
-        const stepTypesArg = `{ ${args.join(',')} }`
-
-        const currentArg = featureArrowFunction.getFirstChildByKind(
-            SyntaxKind.ObjectBindingPattern,
-        )
-
-        if (currentArg) {
-            currentArg.replaceWithText(stepTypesArg)
-        } else {
-            featureArrowFunction.insertParameter(0, {
-                name: stepTypesArg,
-            })
-        }
+        this.updateSyntaxListChild(featureArrowFunction, featureRequiredArgs)
     }
 
     private async formatAndSave() {

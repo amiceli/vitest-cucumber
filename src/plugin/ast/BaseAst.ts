@@ -104,6 +104,31 @@ export abstract class BaseAst {
         parent.addStatements(code)
     }
 
+    protected updateSyntaxListChild(
+        arrow: ArrowFunction,
+        newArgs: string[],
+    ): void {
+        const syntaxListChild = arrow.getFirstChildByKind(SyntaxKind.SyntaxList)
+
+        if (syntaxListChild) {
+            const currentArgs = [
+                ...syntaxListChild
+                    .getText()
+                    .matchAll(
+                        /\b(BeforeEachScenario|BeforeAllScenarios|AfterAllScenarios|AfterEachScenario)\b/g,
+                    ),
+            ].map((match) => match[0])
+
+            syntaxListChild.replaceWithText(
+                `{ ${newArgs.concat(currentArgs).join(',')} }`,
+            )
+        } else {
+            arrow.insertParameter(0, {
+                name: `{ ${newArgs.join(',')} }`,
+            })
+        }
+    }
+
     protected get shouldComment(): boolean {
         return this.onDeleteAction === 'comment'
     }

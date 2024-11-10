@@ -24,7 +24,7 @@ Feature: update Rule and Feature Background
     Scenario: Remove Background in Feature
         Given Feature has a Background
             """
-            Feature: I love Background
+            Feature: Remove Background from Feature
                 Background:
                     Given I am a Background step
                 Scenario: My parent has no Background
@@ -32,7 +32,7 @@ Feature: update Rule and Feature Background
             """
         When  I remove Background from Feature
             """
-            Feature: I love Background
+            Feature: Remove Background from Feature
                 Scenario: My parent has no Background
                     Given I am a Scenario step
             """

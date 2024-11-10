@@ -1,6 +1,6 @@
 import fs from 'node:fs'
 import { SyntaxKind } from 'ts-morph'
-import { expect } from 'vitest'
+import { expect, it } from 'vitest'
 import { describeFeature, loadFeature } from '../../../../src/module'
 import { FeatureAst } from '../../ast/FeatureAst'
 import {
@@ -234,4 +234,58 @@ describeFeature(feature, ({ Background, Scenario, AfterAllScenarios }) => {
             },
         )
     })
+})
+
+it('should keep hooks arg when add/remove background', async () => {
+    const featureFilePath = 'src/__tests__/background-arg-ast.feature'
+    const specFilePath = 'src/__tests__/background-arg-ast.spec.ts'
+
+    fs.writeFileSync(
+        specFilePath,
+        `
+        describeFeature(feature, ({ AfterAllScenarios, BeforeAllScenarios }) => {
+            AfterAllScenarios(() => {
+                console.debug('after all')
+            })
+        })
+        `,
+    )
+    fs.writeFileSync(
+        featureFilePath,
+        `
+        Feature: I love Background
+            Background:
+                Given I am a Scenario step
+            Scenario: required
+                Then I need to be here
+        `,
+    )
+    await FeatureAst.fromOptions({
+        specFilePath,
+        featureFilePath,
+    }).updateSpecFile()
+
+    let args = getFeatureArgument(specFilePath)
+
+    expect(args).toContain('AfterAllScenarios')
+    expect(args).toContain('BeforeAllScenarios')
+    expect(args).toContain('Background')
+    expect(args).toContain('Scenario')
+
+    fs.writeFileSync(
+        featureFilePath,
+        `
+        Feature: I love Background
+            Scenario: required
+                Then I need to be here
+        `,
+    )
+    await FeatureAst.fromOptions({
+        specFilePath,
+        featureFilePath,
+    }).updateSpecFile()
+
+    args = getFeatureArgument(specFilePath)
+
+    expect(args).not.toContain('Background')
 })
