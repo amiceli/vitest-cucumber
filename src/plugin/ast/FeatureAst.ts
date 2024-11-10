@@ -1,3 +1,5 @@
+import { exec } from 'node:child_process'
+import { promisify } from 'node:util'
 import { type ArrowFunction, SyntaxKind } from 'ts-morph'
 import { VitestsCucumberError } from '../../errors/errors'
 import type { Feature } from '../../parser/models/feature'
@@ -37,6 +39,12 @@ export class FeatureAst extends BaseAst {
             this.handleFeature()
 
             await this.formatAndSave()
+            if (this.options.formatCommand) {
+                const execPromise = promisify(exec)
+                await execPromise(
+                    `${this.options.formatCommand} ${this.options.specFilePath}`,
+                )
+            }
         } catch (e) {
             throw new VitestsCucumberError(
                 `FeatureAst error: ${(e as Error).message}`,

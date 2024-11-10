@@ -1,12 +1,13 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import type { ViteDevServer } from 'vite'
+import type { AstOptions } from './ast/BaseAst'
 import { FeatureAst } from './ast/FeatureAst'
 
 type VitestCucumberPluginOptions = {
     featureFilesDir: string
     specFilesDir: string
-}
+} & Pick<AstOptions, 'onDeleteAction' | 'formatCommand'>
 
 export function VitestCucumberPlugin(options: VitestCucumberPluginOptions) {
     return {
@@ -33,6 +34,8 @@ export function VitestCucumberPlugin(options: VitestCucumberPluginOptions) {
                         await FeatureAst.fromOptions({
                             featureFilePath,
                             specFilePath,
+                            onDeleteAction: options.onDeleteAction,
+                            formatCommand: options.formatCommand,
                         }).updateSpecFile()
                     } catch (e) {
                         console.error(e)

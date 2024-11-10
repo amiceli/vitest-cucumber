@@ -12,6 +12,7 @@ export type AstOptions = {
     specFilePath: string
     featureFilePath: string
     onDeleteAction?: 'comment' | 'delete'
+    formatCommand?: string
 }
 
 export type VitestCallExpression = {
@@ -24,10 +25,12 @@ export abstract class BaseAst {
     protected readonly project: Project
     protected readonly sourceFile: SourceFile
     protected readonly onDeleteAction: 'comment' | 'delete'
+    protected readonly formatCommand: string | undefined
 
     protected constructor(options: AstOptions) {
         this.options = options
         this.onDeleteAction = options.onDeleteAction || 'delete'
+        this.formatCommand = options.formatCommand
 
         this.project = new Project({})
         this.project.addSourceFilesAtPaths(options.specFilePath)
