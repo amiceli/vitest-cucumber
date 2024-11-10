@@ -5,22 +5,20 @@ Feature: update Rule in Feature
         And   My spec file is "src/__tests__/rule-ast.spec.ts"
 
     Scenario: Add Rule in Feautre 
-        Given Feature has one Rule
+        Given Feature has no Rule
             """
             Feature: I love Scenario
-                Rule: first rule
-                    Scenario: A rule scenario
-                        Given I am a Scenario step
+                Scenario: A first scenario
+                    Given I am a Scenario step
             """
         When  I add a Scenario in Feature
             """
             Feature: I love Scenario
+                Scenario: A first scenario
+                    Given I am a Scenario step
                 Rule: first rule
                     Scenario: A rule scenario
-                        Given I am a Scenario step
-                Rule: second rule
-                    Scenario: Another rule scenario
-                        Given I am a another Scenario step
+                        Given I am a RuleScenario step
             """
         Then  vitest-cucumber add a Rule in Feature
 

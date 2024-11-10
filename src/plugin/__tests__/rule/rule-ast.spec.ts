@@ -1,13 +1,32 @@
 import fs from 'node:fs'
+import { SyntaxKind } from 'ts-morph'
 import { expect } from 'vitest'
 import { describeFeature, loadFeature } from '../../../../src/module'
 import { FeatureAst } from '../../ast/FeatureAst'
 import {
+    getCallExpression,
     getCallExpressionWithArg,
     getSourceFileFromPath,
 } from '../../ast/ast-utils'
 
 const feature = await loadFeature('src/plugin/__tests__/rule/rule-ast.feature')
+
+function getFeatureArgument(specFilePath: string): string | undefined {
+    const scenarioCallback = getCallExpression({
+        sourceFile: getSourceFileFromPath(specFilePath),
+        text: 'describeFeature',
+    })
+
+    const scenarioArrowFunction = scenarioCallback
+        ?.getArguments()
+        .find((arg) => arg.getKind() === SyntaxKind.ArrowFunction)
+
+    const res = scenarioArrowFunction
+        ?.getFirstDescendantByKind(SyntaxKind.ObjectBindingPattern)
+        ?.getText()
+
+    return res
+}
 
 describeFeature(feature, ({ Background, Scenario, AfterAllScenarios }) => {
     let featureAst: FeatureAst
@@ -36,24 +55,17 @@ describeFeature(feature, ({ Background, Scenario, AfterAllScenarios }) => {
     })
 
     Scenario(`Add Rule in Feautre`, ({ Given, When, Then }) => {
-        Given(`Feature has one Rule`, async (_, docString: string) => {
+        Given(`Feature has no Rule`, async (_, docString: string) => {
             fs.writeFileSync(featureFilePath, docString)
             await featureAst.updateSpecFile()
 
             expect(
-                getCallExpressionWithArg({
+                getCallExpression({
                     sourceFile: getSourceFileFromPath(specFilePath),
                     text: 'Rule',
-                    arg: 'first rule',
-                }),
-            ).not.toBeUndefined()
-            expect(
-                getCallExpressionWithArg({
-                    sourceFile: getSourceFileFromPath(specFilePath),
-                    text: 'Rule',
-                    arg: 'second rule',
                 }),
             ).toBeUndefined()
+            expect(getFeatureArgument(specFilePath)).not.toContain('Rule')
         })
         When(`I add a Scenario in Feature`, async (_, docString: string) => {
             fs.writeFileSync(featureFilePath, docString)
@@ -67,13 +79,9 @@ describeFeature(feature, ({ Background, Scenario, AfterAllScenarios }) => {
                     arg: 'first rule',
                 }),
             ).not.toBeUndefined()
-            expect(
-                getCallExpressionWithArg({
-                    sourceFile: getSourceFileFromPath(specFilePath),
-                    text: 'Rule',
-                    arg: 'second rule',
-                }),
-            ).not.toBeUndefined()
+
+            expect(getFeatureArgument(specFilePath)).toContain('Rule')
+            expect(getFeatureArgument(specFilePath)).toContain('Scenario')
         })
     })
 

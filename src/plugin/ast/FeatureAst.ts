@@ -86,6 +86,7 @@ export class FeatureAst extends BaseAst {
             feature.background !== null ? 'Background' : undefined,
             feature.hasScenarioOutline ? 'ScenarioOutline' : undefined,
             feature.hasScenario ? 'Scenario' : undefined,
+            feature.rules.length > 0 ? 'Rule' : undefined,
         ].filter((a) => a !== undefined)
 
         this.updateSyntaxListChild(featureArrowFunction, featureRequiredArgs)
