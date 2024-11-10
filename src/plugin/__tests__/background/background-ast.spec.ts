@@ -288,4 +288,7 @@ it('should keep hooks arg when add/remove background', async () => {
     args = getFeatureArgument(specFilePath)
 
     expect(args).not.toContain('Background')
+
+    fs.rmSync(featureFilePath)
+    fs.rmSync(specFilePath)
 })
