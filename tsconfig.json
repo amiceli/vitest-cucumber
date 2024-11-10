@@ -3,7 +3,8 @@
         "src/**/*.ts",
     ],
     "exclude": [
-        "./src/**/*.ts",
+        "./src/**/*.spec.ts",
+        "src/plugin/__tests__/spec-utils.ts",
         "node_modules",
         "dist/",
         "./commitlint.config.js"
