@@ -8,3 +8,4 @@ reports/
 src/parser/lang/lang.json
 .vscode/
 src/__tests__/
+src/__examples__/
