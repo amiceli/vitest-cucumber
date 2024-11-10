@@ -10,12 +10,14 @@ Feature: update Scenario, Background, ScenarioOutline steps
             Feature: add steps to Scenario
                 Scenario: add step
                     Given I am already in scenario
+                    When Another scenario step
             """
         When  I add a <type> <title> step
             """
             Feature: add steps to Scenario
                 Scenario: add step
                     Given I am already in scenario
+                    When Another scenario step
                     <type> <title>
             """
         Then  "add step" Scenario has two steps

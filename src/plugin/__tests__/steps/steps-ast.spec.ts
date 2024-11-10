@@ -3,6 +3,7 @@ import { expect, it } from 'vitest'
 import { describeFeature, loadFeature } from '../../../../src/module'
 import { FeatureAst } from '../../ast/FeatureAst'
 import {
+    getAllCallExpression,
     getCallExpressionWithArg,
     getSourceFileFromPath,
 } from '../../ast/ast-utils'
@@ -78,6 +79,13 @@ describeFeature(
                                 arg: title,
                             }),
                         ).toBeUndefined()
+
+                        expect(
+                            getAllCallExpression({
+                                sourceFile: getSourceFileFromPath(specFilePath),
+                                text: type,
+                            }).length,
+                        ).toBe(0)
                     },
                 )
                 When(
@@ -111,6 +119,16 @@ describeFeature(
                         expect(
                             getScenarioArgument(specFilePath, scenarioName),
                         ).toContain(type)
+
+                        for (const stepType of ['Given', 'When', type]) {
+                            expect(
+                                getAllCallExpression({
+                                    sourceFile:
+                                        getSourceFileFromPath(specFilePath),
+                                    text: stepType,
+                                }).length,
+                            ).toBe(1)
+                        }
                     },
                 )
             },

@@ -43,6 +43,16 @@ export class StepAst extends BaseAst {
         const stepsToAdd = this.getStepsToAdd(stepExpressions)
         const stepsToRemove = this.getStepsToRemove(stepExpressions)
 
+        if (this.stepableParent.getTitle().includes('add step')) {
+            console.debug({
+                stepExpressions: stepExpressions.map((s) =>
+                    s.callExpression.getText(),
+                ),
+                stepsToAdd,
+                stepsToRemove,
+            })
+        }
+
         for (const s of stepsToRemove) {
             if (this.shouldComment) {
                 this.commentExpression(
@@ -75,7 +85,7 @@ export class StepAst extends BaseAst {
 
     private getStepsToAdd(parentSteps: StepExpression[]): Step[] {
         return this.stepableParent.steps.filter((step) => {
-            const stepIsInScenarioSpec = parentSteps.every((stepExpression) => {
+            const stepIsInScenarioSpec = parentSteps.some((stepExpression) => {
                 return this.stepMatchCallExpression(stepExpression, step)
             })
 
