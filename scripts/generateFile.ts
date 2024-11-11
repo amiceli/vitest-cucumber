@@ -1,14 +1,18 @@
-#!/usr/bin/env node
-
 import fs from 'node:fs/promises'
 import type { Background } from '../src/parser/models/Background'
 import type { Rule } from '../src/parser/models/Rule'
+import type { Feature } from '../src/parser/models/feature'
 import { type Scenario, ScenarioOutline } from '../src/parser/models/scenario'
-import { loadFeature } from '../src/vitest/load-feature'
+import type { Step, StepTypes } from '../src/parser/models/step'
 
-const [filePath, outPath] = process.argv.slice(2)
+export function generateStep(step: Step) {
+    if (step.docStrings) {
+        return `      ${step.type}(\`${step.details}\`, (_, docString: string) => { })`
+    }
+    return `      ${step.type}(\`${step.details}\`, () => { })`
+}
 
-function generateScenarii(
+export function generateScenarii(
     scenarii: (Scenario | ScenarioOutline)[],
     forRule = false,
 ) {
@@ -26,7 +30,7 @@ function generateScenarii(
         ].filter((step) =>
             scenario.steps
                 .map((scenarioSteps) => scenarioSteps.type)
-                .includes(step),
+                .includes(step as StepTypes),
         )
         let scenarioType = 'Scenario'
 
@@ -47,9 +51,7 @@ function generateScenarii(
         }
 
         for (const step of scenario.steps) {
-            fileContent.push(
-                `      ${step.type}(\`${step.details}\`, () => { })`,
-            )
+            fileContent.push(generateStep(step))
         }
 
         fileContent.push(`  })`)
@@ -58,7 +60,7 @@ function generateScenarii(
     return fileContent
 }
 
-function generateBackground(back: Background, forRule = false) {
+export function generateBackground(back: Background, forRule = false) {
     const fileContent = ['']
 
     const scenarioStepTypes = ['Given', 'When', 'Then', 'And', 'But'].filter(
@@ -82,7 +84,7 @@ function generateBackground(back: Background, forRule = false) {
     return fileContent
 }
 
-function generateRules(rules: Rule[]) {
+export function generateRules(rules: Rule[]) {
     const fileContent: string[] = []
 
     for (const r of rules) {
@@ -91,10 +93,10 @@ function generateRules(rules: Rule[]) {
         if (r.background) {
             rulesHook.push('RuleBackground')
         }
-        if (r.scenarii.some((s) => s.examples)) {
+        if (r.scenarii.some((s) => s instanceof ScenarioOutline)) {
             rulesHook.push('RuleScenarioOutline')
         }
-        if (r.scenarii.some((s) => s.examples === undefined)) {
+        if (r.scenarii.some((s) => !(s instanceof ScenarioOutline))) {
             rulesHook.push('RuleScenario')
         }
 
@@ -113,7 +115,17 @@ function generateRules(rules: Rule[]) {
     return fileContent
 }
 
-loadFeature(filePath).then(async (feature) => {
+type WriteSpecFileOptions = {
+    feature: Feature
+    specFilePath: string
+    featureFilePath: string
+}
+
+export async function writeSpecFile({
+    feature,
+    specFilePath,
+    featureFilePath,
+}: WriteSpecFileOptions) {
     const featureHasBackground = feature.background !== null
     const featureHasScenario = feature.scenarii.some(
         (s) => !(s instanceof ScenarioOutline),
@@ -147,7 +159,9 @@ loadFeature(filePath).then(async (feature) => {
         'import { loadFeature, describeFeature } from "@amiceli/vitest-cucumber"',
     )
     fileContentLines.push('')
-    fileContentLines.push(`const feature = await loadFeature('${filePath}')`)
+    fileContentLines.push(
+        `const feature = await loadFeature('${featureFilePath}')`,
+    )
     fileContentLines.push('')
     fileContentLines.push(
         `describeFeature(feature, ({ ${describeFeatureArgs.join(', ')} }) => {`,
@@ -158,7 +172,8 @@ loadFeature(filePath).then(async (feature) => {
     }
 
     if (featureHasBackground) {
-        fileContentLines.push(...generateBackground(feature.background))
+        // biome-ignore lint/style/noNonNullAssertion: <explanation>
+        fileContentLines.push(...generateBackground(feature.background!))
     }
 
     fileContentLines.push(
@@ -169,5 +184,5 @@ loadFeature(filePath).then(async (feature) => {
     fileContentLines.push('')
     fileContentLines.push(`})`)
 
-    await fs.writeFile(outPath, fileContentLines.join('\n'))
-})
+    await fs.writeFile(specFilePath, fileContentLines.join('\n'))
+}

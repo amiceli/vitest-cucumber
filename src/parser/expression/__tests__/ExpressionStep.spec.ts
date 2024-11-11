@@ -707,7 +707,7 @@ describe(`ExpressionStep`, () => {
             expect(params).toEqual([`red`])
         })
 
-        it(`should match multiple {string}`, () => {
+        it(`should match multiple {color}`, () => {
             defineColorExpression()
 
             const step = new Step(
