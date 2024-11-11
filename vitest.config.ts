@@ -27,7 +27,9 @@ export default defineConfig({
                 'scripts/cli-generate.ts',
                 '**/__mocks__/*',
                 '**/__tests__/*',
-                'dist/¨¨.',
+                'dist/',
+                'prebuild.js',
+                'src/__examples__/',
             ],
         },
         exclude: [
