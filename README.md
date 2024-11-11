@@ -113,6 +113,7 @@ Currently it generates `TS` file, if you need more options open an issue ;).
 ## [Docs](https://vitest-cucumber.miceli.click/)
 
 - [Configuration](https://vitest-cucumber.miceli.click/configuration)
+- [Vitest plugin to sync spec and feature files](https://vitest-cucumber.miceli.click/plugin)
 - [Background](https://vitest-cucumber.miceli.click/features/background)
 - [Scenario](https://vitest-cucumber.miceli.click/features/scenario)
 - [Scenario Outline and Examples](https://vitest-cucumber.miceli.click/features/scenario-outline)
