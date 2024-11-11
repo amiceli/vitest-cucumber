@@ -1,7 +1,18 @@
 import path from 'node:path'
 import { defineConfig } from 'vitest/config'
+// import { VitestCucumberPlugin } from './src/plugin'
+
+// Uncomment to test VitestCucumberPlugin locally
 
 export default defineConfig({
+    plugins: [
+        // VitestCucumberPlugin({
+        //     featureFilesDir: 'src/__examples__/',
+        //     specFilesDir: 'src/__examples__/',
+        //     onDeleteAction: 'comment',
+        //     formatCommand: 'npm run lint:fix',
+        // }),
+    ],
     test: {
         setupFiles: ['vitest.setup.ts'],
         passWithNoTests: true,
