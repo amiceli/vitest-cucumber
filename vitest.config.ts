@@ -29,7 +29,7 @@ export default defineConfig({
                 '**/__tests__/*',
                 'dist/',
                 'prebuild.js',
-                'src/__examples__/',
+                'dist/',
             ],
         },
         exclude: [
@@ -37,6 +37,7 @@ export default defineConfig({
             'node_modules',
             'samples/*.spec.ts',
             'src/__tests__/**',
+            'src/__examples__/*',
         ],
         typecheck: {
             tsconfig: 'tsconfig.vitest.json',
