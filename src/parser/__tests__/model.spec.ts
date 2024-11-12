@@ -313,7 +313,7 @@ describe(`Models`, () => {
         test(`Background initialize`, () => {
             const background = new Background()
 
-            expect(background._steps.length).toEqual(0)
+            expect(background.steps.length).toEqual(0)
             expect(background.isCalled).toBeFalsy()
             expect(background.getTitle()).toEqual(`Background:`)
         })
@@ -361,7 +361,7 @@ describe(`Models`, () => {
             const scenario = new Scenario(`First`)
 
             expect(scenario.description).toEqual(`First`)
-            expect(scenario._steps.length).toEqual(0)
+            expect(scenario.steps.length).toEqual(0)
             expect(scenario.isCalled).toBeFalsy()
             expect(scenario.getTitle()).toEqual(`Scenario: First`)
         })
