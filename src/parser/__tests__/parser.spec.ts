@@ -292,9 +292,9 @@ describe(`GherkinParser`, () => {
         parser.addLine(``)
 
         const currentFeature = getCurrentFeaut(parser)
-        const [rule] = currentFeature._rules
+        const [rule] = currentFeature.rules
 
-        expect(currentFeature._rules.length).toEqual(1)
+        expect(currentFeature.rules.length).toEqual(1)
         expect(rule.name).toEqual(ruleName)
     })
 
@@ -306,9 +306,9 @@ describe(`GherkinParser`, () => {
         parser.addLine(``)
 
         const currentFeature = getCurrentFeaut(parser)
-        const [rule] = currentFeature._rules
+        const [rule] = currentFeature.rules
 
-        expect(currentFeature._rules.length).toEqual(1)
+        expect(currentFeature.rules.length).toEqual(1)
         expect(rule.scenarii.length).toEqual(2)
     })
 
@@ -326,10 +326,10 @@ describe(`GherkinParser`, () => {
         parser.addLine(``)
 
         const currentFeature = getCurrentFeaut(parser)
-        const [firstRule, secondRule] = currentFeature._rules
+        const [firstRule, secondRule] = currentFeature.rules
         const [outline] = secondRule.scenarii
 
-        expect(currentFeature._rules.length).toEqual(2)
+        expect(currentFeature.rules.length).toEqual(2)
         expect(firstRule.scenarii.length).toEqual(2)
         expect(secondRule.scenarii.length).toEqual(1)
         expect(outline instanceof ScenarioOutline).toBe(true)
@@ -356,7 +356,7 @@ describe(`GherkinParser`, () => {
         parser.addLine(`Scenario: second scenario`)
 
         const currentFeature = getCurrentFeaut(parser)
-        const [rule] = currentFeature._rules
+        const [rule] = currentFeature.rules
 
         expect(currentFeature.scenarii.map((s) => s.description)).toContain(
             `first scenario for the feature`,
@@ -448,7 +448,7 @@ describe(`GherkinParser`, () => {
             parser.addLine(``)
 
             const currentFeature = getCurrentFeaut(parser)
-            const { background, _rules: rules } = currentFeature
+            const { background, rules } = currentFeature
 
             expect(background).not.toBeNull()
             expect(background?.steps.length).toBe(2)
@@ -711,7 +711,7 @@ describe('GherkinParser - language', () => {
                     parser.addLine(`${outlineKey}: En lique 1`)
 
                     const currentFeature = getCurrentFeaut(parser)
-                    const [rule] = currentFeature._rules
+                    const [rule] = currentFeature.rules
 
                     expect(rule.name).toEqual('En lique 1')
                 })
