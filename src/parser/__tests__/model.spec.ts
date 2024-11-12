@@ -4,6 +4,7 @@ import {
     FeatureUknowRuleError,
     FeatureUknowScenarioError,
     IsScenarioOutlineError,
+    ItemAlreadyExistsError,
     NotAllowedBackgroundStepTypeError,
     NotScenarioOutlineError,
     RuleNotCalledError,
@@ -29,7 +30,7 @@ describe(`Models`, () => {
             const feature = new Feature(`Awesome`)
             const scenario = new Scenario(`test`)
 
-            feature.scenarii.push(scenario)
+            feature.addScenario(scenario)
 
             expect(feature.getScenarioByName(`test`)).toEqual(scenario)
         })
@@ -38,7 +39,7 @@ describe(`Models`, () => {
             const feature = new Feature(`Awesome`)
             const scenario = new Scenario(`test`)
 
-            feature.scenarii.push(scenario)
+            feature.addScenario(scenario)
 
             expect(feature.haveAlreadyCalledScenario()).toBeFalsy()
 
@@ -56,8 +57,8 @@ describe(`Models`, () => {
             expect(outline.examples).toEqual([])
             outline.examples = [{ test: [`yes`, `no`] }]
 
-            feature.scenarii.push(scenario)
-            feature.scenarii.push(outline)
+            feature.addScenario(scenario)
+            feature.addScenario(outline)
 
             expect(feature.getScenarioExample(`outline`)).toEqual(
                 outline.examples,
@@ -69,7 +70,7 @@ describe(`Models`, () => {
             const feature = new Feature(`Awesome`)
             const rule = new Rule(`rule`)
 
-            feature.rules.push(rule)
+            feature.addRule(rule)
 
             expect(feature.getRuleByName(`rule`)).toEqual(rule)
             expect(feature.getRuleByName(`another`)).toBeUndefined()
@@ -85,7 +86,7 @@ describe(`Models`, () => {
             uncalledRuleWithTag.isCalled = true
             uncalledRuleWithTag.tags.add(`ignore`)
 
-            feature.rules.push(rule)
+            feature.addRule(rule)
             expect(
                 feature.getFirstRuleNotCalled({
                     includeTags: [],
@@ -93,7 +94,7 @@ describe(`Models`, () => {
                 }),
             ).toBeUndefined()
 
-            feature.rules.push(uncalledRuleWithTag)
+            feature.addRule(uncalledRuleWithTag)
             expect(
                 feature.getFirstRuleNotCalled({
                     includeTags: [],
@@ -101,7 +102,7 @@ describe(`Models`, () => {
                 }),
             ).toBeUndefined()
 
-            feature.rules.push(secondRule)
+            feature.addRule(secondRule)
             expect(
                 feature.getFirstRuleNotCalled({
                     includeTags: [],
@@ -115,7 +116,7 @@ describe(`Models`, () => {
             const rule = new Rule(`rule`)
             rule.tags.add(`ignore`)
 
-            feature.rules.push(rule)
+            feature.addRule(rule)
 
             expect(() => {
                 feature.checkUncalledRule({
@@ -159,7 +160,7 @@ describe(`Models`, () => {
             const feature = new Feature(`feature`)
             const rule = new Rule(`rule`)
 
-            feature.rules.push(rule)
+            feature.addRule(rule)
 
             expect(() => {
                 feature.checkIfRuleExists(`another`)
@@ -176,10 +177,10 @@ describe(`Models`, () => {
             const secondRule = new Rule(`second rule`)
             secondRule.isCalled = true
 
-            feature.rules.push(rule)
+            feature.addRule(rule)
             expect(feature.haveAlreadyCalledRule()).toBeFalsy()
 
-            feature.rules.push(secondRule)
+            feature.addRule(secondRule)
             expect(feature.haveAlreadyCalledRule()).toBeTruthy()
         })
 
@@ -200,7 +201,8 @@ describe(`Models`, () => {
             const outline = new ScenarioOutline(`outline`)
             const feature = new Feature(`sample`)
 
-            feature.scenarii.push(scenario, outline)
+            feature.addScenario(scenario)
+            feature.addScenario(outline)
 
             expect(() => {
                 feature.getScenario(`another`)
@@ -220,7 +222,8 @@ describe(`Models`, () => {
             const outline = new ScenarioOutline(`outline`)
             const feature = new Feature(`sample`)
 
-            feature.scenarii.push(scenario, outline)
+            feature.addScenario(scenario)
+            feature.addScenario(outline)
 
             expect(() => {
                 feature.getScenarioOutline(`another`)
@@ -233,6 +236,26 @@ describe(`Models`, () => {
             expect(() => {
                 feature.getScenarioOutline(`sample`)
             }).toThrowError(new NotScenarioOutlineError(scenario))
+        })
+
+        test('Handle duplicated scenario', () => {
+            const feature = new Feature(`sample`)
+            const scenario = new Scenario('test')
+
+            feature.addScenario(new Scenario('test'))
+            expect(() => {
+                feature.addScenario(scenario)
+            }).toThrowError(new ItemAlreadyExistsError(feature, scenario))
+        })
+
+        test('Handle duplicated Rule', () => {
+            const feature = new Feature(`sample`)
+            const rule = new Rule('test')
+
+            feature.addRule(new Rule('test'))
+            expect(() => {
+                feature.addRule(rule)
+            }).toThrowError(new ItemAlreadyExistsError(feature, rule))
         })
     })
 
@@ -251,7 +274,7 @@ describe(`Models`, () => {
             const rule = new Rule(`Awesome`)
             const scenario = new Scenario(`test`)
 
-            rule.scenarii.push(scenario)
+            rule.addScenario(scenario)
 
             expect(rule.getScenarioByName(`test`)).toEqual(scenario)
         })
@@ -260,7 +283,7 @@ describe(`Models`, () => {
             const rule = new Rule(`Awesome`)
             const scenario = new Scenario(`test`)
 
-            rule.scenarii.push(scenario)
+            rule.addScenario(scenario)
 
             expect(rule.haveAlreadyCalledScenario()).toBeFalsy()
 
@@ -278,8 +301,8 @@ describe(`Models`, () => {
             expect(outline.examples).toEqual([])
             outline.examples = [{ test: [`yes`, `no`] }]
 
-            rule.scenarii.push(scenario)
-            rule.scenarii.push(outline)
+            rule.addScenario(scenario)
+            rule.addScenario(outline)
 
             expect(rule.getScenarioExample(`outline`)).toEqual(outline.examples)
             expect(rule.getScenarioExample(`test`)).toBeNull()
@@ -290,7 +313,7 @@ describe(`Models`, () => {
         test(`Background initialize`, () => {
             const background = new Background()
 
-            expect(background.steps.length).toEqual(0)
+            expect(background._steps.length).toEqual(0)
             expect(background.isCalled).toBeFalsy()
             expect(background.getTitle()).toEqual(`Background:`)
         })
@@ -319,6 +342,18 @@ describe(`Models`, () => {
                 new NotAllowedBackgroundStepTypeError(StepTypes.BUT),
             )
         })
+        test('Handle duplicated steps', () => {
+            const background = new Background()
+
+            background.addStep(new Step(StepTypes.GIVEN, 'I am first step'))
+
+            const duplicatedStep = new Step(StepTypes.GIVEN, 'I am first step')
+            expect(() => {
+                background.addStep(duplicatedStep)
+            }).toThrowError(
+                new ItemAlreadyExistsError(background, duplicatedStep),
+            )
+        })
     })
 
     describe(`Scenario`, () => {
@@ -326,7 +361,7 @@ describe(`Models`, () => {
             const scenario = new Scenario(`First`)
 
             expect(scenario.description).toEqual(`First`)
-            expect(scenario.steps.length).toEqual(0)
+            expect(scenario._steps.length).toEqual(0)
             expect(scenario.isCalled).toBeFalsy()
             expect(scenario.getTitle()).toEqual(`Scenario: First`)
         })
@@ -406,6 +441,18 @@ describe(`Models`, () => {
             scenario.addStep(step)
 
             expect(scenario.lastStep).toEqual(step)
+        })
+        test('Handle duplicated steps', () => {
+            const scenario = new Scenario(`test`)
+
+            scenario.addStep(new Step(StepTypes.GIVEN, 'I am first step'))
+
+            const duplicatedStep = new Step(StepTypes.GIVEN, 'I am first step')
+            expect(() => {
+                scenario.addStep(duplicatedStep)
+            }).toThrowError(
+                new ItemAlreadyExistsError(scenario, duplicatedStep),
+            )
         })
     })
 

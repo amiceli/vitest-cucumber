@@ -3,6 +3,7 @@ import {
     BackgroundNotExistsError,
     FeatureUknowScenarioError,
     IsScenarioOutlineError,
+    ItemAlreadyExistsError,
     NotScenarioOutlineError,
     ParentWithoutScenario,
     ScenarioNotCalledError,
@@ -15,7 +16,7 @@ import { type Example, Scenario, ScenarioOutline } from './scenario'
 export abstract class ScenarioParent extends Taggable {
     public readonly name: string
 
-    public readonly scenarii: Scenario[] = []
+    private readonly _scenarii: Scenario[] = []
 
     public background: Background | null = null
 
@@ -27,10 +28,22 @@ export abstract class ScenarioParent extends Taggable {
         this.title = title
     }
 
+    public addScenario(newScenario: Scenario | ScenarioOutline) {
+        const duplicatedScenario = this._scenarii.find((scenario) => {
+            return scenario.getTitle() === newScenario.getTitle()
+        })
+
+        if (duplicatedScenario) {
+            throw new ItemAlreadyExistsError(this, newScenario)
+        }
+
+        this._scenarii.push(newScenario)
+    }
+
     public getScenarioByName(
         name: string,
     ): Scenario | ScenarioOutline | undefined {
-        return this.scenarii.find((s: Scenario) => {
+        return this._scenarii.find((s: Scenario) => {
             return s.description === name
         })
     }
@@ -48,7 +61,7 @@ export abstract class ScenarioParent extends Taggable {
     public getFirstNotCalledScenario(
         options: RequiredDescribeFeatureOptions,
     ): Scenario | ScenarioOutline | undefined {
-        return this.scenarii.find((scenario: Scenario) => {
+        return this._scenarii.find((scenario: Scenario) => {
             return (
                 scenario.isCalled === false &&
                 (options.includeTags.length <= 0 ||
@@ -60,7 +73,7 @@ export abstract class ScenarioParent extends Taggable {
 
     public haveAlreadyCalledScenario(): boolean {
         return (
-            this.scenarii.filter(
+            this._scenarii.filter(
                 (scenario: Scenario) => scenario.isCalled === true,
             ).length > 0
         )
@@ -147,20 +160,24 @@ export abstract class ScenarioParent extends Taggable {
     }
 
     public mustHaveScenario() {
-        if (this.scenarii.length === 0) {
+        if (this._scenarii.length === 0) {
             throw new ParentWithoutScenario(this)
         }
     }
 
     public get hasScenarioOutline(): boolean {
-        return this.scenarii.some((scenario) =>
+        return this._scenarii.some((scenario) =>
             scenario.getTitle().includes('Outline'),
         )
     }
 
     public get hasScenario(): boolean {
-        return this.scenarii.some(
+        return this._scenarii.some(
             (scenario) => scenario.getTitle().includes('Outline') === false,
         )
+    }
+
+    public get scenarii(): Readonly<Scenario[]> {
+        return this._scenarii
     }
 }

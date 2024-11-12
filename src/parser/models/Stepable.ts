@@ -1,4 +1,5 @@
 import {
+    ItemAlreadyExistsError,
     StepAbleStepExpressionError,
     StepAbleStepsNotCalledError,
     StepAbleUnknowStepError,
@@ -12,7 +13,7 @@ export abstract class StepAble extends Taggable {
 
     public isCalled: boolean
 
-    public readonly steps: Step[]
+    private readonly _steps: Step[]
 
     protected readonly title: string
 
@@ -21,7 +22,7 @@ export abstract class StepAble extends Taggable {
 
         this.title = title
         this.isCalled = false
-        this.steps = []
+        this._steps = []
     }
 
     public stepFailedExpressionMatch: {
@@ -34,7 +35,7 @@ export abstract class StepAble extends Taggable {
     ): Step | undefined {
         this.stepFailedExpressionMatch[details] = 0
 
-        return this.steps.find((step: Step) => {
+        return this._steps.find((step: Step) => {
             try {
                 const sameType = step.type === type
                 const sameDetails = step.details === details
@@ -58,11 +59,18 @@ export abstract class StepAble extends Taggable {
     }
 
     public getNoCalledStep(): Step | undefined {
-        return this.steps.find((s) => s.isCalled === false)
+        return this._steps.find((s) => s.isCalled === false)
     }
 
-    public addStep(step: Step) {
-        this.steps.push(step)
+    public addStep(newStep: Step) {
+        const duplicatedStep = this._steps.find((step) => {
+            return step.getTitle() === newStep.getTitle()
+        })
+
+        if (duplicatedStep) {
+            throw new ItemAlreadyExistsError(this, newStep)
+        }
+        this._steps.push(newStep)
     }
 
     public checkIfStepWasCalled() {
@@ -79,7 +87,7 @@ export abstract class StepAble extends Taggable {
         if (!foundStep) {
             if (
                 this.stepFailedExpressionMatch[stepDetails] ===
-                this.steps.length
+                this._steps.length
             ) {
                 throw new StepAbleStepExpressionError(
                     this,
@@ -96,6 +104,10 @@ export abstract class StepAble extends Taggable {
     }
 
     public get lastStep(): Step {
-        return this.steps[this.steps.length - 1]
+        return this._steps[this._steps.length - 1]
+    }
+
+    public get steps(): Readonly<Step[]> {
+        return this._steps
     }
 }

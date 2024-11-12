@@ -155,7 +155,7 @@ export class GherkinParser {
             const rule = new Rule(title, keyword)
 
             this.addTagToParent(rule)
-            this.currentFeature.rules.push(rule)
+            this.currentFeature.addRule(rule)
         } else if (
             this.spokenParser.isScenarioOutline(line) &&
             this.hasFeature(line)
@@ -284,9 +284,9 @@ export class GherkinParser {
 
     private addScenarioToParent(scenario: Scenario) {
         if (this.currentRule) {
-            this.currentRule.scenarii.push(scenario)
+            this.currentRule.addScenario(scenario)
         } else {
-            this.currentFeature.scenarii.push(scenario)
+            this.currentFeature.addScenario(scenario)
         }
     }
 
