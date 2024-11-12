@@ -7,7 +7,7 @@ import { createScenarioOutlineDescribeHandler } from '../describeScenarioOutline
 describe(`describeScenario`, () => {
     const each = vi.spyOn(test, `for`)
     const scenario = new Scenario(`test`)
-    scenario.steps.push(new Step(StepTypes.GIVEN, `given`))
+    scenario.addStep(new Step(StepTypes.GIVEN, `given`))
 
     const scenarioTest = createScenarioDescribeHandler({
         scenario,
@@ -37,7 +37,7 @@ describe(`describeScenarioOutline`, () => {
 
     const scenario = new ScenarioOutline(`test`)
     scenario.examples.push({ test: `test` }, { test: `test 2` })
-    scenario.steps.push(new Step(StepTypes.GIVEN, `given <test>`))
+    scenario.addStep(new Step(StepTypes.GIVEN, `given <test>`))
 
     const scenarioTest = createScenarioOutlineDescribeHandler({
         scenario,

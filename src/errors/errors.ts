@@ -248,3 +248,12 @@ export class CustomParameterExpressionAlreadyExistsError extends VitestsCucumber
         super(`The custom expression '${expressionName}' already exists`)
     }
 }
+
+export class ItemAlreadyExistsError extends VitestsCucumberError {
+    public constructor(
+        parent: StepAble | ScenarioParent,
+        child: Step | Scenario | Rule,
+    ) {
+        super(`${parent.getTitle()} already has ${child.getTitle()}`)
+    }
+}
