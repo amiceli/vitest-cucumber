@@ -68,7 +68,7 @@ describe(`GherkinParser`, () => {
 
         expect(currentFeature.scenarii.length).toEqual(1)
         expect(currentScenario.description).toEqual(scenarioTitile)
-        expect(currentScenario._steps.length).toEqual(0)
+        expect(currentScenario.steps.length).toEqual(0)
         expect(currentScenario.isCalled).toBeFalsy()
     })
 
@@ -93,9 +93,9 @@ describe(`GherkinParser`, () => {
         parser.addLine(``)
 
         const currentScenario = getCurrentScenario(parser)
-        const [currentStep] = currentScenario._steps
+        const [currentStep] = currentScenario.steps
 
-        expect(currentScenario._steps.length).toEqual(1)
+        expect(currentScenario.steps.length).toEqual(1)
         expect(currentStep.type).toEqual(StepTypes.GIVEN)
         expect(currentStep.details).toEqual(givenTitle)
         expect(currentStep.isCalled).toBeFalsy()
@@ -110,9 +110,9 @@ describe(`GherkinParser`, () => {
             parser.addLine(`* I load a web page`)
 
             const currentScenario = getCurrentScenario(parser)
-            const [_, currentStep] = currentScenario._steps
+            const [_, currentStep] = currentScenario.steps
 
-            expect(currentScenario._steps.length).toEqual(2)
+            expect(currentScenario.steps.length).toEqual(2)
             expect(currentStep.type).toEqual(StepTypes.AND)
             expect(currentStep.details).toEqual(`I load a web page`)
             expect(currentStep.isCalled).toBeFalsy()
@@ -142,7 +142,7 @@ describe(`GherkinParser`, () => {
 
         const [feature] = parser.features
         const [scenario] = feature.scenarii
-        const [step] = scenario._steps
+        const [step] = scenario.steps
 
         expect(step.details).toEqual(`I love spaces in string`)
     })
@@ -431,7 +431,7 @@ describe(`GherkinParser`, () => {
             const { background } = currentFeature
 
             expect(background).not.toBeNull()
-            expect(background?._steps.length).toBe(2)
+            expect(background?.steps.length).toBe(2)
             expect(background?.tags).toContain(`awesome`)
         })
 
@@ -451,9 +451,9 @@ describe(`GherkinParser`, () => {
             const { background, _rules: rules } = currentFeature
 
             expect(background).not.toBeNull()
-            expect(background?._steps.length).toBe(2)
+            expect(background?.steps.length).toBe(2)
             expect(rules[0].background).not.toBeNull()
-            expect(rules[0].background?._steps.length).toBe(3)
+            expect(rules[0].background?.steps.length).toBe(3)
         })
 
         it(`should prevent twice backgrounds in Feature`, () => {
@@ -575,7 +575,7 @@ describe(`GherkinParser`, () => {
                     s.Then(`I can check it`, () => {
                         const docs = feature.scenarii
                             .at(0)
-                            ?._steps.at(0)?.docStrings
+                            ?.steps.at(0)?.docStrings
                         expect(docs?.split(`\n`)).toEqual([
                             `DocStrings is passed to current Given`,
                             `And at last params`,
@@ -644,7 +644,7 @@ describe(`GherkinParser`, () => {
                 `       Given I am after docstrings`,
             ]).parseContent()
             const [scenario] = feature.scenarii
-            const [then] = scenario._steps
+            const [then] = scenario.steps
 
             expect(
                 then.docStrings?.includes('Scenario: as docstrings value'),
@@ -783,7 +783,7 @@ describe('GherkinParser - language', () => {
             const feature = getCurrentFeaut(parser)
             const [scenario] = feature.scenarii
             expect(scenario.description).toEqual(`I use ${language} lang`)
-            expect(scenario._steps.length).toBe(5)
+            expect(scenario.steps.length).toBe(5)
         })
     }
 })
