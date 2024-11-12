@@ -1,8 +1,7 @@
 import fs from 'node:fs/promises'
 import type { Background } from '../src/parser/models/Background'
-import type { Rule } from '../src/parser/models/Rule'
 import type { Feature } from '../src/parser/models/feature'
-import { type Scenario, ScenarioOutline } from '../src/parser/models/scenario'
+import { ScenarioOutline } from '../src/parser/models/scenario'
 import type { Step, StepTypes } from '../src/parser/models/step'
 
 export function generateStep(step: Step) {
@@ -13,7 +12,7 @@ export function generateStep(step: Step) {
 }
 
 export function generateScenarii(
-    scenarii: (Scenario | ScenarioOutline)[],
+    scenarii: Feature['scenarii'],
     forRule = false,
 ) {
     const fileContent = ['']
@@ -84,7 +83,7 @@ export function generateBackground(back: Background, forRule = false) {
     return fileContent
 }
 
-export function generateRules(rules: Rule[]) {
+export function generateRules(rules: Feature['rules']) {
     const fileContent: string[] = []
 
     for (const r of rules) {
