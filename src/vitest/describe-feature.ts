@@ -61,10 +61,10 @@ function defineRuleScenarioToRun(options: {
     const finalDescribesToRun: DescribesToRun = []
 
     for (const toRun of describeToRun) {
-        if (options.featureBackground) {
+        if (options.featureBackground && !options.featureBackground.skipped) {
             finalDescribesToRun.push(options.featureBackground)
         }
-        if (options.ruleBackground) {
+        if (options.ruleBackground && !options.ruleBackground.skipped) {
             finalDescribesToRun.push(options.ruleBackground)
         }
         finalDescribesToRun.push(toRun)
@@ -87,7 +87,7 @@ function defineScenarioToRun(options: {
     const finalDescribesToRun: DescribesToRun = []
 
     for (const toRun of describeToRun) {
-        if (options.featureBackground) {
+        if (options.featureBackground && !options.featureBackground.skipped) {
             finalDescribesToRun.push(options.featureBackground)
         }
         finalDescribesToRun.push(toRun)
