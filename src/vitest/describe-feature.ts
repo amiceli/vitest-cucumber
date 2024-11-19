@@ -78,6 +78,7 @@ function defineRuleScenarioToRun(options: {
 
 function defineScenarioToRun(options: {
     describes: DescribesToRun
+    describeRules: DescribesToRun
     featureBackground: DescribesToRun[0] | null
 }): DescribesToRunOrSkip {
     const describeToRun = options.describes.filter((d) => !d.skipped)
@@ -91,6 +92,9 @@ function defineScenarioToRun(options: {
         }
         finalDescribesToRun.push(toRun)
     }
+
+    describeToSkip.push(...options.describeRules.filter((s) => s.skipped))
+    finalDescribesToRun.push(...options.describeRules.filter((s) => !s.skipped))
 
     return {
         describeToRun: finalDescribesToRun,
@@ -329,6 +333,7 @@ export function describeFeature(
         const { describeToRun, describeToSkip } = defineScenarioToRun({
             describes: describeScenarios,
             featureBackground: describeBackground,
+            describeRules,
         })
 
         describe.skip.each(
