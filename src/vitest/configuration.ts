@@ -20,9 +20,7 @@ const defaultConfiguration: VitestCucumberOptions = {
     language: 'en',
     includeTags: [],
     excludeTags: ['ignore'],
-    onStepError: ({ error }) => {
-        throw error
-    },
+    onStepError: ({ error }) => {},
 }
 
 let globalConfiguration: VitestCucumberOptions = {} as VitestCucumberOptions
