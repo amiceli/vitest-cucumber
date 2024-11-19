@@ -1,6 +1,5 @@
 import { afterAll, beforeAll, describe } from 'vitest'
-import type { Feature } from '../parser/models/feature'
-import type { Example } from '../parser/models/scenario'
+import type { Example, Feature } from '../parser/models'
 import {
     type TagFilterItem,
     type VitestCucumberOptions,
@@ -25,9 +24,14 @@ export type DescribeFeatureOptions = Pick<
 export type RequiredDescribeFeatureOptions = Required<DescribeFeatureOptions>
 
 type DescribesToRun = Array<{
+    skipped: boolean
     describeTitle: string
     describeHandler: () => void
 }>
+type DescribesToRunOrSkip = {
+    describeToRun: DescribesToRun
+    describeToSkip: DescribesToRun
+}
 
 /**
  * Extract tag filters by removing the `@` prefix if present
@@ -44,6 +48,54 @@ const extractTagFilters = (filterItems: TagFilterItem[]): TagFilterItem[] => {
 
         return filterItem as TagFilterItem
     })
+}
+
+function defineRuleScenarioToRun(options: {
+    describes: DescribesToRun
+    ruleBackground: DescribesToRun[0] | null
+    featureBackground: DescribesToRun[0] | null
+}): DescribesToRunOrSkip {
+    const describeToRun = options.describes.filter((d) => !d.skipped)
+    const describeToSkip = options.describes.filter((d) => d.skipped)
+
+    const finalDescribesToRun: DescribesToRun = []
+
+    for (const toRun of describeToRun) {
+        if (options.featureBackground) {
+            finalDescribesToRun.push(options.featureBackground)
+        }
+        if (options.ruleBackground) {
+            finalDescribesToRun.push(options.ruleBackground)
+        }
+        finalDescribesToRun.push(toRun)
+    }
+
+    return {
+        describeToRun: finalDescribesToRun,
+        describeToSkip,
+    }
+}
+
+function defineScenarioToRun(options: {
+    describes: DescribesToRun
+    featureBackground: DescribesToRun[0] | null
+}): DescribesToRunOrSkip {
+    const describeToRun = options.describes.filter((d) => !d.skipped)
+    const describeToSkip = options.describes.filter((d) => d.skipped)
+
+    const finalDescribesToRun: DescribesToRun = []
+
+    for (const toRun of describeToRun) {
+        if (options.featureBackground) {
+            finalDescribesToRun.push(options.featureBackground)
+        }
+        finalDescribesToRun.push(toRun)
+    }
+
+    return {
+        describeToRun: finalDescribesToRun,
+        describeToSkip,
+    }
 }
 
 export function describeFeature(
@@ -78,6 +130,7 @@ export function describeFeature(
             background.isCalled = true
 
             describeBackground = {
+                skipped: background.matchTags(options.excludeTags),
                 describeTitle: background.getTitle(),
                 describeHandler: createBackgroundDescribeHandler({
                     background,
@@ -93,6 +146,7 @@ export function describeFeature(
             scenario.isCalled = true
 
             describeScenarios.push({
+                skipped: scenario.matchTags(options.excludeTags),
                 describeTitle: scenario.getTitle(),
                 describeHandler: createScenarioDescribeHandler({
                     scenario,
@@ -122,6 +176,7 @@ export function describeFeature(
                     beforeEachScenarioHook,
                     afterEachScenarioHook,
                 }).map((t) => ({
+                    skipped: scenario.matchTags(options.excludeTags),
                     describeTitle: scenario.getTitle(),
                     describeHandler: t,
                 })),
@@ -145,9 +200,10 @@ export function describeFeature(
                     background.isCalled = true
 
                     describeRuleBackground = {
+                        skipped: background.matchTags(options.excludeTags),
                         describeTitle: background.getTitle(),
                         describeHandler: createBackgroundDescribeHandler({
-                            background,
+                            background: background,
                             backgroundCallback,
                         }),
                     }
@@ -162,6 +218,7 @@ export function describeFeature(
 
                     describeRuleScenarios.push({
                         describeTitle: scenario.getTitle(),
+                        skipped: scenario.matchTags(options.excludeTags),
                         describeHandler: createScenarioDescribeHandler({
                             scenario,
                             scenarioTestCallback,
@@ -191,6 +248,7 @@ export function describeFeature(
                             beforeEachScenarioHook,
                             afterEachScenarioHook,
                         }).map((t) => ({
+                            skipped: scenario.matchTags(options.excludeTags),
                             describeTitle: scenario.getTitle(),
                             describeHandler: t,
                         })),
@@ -203,6 +261,7 @@ export function describeFeature(
                 .checkUncalledBackground(options)
 
             describeRules.push({
+                skipped: currentRule.matchTags(options.excludeTags),
                 describeTitle: currentRule.getTitle(),
                 describeHandler: function describeRule() {
                     beforeAll(async () => {
@@ -212,20 +271,23 @@ export function describeFeature(
                         await afterAllScenarioHook()
                     })
 
-                    const ruleDescribes: DescribesToRun = []
+                    const { describeToRun, describeToSkip } =
+                        defineRuleScenarioToRun({
+                            describes: describeRuleScenarios,
+                            ruleBackground: describeRuleBackground,
+                            featureBackground: describeBackground,
+                        })
 
-                    for (const ruleScenario of describeRuleScenarios) {
-                        if (describeBackground) {
-                            ruleDescribes.push(describeBackground)
-                        }
-                        if (describeRuleBackground) {
-                            ruleDescribes.push(describeRuleBackground)
-                        }
-                        ruleDescribes.push(ruleScenario)
-                    }
+                    describe.skip.each(
+                        describeToSkip.map((s) => {
+                            return [s.describeTitle, s]
+                        }),
+                    )(`%s`, (_, { describeHandler }) => {
+                        describeHandler()
+                    })
 
                     describe.each(
-                        ruleDescribes.map((s) => {
+                        describeToRun.map((s) => {
                             return [s.describeTitle, s]
                         }),
                     )(`%s`, (_, { describeHandler }) => {
@@ -264,20 +326,21 @@ export function describeFeature(
             await afterAllScenarioHook()
         })
 
-        let everything: DescribesToRun = []
+        const { describeToRun, describeToSkip } = defineScenarioToRun({
+            describes: describeScenarios,
+            featureBackground: describeBackground,
+        })
 
-        for (const featureScenario of describeScenarios) {
-            if (describeBackground) {
-                everything.push(describeBackground)
-            }
-
-            everything.push(featureScenario)
-        }
-
-        everything = everything.concat(describeRules)
+        describe.skip.each(
+            describeToSkip.map((s) => {
+                return [s.describeTitle, s]
+            }),
+        )(`%s`, (_, { describeHandler }) => {
+            describeHandler()
+        })
 
         describe.each(
-            everything.map((s) => {
+            describeToRun.map((s) => {
                 return [s.describeTitle, s]
             }),
         )(`%s`, (_, { describeHandler }) => {
