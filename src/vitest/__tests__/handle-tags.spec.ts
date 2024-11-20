@@ -401,3 +401,72 @@ describe('handle skipped Rule', () => {
         },
     )
 })
+
+describe('handle skipped Background', () => {
+    const feature = FeatureContentReader.fromString([
+        `Feature: feature without scenario`,
+        `   Scenario: scenario to run`,
+        `       Given I am called`,
+        `   @skip`,
+        `   Background:`,
+        `       Given I am skipped`,
+    ]).parseContent()
+
+    describeFeature(
+        feature,
+        (f) => {
+            f.Background((s) => {
+                s.Given('I am skipped', () => {
+                    expect.fail('Background should be skipped')
+                })
+            })
+            f.Scenario('scenario to run', (s) => {
+                s.Given('I am called', () => {
+                    expect(true).toBeTruthy()
+                })
+            })
+        },
+        {
+            excludeTags: ['skip'],
+        },
+    )
+})
+
+describe('handle include/exclude tags for skipped Scenario', () => {
+    const feature = FeatureContentReader.fromString([
+        `Feature: feature without scenario`,
+        `   Scenario: scenario to run`,
+        `       Given I am called`,
+        `   @skip`,
+        `   Scenario: scenario skipped`,
+        `       Given I am skipped`,
+        `   @awesome`,
+        `   Scenario: awesome scenario`,
+        `       Given I am skipped too`,
+    ]).parseContent()
+
+    describeFeature(
+        feature,
+        (f) => {
+            f.Scenario('scenario to run', (s) => {
+                s.Given('I am called', () => {
+                    expect.fail('scenario to run should be skipped too')
+                })
+            })
+            f.Scenario('scenario skipped', (s) => {
+                s.Given('I am skipped', () => {
+                    expect.fail('scenario skipped should be skipped')
+                })
+            })
+            f.Scenario('awesome scenario', (s) => {
+                s.Given('I am skipped too', () => {
+                    expect(true).toBeTruthy()
+                })
+            })
+        },
+        {
+            excludeTags: ['skip'],
+            includeTags: ['awesome'],
+        },
+    )
+})
