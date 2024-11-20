@@ -296,3 +296,108 @@ describe(`includeTags`, () => {
         )
     })
 })
+
+describe('handle skipped Scenario', () => {
+    const feature = FeatureContentReader.fromString([
+        `Feature: feature without scenario`,
+        `   Background:`,
+        `       Given I am called sometimes`,
+        `   Scenario: scenario to run`,
+        `       Given I am called`,
+        `   @skip`,
+        `   Scenario: scenario to skip`,
+        `       Given I am skipped`,
+    ]).parseContent()
+
+    describeFeature(
+        feature,
+        (f) => {
+            const fn = vi.fn()
+
+            f.AfterAllScenarios(() => {
+                expect(fn).toHaveBeenCalledTimes(1)
+            })
+            f.Background((s) => {
+                s.Given('I am called sometimes', () => {
+                    fn()
+                })
+            })
+            f.Scenario('scenario to run', (s) => {
+                s.Given('I am called', () => {
+                    expect(true).toBeTruthy()
+                })
+            })
+            f.Scenario('scenario to skip', (s) => {
+                s.Given('I am skipped', () => {
+                    expect.fail('scenario to skip should be skipped')
+                })
+            })
+        },
+        {
+            excludeTags: ['skip'],
+        },
+    )
+})
+
+describe('handle skipped Background', () => {
+    const feature = FeatureContentReader.fromString([
+        `Feature: feature without scenario`,
+        `   Scenario: scenario to run`,
+        `       Given I am called`,
+        `   @skip`,
+        `   Background:`,
+        `       Given I am skipped`,
+    ]).parseContent()
+
+    describeFeature(
+        feature,
+        (f) => {
+            f.Background((s) => {
+                s.Given('I am skipped', () => {
+                    expect.fail('Background should be skipped')
+                })
+            })
+            f.Scenario('scenario to run', (s) => {
+                s.Given('I am called', () => {
+                    expect(true).toBeTruthy()
+                })
+            })
+        },
+        {
+            excludeTags: ['skip'],
+        },
+    )
+})
+
+describe('handle skipped Rule', () => {
+    const feature = FeatureContentReader.fromString([
+        `Feature: feature without scenario`,
+        `   Scenario: scenario to run`,
+        `       Given I am called`,
+        `   @skip`,
+        `   Rule: skipped rule`,
+        `       Scenario: rule scenario`,
+        `           Given I am skipped`,
+    ]).parseContent()
+
+    describeFeature(
+        feature,
+        (f) => {
+            f.Scenario('scenario to run', (s) => {
+                s.Given('I am called', () => {
+                    expect(true).toBeTruthy()
+                })
+            })
+            f.Rule('skipped rule', (r) => {
+                r.RuleScenario('rule scenario', (s) => {
+                    s.Given('I am skipped', () => {
+                        expect.fail('skipped rule should be skip')
+                    })
+                })
+            })
+        },
+        {
+            excludeTags: ['skip'],
+        },
+    )
+})
