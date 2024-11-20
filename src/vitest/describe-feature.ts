@@ -134,7 +134,7 @@ export function describeFeature(
             background.isCalled = true
 
             describeBackground = {
-                skipped: background.matchTags(options.excludeTags),
+                skipped: !background.shouldBeCalled(options),
                 describeTitle: background.getTitle(),
                 describeHandler: createBackgroundDescribeHandler({
                     background,
@@ -150,7 +150,7 @@ export function describeFeature(
             scenario.isCalled = true
 
             describeScenarios.push({
-                skipped: scenario.matchTags(options.excludeTags),
+                skipped: !scenario.shouldBeCalled(options),
                 describeTitle: scenario.getTitle(),
                 describeHandler: createScenarioDescribeHandler({
                     scenario,
@@ -180,7 +180,7 @@ export function describeFeature(
                     beforeEachScenarioHook,
                     afterEachScenarioHook,
                 }).map((t) => ({
-                    skipped: scenario.matchTags(options.excludeTags),
+                    skipped: !scenario.shouldBeCalled(options),
                     describeTitle: scenario.getTitle(),
                     describeHandler: t,
                 })),
@@ -204,7 +204,7 @@ export function describeFeature(
                     background.isCalled = true
 
                     describeRuleBackground = {
-                        skipped: background.matchTags(options.excludeTags),
+                        skipped: !background.shouldBeCalled(options),
                         describeTitle: background.getTitle(),
                         describeHandler: createBackgroundDescribeHandler({
                             background: background,
@@ -222,7 +222,7 @@ export function describeFeature(
 
                     describeRuleScenarios.push({
                         describeTitle: scenario.getTitle(),
-                        skipped: scenario.matchTags(options.excludeTags),
+                        skipped: !scenario.shouldBeCalled(options),
                         describeHandler: createScenarioDescribeHandler({
                             scenario,
                             scenarioTestCallback,
@@ -252,7 +252,7 @@ export function describeFeature(
                             beforeEachScenarioHook,
                             afterEachScenarioHook,
                         }).map((t) => ({
-                            skipped: scenario.matchTags(options.excludeTags),
+                            skipped: !scenario.shouldBeCalled(options),
                             describeTitle: scenario.getTitle(),
                             describeHandler: t,
                         })),
@@ -265,7 +265,7 @@ export function describeFeature(
                 .checkUncalledBackground(options)
 
             describeRules.push({
-                skipped: currentRule.matchTags(options.excludeTags),
+                skipped: !currentRule.shouldBeCalled(options),
                 describeTitle: currentRule.getTitle(),
                 describeHandler: function describeRule() {
                     beforeAll(async () => {

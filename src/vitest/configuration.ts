@@ -3,6 +3,11 @@ import type { Step } from '../parser/models/step'
 
 export type TagFilterItem = string | string[]
 
+export type TagFilters = {
+    includeTags: TagFilterItem[]
+    excludeTags: TagFilterItem[]
+}
+
 export type VitestCucumberOptions = {
     language?: string
     includeTags?: TagFilterItem[]

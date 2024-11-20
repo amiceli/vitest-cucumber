@@ -63,10 +63,7 @@ export abstract class ScenarioParent extends Taggable {
     ): Scenario | ScenarioOutline | undefined {
         return this._scenarii.find((scenario: Scenario) => {
             return (
-                scenario.isCalled === false &&
-                (options.includeTags.length <= 0 ||
-                    scenario.matchTags(options.includeTags) === true) &&
-                scenario.matchTags(options.excludeTags) === false
+                scenario.isCalled === false && scenario.shouldBeCalled(options)
             )
         })
     }
