@@ -688,3 +688,36 @@ describe('handle skipped Background', () => {
         },
     )
 })
+
+describe('handle skipped Rule', () => {
+    const feature = FeatureContentReader.fromString([
+        `Feature: feature without scenario`,
+        `   Scenario: scenario to run`,
+        `       Given I am called`,
+        `   @skip`,
+        `   Rule: skipped rule`,
+        `       Scenario: rule scenario`,
+        `           Given I am skipped`,
+    ]).parseContent()
+
+    describeFeature(
+        feature,
+        (f) => {
+            f.Scenario('scenario to run', (s) => {
+                s.Given('I am called', () => {
+                    expect(true).toBeTruthy()
+                })
+            })
+            f.Rule('skipped rule', (r) => {
+                r.RuleScenario('rule scenario', (s) => {
+                    s.Given('I am skipped', () => {
+                        expect.fail('skipped rule should be skip')
+                    })
+                })
+            })
+        },
+        {
+            excludeTags: ['skip'],
+        },
+    )
+})
