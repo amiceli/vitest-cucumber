@@ -1,4 +1,4 @@
-import { SpokenKeywordError } from '../../errors/errors'
+import { RequiredTitleError, SpokenKeywordError } from '../../errors/errors'
 import { StepTypes } from '../models/step'
 import availableLanguages from './lang.json'
 
@@ -32,37 +32,66 @@ export class SpokenParser {
     }
 
     public getFeatureName(line: string): LineDetails {
-        return this.getMatchKey(line, this.details.feature)
+        return this.getMatchKey({
+            line,
+            keys: this.details.feature,
+            titleRequired: true,
+        })
     }
 
     public getScenarioName(line: string): LineDetails {
-        return this.getMatchKey(line, this.details.scenario)
+        return this.getMatchKey({
+            line,
+            keys: this.details.scenario,
+            titleRequired: true,
+        })
     }
 
     public getScenarioOutlineName(line: string): LineDetails {
-        return this.getMatchKey(line, this.details.scenarioOutline)
+        return this.getMatchKey({
+            line,
+            keys: this.details.scenarioOutline,
+            titleRequired: true,
+        })
     }
 
     public getRuleName(line: string): LineDetails {
-        return this.getMatchKey(line, this.details.rule)
+        return this.getMatchKey({
+            line,
+            keys: this.details.rule,
+            titleRequired: true,
+        })
     }
 
     public getBackgroundKeyWord(line: string): string {
-        return this.getMatchKey(line, this.details.background).keyword
+        return this.getMatchKey({
+            line,
+            keys: this.details.background,
+        }).keyword
     }
 
-    private getMatchKey(line: string, keys: string[]): LineDetails {
-        const foundKeyword = keys.find((featureKey) =>
-            line.trim().startsWith(`${featureKey}:`),
+    private getMatchKey(options: {
+        line: string
+        keys: string[]
+        titleRequired?: boolean
+    }): LineDetails {
+        const foundKeyword = options.keys.find((featureKey) =>
+            options.line.trim().startsWith(`${featureKey}:`),
         )
 
         if (!foundKeyword) {
-            throw new SpokenKeywordError(line, keys)
+            throw new SpokenKeywordError(options.line, options.keys)
+        }
+
+        const title = options.line.split(`${foundKeyword}:`).at(1)?.trim()
+
+        if (!title && options.titleRequired) {
+            throw new RequiredTitleError(options.line.trim(), foundKeyword)
         }
 
         return {
             keyword: foundKeyword.trim(),
-            title: line.split(`${foundKeyword}:`)[1].trim(),
+            title: title || '',
         }
     }
 

@@ -257,3 +257,9 @@ export class ItemAlreadyExistsError extends VitestsCucumberError {
         super(`${parent.getTitle()} already has ${child.getTitle()}`)
     }
 }
+
+export class RequiredTitleError extends VitestsCucumberError {
+    public constructor(line: string, keyword: string) {
+        super([`${line} ❌`, `   ${keyword} required a title`].join('\n'))
+    }
+}

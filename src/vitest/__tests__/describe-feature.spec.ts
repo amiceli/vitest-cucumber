@@ -8,6 +8,7 @@ import {
     IsScenarioOutlineError,
     NotScenarioOutlineError,
     ParentWithoutScenario,
+    RequiredTitleError,
     RuleNotCalledError,
     ScenarioNotCalledError,
     StepAbleStepsNotCalledError,
@@ -614,5 +615,38 @@ describe('Feature / Rule without Scenario', () => {
                 `           Given I am a scenario`,
             ]).parseContent()
         }).not.toThrowError()
+    })
+})
+
+describe('Scenario/Step without description', () => {
+    describe('Scenario without title', () => {
+        expect(() => {
+            const feature = FeatureContentReader.fromString([
+                `Feature: scenario without name`,
+                `    Scenario:`,
+                `        Given I use a long string`,
+            ]).parseContent()
+        }).toThrowError(new RequiredTitleError('Scenario:', 'Scenario'))
+    })
+    describe('Rule without title', () => {
+        expect(() => {
+            const feature = FeatureContentReader.fromString([
+                `Feature: scenario without name`,
+                `    Rule:`,
+                `        Scenario: simple scenario`,
+                `            Given I use a long string`,
+            ]).parseContent()
+        }).toThrowError(new RequiredTitleError('Rule:', 'Rule'))
+    })
+    describe('Scenario Outline without title', () => {
+        expect(() => {
+            const feature = FeatureContentReader.fromString([
+                `Feature: scenario without name`,
+                `    Scenario Outline:`,
+                `        Given I use a long string`,
+            ]).parseContent()
+        }).toThrowError(
+            new RequiredTitleError('Scenario Outline:', 'Scenario Outline'),
+        )
     })
 })
