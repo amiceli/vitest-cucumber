@@ -3,6 +3,11 @@ import type { Step } from '../parser/models/step'
 
 export type TagFilterItem = string | string[]
 
+export type TagFilters = {
+    includeTags: TagFilterItem[]
+    excludeTags: TagFilterItem[]
+}
+
 export type VitestCucumberOptions = {
     language?: string
     includeTags?: TagFilterItem[]
@@ -20,9 +25,7 @@ const defaultConfiguration: VitestCucumberOptions = {
     language: 'en',
     includeTags: [],
     excludeTags: ['ignore'],
-    onStepError: ({ error }) => {
-        throw error
-    },
+    onStepError: ({ error }) => {},
 }
 
 let globalConfiguration: VitestCucumberOptions = {} as VitestCucumberOptions

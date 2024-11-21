@@ -1,4 +1,4 @@
-import type { TagFilterItem } from '../../vitest/configuration'
+import type { TagFilterItem, TagFilters } from '../../vitest/configuration'
 
 const matchFilter = (filterItem: TagFilterItem, tags: Set<string>) => {
     if (Array.isArray(filterItem)) {
@@ -21,6 +21,14 @@ export abstract class Taggable {
     public matchTags(filterItems: TagFilterItem[]): boolean {
         return filterItems.some((filterItem) =>
             matchFilter(filterItem, this.tags),
+        )
+    }
+
+    public shouldBeCalled(options: TagFilters): boolean {
+        return (
+            (options.includeTags.length <= 0 ||
+                this.matchTags(options.includeTags) === true) &&
+            this.matchTags(options.excludeTags) === false
         )
     }
 }
