@@ -146,8 +146,8 @@ describe('env variables', () => {
         vi.unstubAllEnvs()
     })
     it('should handle env variable in default options', () => {
-        vi.stubEnv('INCLUDE_TAGS', 'test again')
-        vi.stubEnv('EXCLUDE_TAGS', 'ignore-e2e')
+        vi.stubEnv('VITEST_INCLUDE_TAGS', 'test again')
+        vi.stubEnv('VITEST_EXCLUDE_TAGS', 'ignore-e2e')
 
         const options = getVitestCucumberConfiguration()
 

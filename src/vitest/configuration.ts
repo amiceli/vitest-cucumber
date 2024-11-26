@@ -34,10 +34,10 @@ export const getVitestCucumberConfiguration = (
     options?: VitestCucumberOptions,
 ) => {
     defaultConfiguration.includeTags?.push(
-        ...(process.env.INCLUDE_TAGS?.split(' ') || []),
+        ...(process.env.VITEST_INCLUDE_TAGS?.split(' ') || []),
     )
     defaultConfiguration.excludeTags?.push(
-        ...(process.env.EXCLUDE_TAGS?.split(' ') || []),
+        ...(process.env.VITEST_EXCLUDE_TAGS?.split(' ') || []),
     )
     const mergedOptions = {
         ...defaultConfiguration,
