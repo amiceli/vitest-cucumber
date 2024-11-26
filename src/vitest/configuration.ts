@@ -33,6 +33,12 @@ let globalConfiguration: VitestCucumberOptions = {} as VitestCucumberOptions
 export const getVitestCucumberConfiguration = (
     options?: VitestCucumberOptions,
 ) => {
+    defaultConfiguration.includeTags?.push(
+        ...(process.env.INCLUDE_TAGS?.split(' ') || []),
+    )
+    defaultConfiguration.excludeTags?.push(
+        ...(process.env.EXCLUDE_TAGS?.split(' ') || []),
+    )
     const mergedOptions = {
         ...defaultConfiguration,
         ...globalConfiguration,
