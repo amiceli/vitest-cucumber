@@ -21,11 +21,13 @@ export type VitestCucumberOptions = {
 
 export type RequiredVitestCucumberOptions = Required<VitestCucumberOptions>
 
-const defaultConfiguration: VitestCucumberOptions = {
-    language: 'en',
-    includeTags: [],
-    excludeTags: ['ignore'],
-    onStepError: ({ error }) => {},
+function getDefaultConfiguration(): VitestCucumberOptions {
+    return {
+        language: 'en',
+        includeTags: [],
+        excludeTags: ['ignore'],
+        onStepError: ({ error }) => {},
+    }
 }
 
 let globalConfiguration: VitestCucumberOptions = {} as VitestCucumberOptions
@@ -33,6 +35,8 @@ let globalConfiguration: VitestCucumberOptions = {} as VitestCucumberOptions
 export const getVitestCucumberConfiguration = (
     options?: VitestCucumberOptions,
 ) => {
+    const defaultConfiguration = getDefaultConfiguration()
+
     defaultConfiguration.includeTags?.push(
         ...(process.env.VITEST_INCLUDE_TAGS?.split(' ') || []),
     )

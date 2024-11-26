@@ -1,5 +1,4 @@
-import { afterEach } from 'node:test'
-import { type TaskContext, describe, expect, it, vi } from 'vitest'
+import { type TaskContext, afterEach, describe, expect, it, vi } from 'vitest'
 import { FeatureContentReader } from '../../__mocks__/FeatureContentReader.spec'
 import { Step, StepTypes } from '../../parser/models/step'
 import {
@@ -156,5 +155,15 @@ describe('env variables', () => {
 
         expect(options.excludeTags).toContain('ignore')
         expect(options.excludeTags).toContain('ignore-e2e')
+    })
+    it('handle empty env variable', () => {
+        vi.stubEnv('VITEST_INCLUDE_TAGS', 'awesome')
+
+        const options = getVitestCucumberConfiguration()
+
+        expect(options.includeTags).toContain('awesome')
+
+        expect(options.excludeTags).toContain('ignore')
+        expect(options.excludeTags).not.toContain('ignore-e2e')
     })
 })
