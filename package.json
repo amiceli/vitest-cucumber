@@ -1,6 +1,6 @@
 {
   "name": "@amiceli/vitest-cucumber",
-  "version": "4.1.4",
+  "version": "4.2.0-beta.1",
   "description": "vitest tools to use Gherkin feature in unit tests",
   "main": "dist/src/module.js",
   "bin": "dist/cli-generate.js",
