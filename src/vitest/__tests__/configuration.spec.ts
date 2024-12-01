@@ -1,4 +1,4 @@
-import { type TaskContext, describe, expect, it, vi } from 'vitest'
+import { type TaskContext, afterEach, describe, expect, it, vi } from 'vitest'
 import { FeatureContentReader } from '../../__mocks__/FeatureContentReader.spec'
 import { Step, StepTypes } from '../../parser/models/step'
 import {
@@ -137,5 +137,33 @@ describe('setVitestCucumberConfiguration', () => {
             excludeTags: ['ignore'],
             onStepError: expect.any(Function),
         })
+    })
+})
+
+describe('env variables', () => {
+    afterEach(() => {
+        vi.unstubAllEnvs()
+    })
+    it('should handle env variable in default options', () => {
+        vi.stubEnv('VITEST_INCLUDE_TAGS', 'test again')
+        vi.stubEnv('VITEST_EXCLUDE_TAGS', 'ignore-e2e')
+
+        const options = getVitestCucumberConfiguration()
+
+        expect(options.includeTags).toContain('again')
+        expect(options.includeTags).toContain('test')
+
+        expect(options.excludeTags).toContain('ignore')
+        expect(options.excludeTags).toContain('ignore-e2e')
+    })
+    it('handle empty env variable', () => {
+        vi.stubEnv('VITEST_INCLUDE_TAGS', 'awesome')
+
+        const options = getVitestCucumberConfiguration()
+
+        expect(options.includeTags).toContain('awesome')
+
+        expect(options.excludeTags).toContain('ignore')
+        expect(options.excludeTags).not.toContain('ignore-e2e')
     })
 })
