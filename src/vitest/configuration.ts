@@ -37,12 +37,12 @@ export const getVitestCucumberConfiguration = (
 ) => {
     const defaultConfiguration = getDefaultConfiguration()
 
-    defaultConfiguration.includeTags?.push(
-        ...(process.env.VITEST_INCLUDE_TAGS?.split(' ') || []),
-    )
-    defaultConfiguration.excludeTags?.push(
-        ...(process.env.VITEST_EXCLUDE_TAGS?.split(' ') || []),
-    )
+    // defaultConfiguration.includeTags?.push(
+    //     ...(process.env.VITEST_INCLUDE_TAGS?.split(' ') || []),
+    // )
+    // defaultConfiguration.excludeTags?.push(
+    //     ...(process.env.VITEST_EXCLUDE_TAGS?.split(' ') || []),
+    // )
     const mergedOptions = {
         ...defaultConfiguration,
         ...globalConfiguration,
