@@ -37,12 +37,25 @@ export const getVitestCucumberConfiguration = (
 ) => {
     const defaultConfiguration = getDefaultConfiguration()
 
-    // defaultConfiguration.includeTags?.push(
-    //     ...(process.env.VITEST_INCLUDE_TAGS?.split(' ') || []),
-    // )
-    // defaultConfiguration.excludeTags?.push(
-    //     ...(process.env.VITEST_EXCLUDE_TAGS?.split(' ') || []),
-    // )
+    // @ts-ignore
+    if (typeof window !== 'undefined') {
+        defaultConfiguration.includeTags?.push(
+            // @ts-ignore
+            ...(import.meta.env.VITEST_INCLUDE_TAGS?.split(' ') || []),
+        )
+        defaultConfiguration.excludeTags?.push(
+            // @ts-ignore
+            ...(import.meta.env.VITEST_EXCLUDE_TAGS?.split(' ') || []),
+        )
+    } else {
+        defaultConfiguration.includeTags?.push(
+            ...(process.env.VITEST_INCLUDE_TAGS?.split(' ') || []),
+        )
+        defaultConfiguration.excludeTags?.push(
+            ...(process.env.VITEST_EXCLUDE_TAGS?.split(' ') || []),
+        )
+    }
+
     const mergedOptions = {
         ...defaultConfiguration,
         ...globalConfiguration,

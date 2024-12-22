@@ -1,4 +1,4 @@
-// import { FeatureFileNotFoundError } from '../errors/errors'
+import { FeatureFileNotFoundError } from '../errors/errors'
 import type { Feature } from '../parser/models'
 import { GherkinParser, type RequiredParserOptions } from '../parser/parser'
 
@@ -12,26 +12,14 @@ export class BrowserFeatureFileReader {
 
     private readonly parser: GherkinParser
 
-    // private readonly callerFileDir: string | null
-
     public static fromPath(params: FeatureFileReaderParams) {
         return new BrowserFeatureFileReader(params)
     }
 
     private constructor(params: FeatureFileReaderParams) {
-        // this.callerFileDir = params.callerFileDir || null
         this.path = `/${params.featureFilePath}`
-        // this.path = this.handleFeatureFilePath(params.featureFilePath)
         this.parser = new GherkinParser(params.options)
     }
-
-    // private handleFeatureFilePath(featureFilePath: string): string {
-    //     if (featureFilePath.match(/\.\/[\w-]+(\.[\w-]+)*$/)) {
-    //         return `${this.callerFileDir}/${featureFilePath}`
-    //     }
-
-    //     return featureFilePath
-    // }
 
     public async parseFile(): Promise<Feature[]> {
         try {
@@ -44,10 +32,7 @@ export class BrowserFeatureFileReader {
 
             return this.parser.finish()
         } catch (e) {
-            console.error({
-                e,
-            })
-            throw e
+            throw new FeatureFileNotFoundError(this.path)
         }
     }
 }
