@@ -1,5 +1,5 @@
 <p align="center">
-<img src="https://vitest-cucumber.miceli.click/logo.png" width="100" />
+<img src="https://vitest-cucumber.miceli.click/_astro/logo.xz4thweI_1tCcsa.webp" width="100" />
 </p>
 
 # [vitest-cucumber](https://vitest-cucumber.miceli.click/)
