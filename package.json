@@ -4,6 +4,10 @@
   "description": "vitest tools to use Gherkin feature in unit tests",
   "main": "dist/src/module.js",
   "bin": "dist/cli-generate.js",
+  "exports": {
+    ".": "./dist/src/module.js",
+    "./browser": "./dist/src/browser/index.js"
+  },
   "files": [
     "dist"
   ],
