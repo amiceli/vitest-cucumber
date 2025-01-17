@@ -2,18 +2,23 @@
   "name": "@amiceli/vitest-cucumber",
   "version": "4.3.0",
   "description": "vitest tools to use Gherkin feature in unit tests",
-  "main": "dist/src/module.js",
+  "main": "dist/module.js",
+  "module": "dist/module.mjs",
+  "types": "dist/module.d.ts",
   "bin": "dist/cli-generate.js",
   "exports": {
-    ".": "./dist/src/module.js",
+    ".": {
+        "require": "./dist/module.js",
+        "import": "./dist/module.mjs" 
+    },
     "./browser": "./dist/src/browser/index.js"
   },
   "files": [
     "dist"
   ],
   "scripts": {
-    "build": "npx tsc --declaration --project tsconfig.json",
-    "build:watch": "npx tsc -w --declaration --project tsconfig.json",
+    "build": "tsup",
+    "build:watch": "tsup --watch",
     "build:script": "esbuild scripts/cli.ts --bundle --platform=node > dist/cli-generate.js",
     "build:all": "npm run build && npm run build:script",
     "lefthook:prepare": "lefthook install",
@@ -39,6 +44,7 @@
     "@vitest/coverage-v8": "^2.1.8",
     "esbuild": "0.24.2",
     "lefthook": "^1.10.1",
+    "tsup": "^8.3.5",
     "typescript": "^5.7.2"
   },
   "dependencies": {

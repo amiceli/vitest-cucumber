@@ -8,6 +8,7 @@
             "package.json",
             "package-lock.json",
             "dist/",
+            "reports",
             "coverage/",
             "tsconfig.json",
             "tsconfig.vitest.json",
