@@ -8,6 +8,11 @@ import {
 import { createBackgroundDescribeHandler } from './describe/describeBackground'
 import { createScenarioDescribeHandler } from './describe/describeScenario'
 import { createScenarioOutlineDescribeHandler } from './describe/describeScenarioOutline'
+import {
+    type DescribesToRun,
+    defineRuleScenarioToRun,
+    defineScenarioToRun,
+} from './describe/handle-skip-only'
 import { ScenarioStateDetector } from './state-detectors/ScenarioStateDetector'
 import type {
     BackgroundStepTest,
@@ -22,16 +27,6 @@ export type DescribeFeatureOptions = Pick<
     'includeTags' | 'excludeTags'
 >
 export type RequiredDescribeFeatureOptions = Required<DescribeFeatureOptions>
-
-type DescribesToRun = Array<{
-    skipped: boolean
-    describeTitle: string
-    describeHandler: () => void
-}>
-type DescribesToRunOrSkip = {
-    describeToRun: DescribesToRun
-    describeToSkip: DescribesToRun
-}
 
 /**
  * Extract tag filters by removing the `@` prefix if present
@@ -48,58 +43,6 @@ const extractTagFilters = (filterItems: TagFilterItem[]): TagFilterItem[] => {
 
         return filterItem as TagFilterItem
     })
-}
-
-function defineRuleScenarioToRun(options: {
-    describes: DescribesToRun
-    ruleBackground: DescribesToRun[0] | null
-    featureBackground: DescribesToRun[0] | null
-}): DescribesToRunOrSkip {
-    const describeToRun = options.describes.filter((d) => !d.skipped)
-    const describeToSkip = options.describes.filter((d) => d.skipped)
-
-    const finalDescribesToRun: DescribesToRun = []
-
-    for (const toRun of describeToRun) {
-        if (options.featureBackground && !options.featureBackground.skipped) {
-            finalDescribesToRun.push(options.featureBackground)
-        }
-        if (options.ruleBackground && !options.ruleBackground.skipped) {
-            finalDescribesToRun.push(options.ruleBackground)
-        }
-        finalDescribesToRun.push(toRun)
-    }
-
-    return {
-        describeToRun: finalDescribesToRun,
-        describeToSkip,
-    }
-}
-
-function defineScenarioToRun(options: {
-    describes: DescribesToRun
-    describeRules: DescribesToRun
-    featureBackground: DescribesToRun[0] | null
-}): DescribesToRunOrSkip {
-    const describeToRun = options.describes.filter((d) => !d.skipped)
-    const describeToSkip = options.describes.filter((d) => d.skipped)
-
-    const finalDescribesToRun: DescribesToRun = []
-
-    for (const toRun of describeToRun) {
-        if (options.featureBackground && !options.featureBackground.skipped) {
-            finalDescribesToRun.push(options.featureBackground)
-        }
-        finalDescribesToRun.push(toRun)
-    }
-
-    describeToSkip.push(...options.describeRules.filter((s) => s.skipped))
-    finalDescribesToRun.push(...options.describeRules.filter((s) => !s.skipped))
-
-    return {
-        describeToRun: finalDescribesToRun,
-        describeToSkip,
-    }
 }
 
 export function describeFeature(
@@ -134,6 +77,7 @@ export function describeFeature(
             background.isCalled = true
 
             describeBackground = {
+                only: false,
                 skipped: !background.shouldBeCalled(options),
                 describeTitle: background.getTitle(),
                 describeHandler: createBackgroundDescribeHandler({
@@ -142,24 +86,63 @@ export function describeFeature(
                 }),
             }
         },
-        Scenario: (
-            scenarioDescription: string,
-            scenarioTestCallback: (op: StepTest) => MaybePromise,
-        ) => {
-            const scenario = feature.getScenario(scenarioDescription)
-            scenario.isCalled = true
+        Scenario: (() => {
+            const createScenarioHandler = (
+                scenarioDescription: string,
+                scenarioTestCallback: (op: StepTest) => MaybePromise,
+                only: boolean,
+                skipped?: boolean,
+            ) => {
+                const scenario = feature.getScenario(scenarioDescription)
+                scenario.isCalled = true
 
-            describeScenarios.push({
-                skipped: !scenario.shouldBeCalled(options),
-                describeTitle: scenario.getTitle(),
-                describeHandler: createScenarioDescribeHandler({
-                    scenario,
+                describeScenarios.push({
+                    skipped: skipped ?? !scenario.shouldBeCalled(options),
+                    only,
+                    describeTitle: scenario.getTitle(),
+                    describeHandler: createScenarioDescribeHandler({
+                        scenario,
+                        scenarioTestCallback,
+                        beforeEachScenarioHook,
+                        afterEachScenarioHook,
+                    }),
+                })
+            }
+
+            const fn = (
+                scenarioDescription: string,
+                scenarioTestCallback: (op: StepTest) => MaybePromise,
+            ) =>
+                createScenarioHandler(
+                    scenarioDescription,
                     scenarioTestCallback,
-                    beforeEachScenarioHook,
-                    afterEachScenarioHook,
-                }),
-            })
-        },
+                    false,
+                )
+
+            fn.skip = (
+                scenarioDescription: string,
+                scenarioTestCallback: (op: StepTest) => MaybePromise,
+            ) =>
+                createScenarioHandler(
+                    scenarioDescription,
+                    scenarioTestCallback,
+                    false,
+                    true,
+                )
+
+            fn.only = (
+                scenarioDescription: string,
+                scenarioTestCallback: (op: StepTest) => MaybePromise,
+            ) =>
+                createScenarioHandler(
+                    scenarioDescription,
+                    scenarioTestCallback,
+                    true,
+                    false,
+                )
+
+            return fn
+        })(),
         ScenarioOutline: (
             scenarioDescription: string,
             scenarioTestCallback: (
@@ -180,6 +163,7 @@ export function describeFeature(
                     beforeEachScenarioHook,
                     afterEachScenarioHook,
                 }).map((t) => ({
+                    only: false,
                     skipped: !scenario.shouldBeCalled(options),
                     describeTitle: scenario.getTitle(),
                     describeHandler: t,
@@ -205,6 +189,7 @@ export function describeFeature(
 
                     describeRuleBackground = {
                         skipped: !background.shouldBeCalled(options),
+                        only: false,
                         describeTitle: background.getTitle(),
                         describeHandler: createBackgroundDescribeHandler({
                             background: background,
@@ -223,6 +208,7 @@ export function describeFeature(
                     describeRuleScenarios.push({
                         describeTitle: scenario.getTitle(),
                         skipped: !scenario.shouldBeCalled(options),
+                        only: false,
                         describeHandler: createScenarioDescribeHandler({
                             scenario,
                             scenarioTestCallback,
@@ -253,6 +239,7 @@ export function describeFeature(
                             afterEachScenarioHook,
                         }).map((t) => ({
                             skipped: !scenario.shouldBeCalled(options),
+                            only: false,
                             describeTitle: scenario.getTitle(),
                             describeHandler: t,
                         })),
@@ -266,6 +253,7 @@ export function describeFeature(
 
             describeRules.push({
                 skipped: !currentRule.shouldBeCalled(options),
+                only: false,
                 describeTitle: currentRule.getTitle(),
                 describeHandler: function describeRule() {
                     beforeAll(async () => {
@@ -330,10 +318,19 @@ export function describeFeature(
             await afterAllScenarioHook()
         })
 
-        const { describeToRun, describeToSkip } = defineScenarioToRun({
-            describes: describeScenarios,
-            featureBackground: describeBackground,
-            describeRules,
+        const { describeToRun, describeToSkip, onlyDescribeToRun } =
+            defineScenarioToRun({
+                describes: describeScenarios,
+                featureBackground: describeBackground,
+                describeRules,
+            })
+
+        describe.only.each(
+            onlyDescribeToRun.map((s) => {
+                return [s.describeTitle, s]
+            }),
+        )(`%s`, (_, { describeHandler }) => {
+            describeHandler()
         })
 
         describe.skip.each(
@@ -344,12 +341,13 @@ export function describeFeature(
             describeHandler()
         })
 
+        // )(`%s`, async ([, scenarioStep], ctx) => {
         describe.each(
             describeToRun.map((s) => {
                 return [s.describeTitle, s]
             }),
-        )(`%s`, (_, { describeHandler }) => {
-            describeHandler()
+        )(`%s`, (_, parent) => {
+            parent.describeHandler()
         })
     })
 }
