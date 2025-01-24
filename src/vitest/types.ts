@@ -51,7 +51,10 @@ export type RuleOptions = {
     RuleBackground: BackgroundTest & {
         skip: BackgroundTest
     }
-    RuleScenario: ScenarioTest
+    RuleScenario: ScenarioTest & {
+        skip: ScenarioTest
+        only: ScenarioTest
+    }
     RuleScenarioOutline: ScenarioOutlineTest
 }
 

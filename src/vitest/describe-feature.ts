@@ -286,26 +286,68 @@ export function describeFeature(
 
                     return fn
                 })(),
-                RuleScenario: (
-                    scenarioDescription: string,
-                    scenarioTestCallback: (op: StepTest) => MaybePromise,
-                ) => {
-                    const scenario =
-                        currentRule.getScenario(scenarioDescription)
-                    scenario.isCalled = true
+                RuleScenario: (() => {
+                    const createRuleScenarioHandler = (
+                        scenarioDescription: string,
+                        scenarioTestCallback: (op: StepTest) => MaybePromise,
+                        only: boolean,
+                        skipped?: boolean,
+                    ) => {
+                        const scenario =
+                            currentRule.getScenario(scenarioDescription)
+                        scenario.isCalled = true
 
-                    describeRuleScenarios.push({
-                        describeTitle: scenario.getTitle(),
-                        skipped: !scenario.shouldBeCalled(options),
-                        only: false,
-                        describeHandler: createScenarioDescribeHandler({
-                            scenario,
+                        describeRuleScenarios.push({
+                            describeTitle: scenario.getTitle(),
+                            skipped:
+                                skipped ?? !scenario.shouldBeCalled(options),
+                            only,
+                            describeHandler: createScenarioDescribeHandler({
+                                scenario,
+                                scenarioTestCallback,
+                                beforeEachScenarioHook,
+                                afterEachScenarioHook,
+                            }),
+                        })
+                    }
+
+                    const fn = (
+                        scenarioDescription: string,
+                        scenarioTestCallback: (op: StepTest) => MaybePromise,
+                    ) => {
+                        createRuleScenarioHandler(
+                            scenarioDescription,
                             scenarioTestCallback,
-                            beforeEachScenarioHook,
-                            afterEachScenarioHook,
-                        }),
-                    })
-                },
+                            false,
+                        )
+                    }
+
+                    fn.skip = (
+                        scenarioDescription: string,
+                        scenarioTestCallback: (op: StepTest) => MaybePromise,
+                    ) => {
+                        createRuleScenarioHandler(
+                            scenarioDescription,
+                            scenarioTestCallback,
+                            false,
+                            true,
+                        )
+                    }
+
+                    fn.only = (
+                        scenarioDescription: string,
+                        scenarioTestCallback: (op: StepTest) => MaybePromise,
+                    ) => {
+                        createRuleScenarioHandler(
+                            scenarioDescription,
+                            scenarioTestCallback,
+                            true,
+                            false,
+                        )
+                    }
+
+                    return fn
+                })(),
                 RuleScenarioOutline: (
                     scenarioDescription: string,
                     scenarioTestCallback: (
@@ -352,12 +394,20 @@ export function describeFeature(
                         await afterAllScenarioHook()
                     })
 
-                    const { describeToRun, describeToSkip } =
+                    const { describeToRun, describeToSkip, onlyDescribeToRun } =
                         defineRuleScenarioToRun({
                             describes: describeRuleScenarios,
                             ruleBackground: describeRuleBackground,
                             featureBackground: describeBackground,
                         })
+
+                    describe.only.each(
+                        onlyDescribeToRun.map((s) => {
+                            return [s.describeTitle, s]
+                        }),
+                    )(`%s`, (_, { describeHandler }) => {
+                        describeHandler()
+                    })
 
                     describe.skip.each(
                         describeToSkip.map((s) => {
