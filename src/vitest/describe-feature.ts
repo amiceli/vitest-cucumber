@@ -70,22 +70,39 @@ export function describeFeature(
     let describeBackground: DescribesToRun[0] | null = null
 
     const descibeFeatureParams: FeatureDescriibeCallbackParams = {
-        Background: (
-            backgroundCallback: (op: BackgroundStepTest) => MaybePromise,
-        ) => {
-            const background = feature.getBackground()
-            background.isCalled = true
+        Background: (() => {
+            const createBackgroundHandler = (
+                backgroundCallback: (op: BackgroundStepTest) => MaybePromise,
+                skipped?: boolean,
+            ) => {
+                const background = feature.getBackground()
+                background.isCalled = true
 
-            describeBackground = {
-                only: false,
-                skipped: !background.shouldBeCalled(options),
-                describeTitle: background.getTitle(),
-                describeHandler: createBackgroundDescribeHandler({
-                    background,
-                    backgroundCallback,
-                }),
+                describeBackground = {
+                    only: false,
+                    skipped: skipped ?? !background.shouldBeCalled(options),
+                    describeTitle: background.getTitle(),
+                    describeHandler: createBackgroundDescribeHandler({
+                        background,
+                        backgroundCallback,
+                    }),
+                }
             }
-        },
+
+            const fn = (
+                backgroundCallback: (op: BackgroundStepTest) => MaybePromise,
+            ) => {
+                createBackgroundHandler(backgroundCallback)
+            }
+
+            fn.skip = (
+                backgroundCallback: (op: BackgroundStepTest) => MaybePromise,
+            ) => {
+                createBackgroundHandler(backgroundCallback, true)
+            }
+
+            return fn
+        })(),
         Scenario: (() => {
             const createScenarioHandler = (
                 scenarioDescription: string,
@@ -143,33 +160,110 @@ export function describeFeature(
 
             return fn
         })(),
-        ScenarioOutline: (
-            scenarioDescription: string,
-            scenarioTestCallback: (
-                op: StepTest,
-                variables: Example[0],
-            ) => MaybePromise,
-        ) => {
-            const scenario = feature.getScenarioOutline(scenarioDescription)
+        ScenarioOutline: (() => {
+            const createScenarioOutlineHandler = (
+                scenarioDescription: string,
+                scenarioTestCallback: (
+                    op: StepTest,
+                    variables: Example[0],
+                ) => MaybePromise,
+                only: boolean,
+                skipped?: boolean,
+            ) => {
+                const scenario = feature.getScenarioOutline(scenarioDescription)
 
-            ScenarioStateDetector.forScenario(scenario).checkExemples()
+                ScenarioStateDetector.forScenario(scenario).checkExemples()
 
-            scenario.isCalled = true
+                scenario.isCalled = true
 
-            describeScenarios.push(
-                ...createScenarioOutlineDescribeHandler({
-                    scenario,
+                describeScenarios.push(
+                    ...createScenarioOutlineDescribeHandler({
+                        scenario,
+                        scenarioTestCallback,
+                        beforeEachScenarioHook,
+                        afterEachScenarioHook,
+                    }).map((t) => ({
+                        only,
+                        skipped: skipped ?? !scenario.shouldBeCalled(options),
+                        describeTitle: scenario.getTitle(),
+                        describeHandler: t,
+                    })),
+                )
+            }
+
+            const fn = (
+                scenarioDescription: string,
+                scenarioTestCallback: (
+                    op: StepTest,
+                    variables: Example[0],
+                ) => MaybePromise,
+            ) => {
+                createScenarioOutlineHandler(
+                    scenarioDescription,
                     scenarioTestCallback,
-                    beforeEachScenarioHook,
-                    afterEachScenarioHook,
-                }).map((t) => ({
-                    only: false,
-                    skipped: !scenario.shouldBeCalled(options),
-                    describeTitle: scenario.getTitle(),
-                    describeHandler: t,
-                })),
-            )
-        },
+                    false,
+                )
+            }
+
+            fn.skip = (
+                scenarioDescription: string,
+                scenarioTestCallback: (
+                    op: StepTest,
+                    variables: Example[0],
+                ) => MaybePromise,
+            ) => {
+                createScenarioOutlineHandler(
+                    scenarioDescription,
+                    scenarioTestCallback,
+                    false,
+                    true,
+                )
+            }
+
+            fn.only = (
+                scenarioDescription: string,
+                scenarioTestCallback: (
+                    op: StepTest,
+                    variables: Example[0],
+                ) => MaybePromise,
+            ) => {
+                createScenarioOutlineHandler(
+                    scenarioDescription,
+                    scenarioTestCallback,
+                    true,
+                    false,
+                )
+            }
+
+            return fn
+        })(),
+        // ScenarioOutline: (
+        //     scenarioDescription: string,
+        //     scenarioTestCallback: (
+        //         op: StepTest,
+        //         variables: Example[0],
+        //     ) => MaybePromise,
+        // ) => {
+        //     const scenario = feature.getScenarioOutline(scenarioDescription)
+
+        //     ScenarioStateDetector.forScenario(scenario).checkExemples()
+
+        //     scenario.isCalled = true
+
+        //     describeScenarios.push(
+        //         ...createScenarioOutlineDescribeHandler({
+        //             scenario,
+        //             scenarioTestCallback,
+        //             beforeEachScenarioHook,
+        //             afterEachScenarioHook,
+        //         }).map((t) => ({
+        //             only: false,
+        //             skipped: !scenario.shouldBeCalled(options),
+        //             describeTitle: scenario.getTitle(),
+        //             describeHandler: t,
+        //         })),
+        //     )
+        // },
         Rule: (ruleName: string, describeRuleCallback) => {
             const describeRuleScenarios: DescribesToRun = []
             const currentRule = feature.checkIfRuleExists(ruleName)
