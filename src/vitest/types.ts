@@ -55,7 +55,10 @@ export type RuleOptions = {
         skip: ScenarioTest
         only: ScenarioTest
     }
-    RuleScenarioOutline: ScenarioOutlineTest
+    RuleScenarioOutline: ScenarioOutlineTest & {
+        skip: ScenarioOutlineTest
+        only: ScenarioOutlineTest
+    }
 }
 
 export type RuleTest = (

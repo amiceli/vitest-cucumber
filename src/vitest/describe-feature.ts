@@ -348,34 +348,88 @@ export function describeFeature(
 
                     return fn
                 })(),
-                RuleScenarioOutline: (
-                    scenarioDescription: string,
-                    scenarioTestCallback: (
-                        op: StepTest,
-                        variables: Example[0],
-                    ) => MaybePromise,
-                ) => {
-                    const scenario =
-                        currentRule.getScenarioOutline(scenarioDescription)
+                RuleScenarioOutline: (() => {
+                    const createRuleScenarioOutlineHandler = (
+                        scenarioDescription: string,
+                        scenarioTestCallback: (
+                            op: StepTest,
+                            variables: Example[0],
+                        ) => MaybePromise,
+                        only: boolean,
+                        skipped?: boolean,
+                    ) => {
+                        const scenario =
+                            currentRule.getScenarioOutline(scenarioDescription)
 
-                    ScenarioStateDetector.forScenario(scenario).checkExemples()
-
-                    scenario.isCalled = true
-
-                    describeRuleScenarios.push(
-                        ...createScenarioOutlineDescribeHandler({
+                        ScenarioStateDetector.forScenario(
                             scenario,
+                        ).checkExemples()
+
+                        scenario.isCalled = true
+
+                        describeRuleScenarios.push(
+                            ...createScenarioOutlineDescribeHandler({
+                                scenario,
+                                scenarioTestCallback,
+                                beforeEachScenarioHook,
+                                afterEachScenarioHook,
+                            }).map((t) => ({
+                                skipped:
+                                    skipped ??
+                                    !scenario.shouldBeCalled(options),
+                                only,
+                                describeTitle: scenario.getTitle(),
+                                describeHandler: t,
+                            })),
+                        )
+                    }
+
+                    const fn = (
+                        scenarioDescription: string,
+                        scenarioTestCallback: (
+                            op: StepTest,
+                            variables: Example[0],
+                        ) => MaybePromise,
+                    ) => {
+                        createRuleScenarioOutlineHandler(
+                            scenarioDescription,
                             scenarioTestCallback,
-                            beforeEachScenarioHook,
-                            afterEachScenarioHook,
-                        }).map((t) => ({
-                            skipped: !scenario.shouldBeCalled(options),
-                            only: false,
-                            describeTitle: scenario.getTitle(),
-                            describeHandler: t,
-                        })),
-                    )
-                },
+                            false,
+                        )
+                    }
+
+                    fn.skip = (
+                        scenarioDescription: string,
+                        scenarioTestCallback: (
+                            op: StepTest,
+                            variables: Example[0],
+                        ) => MaybePromise,
+                    ) => {
+                        createRuleScenarioOutlineHandler(
+                            scenarioDescription,
+                            scenarioTestCallback,
+                            false,
+                            true,
+                        )
+                    }
+
+                    fn.only = (
+                        scenarioDescription: string,
+                        scenarioTestCallback: (
+                            op: StepTest,
+                            variables: Example[0],
+                        ) => MaybePromise,
+                    ) => {
+                        createRuleScenarioOutlineHandler(
+                            scenarioDescription,
+                            scenarioTestCallback,
+                            true,
+                            false,
+                        )
+                    }
+
+                    return fn
+                })(),
             })
 
             currentRule
