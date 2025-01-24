@@ -40,7 +40,10 @@ export type FeatureDescriibeCallbackParams = {
     AfterAllScenarios: (fn: () => MaybePromise) => void
     BeforeEachScenario: (fn: () => MaybePromise) => void
     AfterEachScenario: (fn: () => MaybePromise) => void
-    Rule: RuleTest
+    Rule: RuleTest & {
+        skip: RuleTest
+        only: RuleTest
+    }
 }
 
 export type DescribeFeatureCallback = (

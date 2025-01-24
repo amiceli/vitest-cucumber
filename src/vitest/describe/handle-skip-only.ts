@@ -73,8 +73,15 @@ export function defineScenarioToRun(options: {
         finalDescribesToRun.push(toRun)
     }
 
-    describeToSkip.push(...options.describeRules.filter((s) => s.skipped))
-    finalDescribesToRun.push(...options.describeRules.filter((s) => !s.skipped))
+    describeToSkip.push(
+        ...options.describeRules.filter((s) => s.skipped && !s.only),
+    )
+    finalDescribesToRun.push(
+        ...options.describeRules.filter((s) => !s.skipped && !s.only),
+    )
+    onlyDescribeToRun.push(
+        ...options.describeRules.filter((s) => !s.skipped && s.only),
+    )
 
     return {
         describeToRun: finalDescribesToRun,

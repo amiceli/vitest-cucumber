@@ -19,6 +19,7 @@ import type {
     DescribeFeatureCallback,
     FeatureDescriibeCallbackParams,
     MaybePromise,
+    RuleOptions,
     StepTest,
 } from './types'
 
@@ -237,250 +238,300 @@ export function describeFeature(
 
             return fn
         })(),
-        Rule: (ruleName: string, describeRuleCallback) => {
-            const describeRuleScenarios: DescribesToRun = []
-            const currentRule = feature.checkIfRuleExists(ruleName)
+        Rule: (() => {
+            const createRuleHandler = (
+                ruleName: string,
+                describeRuleCallback: (op: RuleOptions) => void,
+                ruleOnly: boolean,
+                ruleSkipped?: boolean,
+            ) => {
+                const describeRuleScenarios: DescribesToRun = []
+                const currentRule = feature.checkIfRuleExists(ruleName)
 
-            currentRule.isCalled = true
+                currentRule.isCalled = true
 
-            let describeRuleBackground: DescribesToRun[0] | null = null
+                let describeRuleBackground: DescribesToRun[0] | null = null
 
-            describeRuleCallback({
-                RuleBackground: (() => {
-                    const createRuleBackgroundHandler = (
-                        backgroundCallback: (
-                            op: BackgroundStepTest,
-                        ) => MaybePromise,
-                        skipped?: boolean,
-                    ) => {
-                        const background = currentRule.getBackground()
-                        background.isCalled = true
+                describeRuleCallback({
+                    RuleBackground: (() => {
+                        const createRuleBackgroundHandler = (
+                            backgroundCallback: (
+                                op: BackgroundStepTest,
+                            ) => MaybePromise,
+                            skipped?: boolean,
+                        ) => {
+                            const background = currentRule.getBackground()
+                            background.isCalled = true
 
-                        describeRuleBackground = {
-                            skipped:
-                                skipped ?? !background.shouldBeCalled(options),
-                            only: false,
-                            describeTitle: background.getTitle(),
-                            describeHandler: createBackgroundDescribeHandler({
-                                background: background,
-                                backgroundCallback,
-                            }),
+                            describeRuleBackground = {
+                                skipped:
+                                    skipped ??
+                                    !background.shouldBeCalled(options),
+                                only: false,
+                                describeTitle: background.getTitle(),
+                                describeHandler:
+                                    createBackgroundDescribeHandler({
+                                        background: background,
+                                        backgroundCallback,
+                                    }),
+                            }
                         }
-                    }
 
-                    const fn = (
-                        backgroundCallback: (
-                            op: BackgroundStepTest,
-                        ) => MaybePromise,
-                    ) => {
-                        createRuleBackgroundHandler(backgroundCallback)
-                    }
+                        const fn = (
+                            backgroundCallback: (
+                                op: BackgroundStepTest,
+                            ) => MaybePromise,
+                        ) => {
+                            createRuleBackgroundHandler(backgroundCallback)
+                        }
 
-                    fn.skip = (
-                        backgroundCallback: (
-                            op: BackgroundStepTest,
-                        ) => MaybePromise,
-                    ) => {
-                        createRuleBackgroundHandler(backgroundCallback, true)
-                    }
+                        fn.skip = (
+                            backgroundCallback: (
+                                op: BackgroundStepTest,
+                            ) => MaybePromise,
+                        ) => {
+                            createRuleBackgroundHandler(
+                                backgroundCallback,
+                                true,
+                            )
+                        }
 
-                    return fn
-                })(),
-                RuleScenario: (() => {
-                    const createRuleScenarioHandler = (
-                        scenarioDescription: string,
-                        scenarioTestCallback: (op: StepTest) => MaybePromise,
-                        only: boolean,
-                        skipped?: boolean,
-                    ) => {
-                        const scenario =
-                            currentRule.getScenario(scenarioDescription)
-                        scenario.isCalled = true
+                        return fn
+                    })(),
+                    RuleScenario: (() => {
+                        const createRuleScenarioHandler = (
+                            scenarioDescription: string,
+                            scenarioTestCallback: (
+                                op: StepTest,
+                            ) => MaybePromise,
+                            only: boolean,
+                            skipped?: boolean,
+                        ) => {
+                            const scenario =
+                                currentRule.getScenario(scenarioDescription)
+                            scenario.isCalled = true
 
-                        describeRuleScenarios.push({
-                            describeTitle: scenario.getTitle(),
-                            skipped:
-                                skipped ?? !scenario.shouldBeCalled(options),
-                            only,
-                            describeHandler: createScenarioDescribeHandler({
-                                scenario,
-                                scenarioTestCallback,
-                                beforeEachScenarioHook,
-                                afterEachScenarioHook,
-                            }),
-                        })
-                    }
-
-                    const fn = (
-                        scenarioDescription: string,
-                        scenarioTestCallback: (op: StepTest) => MaybePromise,
-                    ) => {
-                        createRuleScenarioHandler(
-                            scenarioDescription,
-                            scenarioTestCallback,
-                            false,
-                        )
-                    }
-
-                    fn.skip = (
-                        scenarioDescription: string,
-                        scenarioTestCallback: (op: StepTest) => MaybePromise,
-                    ) => {
-                        createRuleScenarioHandler(
-                            scenarioDescription,
-                            scenarioTestCallback,
-                            false,
-                            true,
-                        )
-                    }
-
-                    fn.only = (
-                        scenarioDescription: string,
-                        scenarioTestCallback: (op: StepTest) => MaybePromise,
-                    ) => {
-                        createRuleScenarioHandler(
-                            scenarioDescription,
-                            scenarioTestCallback,
-                            true,
-                            false,
-                        )
-                    }
-
-                    return fn
-                })(),
-                RuleScenarioOutline: (() => {
-                    const createRuleScenarioOutlineHandler = (
-                        scenarioDescription: string,
-                        scenarioTestCallback: (
-                            op: StepTest,
-                            variables: Example[0],
-                        ) => MaybePromise,
-                        only: boolean,
-                        skipped?: boolean,
-                    ) => {
-                        const scenario =
-                            currentRule.getScenarioOutline(scenarioDescription)
-
-                        ScenarioStateDetector.forScenario(
-                            scenario,
-                        ).checkExemples()
-
-                        scenario.isCalled = true
-
-                        describeRuleScenarios.push(
-                            ...createScenarioOutlineDescribeHandler({
-                                scenario,
-                                scenarioTestCallback,
-                                beforeEachScenarioHook,
-                                afterEachScenarioHook,
-                            }).map((t) => ({
+                            describeRuleScenarios.push({
+                                describeTitle: scenario.getTitle(),
                                 skipped:
                                     skipped ??
                                     !scenario.shouldBeCalled(options),
                                 only,
-                                describeTitle: scenario.getTitle(),
-                                describeHandler: t,
-                            })),
-                        )
-                    }
+                                describeHandler: createScenarioDescribeHandler({
+                                    scenario,
+                                    scenarioTestCallback,
+                                    beforeEachScenarioHook,
+                                    afterEachScenarioHook,
+                                }),
+                            })
+                        }
 
-                    const fn = (
-                        scenarioDescription: string,
-                        scenarioTestCallback: (
-                            op: StepTest,
-                            variables: Example[0],
-                        ) => MaybePromise,
-                    ) => {
-                        createRuleScenarioOutlineHandler(
-                            scenarioDescription,
-                            scenarioTestCallback,
-                            false,
-                        )
-                    }
+                        const fn = (
+                            scenarioDescription: string,
+                            scenarioTestCallback: (
+                                op: StepTest,
+                            ) => MaybePromise,
+                        ) => {
+                            createRuleScenarioHandler(
+                                scenarioDescription,
+                                scenarioTestCallback,
+                                false,
+                            )
+                        }
 
-                    fn.skip = (
-                        scenarioDescription: string,
-                        scenarioTestCallback: (
-                            op: StepTest,
-                            variables: Example[0],
-                        ) => MaybePromise,
-                    ) => {
-                        createRuleScenarioOutlineHandler(
-                            scenarioDescription,
-                            scenarioTestCallback,
-                            false,
-                            true,
-                        )
-                    }
+                        fn.skip = (
+                            scenarioDescription: string,
+                            scenarioTestCallback: (
+                                op: StepTest,
+                            ) => MaybePromise,
+                        ) => {
+                            createRuleScenarioHandler(
+                                scenarioDescription,
+                                scenarioTestCallback,
+                                false,
+                                true,
+                            )
+                        }
 
-                    fn.only = (
-                        scenarioDescription: string,
-                        scenarioTestCallback: (
-                            op: StepTest,
-                            variables: Example[0],
-                        ) => MaybePromise,
-                    ) => {
-                        createRuleScenarioOutlineHandler(
-                            scenarioDescription,
-                            scenarioTestCallback,
-                            true,
-                            false,
-                        )
-                    }
+                        fn.only = (
+                            scenarioDescription: string,
+                            scenarioTestCallback: (
+                                op: StepTest,
+                            ) => MaybePromise,
+                        ) => {
+                            createRuleScenarioHandler(
+                                scenarioDescription,
+                                scenarioTestCallback,
+                                true,
+                                false,
+                            )
+                        }
 
-                    return fn
-                })(),
-            })
+                        return fn
+                    })(),
+                    RuleScenarioOutline: (() => {
+                        const createRuleScenarioOutlineHandler = (
+                            scenarioDescription: string,
+                            scenarioTestCallback: (
+                                op: StepTest,
+                                variables: Example[0],
+                            ) => MaybePromise,
+                            only: boolean,
+                            skipped?: boolean,
+                        ) => {
+                            const scenario =
+                                currentRule.getScenarioOutline(
+                                    scenarioDescription,
+                                )
 
-            currentRule
-                .checkUncalledScenario(options)
-                .checkUncalledBackground(options)
+                            ScenarioStateDetector.forScenario(
+                                scenario,
+                            ).checkExemples()
 
-            describeRules.push({
-                skipped: !currentRule.shouldBeCalled(options),
-                only: false,
-                describeTitle: currentRule.getTitle(),
-                describeHandler: function describeRule() {
-                    beforeAll(async () => {
-                        await beforeAllScenarioHook()
-                    })
-                    afterAll(async () => {
-                        await afterAllScenarioHook()
-                    })
+                            scenario.isCalled = true
 
-                    const { describeToRun, describeToSkip, onlyDescribeToRun } =
-                        defineRuleScenarioToRun({
+                            describeRuleScenarios.push(
+                                ...createScenarioOutlineDescribeHandler({
+                                    scenario,
+                                    scenarioTestCallback,
+                                    beforeEachScenarioHook,
+                                    afterEachScenarioHook,
+                                }).map((t) => ({
+                                    skipped:
+                                        skipped ??
+                                        !scenario.shouldBeCalled(options),
+                                    only,
+                                    describeTitle: scenario.getTitle(),
+                                    describeHandler: t,
+                                })),
+                            )
+                        }
+
+                        const fn = (
+                            scenarioDescription: string,
+                            scenarioTestCallback: (
+                                op: StepTest,
+                                variables: Example[0],
+                            ) => MaybePromise,
+                        ) => {
+                            createRuleScenarioOutlineHandler(
+                                scenarioDescription,
+                                scenarioTestCallback,
+                                false,
+                            )
+                        }
+
+                        fn.skip = (
+                            scenarioDescription: string,
+                            scenarioTestCallback: (
+                                op: StepTest,
+                                variables: Example[0],
+                            ) => MaybePromise,
+                        ) => {
+                            createRuleScenarioOutlineHandler(
+                                scenarioDescription,
+                                scenarioTestCallback,
+                                false,
+                                true,
+                            )
+                        }
+
+                        fn.only = (
+                            scenarioDescription: string,
+                            scenarioTestCallback: (
+                                op: StepTest,
+                                variables: Example[0],
+                            ) => MaybePromise,
+                        ) => {
+                            createRuleScenarioOutlineHandler(
+                                scenarioDescription,
+                                scenarioTestCallback,
+                                true,
+                                false,
+                            )
+                        }
+
+                        return fn
+                    })(),
+                })
+
+                currentRule
+                    .checkUncalledScenario(options)
+                    .checkUncalledBackground(options)
+
+                describeRules.push({
+                    skipped:
+                        ruleSkipped ?? !currentRule.shouldBeCalled(options),
+                    only: ruleOnly,
+                    describeTitle: currentRule.getTitle(),
+                    describeHandler: function describeRule() {
+                        beforeAll(async () => {
+                            await beforeAllScenarioHook()
+                        })
+                        afterAll(async () => {
+                            await afterAllScenarioHook()
+                        })
+
+                        const {
+                            describeToRun,
+                            describeToSkip,
+                            onlyDescribeToRun,
+                        } = defineRuleScenarioToRun({
                             describes: describeRuleScenarios,
                             ruleBackground: describeRuleBackground,
                             featureBackground: describeBackground,
                         })
 
-                    describe.only.each(
-                        onlyDescribeToRun.map((s) => {
-                            return [s.describeTitle, s]
-                        }),
-                    )(`%s`, (_, { describeHandler }) => {
-                        describeHandler()
-                    })
+                        describe.only.each(
+                            onlyDescribeToRun.map((s) => {
+                                return [s.describeTitle, s]
+                            }),
+                        )(`%s`, (_, { describeHandler }) => {
+                            describeHandler()
+                        })
 
-                    describe.skip.each(
-                        describeToSkip.map((s) => {
-                            return [s.describeTitle, s]
-                        }),
-                    )(`%s`, (_, { describeHandler }) => {
-                        describeHandler()
-                    })
+                        describe.skip.each(
+                            describeToSkip.map((s) => {
+                                return [s.describeTitle, s]
+                            }),
+                        )(`%s`, (_, { describeHandler }) => {
+                            describeHandler()
+                        })
 
-                    describe.each(
-                        describeToRun.map((s) => {
-                            return [s.describeTitle, s]
-                        }),
-                    )(`%s`, (_, { describeHandler }) => {
-                        describeHandler()
-                    })
-                },
-            })
-        },
+                        describe.each(
+                            describeToRun.map((s) => {
+                                return [s.describeTitle, s]
+                            }),
+                        )(`%s`, (_, { describeHandler }) => {
+                            describeHandler()
+                        })
+                    },
+                })
+            }
+
+            const fn = (
+                ruleName: string,
+                describeRuleCallback: (op: RuleOptions) => void,
+            ) => {
+                createRuleHandler(ruleName, describeRuleCallback, false)
+            }
+
+            fn.skip = (
+                ruleName: string,
+                describeRuleCallback: (op: RuleOptions) => void,
+            ) => {
+                createRuleHandler(ruleName, describeRuleCallback, false, true)
+            }
+
+            fn.only = (
+                ruleName: string,
+                describeRuleCallback: (op: RuleOptions) => void,
+            ) => {
+                createRuleHandler(ruleName, describeRuleCallback, true, false)
+            }
+
+            return fn
+        })(),
         BeforeEachScenario: (fn: () => MaybePromise) => {
             beforeEachScenarioHook = fn
         },
