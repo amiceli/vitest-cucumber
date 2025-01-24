@@ -237,33 +237,6 @@ export function describeFeature(
 
             return fn
         })(),
-        // ScenarioOutline: (
-        //     scenarioDescription: string,
-        //     scenarioTestCallback: (
-        //         op: StepTest,
-        //         variables: Example[0],
-        //     ) => MaybePromise,
-        // ) => {
-        //     const scenario = feature.getScenarioOutline(scenarioDescription)
-
-        //     ScenarioStateDetector.forScenario(scenario).checkExemples()
-
-        //     scenario.isCalled = true
-
-        //     describeScenarios.push(
-        //         ...createScenarioOutlineDescribeHandler({
-        //             scenario,
-        //             scenarioTestCallback,
-        //             beforeEachScenarioHook,
-        //             afterEachScenarioHook,
-        //         }).map((t) => ({
-        //             only: false,
-        //             skipped: !scenario.shouldBeCalled(options),
-        //             describeTitle: scenario.getTitle(),
-        //             describeHandler: t,
-        //         })),
-        //     )
-        // },
         Rule: (ruleName: string, describeRuleCallback) => {
             const describeRuleScenarios: DescribesToRun = []
             const currentRule = feature.checkIfRuleExists(ruleName)
@@ -273,24 +246,46 @@ export function describeFeature(
             let describeRuleBackground: DescribesToRun[0] | null = null
 
             describeRuleCallback({
-                RuleBackground: (
-                    backgroundCallback: (
-                        op: BackgroundStepTest,
-                    ) => MaybePromise,
-                ) => {
-                    const background = currentRule.getBackground()
-                    background.isCalled = true
+                RuleBackground: (() => {
+                    const createRuleBackgroundHandler = (
+                        backgroundCallback: (
+                            op: BackgroundStepTest,
+                        ) => MaybePromise,
+                        skipped?: boolean,
+                    ) => {
+                        const background = currentRule.getBackground()
+                        background.isCalled = true
 
-                    describeRuleBackground = {
-                        skipped: !background.shouldBeCalled(options),
-                        only: false,
-                        describeTitle: background.getTitle(),
-                        describeHandler: createBackgroundDescribeHandler({
-                            background: background,
-                            backgroundCallback,
-                        }),
+                        describeRuleBackground = {
+                            skipped:
+                                skipped ?? !background.shouldBeCalled(options),
+                            only: false,
+                            describeTitle: background.getTitle(),
+                            describeHandler: createBackgroundDescribeHandler({
+                                background: background,
+                                backgroundCallback,
+                            }),
+                        }
                     }
-                },
+
+                    const fn = (
+                        backgroundCallback: (
+                            op: BackgroundStepTest,
+                        ) => MaybePromise,
+                    ) => {
+                        createRuleBackgroundHandler(backgroundCallback)
+                    }
+
+                    fn.skip = (
+                        backgroundCallback: (
+                            op: BackgroundStepTest,
+                        ) => MaybePromise,
+                    ) => {
+                        createRuleBackgroundHandler(backgroundCallback, true)
+                    }
+
+                    return fn
+                })(),
                 RuleScenario: (
                     scenarioDescription: string,
                     scenarioTestCallback: (op: StepTest) => MaybePromise,

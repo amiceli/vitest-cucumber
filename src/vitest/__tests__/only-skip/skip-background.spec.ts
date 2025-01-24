@@ -4,7 +4,7 @@ import { describeFeature } from '../../describe-feature'
 
 describe('Background.skip', () => {
     const feature = FeatureContentReader.fromString([
-        `Feature: Scenario.skip`,
+        `Feature: Background.skip`,
         `   Background:`,
         `       Given I use skip`,
         `   Scenario: next scenario`,

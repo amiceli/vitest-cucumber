@@ -48,7 +48,9 @@ export type DescribeFeatureCallback = (
 ) => void
 
 export type RuleOptions = {
-    RuleBackground: BackgroundTest
+    RuleBackground: BackgroundTest & {
+        skip: BackgroundTest
+    }
     RuleScenario: ScenarioTest
     RuleScenarioOutline: ScenarioOutlineTest
 }
