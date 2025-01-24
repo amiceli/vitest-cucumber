@@ -55,8 +55,12 @@ export function defineScenarioToRun(options: {
     const finalDescribesToRun: DescribesToRun = []
 
     for (const toRun of describeToRun) {
-        if (options.featureBackground && !options.featureBackground.skipped) {
-            finalDescribesToRun.push(options.featureBackground)
+        if (options.featureBackground) {
+            if (options.featureBackground.skipped) {
+                describeToSkip.push(options.featureBackground)
+            } else {
+                finalDescribesToRun.push(options.featureBackground)
+            }
         }
         finalDescribesToRun.push(toRun)
     }
