@@ -25,14 +25,25 @@ export type StepTest = {
 }
 
 export type FeatureDescriibeCallbackParams = {
-    Background: BackgroundTest
-    Scenario: ScenarioTest
-    ScenarioOutline: ScenarioOutlineTest
+    Background: BackgroundTest & {
+        skip: BackgroundTest
+    }
+    Scenario: ScenarioTest & {
+        skip: ScenarioTest
+        only: ScenarioTest
+    }
+    ScenarioOutline: ScenarioOutlineTest & {
+        skip: ScenarioOutlineTest
+        only: ScenarioOutlineTest
+    }
     BeforeAllScenarios: (fn: () => MaybePromise) => void
     AfterAllScenarios: (fn: () => MaybePromise) => void
     BeforeEachScenario: (fn: () => MaybePromise) => void
     AfterEachScenario: (fn: () => MaybePromise) => void
-    Rule: RuleTest
+    Rule: RuleTest & {
+        skip: RuleTest
+        only: RuleTest
+    }
 }
 
 export type DescribeFeatureCallback = (
@@ -40,9 +51,17 @@ export type DescribeFeatureCallback = (
 ) => void
 
 export type RuleOptions = {
-    RuleBackground: BackgroundTest
-    RuleScenario: ScenarioTest
-    RuleScenarioOutline: ScenarioOutlineTest
+    RuleBackground: BackgroundTest & {
+        skip: BackgroundTest
+    }
+    RuleScenario: ScenarioTest & {
+        skip: ScenarioTest
+        only: ScenarioTest
+    }
+    RuleScenarioOutline: ScenarioOutlineTest & {
+        skip: ScenarioOutlineTest
+        only: ScenarioOutlineTest
+    }
 }
 
 export type RuleTest = (

@@ -11,7 +11,8 @@
             "coverage/",
             "tsconfig.json",
             "tsconfig.vitest.json",
-            "src/parser/lang/lang.json"
+            "src/parser/lang/lang.json",
+            "reports"
         ]
     },
     "linter": {
