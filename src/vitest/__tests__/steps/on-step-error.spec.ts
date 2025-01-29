@@ -1,8 +1,8 @@
 import { beforeEach } from 'node:test'
 import { describe, expect, vi } from 'vitest'
-import { FeatureContentReader } from '../../__mocks__/FeatureContentReader.spec'
-import { setVitestCucumberConfiguration } from '../configuration'
-import { describeFeature } from '../describe-feature'
+import { FeatureContentReader } from '../../../__mocks__/FeatureContentReader.spec'
+import { setVitestCucumberConfiguration } from '../../configuration'
+import { describeFeature } from '../../describe-feature'
 
 let onTestFailedCallback: (args: unknown) => void = () => {}
 
