@@ -1,6 +1,6 @@
 import { afterAll, describe, expect, vi } from 'vitest'
-import { FeatureContentReader } from '../../__mocks__/FeatureContentReader.spec'
-import { describeFeature } from '../describe-feature'
+import { FeatureContentReader } from '../../../__mocks__/FeatureContentReader.spec'
+import { describeFeature } from '../../describe-feature'
 
 describe(`Async scenario hooks`, () => {
     const feature = FeatureContentReader.fromString([

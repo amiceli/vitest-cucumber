@@ -1,17 +1,59 @@
 import { describe, expect, vi } from 'vitest'
-import { FeatureContentReader } from '../../__mocks__/FeatureContentReader.spec'
-import { describeFeature } from '../describe-feature'
+import { FeatureContentReader } from '../../../__mocks__/FeatureContentReader.spec'
+import { describeFeature } from '../../describe-feature'
 
-describe(`Run scenario selected with a tag`, async () => {
+describe(`Execute all scenarii if no exclusion tag`, async () => {
     const feature = FeatureContentReader.fromString([
         `Feature: detect uncalled rules`,
-        `    Scenario: Ignored scenario`,
+        `    Scenario: Simple scenario`,
         `        Given vitest-cucumber is running`,
-        `        Then  Don't check if I am called`,
+        `        Then  It check I am executed`,
         `    @beta`,
-        `    Scenario: Selected scenario`,
+        `    Scenario: Beta scenario`,
         `        Given vitest-cucumber is running`,
         `        Then  It check I am executed    `,
+    ]).parseContent()
+
+    describeFeature(
+        feature,
+        ({ Scenario, AfterAllScenarios }) => {
+            AfterAllScenarios(() => {
+                expect(
+                    feature.getScenarioByName(`Simple scenario`)?.isCalled,
+                ).toBe(true)
+
+                expect(
+                    feature.getScenarioByName(`Beta scenario`)?.isCalled,
+                ).toBe(true)
+                expect(
+                    feature
+                        .getScenarioByName(`Beta scenario`)
+                        ?.matchTags([`beta`]),
+                ).toBe(true)
+            })
+            Scenario(`Simple scenario`, ({ Given, Then }) => {
+                Given(`vitest-cucumber is running`, () => {})
+                Then(`It check I am executed`, () => {})
+            })
+            Scenario(`Beta scenario`, ({ Given, Then }) => {
+                Given(`vitest-cucumber is running`, () => {})
+                Then(`It check I am executed`, () => {})
+            })
+        },
+        { excludeTags: [] },
+    )
+})
+
+describe(`Ignore scenario with a tag`, async () => {
+    const feature = FeatureContentReader.fromString([
+        `Feature: detect uncalled rules`,
+        `    Scenario: Simple scenario`,
+        `        Given vitest-cucumber is running`,
+        `        Then  It check I am executed`,
+        `    @beta`,
+        `    Scenario: Ignored scenario`,
+        `        Given vitest-cucumber is running`,
+        `        Then  Don't check if I am called    `,
     ]).parseContent()
 
     describeFeature(
@@ -22,33 +64,30 @@ describe(`Run scenario selected with a tag`, async () => {
                     feature.getScenarioByName(`Ignored scenario`)?.isCalled,
                 ).toBe(false)
                 expect(
-                    feature.getScenarioByName(`Selected scenario`)?.isCalled,
-                ).toBe(true)
-                expect(
                     feature
-                        .getScenarioByName(`Selected scenario`)
+                        .getScenarioByName(`Ignored scenario`)
                         ?.matchTags([`beta`]),
                 ).toBe(true)
             })
-            Scenario(`Selected scenario`, ({ Given, Then }) => {
+            Scenario(`Simple scenario`, ({ Given, Then }) => {
                 Given(`vitest-cucumber is running`, () => {})
                 Then(`It check I am executed`, () => {})
             })
         },
-        { includeTags: [`beta`] },
+        { excludeTags: [`beta`] },
     )
 })
 
-describe(`Run scenario selected with a tag (alternative with an @ prefix)`, async () => {
+describe(`Ignore scenario with a tag (alternative with an @ prefix)`, async () => {
     const feature = FeatureContentReader.fromString([
         `Feature: detect uncalled rules`,
+        `    Scenario: Simple scenario`,
+        `        Given vitest-cucumber is running`,
+        `        Then  It check I am executed`,
+        `    @beta`,
         `    Scenario: Ignored scenario`,
         `        Given vitest-cucumber is running`,
-        `        Then  Don't check if I am called`,
-        `    @beta`,
-        `    Scenario: Selected scenario`,
-        `        Given vitest-cucumber is running`,
-        `        Then  It check I am executed    `,
+        `        Then  Don't check if I am called    `,
     ]).parseContent()
 
     describeFeature(
@@ -59,24 +98,21 @@ describe(`Run scenario selected with a tag (alternative with an @ prefix)`, asyn
                     feature.getScenarioByName(`Ignored scenario`)?.isCalled,
                 ).toBe(false)
                 expect(
-                    feature.getScenarioByName(`Selected scenario`)?.isCalled,
-                ).toBe(true)
-                expect(
                     feature
-                        .getScenarioByName(`Selected scenario`)
+                        .getScenarioByName(`Ignored scenario`)
                         ?.matchTags([`beta`]),
                 ).toBe(true)
             })
-            Scenario(`Selected scenario`, ({ Given, Then }) => {
+            Scenario(`Simple scenario`, ({ Given, Then }) => {
                 Given(`vitest-cucumber is running`, () => {})
                 Then(`It check I am executed`, () => {})
             })
         },
-        { includeTags: [`@beta`] },
+        { excludeTags: [`@beta`] },
     )
 })
 
-describe(`Run rule with a tag`, async () => {
+describe(`Ignore rule with a tag`, async () => {
     const feature = FeatureContentReader.fromString([
         `Feature: detect uncalled rules`,
         `    @awesome`,
@@ -110,11 +146,11 @@ describe(`Run rule with a tag`, async () => {
                 Then(`check if I am called`, () => {})
             })
         },
-        { includeTags: [`awesome`] },
+        { excludeTags: [`normal`] },
     )
 })
 
-describe(`Run scenario in rule with a tag`, async () => {
+describe(`Ignore scenario in rule with a tag`, async () => {
     const feature = FeatureContentReader.fromString([
         `Feature: detect uncalled rules`,
         `    @awesome`,
@@ -161,16 +197,16 @@ describe(`Run scenario in rule with a tag`, async () => {
                 })
             })
         },
-        { includeTags: [`inside`] },
+        { excludeTags: [`ignored`] },
     )
 })
 
-describe(`includeTags`, () => {
+describe(`excludeTags`, () => {
     describe(`default value`, () => {
         const feature = FeatureContentReader.fromString([
-            `Feature: includeTags default value`,
+            `Feature: excludeTags default value`,
             `   Rule: sample rule`,
-            `       Scenario: includeTags is optional`,
+            `       Scenario: excludeTags is optional`,
             `           Given I have no tags`,
             `           Then  So I'm called`,
         ]).parseContent()
@@ -190,16 +226,16 @@ describe(`includeTags`, () => {
                 })
             })
             f.Rule(`sample rule`, (r) => {
-                r.RuleScenario(`includeTags is optional`, (s) => {
+                r.RuleScenario(`excludeTags is optional`, (s) => {
                     s.Given(`I have no tags`, () => {})
                     s.Then(`So I'm called`, () => {})
                 })
             })
         })
     })
-    describe(`include Rule and Scenario`, () => {
+    describe(`exclude Rule and Scenario`, () => {
         const feature = FeatureContentReader.fromString([
-            `Feature: includeTags used`,
+            `Feature: excludeTags used`,
             `   @ignored-scenario`,
             `   Scenario: A Feature ignored Scenario`,
             `       Given I have a tag`,
@@ -253,8 +289,8 @@ describe(`includeTags`, () => {
 
                     for (const fn of checks) {
                         expect(fn).toHaveBeenCalledWith({
-                            includeTags: [`simple`],
-                            excludeTags: [],
+                            includeTags: [],
+                            excludeTags: [`ignored-scenario`, `ignored-rule`],
                         })
                     }
 
@@ -290,183 +326,8 @@ describe(`includeTags`, () => {
                 })
             },
             {
-                includeTags: [`simple`],
-                excludeTags: [],
+                excludeTags: [`ignored-scenario`, `ignored-rule`],
             },
         )
     })
-})
-
-describe('handle skipped Scenario', () => {
-    const feature = FeatureContentReader.fromString([
-        `Feature: feature without scenario`,
-        `   Background:`,
-        `       Given I am called sometimes`,
-        `   Scenario: scenario to run`,
-        `       Given I am called`,
-        `   @skip`,
-        `   Scenario: scenario to skip`,
-        `       Given I am skipped`,
-    ]).parseContent()
-
-    describeFeature(
-        feature,
-        (f) => {
-            const fn = vi.fn()
-
-            f.AfterAllScenarios(() => {
-                expect(fn).toHaveBeenCalledTimes(1)
-            })
-            f.Background((s) => {
-                s.Given('I am called sometimes', () => {
-                    fn()
-                })
-            })
-            f.Scenario('scenario to run', (s) => {
-                s.Given('I am called', () => {
-                    expect(true).toBeTruthy()
-                })
-            })
-            f.Scenario('scenario to skip', (s) => {
-                s.Given('I am skipped', () => {
-                    expect.fail('scenario to skip should be skipped')
-                })
-            })
-        },
-        {
-            excludeTags: ['skip'],
-        },
-    )
-})
-
-describe('handle skipped Background', () => {
-    const feature = FeatureContentReader.fromString([
-        `Feature: feature without scenario`,
-        `   Scenario: scenario to run`,
-        `       Given I am called`,
-        `   @skip`,
-        `   Background:`,
-        `       Given I am skipped`,
-    ]).parseContent()
-
-    describeFeature(
-        feature,
-        (f) => {
-            f.Background((s) => {
-                s.Given('I am skipped', () => {
-                    expect.fail('Background should be skipped')
-                })
-            })
-            f.Scenario('scenario to run', (s) => {
-                s.Given('I am called', () => {
-                    expect(true).toBeTruthy()
-                })
-            })
-        },
-        {
-            excludeTags: ['skip'],
-        },
-    )
-})
-
-describe('handle skipped Rule', () => {
-    const feature = FeatureContentReader.fromString([
-        `Feature: feature without scenario`,
-        `   Scenario: scenario to run`,
-        `       Given I am called`,
-        `   @skip`,
-        `   Rule: skipped rule`,
-        `       Scenario: rule scenario`,
-        `           Given I am skipped`,
-    ]).parseContent()
-
-    describeFeature(
-        feature,
-        (f) => {
-            f.Scenario('scenario to run', (s) => {
-                s.Given('I am called', () => {
-                    expect(true).toBeTruthy()
-                })
-            })
-            f.Rule('skipped rule', (r) => {
-                r.RuleScenario('rule scenario', (s) => {
-                    s.Given('I am skipped', () => {
-                        expect.fail('skipped rule should be skip')
-                    })
-                })
-            })
-        },
-        {
-            excludeTags: ['skip'],
-        },
-    )
-})
-
-describe('handle skipped Background', () => {
-    const feature = FeatureContentReader.fromString([
-        `Feature: feature without scenario`,
-        `   Scenario: scenario to run`,
-        `       Given I am called`,
-        `   @skip`,
-        `   Background:`,
-        `       Given I am skipped`,
-    ]).parseContent()
-
-    describeFeature(
-        feature,
-        (f) => {
-            f.Background((s) => {
-                s.Given('I am skipped', () => {
-                    expect.fail('Background should be skipped')
-                })
-            })
-            f.Scenario('scenario to run', (s) => {
-                s.Given('I am called', () => {
-                    expect(true).toBeTruthy()
-                })
-            })
-        },
-        {
-            excludeTags: ['skip'],
-        },
-    )
-})
-
-describe('handle include/exclude tags for skipped Scenario', () => {
-    const feature = FeatureContentReader.fromString([
-        `Feature: feature without scenario`,
-        `   Scenario: scenario to run`,
-        `       Given I am called`,
-        `   @skip`,
-        `   Scenario: scenario skipped`,
-        `       Given I am skipped`,
-        `   @awesome`,
-        `   Scenario: awesome scenario`,
-        `       Given I am skipped too`,
-    ]).parseContent()
-
-    describeFeature(
-        feature,
-        (f) => {
-            f.Scenario('scenario to run', (s) => {
-                s.Given('I am called', () => {
-                    expect.fail('scenario to run should be skipped too')
-                })
-            })
-            f.Scenario('scenario skipped', (s) => {
-                s.Given('I am skipped', () => {
-                    expect.fail('scenario skipped should be skipped')
-                })
-            })
-            f.Scenario('awesome scenario', (s) => {
-                s.Given('I am skipped too', () => {
-                    expect(true).toBeTruthy()
-                })
-            })
-        },
-        {
-            excludeTags: ['skip'],
-            includeTags: ['awesome'],
-        },
-    )
 })
