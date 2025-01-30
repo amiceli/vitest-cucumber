@@ -65,6 +65,7 @@ export function createScenarioDescribeHandler({
         And: createScenarioStepCallback(`And`),
         Then: createScenarioStepCallback(`Then`),
         But: createScenarioStepCallback(`But`),
+        context: {},
     }
 
     scenarioTestCallback(scenarioStepsCallback)

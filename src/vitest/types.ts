@@ -16,12 +16,14 @@ export type StepCallbackDefinition = (
     fn: CallbackWithSingleContext | CallbackWithParamsAndContext,
 ) => void
 
-export type StepTest = {
+// biome-ignore lint/suspicious/noExplicitAny: required for scenario context type
+export type StepTest<T = any> = {
     Given: StepCallbackDefinition
     When: StepCallbackDefinition
     But: StepCallbackDefinition
     And: StepCallbackDefinition
     Then: StepCallbackDefinition
+    context: T
 }
 
 export type FeatureDescriibeCallbackParams = {
