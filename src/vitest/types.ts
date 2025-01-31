@@ -26,7 +26,8 @@ export type StepTest<T = any> = {
     context: T
 }
 
-export type FeatureDescriibeCallbackParams = {
+// biome-ignore lint/suspicious/noExplicitAny: required for feature context type
+export type FeatureDescriibeCallbackParams<T = any> = {
     Background: BackgroundTest & {
         skip: BackgroundTest
     }
@@ -46,13 +47,15 @@ export type FeatureDescriibeCallbackParams = {
         skip: RuleTest
         only: RuleTest
     }
+    context: T
 }
 
 export type DescribeFeatureCallback = (
     scenarioCallback: FeatureDescriibeCallbackParams,
 ) => void
 
-export type RuleOptions = {
+// biome-ignore lint/suspicious/noExplicitAny: required for rule context type
+export type RuleOptions<T = any> = {
     RuleBackground: BackgroundTest & {
         skip: BackgroundTest
     }
@@ -64,6 +67,7 @@ export type RuleOptions = {
         skip: ScenarioOutlineTest
         only: ScenarioOutlineTest
     }
+    context: T
 }
 
 export type RuleTest = (
@@ -81,7 +85,7 @@ export type ScenarioOutlineTest = (
     fn: (options: StepTest, examples: Example[0]) => MaybePromise,
 ) => void
 
-export type BackgroundStepTest = Pick<StepTest, 'Given' | 'And'>
+export type BackgroundStepTest = Pick<StepTest, 'Given' | 'And' | 'context'>
 
 export type BackgroundTest = (
     fn: (options: BackgroundStepTest) => MaybePromise,

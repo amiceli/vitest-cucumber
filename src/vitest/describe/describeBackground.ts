@@ -61,6 +61,7 @@ export function createBackgroundDescribeHandler({
     const scenarioStepsCallback: BackgroundStepTest = {
         Given: createScenarioStepCallback(`Given`),
         And: createScenarioStepCallback(`And`),
+        context: {},
     }
 
     backgroundCallback(scenarioStepsCallback)
