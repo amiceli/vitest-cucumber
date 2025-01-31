@@ -65,7 +65,7 @@ describe('Feature.context', () => {
         `           Examples:`,
         `               | name     | value   |`,
         `               | name     | Toni    |`,
-        `               | fullName | Montana |`,
+        `               | name     | Montana |`,
         ``,
     ]).parseContent()
 
@@ -89,13 +89,15 @@ describe('Feature.context', () => {
             f.Rule('rule with context', (r) => {
                 r.RuleBackground((b) => {
                     b.Given('I have a rule-background context', () => {
-                        expect(r.context).toEqual({})
                         expect(b.context).toEqual({})
+
+                        r.context.isRule = true
                     })
                     type Variables = { name: string; value: string }
+                    type CustomContext = { name: string }
                     r.RuleScenarioOutline(
                         'use scenario context',
-                        (s, variables) => {
+                        (s: StepTest<CustomContext>, variables) => {
                             const v = variables as Variables
                             s.Given(
                                 'I have a scenario context property <name>',
@@ -104,7 +106,8 @@ describe('Feature.context', () => {
                                 },
                             )
                             s.Then('I can check its <value>', () => {
-                                expect(s.context[v.name]).toEqual(v.value)
+                                expect(s.context.name).toEqual(v.value)
+                                expect(r.context.isRule).toBe(true)
                             })
                         },
                     )
