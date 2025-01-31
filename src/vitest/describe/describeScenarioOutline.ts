@@ -65,6 +65,7 @@ export function createScenarioOutlineDescribeHandler({
         And: createScenarioStepCallback(`And`),
         Then: createScenarioStepCallback(`Then`),
         But: createScenarioStepCallback(`But`),
+        context: {},
     }
 
     const example = scenario.examples

@@ -453,6 +453,7 @@ export function describeFeature(
 
                         return fn
                     })(),
+                    context: {},
                 })
 
                 currentRule
@@ -544,6 +545,7 @@ export function describeFeature(
         AfterEachScenario: (fn: () => MaybePromise) => {
             afterEachScenarioHook = fn
         },
+        context: {},
     }
 
     describeFeatureCallback(descibeFeatureParams)
