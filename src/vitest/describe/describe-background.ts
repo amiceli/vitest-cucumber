@@ -13,15 +13,32 @@ import type { ScenarioSteps, StepMap } from './types'
 
 type DescribeScenarioArgs = {
     background: Background
+    predefinedSteps: ScenarioSteps[]
     backgroundCallback: (op: BackgroundStepTest) => MaybePromise
 }
 
 export function createBackgroundDescribeHandler({
     background,
+    predefinedSteps,
     backgroundCallback,
 }: DescribeScenarioArgs): () => void {
     const backgroundStepsToRun: ScenarioSteps[] = []
     const config = getVitestCucumberConfiguration()
+
+    for (const predefineStep of predefinedSteps) {
+        try {
+            backgroundStepsToRun.push(
+                defineStepToTest({
+                    parent: background,
+                    stepDetails: predefineStep.step.details,
+                    stepType: predefineStep.step.type,
+                    scenarioStepCallback: predefineStep.fn,
+                }),
+            )
+        } catch {
+            // handle predefined step not in this background
+        }
+    }
 
     const createScenarioStepCallback = (
         stepType: string,

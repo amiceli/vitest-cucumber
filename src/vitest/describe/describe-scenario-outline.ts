@@ -13,6 +13,7 @@ import type { ScenarioSteps, StepMap } from './types'
 
 type DescribeScenarioArgs = {
     scenario: ScenarioOutline
+    predefinedSteps: ScenarioSteps[]
     scenarioTestCallback: (op: StepTest, variables: Example[0]) => MaybePromise
     beforeEachScenarioHook: () => MaybePromise
     afterEachScenarioHook: () => MaybePromise
@@ -20,12 +21,28 @@ type DescribeScenarioArgs = {
 
 export function createScenarioOutlineDescribeHandler({
     scenario,
+    predefinedSteps,
     scenarioTestCallback,
     afterEachScenarioHook,
     beforeEachScenarioHook,
 }: DescribeScenarioArgs): Array<() => void> {
     let scenarioStepsToRun: ScenarioSteps[] = []
     const config = getVitestCucumberConfiguration()
+
+    for (const predefineStep of predefinedSteps) {
+        try {
+            scenarioStepsToRun.push(
+                defineStepToTest({
+                    parent: scenario,
+                    stepDetails: predefineStep.step.details,
+                    stepType: predefineStep.step.type,
+                    scenarioStepCallback: predefineStep.fn,
+                }),
+            )
+        } catch {
+            // handle predefined step not in this scenario outline
+        }
+    }
 
     const createScenarioStepCallback = (
         stepType: string,

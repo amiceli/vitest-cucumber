@@ -1,5 +1,4 @@
 import { afterAll, beforeAll, onTestFailed, test } from 'vitest'
-import { ExpressionStep } from '../../parser/expression/ExpressionStep'
 import type { Scenario } from '../../parser/models/scenario'
 import { getVitestCucumberConfiguration } from '../configuration'
 import type {
@@ -31,26 +30,18 @@ export function createScenarioDescribeHandler({
     const config = getVitestCucumberConfiguration()
 
     for (const predefineStep of predefinedSteps) {
-        const foundStep = scenario.checkIfStepExists(
-            predefineStep.step.type,
-            predefineStep.step.details,
-        )
-        const params: unknown[] = ExpressionStep.matchStep(
-            foundStep,
-            predefineStep.step.details,
-        )
-
-        foundStep.isCalled = true
-        scenarioStepsToRun.push({
-            key: foundStep.getTitle(),
-            fn: predefineStep.fn,
-            step: foundStep,
-            params: [
-                ...params,
-                foundStep.dataTables.length > 0 ? foundStep.dataTables : null,
-                foundStep.docStrings,
-            ].filter((p) => p !== null),
-        })
+        try {
+            scenarioStepsToRun.push(
+                defineStepToTest({
+                    parent: scenario,
+                    stepDetails: predefineStep.step.details,
+                    stepType: predefineStep.step.type,
+                    scenarioStepCallback: predefineStep.fn,
+                }),
+            )
+        } catch {
+            // handle predefined step not in this scenario
+        }
     }
 
     const createScenarioStepCallback = (
