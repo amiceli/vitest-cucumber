@@ -13,6 +13,7 @@ import type { ScenarioSteps, StepMap } from './common'
 
 type DescribeScenarioArgs = {
     scenario: Scenario
+    predefinedSteps: ScenarioSteps[]
     scenarioTestCallback: (op: StepTest) => MaybePromise
     beforeEachScenarioHook: () => MaybePromise
     afterEachScenarioHook: () => MaybePromise
@@ -20,12 +21,36 @@ type DescribeScenarioArgs = {
 
 export function createScenarioDescribeHandler({
     scenario,
+    predefinedSteps,
     scenarioTestCallback,
     afterEachScenarioHook,
     beforeEachScenarioHook,
 }: DescribeScenarioArgs): () => void {
     const scenarioStepsToRun: ScenarioSteps[] = []
     const config = getVitestCucumberConfiguration()
+
+    for (const predefineStep of predefinedSteps) {
+        const foundStep = scenario.checkIfStepExists(
+            predefineStep.step.type,
+            predefineStep.step.details,
+        )
+        const params: unknown[] = ExpressionStep.matchStep(
+            foundStep,
+            predefineStep.step.details,
+        )
+
+        foundStep.isCalled = true
+        scenarioStepsToRun.push({
+            key: foundStep.getTitle(),
+            fn: predefineStep.fn,
+            step: foundStep,
+            params: [
+                ...params,
+                foundStep.dataTables.length > 0 ? foundStep.dataTables : null,
+                foundStep.docStrings,
+            ].filter((p) => p !== null),
+        })
+    }
 
     const createScenarioStepCallback = (
         stepType: string,

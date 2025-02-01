@@ -1,10 +1,11 @@
 import { afterAll, beforeAll, describe } from 'vitest'
-import type { Example, Feature } from '../parser/models'
+import { type Example, type Feature, Step, StepTypes } from '../parser/models'
 import {
     type TagFilterItem,
     type VitestCucumberOptions,
     getVitestCucumberConfiguration,
 } from './configuration'
+import type { ScenarioSteps } from './describe/common'
 import { createBackgroundDescribeHandler } from './describe/describeBackground'
 import { createScenarioDescribeHandler } from './describe/describeScenario'
 import { createScenarioOutlineDescribeHandler } from './describe/describeScenarioOutline'
@@ -57,18 +58,39 @@ export function describeFeature(
     let afterEachScenarioHook: () => MaybePromise = () => {}
 
     const configuration = getVitestCucumberConfiguration()
-    const options = {
+    const options: {
+        includeTags: TagFilterItem[]
+        excludeTags: TagFilterItem[]
+        predefinedSteps: ScenarioSteps[]
+        predefinedRuleSteps: ScenarioSteps[]
+    } = {
         includeTags: extractTagFilters(
             describeFeatureOptions?.includeTags || configuration.includeTags,
         ),
         excludeTags: extractTagFilters(
             describeFeatureOptions?.excludeTags || configuration.excludeTags,
         ),
+        predefinedSteps: [],
+        predefinedRuleSteps: [],
     }
 
     const describeScenarios: DescribesToRun = []
     const describeRules: DescribesToRun = []
     let describeBackground: DescribesToRun[0] | null = null
+
+    function defineSharedStep(
+        type: StepTypes,
+        name: string,
+        scenarioStepCallback: ScenarioSteps['fn'],
+    ): ScenarioSteps {
+        const foundStep = new Step(type, name)
+        return {
+            key: foundStep.getTitle(),
+            fn: scenarioStepCallback,
+            step: foundStep,
+            params: [],
+        }
+    }
 
     const descibeFeatureParams: FeatureDescriibeCallbackParams = {
         Background: (() => {
@@ -120,6 +142,7 @@ export function describeFeature(
                     describeTitle: scenario.getTitle(),
                     describeHandler: createScenarioDescribeHandler({
                         scenario,
+                        predefinedSteps: options.predefinedSteps,
                         scenarioTestCallback,
                         beforeEachScenarioHook,
                         afterEachScenarioHook,
@@ -319,6 +342,10 @@ export function describeFeature(
                                 only,
                                 describeHandler: createScenarioDescribeHandler({
                                     scenario,
+                                    predefinedSteps: [
+                                        ...options.predefinedSteps,
+                                        ...options.predefinedRuleSteps,
+                                    ],
                                     scenarioTestCallback,
                                     beforeEachScenarioHook,
                                     afterEachScenarioHook,
@@ -454,6 +481,55 @@ export function describeFeature(
                         return fn
                     })(),
                     context: {},
+                    defineSteps: (defineStepsCallback) => {
+                        defineStepsCallback({
+                            Given: (name, callback) => {
+                                options.predefinedRuleSteps.push(
+                                    defineSharedStep(
+                                        StepTypes.GIVEN,
+                                        name,
+                                        callback,
+                                    ),
+                                )
+                            },
+                            And: (name, callback) => {
+                                options.predefinedRuleSteps.push(
+                                    defineSharedStep(
+                                        StepTypes.AND,
+                                        name,
+                                        callback,
+                                    ),
+                                )
+                            },
+                            Then: (name, callback) => {
+                                options.predefinedRuleSteps.push(
+                                    defineSharedStep(
+                                        StepTypes.AND,
+                                        name,
+                                        callback,
+                                    ),
+                                )
+                            },
+                            When: (name, callback) => {
+                                options.predefinedRuleSteps.push(
+                                    defineSharedStep(
+                                        StepTypes.AND,
+                                        name,
+                                        callback,
+                                    ),
+                                )
+                            },
+                            But: (name, callback) => {
+                                options.predefinedRuleSteps.push(
+                                    defineSharedStep(
+                                        StepTypes.AND,
+                                        name,
+                                        callback,
+                                    ),
+                                )
+                            },
+                        })
+                    },
                 })
 
                 currentRule
@@ -544,6 +620,35 @@ export function describeFeature(
         },
         AfterEachScenario: (fn: () => MaybePromise) => {
             afterEachScenarioHook = fn
+        },
+        defineSteps: (defineStepsCallback) => {
+            defineStepsCallback({
+                Given: (name, callback) => {
+                    options.predefinedSteps.push(
+                        defineSharedStep(StepTypes.GIVEN, name, callback),
+                    )
+                },
+                And: (name, callback) => {
+                    options.predefinedSteps.push(
+                        defineSharedStep(StepTypes.AND, name, callback),
+                    )
+                },
+                Then: (name, callback) => {
+                    options.predefinedSteps.push(
+                        defineSharedStep(StepTypes.AND, name, callback),
+                    )
+                },
+                When: (name, callback) => {
+                    options.predefinedSteps.push(
+                        defineSharedStep(StepTypes.AND, name, callback),
+                    )
+                },
+                But: (name, callback) => {
+                    options.predefinedSteps.push(
+                        defineSharedStep(StepTypes.AND, name, callback),
+                    )
+                },
+            })
         },
         context: {},
     }
