@@ -5,9 +5,9 @@ import {
     type VitestCucumberOptions,
     getVitestCucumberConfiguration,
 } from './configuration'
-import { createBackgroundDescribeHandler } from './describe/describeBackground'
-import { createScenarioDescribeHandler } from './describe/describeScenario'
-import { createScenarioOutlineDescribeHandler } from './describe/describeScenarioOutline'
+import { createBackgroundDescribeHandler } from './describe/describe-background'
+import { createScenarioDescribeHandler } from './describe/describe-scenario'
+import { createScenarioOutlineDescribeHandler } from './describe/describe-scenario-outline'
 import {
     type DescribesToRun,
     defineRuleScenarioToRun,

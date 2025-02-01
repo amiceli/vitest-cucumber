@@ -1,8 +1,8 @@
 import { describe, expect, test, vi } from 'vitest'
 import { Scenario, ScenarioOutline } from '../../../parser/models/scenario'
 import { Step, StepTypes } from '../../../parser/models/step'
-import { createScenarioDescribeHandler } from '../describeScenario'
-import { createScenarioOutlineDescribeHandler } from '../describeScenarioOutline'
+import { createScenarioDescribeHandler } from '../describe-scenario'
+import { createScenarioOutlineDescribeHandler } from '../describe-scenario-outline'
 
 describe(`describeScenario`, () => {
     const each = vi.spyOn(test, `for`)
