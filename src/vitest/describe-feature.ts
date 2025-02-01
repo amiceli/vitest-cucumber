@@ -107,6 +107,7 @@ export function describeFeature(
                     describeTitle: background.getTitle(),
                     describeHandler: createBackgroundDescribeHandler({
                         background,
+                        predefinedSteps: options.predefinedSteps,
                         backgroundCallback,
                     }),
                 }
@@ -203,6 +204,7 @@ export function describeFeature(
                 describeScenarios.push(
                     ...createScenarioOutlineDescribeHandler({
                         scenario,
+                        predefinedSteps: options.predefinedSteps,
                         scenarioTestCallback,
                         beforeEachScenarioHook,
                         afterEachScenarioHook,
@@ -295,6 +297,10 @@ export function describeFeature(
                                 describeHandler:
                                     createBackgroundDescribeHandler({
                                         background: background,
+                                        predefinedSteps: [
+                                            ...options.predefinedSteps,
+                                            ...options.predefinedRuleSteps,
+                                        ],
                                         backgroundCallback,
                                     }),
                             }
@@ -420,6 +426,10 @@ export function describeFeature(
                             describeRuleScenarios.push(
                                 ...createScenarioOutlineDescribeHandler({
                                     scenario,
+                                    predefinedSteps: [
+                                        ...options.predefinedSteps,
+                                        ...options.predefinedRuleSteps,
+                                    ],
                                     scenarioTestCallback,
                                     beforeEachScenarioHook,
                                     afterEachScenarioHook,
@@ -504,7 +514,7 @@ export function describeFeature(
                             Then: (name, callback) => {
                                 options.predefinedRuleSteps.push(
                                     defineSharedStep(
-                                        StepTypes.AND,
+                                        StepTypes.THEN,
                                         name,
                                         callback,
                                     ),
@@ -513,7 +523,7 @@ export function describeFeature(
                             When: (name, callback) => {
                                 options.predefinedRuleSteps.push(
                                     defineSharedStep(
-                                        StepTypes.AND,
+                                        StepTypes.WHEN,
                                         name,
                                         callback,
                                     ),
@@ -522,7 +532,7 @@ export function describeFeature(
                             But: (name, callback) => {
                                 options.predefinedRuleSteps.push(
                                     defineSharedStep(
-                                        StepTypes.AND,
+                                        StepTypes.BUT,
                                         name,
                                         callback,
                                     ),
@@ -635,17 +645,17 @@ export function describeFeature(
                 },
                 Then: (name, callback) => {
                     options.predefinedSteps.push(
-                        defineSharedStep(StepTypes.AND, name, callback),
+                        defineSharedStep(StepTypes.THEN, name, callback),
                     )
                 },
                 When: (name, callback) => {
                     options.predefinedSteps.push(
-                        defineSharedStep(StepTypes.AND, name, callback),
+                        defineSharedStep(StepTypes.WHEN, name, callback),
                     )
                 },
                 But: (name, callback) => {
                     options.predefinedSteps.push(
-                        defineSharedStep(StepTypes.AND, name, callback),
+                        defineSharedStep(StepTypes.BUT, name, callback),
                     )
                 },
             })
