@@ -26,7 +26,7 @@ export type StepTest<T = any> = {
     context: T
 }
 
-type DefineStepsHandler = (
+export type DefineStepsHandler = (
     callback: (defineStepsOptions: {
         Given: StepCallbackDefinition
         When: StepCallbackDefinition
@@ -57,6 +57,7 @@ export type FeatureDescriibeCallbackParams<T = any> = {
         skip: RuleTest
         only: RuleTest
     }
+    /** should be called before Scenario, Rule, ScenarioOutline or Background */
     defineSteps: DefineStepsHandler
     context: T
 }
@@ -78,6 +79,7 @@ export type RuleOptions<T = any> = {
         skip: ScenarioOutlineTest
         only: ScenarioOutlineTest
     }
+    /** should be called before RuleScenario, RuleScenarioOutline or RuleBackground */
     defineSteps: DefineStepsHandler
     context: T
 }

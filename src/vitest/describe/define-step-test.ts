@@ -1,10 +1,29 @@
 import { ExpressionStep } from '../../parser/expression/ExpressionStep'
-import type { Background, Scenario } from '../../parser/models'
+import {
+    type Background,
+    type Scenario,
+    Step,
+    type StepTypes,
+} from '../../parser/models'
 import type {
     CallbackWithParamsAndContext,
     CallbackWithSingleContext,
 } from '../types'
 import type { ScenarioSteps } from './types'
+
+export function defineSharedStep(
+    type: StepTypes,
+    name: string,
+    scenarioStepCallback: ScenarioSteps['fn'],
+): ScenarioSteps {
+    const foundStep = new Step(type, name)
+    return {
+        key: foundStep.getTitle(),
+        fn: scenarioStepCallback,
+        step: foundStep,
+        params: [],
+    }
+}
 
 export function defineStepToTest(options: {
     stepType: string

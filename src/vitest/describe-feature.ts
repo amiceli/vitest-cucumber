@@ -1,10 +1,11 @@
 import { afterAll, beforeAll, describe } from 'vitest'
-import { type Example, type Feature, Step, StepTypes } from '../parser/models'
+import { type Example, type Feature, StepTypes } from '../parser/models'
 import {
     type TagFilterItem,
     type VitestCucumberOptions,
     getVitestCucumberConfiguration,
 } from './configuration'
+import { defineSharedStep } from './describe/define-step-test'
 import { createBackgroundDescribeHandler } from './describe/describe-background'
 import { createScenarioDescribeHandler } from './describe/describe-scenario'
 import { createScenarioOutlineDescribeHandler } from './describe/describe-scenario-outline'
@@ -78,20 +79,6 @@ export function describeFeature(
     const describeRules: DescribesToRun = []
     let describeBackground: DescribesToRun[0] | null = null
 
-    function defineSharedStep(
-        type: StepTypes,
-        name: string,
-        scenarioStepCallback: ScenarioSteps['fn'],
-    ): ScenarioSteps {
-        const foundStep = new Step(type, name)
-        return {
-            key: foundStep.getTitle(),
-            fn: scenarioStepCallback,
-            step: foundStep,
-            params: [],
-        }
-    }
-
     const descibeFeatureParams: FeatureDescriibeCallbackParams = {
         Background: (() => {
             const createBackgroundHandler = (
@@ -107,7 +94,10 @@ export function describeFeature(
                     describeTitle: background.getTitle(),
                     describeHandler: createBackgroundDescribeHandler({
                         background,
-                        predefinedSteps: options.predefinedSteps,
+                        predefinedSteps: [
+                            ...configuration.predefinedSteps,
+                            ...options.predefinedSteps,
+                        ],
                         backgroundCallback,
                     }),
                 }
@@ -143,7 +133,10 @@ export function describeFeature(
                     describeTitle: scenario.getTitle(),
                     describeHandler: createScenarioDescribeHandler({
                         scenario,
-                        predefinedSteps: options.predefinedSteps,
+                        predefinedSteps: [
+                            ...configuration.predefinedSteps,
+                            ...options.predefinedSteps,
+                        ],
                         scenarioTestCallback,
                         beforeEachScenarioHook,
                         afterEachScenarioHook,
@@ -204,7 +197,10 @@ export function describeFeature(
                 describeScenarios.push(
                     ...createScenarioOutlineDescribeHandler({
                         scenario,
-                        predefinedSteps: options.predefinedSteps,
+                        predefinedSteps: [
+                            ...configuration.predefinedSteps,
+                            ...options.predefinedSteps,
+                        ],
                         scenarioTestCallback,
                         beforeEachScenarioHook,
                         afterEachScenarioHook,
@@ -298,6 +294,7 @@ export function describeFeature(
                                     createBackgroundDescribeHandler({
                                         background: background,
                                         predefinedSteps: [
+                                            ...configuration.predefinedSteps,
                                             ...options.predefinedSteps,
                                             ...options.predefinedRuleSteps,
                                         ],
@@ -349,6 +346,7 @@ export function describeFeature(
                                 describeHandler: createScenarioDescribeHandler({
                                     scenario,
                                     predefinedSteps: [
+                                        ...configuration.predefinedSteps,
                                         ...options.predefinedSteps,
                                         ...options.predefinedRuleSteps,
                                     ],
@@ -427,6 +425,7 @@ export function describeFeature(
                                 ...createScenarioOutlineDescribeHandler({
                                     scenario,
                                     predefinedSteps: [
+                                        ...configuration.predefinedSteps,
                                         ...options.predefinedSteps,
                                         ...options.predefinedRuleSteps,
                                     ],
