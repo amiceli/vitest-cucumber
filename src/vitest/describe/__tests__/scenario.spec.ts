@@ -11,6 +11,7 @@ describe(`describeScenario`, () => {
 
     const scenarioTest = createScenarioDescribeHandler({
         scenario,
+        predefinedSteps: [],
         scenarioTestCallback: ({ Given }) => {
             Given(`given`, () => {})
         },
