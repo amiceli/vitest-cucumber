@@ -42,6 +42,13 @@ describe('Rule.defineSteps', () => {
         `   Scenario: first scenario`,
         `       Given I am predefined step`,
         `       Then  I am called`,
+        `   Scenario Outline: first scenario outline`,
+        `       Given I am predefined step <count>`,
+        `       Then  I am called <count>`,
+        `       Examples:`,
+        `           | count |`,
+        `           | 1     |`,
+        `           | 2     |`,
         `   Rule: first rule`,
         `       Scenario: second scenario`,
         `           Given I am predefined step`,
@@ -57,11 +64,20 @@ describe('Rule.defineSteps', () => {
             Given('I am predefined step', (ctx) => {
                 f.context.stepCallback()
             })
+            Given('I am predefined step <count>', () => {
+                expect(true).toBe(true)
+            })
         })
 
         f.Scenario('first scenario', (s) => {
             s.Then('I am called', () => {
                 expect(f.context.stepCallback).toHaveBeenCalledTimes(1)
+            })
+        })
+
+        f.ScenarioOutline('first scenario outline', (s, variables) => {
+            s.Then('I am called <count>', () => {
+                expect([1, 2]).toContain(Number.parseInt(variables.count))
             })
         })
 

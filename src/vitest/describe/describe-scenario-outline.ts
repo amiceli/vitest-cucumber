@@ -29,20 +29,24 @@ export function createScenarioOutlineDescribeHandler({
     let scenarioStepsToRun: ScenarioSteps[] = []
     const config = getVitestCucumberConfiguration()
 
-    for (const predefineStep of predefinedSteps) {
-        try {
-            scenarioStepsToRun.push(
-                defineStepToTest({
-                    parent: scenario,
-                    stepDetails: predefineStep.step.details,
-                    stepType: predefineStep.step.type,
-                    scenarioStepCallback: predefineStep.fn,
-                }),
-            )
-        } catch {
-            // handle predefined step not in this scenario outline
+    function addPredefinedSteps(list: ScenarioSteps[]) {
+        for (const predefineStep of list) {
+            try {
+                scenarioStepsToRun.push(
+                    defineStepToTest({
+                        parent: scenario,
+                        stepDetails: predefineStep.step.details,
+                        stepType: predefineStep.step.type,
+                        scenarioStepCallback: predefineStep.fn,
+                    }),
+                )
+            } catch {
+                // handle predefined step not in this scenario outline
+            }
         }
     }
+
+    addPredefinedSteps(predefinedSteps)
 
     const createScenarioStepCallback = (
         stepType: string,
@@ -78,6 +82,7 @@ export function createScenarioOutlineDescribeHandler({
     if (example) {
         return example?.map((exampleVariables) => {
             scenarioStepsToRun = []
+            addPredefinedSteps(predefinedSteps)
             scenarioTestCallback(scenarioStepsCallback, exampleVariables)
 
             scenario.checkIfStepWasCalled()
