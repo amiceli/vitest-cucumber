@@ -9,7 +9,7 @@ import type {
     MaybePromise,
     StepCallbackDefinition,
 } from '../types'
-import type { ScenarioSteps, StepMap } from './common'
+import type { ScenarioSteps, StepMap } from './types'
 
 type DescribeScenarioArgs = {
     background: Background

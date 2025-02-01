@@ -5,7 +5,6 @@ import {
     type VitestCucumberOptions,
     getVitestCucumberConfiguration,
 } from './configuration'
-import type { ScenarioSteps } from './describe/common'
 import { createBackgroundDescribeHandler } from './describe/describeBackground'
 import { createScenarioDescribeHandler } from './describe/describeScenario'
 import { createScenarioOutlineDescribeHandler } from './describe/describeScenarioOutline'
@@ -14,6 +13,7 @@ import {
     defineRuleScenarioToRun,
     defineScenarioToRun,
 } from './describe/handle-skip-only'
+import type { ScenarioSteps } from './describe/types'
 import { ScenarioStateDetector } from './state-detectors/ScenarioStateDetector'
 import type {
     BackgroundStepTest,
