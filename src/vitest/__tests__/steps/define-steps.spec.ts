@@ -1,6 +1,11 @@
-import { describe, expect, vi } from 'vitest'
+import { beforeAll, describe, expect, vi } from 'vitest'
 import { FeatureContentReader } from '../../../__mocks__/FeatureContentReader.spec'
+import { defineSteps, resetDefinedSteps } from '../../configuration'
 import { describeFeature } from '../../describe-feature'
+
+beforeAll(() => {
+    resetDefinedSteps()
+})
 
 describe('Feature.defineSteps', () => {
     const feature = FeatureContentReader.fromString([
@@ -95,6 +100,52 @@ describe('Rule.defineSteps', () => {
                     expect(f.context.stepCallback).toHaveBeenCalledTimes(2)
                     expect(r.context.called).toBe(true)
                 })
+            })
+        })
+    })
+})
+
+describe('global.defineSteps', () => {
+    const feature = FeatureContentReader.fromString([
+        `Feature: Feature.defineSteps`,
+        `   Scenario: first scenario`,
+        `       Given I am predefined step`,
+        `       And   I am global predefined step`,
+        `       Then  I am called`,
+        `   Scenario: second scenario`,
+        `       Given I am predefined step`,
+        `       And   I am global predefined step`,
+        `       Then  I am called twice`,
+        ``,
+    ]).parseContent()
+
+    const fn = vi.fn()
+
+    defineSteps(({ And }) => {
+        And('I am global predefined step', () => {
+            fn()
+        })
+    })
+
+    describeFeature(feature, (f) => {
+        f.context.stepCallback = vi.fn()
+
+        f.defineSteps(({ Given }) => {
+            Given('I am predefined step', (ctx) => {
+                f.context.stepCallback()
+            })
+        })
+
+        f.Scenario('first scenario', (s) => {
+            s.Then('I am called', () => {
+                expect(f.context.stepCallback).toHaveBeenCalledTimes(1)
+                expect(fn).toHaveBeenCalledTimes(1)
+            })
+        })
+        f.Scenario('second scenario', (s) => {
+            s.Then('I am called twice', () => {
+                expect(f.context.stepCallback).toHaveBeenCalledTimes(2)
+                expect(fn).toHaveBeenCalledTimes(2)
             })
         })
     })

@@ -35,10 +35,12 @@ function getDefaultConfiguration(): VitestCucumberOptions {
     }
 }
 
-let globalConfiguration: VitestCucumberOptions = {} as VitestCucumberOptions
+let globalConfiguration: VitestCucumberOptions = {
+    predefinedSteps: [],
+} as VitestCucumberOptions
 
 export const getVitestCucumberConfiguration = (
-    options?: VitestCucumberOptions,
+    options?: Omit<VitestCucumberOptions, 'predefinedSteps'>,
 ) => {
     const defaultConfiguration = getDefaultConfiguration()
 
@@ -74,6 +76,10 @@ export const setVitestCucumberConfiguration = (
     options: VitestCucumberOptions,
 ) => {
     globalConfiguration = options
+}
+
+export function resetDefinedSteps() {
+    globalConfiguration.predefinedSteps = []
 }
 
 export const defineSteps: DefineStepsHandler = (defineStepsCallback) => {

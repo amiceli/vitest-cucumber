@@ -95,8 +95,8 @@ export function describeFeature(
                     describeHandler: createBackgroundDescribeHandler({
                         background,
                         predefinedSteps: [
-                            ...configuration.predefinedSteps,
                             ...options.predefinedSteps,
+                            ...configuration.predefinedSteps,
                         ],
                         backgroundCallback,
                     }),
@@ -134,8 +134,8 @@ export function describeFeature(
                     describeHandler: createScenarioDescribeHandler({
                         scenario,
                         predefinedSteps: [
-                            ...configuration.predefinedSteps,
                             ...options.predefinedSteps,
+                            ...configuration.predefinedSteps,
                         ],
                         scenarioTestCallback,
                         beforeEachScenarioHook,
@@ -198,8 +198,8 @@ export function describeFeature(
                     ...createScenarioOutlineDescribeHandler({
                         scenario,
                         predefinedSteps: [
-                            ...configuration.predefinedSteps,
                             ...options.predefinedSteps,
+                            ...configuration.predefinedSteps,
                         ],
                         scenarioTestCallback,
                         beforeEachScenarioHook,
@@ -294,9 +294,9 @@ export function describeFeature(
                                     createBackgroundDescribeHandler({
                                         background: background,
                                         predefinedSteps: [
-                                            ...configuration.predefinedSteps,
                                             ...options.predefinedSteps,
                                             ...options.predefinedRuleSteps,
+                                            ...configuration.predefinedSteps,
                                         ],
                                         backgroundCallback,
                                     }),
@@ -346,9 +346,9 @@ export function describeFeature(
                                 describeHandler: createScenarioDescribeHandler({
                                     scenario,
                                     predefinedSteps: [
-                                        ...configuration.predefinedSteps,
                                         ...options.predefinedSteps,
                                         ...options.predefinedRuleSteps,
+                                        ...configuration.predefinedSteps,
                                     ],
                                     scenarioTestCallback,
                                     beforeEachScenarioHook,
@@ -425,9 +425,9 @@ export function describeFeature(
                                 ...createScenarioOutlineDescribeHandler({
                                     scenario,
                                     predefinedSteps: [
-                                        ...configuration.predefinedSteps,
                                         ...options.predefinedSteps,
                                         ...options.predefinedRuleSteps,
+                                        ...configuration.predefinedSteps,
                                     ],
                                     scenarioTestCallback,
                                     beforeEachScenarioHook,
