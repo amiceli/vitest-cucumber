@@ -66,9 +66,12 @@ describe('Rule.defineSteps', () => {
         })
 
         f.Rule('first rule', (r) => {
-            r.defineSteps(({ And }) => {
+            r.defineSteps(({ And, When }) => {
                 And('I am rule predefined step', () => {
                     r.context.called = true
+                })
+                When('should be ignored', () => {
+                    expect.fail('should not be called')
                 })
             })
             r.RuleScenario('second scenario', (s) => {
