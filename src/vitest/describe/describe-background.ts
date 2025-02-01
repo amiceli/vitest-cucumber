@@ -1,5 +1,4 @@
 import { onTestFailed, test } from 'vitest'
-import { ExpressionStep } from '../../parser/expression/ExpressionStep'
 import type { Background } from '../../parser/models/Background'
 import { getVitestCucumberConfiguration } from '../configuration'
 import type {
@@ -9,6 +8,7 @@ import type {
     MaybePromise,
     StepCallbackDefinition,
 } from '../types'
+import { defineStepToTest } from './define-step-test'
 import type { ScenarioSteps, StepMap } from './types'
 
 type DescribeScenarioArgs = {
@@ -32,29 +32,14 @@ export function createBackgroundDescribeHandler({
                 | CallbackWithSingleContext
                 | CallbackWithParamsAndContext,
         ) => {
-            const foundStep = background.checkIfStepExists(
-                stepType,
-                stepDetails,
+            backgroundStepsToRun.push(
+                defineStepToTest({
+                    parent: background,
+                    stepDetails,
+                    stepType,
+                    scenarioStepCallback,
+                }),
             )
-            const params: unknown[] = ExpressionStep.matchStep(
-                foundStep,
-                stepDetails,
-            )
-
-            foundStep.isCalled = true
-
-            backgroundStepsToRun.push({
-                key: foundStep.getTitle(),
-                fn: scenarioStepCallback,
-                step: foundStep,
-                params: [
-                    ...params,
-                    foundStep.dataTables.length > 0
-                        ? foundStep.dataTables
-                        : null,
-                    foundStep.docStrings,
-                ].filter((p) => p !== null),
-            })
         }
     }
 

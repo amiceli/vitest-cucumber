@@ -9,6 +9,7 @@ import type {
     StepCallbackDefinition,
     StepTest,
 } from '../types'
+import { defineStepToTest } from './define-step-test'
 import type { ScenarioSteps, StepMap } from './types'
 
 type DescribeScenarioArgs = {
@@ -61,26 +62,14 @@ export function createScenarioDescribeHandler({
                 | CallbackWithSingleContext
                 | CallbackWithParamsAndContext,
         ) => {
-            const foundStep = scenario.checkIfStepExists(stepType, stepDetails)
-            const params: unknown[] = ExpressionStep.matchStep(
-                foundStep,
-                stepDetails,
+            scenarioStepsToRun.push(
+                defineStepToTest({
+                    parent: scenario,
+                    stepDetails,
+                    stepType,
+                    scenarioStepCallback,
+                }),
             )
-
-            foundStep.isCalled = true
-
-            scenarioStepsToRun.push({
-                key: foundStep.getTitle(),
-                fn: scenarioStepCallback,
-                step: foundStep,
-                params: [
-                    ...params,
-                    foundStep.dataTables.length > 0
-                        ? foundStep.dataTables
-                        : null,
-                    foundStep.docStrings,
-                ].filter((p) => p !== null),
-            })
         }
     }
 
