@@ -83,6 +83,62 @@ describe('defineSteps order', () => {
     })
 })
 
+describe('defineSteps order with background', () => {
+    beforeAll(() => {
+        resetDefinedSteps()
+    })
+
+    const feature = FeatureContentReader.fromString([
+        `Feature: defineSteps order`,
+        `   Background:`,
+        `       Given I use background`,
+        `       And   I use ScenarioOutline`,
+        `       And   I use Rule`,
+        `   Scenario Outline: outline`,
+        `       Given I use outline`,
+        `       Then  I use variable <name>`,
+        `       Examples:`,
+        `           | name |`,
+        `           | test |`,
+        `           | boom |`,
+        ``,
+    ]).parseContent()
+
+    let backgroundCalled = 0
+
+    defineSteps(({ Given, And }) => {
+        Given('I use background', () => {
+            backgroundCalled = 1
+        })
+    })
+
+    defineSteps(({ Given }) => {
+        Given('I use outline', () => {
+            expect.fail('should not be called')
+        })
+    })
+
+    describeFeature(feature, (f) => {
+        f.defineSteps(({ Given }) => {
+            Given('I use outline', () => {})
+        })
+        f.Background((b) => {
+            b.And('I use Rule', () => {
+                expect(backgroundCalled).toEqual(2)
+            })
+            b.And('I use ScenarioOutline', () => {
+                expect(backgroundCalled).toEqual(1)
+                backgroundCalled += 1
+            })
+        })
+        f.ScenarioOutline('outline', (s, variables) => {
+            s.Then('I use variable <name>', () => {
+                expect(['test', 'boom']).toContain(variables.name)
+            })
+        })
+    })
+})
+
 describe('Handle duplicated predefined steps', () => {
     const result = updatePredefinedStepsAccordingLevel({
         globallyPredefinedSteps: [
