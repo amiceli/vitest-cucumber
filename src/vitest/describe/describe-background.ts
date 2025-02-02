@@ -8,7 +8,7 @@ import type {
     MaybePromise,
     StepCallbackDefinition,
 } from '../types'
-import { defineStepToTest } from './define-step-test'
+import { defineStepToTest, orderStepsToRun } from './define-step-test'
 import type { ScenarioSteps, StepMap } from './types'
 
 type DescribeScenarioArgs = {
@@ -22,23 +22,8 @@ export function createBackgroundDescribeHandler({
     predefinedSteps,
     backgroundCallback,
 }: DescribeScenarioArgs): () => void {
-    const backgroundStepsToRun: ScenarioSteps[] = []
+    let backgroundStepsToRun: ScenarioSteps[] = []
     const config = getVitestCucumberConfiguration()
-
-    for (const predefineStep of predefinedSteps) {
-        try {
-            backgroundStepsToRun.push(
-                defineStepToTest({
-                    parent: background,
-                    stepDetails: predefineStep.step.details,
-                    stepType: predefineStep.step.type,
-                    scenarioStepCallback: predefineStep.fn,
-                }),
-            )
-        } catch {
-            // handle predefined step not in this background
-        }
-    }
 
     const createScenarioStepCallback = (
         stepType: string,
@@ -67,6 +52,33 @@ export function createBackgroundDescribeHandler({
     }
 
     backgroundCallback(scenarioStepsCallback)
+
+    const missingSteps = background.steps.filter((step) => {
+        return (
+            backgroundStepsToRun.find((s) => {
+                return step.matchStep(s.step)
+            }) === undefined
+        )
+    })
+
+    for (const predefineStep of predefinedSteps) {
+        const missingStep = missingSteps.find((s) => {
+            return s.matchStep(predefineStep.step)
+        })
+
+        if (missingStep) {
+            backgroundStepsToRun.push(
+                defineStepToTest({
+                    parent: background,
+                    stepDetails: predefineStep.step.details,
+                    stepType: predefineStep.step.type,
+                    scenarioStepCallback: predefineStep.fn,
+                }),
+            )
+        }
+    }
+
+    backgroundStepsToRun = orderStepsToRun(background, backgroundStepsToRun)
 
     background.checkIfStepWasCalled()
 
