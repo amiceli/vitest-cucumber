@@ -8,7 +8,7 @@ import type {
     StepCallbackDefinition,
     StepTest,
 } from '../types'
-import { defineStepToTest } from './define-step-test'
+import { defineStepToTest, orderStepsToRun } from './define-step-test'
 import type { ScenarioSteps, StepMap } from './types'
 
 type DescribeScenarioArgs = {
@@ -26,23 +26,8 @@ export function createScenarioDescribeHandler({
     afterEachScenarioHook,
     beforeEachScenarioHook,
 }: DescribeScenarioArgs): () => void {
-    const scenarioStepsToRun: ScenarioSteps[] = []
+    let scenarioStepsToRun: ScenarioSteps[] = []
     const config = getVitestCucumberConfiguration()
-
-    for (const predefineStep of predefinedSteps) {
-        try {
-            scenarioStepsToRun.push(
-                defineStepToTest({
-                    parent: scenario,
-                    stepDetails: predefineStep.step.details,
-                    stepType: predefineStep.step.type,
-                    scenarioStepCallback: predefineStep.fn,
-                }),
-            )
-        } catch {
-            // handle predefined step not in this scenario
-        }
-    }
 
     const createScenarioStepCallback = (
         stepType: string,
@@ -74,6 +59,33 @@ export function createScenarioDescribeHandler({
     }
 
     scenarioTestCallback(scenarioStepsCallback)
+
+    const missingSteps = scenario.steps.filter((step) => {
+        return (
+            scenarioStepsToRun.find((s) => {
+                return step.matchStep(s.step)
+            }) === undefined
+        )
+    })
+
+    for (const predefineStep of predefinedSteps) {
+        const missingStep = missingSteps.find((s) => {
+            return s.matchStep(predefineStep.step)
+        })
+
+        if (missingStep) {
+            scenarioStepsToRun.push(
+                defineStepToTest({
+                    parent: scenario,
+                    stepDetails: predefineStep.step.details,
+                    stepType: predefineStep.step.type,
+                    scenarioStepCallback: predefineStep.fn,
+                }),
+            )
+        }
+    }
+
+    scenarioStepsToRun = orderStepsToRun(scenario, scenarioStepsToRun)
 
     scenario.checkIfStepWasCalled()
 
