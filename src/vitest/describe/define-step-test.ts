@@ -91,3 +91,20 @@ export function updatePredefinedStepsAccordingLevel(steps: {
 
     return finallySteps
 }
+
+export function orderStepsToRun(
+    parent: Scenario | Background,
+    steps: ScenarioSteps[],
+): ScenarioSteps[] {
+    const orderedSteps: ScenarioSteps[] = []
+
+    for (const step of parent.steps) {
+        const defineStep = steps.find((s) => s.step.matchStep(step))
+
+        if (defineStep) {
+            orderedSteps.push(defineStep)
+        }
+    }
+
+    return orderedSteps
+}
