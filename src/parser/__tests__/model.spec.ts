@@ -525,5 +525,19 @@ describe(`Models`, () => {
                 `But I sleep`,
             )
         })
+        test('Step match step', () => {
+            const step = new Step(StepTypes.GIVEN, 'given')
+
+            expect(step.matchStep(new Step(StepTypes.GIVEN, 'given'))).toBe(
+                true,
+            )
+            expect(step.matchStep(new Step(StepTypes.GIVEN, 'awesome'))).toBe(
+                false,
+            )
+            expect(step.matchStep(new Step(StepTypes.WHEN, 'given'))).toBe(
+                false,
+            )
+            expect(step.matchStep(new Step(StepTypes.AND, 'and'))).toBe(false)
+        })
     })
 })
