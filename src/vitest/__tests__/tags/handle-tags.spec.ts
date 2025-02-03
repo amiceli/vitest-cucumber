@@ -180,14 +180,18 @@ describe(`includeTags`, () => {
 
         describeFeature(feature, (f) => {
             f.AfterAllScenarios(() => {
-                expect(featureCheck).toHaveBeenCalledWith({
-                    includeTags: [],
-                    excludeTags: ['ignore'],
-                })
-                expect(ruleCheck).toHaveBeenCalledWith({
-                    includeTags: [],
-                    excludeTags: ['ignore'],
-                })
+                expect(featureCheck).toHaveBeenCalledWith(
+                    expect.objectContaining({
+                        includeTags: [],
+                        excludeTags: ['ignore'],
+                    }),
+                )
+                expect(ruleCheck).toHaveBeenCalledWith(
+                    expect.objectContaining({
+                        includeTags: [],
+                        excludeTags: ['ignore'],
+                    }),
+                )
             })
             f.Rule(`sample rule`, (r) => {
                 r.RuleScenario(`includeTags is optional`, (s) => {
@@ -252,10 +256,12 @@ describe(`includeTags`, () => {
                     ]
 
                     for (const fn of checks) {
-                        expect(fn).toHaveBeenCalledWith({
-                            includeTags: [`simple`],
-                            excludeTags: [],
-                        })
+                        expect(fn).toHaveBeenCalledWith(
+                            expect.objectContaining({
+                                includeTags: [`simple`],
+                                excludeTags: [],
+                            }),
+                        )
                     }
 
                     expect(

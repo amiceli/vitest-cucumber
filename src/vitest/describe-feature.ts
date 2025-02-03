@@ -1,18 +1,23 @@
 import { afterAll, beforeAll, describe } from 'vitest'
-import type { Example, Feature } from '../parser/models'
+import { type Example, type Feature, StepTypes } from '../parser/models'
 import {
     type TagFilterItem,
     type VitestCucumberOptions,
     getVitestCucumberConfiguration,
 } from './configuration'
-import { createBackgroundDescribeHandler } from './describe/describeBackground'
-import { createScenarioDescribeHandler } from './describe/describeScenario'
-import { createScenarioOutlineDescribeHandler } from './describe/describeScenarioOutline'
+import {
+    defineSharedStep,
+    updatePredefinedStepsAccordingLevel,
+} from './describe/define-step-test'
+import { createBackgroundDescribeHandler } from './describe/describe-background'
+import { createScenarioDescribeHandler } from './describe/describe-scenario'
+import { createScenarioOutlineDescribeHandler } from './describe/describe-scenario-outline'
 import {
     type DescribesToRun,
     defineRuleScenarioToRun,
     defineScenarioToRun,
 } from './describe/handle-skip-only'
+import type { ScenarioSteps } from './describe/types'
 import { ScenarioStateDetector } from './state-detectors/ScenarioStateDetector'
 import type {
     BackgroundStepTest,
@@ -57,13 +62,20 @@ export function describeFeature(
     let afterEachScenarioHook: () => MaybePromise = () => {}
 
     const configuration = getVitestCucumberConfiguration()
-    const options = {
+    const options: {
+        includeTags: TagFilterItem[]
+        excludeTags: TagFilterItem[]
+        predefinedSteps: ScenarioSteps[]
+        predefinedRuleSteps: ScenarioSteps[]
+    } = {
         includeTags: extractTagFilters(
             describeFeatureOptions?.includeTags || configuration.includeTags,
         ),
         excludeTags: extractTagFilters(
             describeFeatureOptions?.excludeTags || configuration.excludeTags,
         ),
+        predefinedSteps: [],
+        predefinedRuleSteps: [],
     }
 
     const describeScenarios: DescribesToRun = []
@@ -85,6 +97,12 @@ export function describeFeature(
                     describeTitle: background.getTitle(),
                     describeHandler: createBackgroundDescribeHandler({
                         background,
+                        predefinedSteps: updatePredefinedStepsAccordingLevel({
+                            globallyPredefinedSteps:
+                                configuration.predefinedSteps,
+                            featurePredefinedSteps: options.predefinedSteps,
+                            rulePredefinedSteps: [],
+                        }),
                         backgroundCallback,
                     }),
                 }
@@ -120,6 +138,12 @@ export function describeFeature(
                     describeTitle: scenario.getTitle(),
                     describeHandler: createScenarioDescribeHandler({
                         scenario,
+                        predefinedSteps: updatePredefinedStepsAccordingLevel({
+                            globallyPredefinedSteps:
+                                configuration.predefinedSteps,
+                            featurePredefinedSteps: options.predefinedSteps,
+                            rulePredefinedSteps: [],
+                        }),
                         scenarioTestCallback,
                         beforeEachScenarioHook,
                         afterEachScenarioHook,
@@ -180,6 +204,12 @@ export function describeFeature(
                 describeScenarios.push(
                     ...createScenarioOutlineDescribeHandler({
                         scenario,
+                        predefinedSteps: updatePredefinedStepsAccordingLevel({
+                            globallyPredefinedSteps:
+                                configuration.predefinedSteps,
+                            featurePredefinedSteps: options.predefinedSteps,
+                            rulePredefinedSteps: [],
+                        }),
                         scenarioTestCallback,
                         beforeEachScenarioHook,
                         afterEachScenarioHook,
@@ -272,6 +302,17 @@ export function describeFeature(
                                 describeHandler:
                                     createBackgroundDescribeHandler({
                                         background: background,
+                                        predefinedSteps:
+                                            updatePredefinedStepsAccordingLevel(
+                                                {
+                                                    globallyPredefinedSteps:
+                                                        configuration.predefinedSteps,
+                                                    featurePredefinedSteps:
+                                                        options.predefinedSteps,
+                                                    rulePredefinedSteps:
+                                                        options.predefinedRuleSteps,
+                                                },
+                                            ),
                                         backgroundCallback,
                                     }),
                             }
@@ -319,6 +360,15 @@ export function describeFeature(
                                 only,
                                 describeHandler: createScenarioDescribeHandler({
                                     scenario,
+                                    predefinedSteps:
+                                        updatePredefinedStepsAccordingLevel({
+                                            globallyPredefinedSteps:
+                                                configuration.predefinedSteps,
+                                            featurePredefinedSteps:
+                                                options.predefinedSteps,
+                                            rulePredefinedSteps:
+                                                options.predefinedRuleSteps,
+                                        }),
                                     scenarioTestCallback,
                                     beforeEachScenarioHook,
                                     afterEachScenarioHook,
@@ -393,6 +443,15 @@ export function describeFeature(
                             describeRuleScenarios.push(
                                 ...createScenarioOutlineDescribeHandler({
                                     scenario,
+                                    predefinedSteps:
+                                        updatePredefinedStepsAccordingLevel({
+                                            globallyPredefinedSteps:
+                                                configuration.predefinedSteps,
+                                            featurePredefinedSteps:
+                                                options.predefinedSteps,
+                                            rulePredefinedSteps:
+                                                options.predefinedRuleSteps,
+                                        }),
                                     scenarioTestCallback,
                                     beforeEachScenarioHook,
                                     afterEachScenarioHook,
@@ -454,6 +513,55 @@ export function describeFeature(
                         return fn
                     })(),
                     context: {},
+                    defineSteps: (defineStepsCallback) => {
+                        defineStepsCallback({
+                            Given: (name, callback) => {
+                                options.predefinedRuleSteps.push(
+                                    defineSharedStep(
+                                        StepTypes.GIVEN,
+                                        name,
+                                        callback,
+                                    ),
+                                )
+                            },
+                            And: (name, callback) => {
+                                options.predefinedRuleSteps.push(
+                                    defineSharedStep(
+                                        StepTypes.AND,
+                                        name,
+                                        callback,
+                                    ),
+                                )
+                            },
+                            Then: (name, callback) => {
+                                options.predefinedRuleSteps.push(
+                                    defineSharedStep(
+                                        StepTypes.THEN,
+                                        name,
+                                        callback,
+                                    ),
+                                )
+                            },
+                            When: (name, callback) => {
+                                options.predefinedRuleSteps.push(
+                                    defineSharedStep(
+                                        StepTypes.WHEN,
+                                        name,
+                                        callback,
+                                    ),
+                                )
+                            },
+                            But: (name, callback) => {
+                                options.predefinedRuleSteps.push(
+                                    defineSharedStep(
+                                        StepTypes.BUT,
+                                        name,
+                                        callback,
+                                    ),
+                                )
+                            },
+                        })
+                    },
                 })
 
                 currentRule
@@ -544,6 +652,35 @@ export function describeFeature(
         },
         AfterEachScenario: (fn: () => MaybePromise) => {
             afterEachScenarioHook = fn
+        },
+        defineSteps: (defineStepsCallback) => {
+            defineStepsCallback({
+                Given: (name, callback) => {
+                    options.predefinedSteps.push(
+                        defineSharedStep(StepTypes.GIVEN, name, callback),
+                    )
+                },
+                And: (name, callback) => {
+                    options.predefinedSteps.push(
+                        defineSharedStep(StepTypes.AND, name, callback),
+                    )
+                },
+                Then: (name, callback) => {
+                    options.predefinedSteps.push(
+                        defineSharedStep(StepTypes.THEN, name, callback),
+                    )
+                },
+                When: (name, callback) => {
+                    options.predefinedSteps.push(
+                        defineSharedStep(StepTypes.WHEN, name, callback),
+                    )
+                },
+                But: (name, callback) => {
+                    options.predefinedSteps.push(
+                        defineSharedStep(StepTypes.BUT, name, callback),
+                    )
+                },
+            })
         },
         context: {},
     }

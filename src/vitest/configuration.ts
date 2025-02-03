@@ -1,5 +1,8 @@
 import type { TaskContext } from 'vitest'
-import type { Step } from '../parser/models/step'
+import { type Step, StepTypes } from '../parser/models/step'
+import { defineSharedStep } from './describe/define-step-test'
+import type { ScenarioSteps } from './describe/types'
+import type { DefineStepsHandler } from './types'
 
 export type TagFilterItem = string | string[]
 
@@ -12,6 +15,7 @@ export type VitestCucumberOptions = {
     language?: string
     includeTags?: TagFilterItem[]
     excludeTags?: TagFilterItem[]
+    predefinedSteps: ScenarioSteps[]
     onStepError?: (args: {
         error: Error
         ctx: TaskContext
@@ -27,13 +31,16 @@ function getDefaultConfiguration(): VitestCucumberOptions {
         includeTags: [],
         excludeTags: ['ignore'],
         onStepError: ({ error }) => {},
+        predefinedSteps: [],
     }
 }
 
-let globalConfiguration: VitestCucumberOptions = {} as VitestCucumberOptions
+let globalConfiguration: VitestCucumberOptions = {
+    predefinedSteps: [],
+} as VitestCucumberOptions
 
 export const getVitestCucumberConfiguration = (
-    options?: VitestCucumberOptions,
+    options?: Omit<VitestCucumberOptions, 'predefinedSteps'>,
 ) => {
     const defaultConfiguration = getDefaultConfiguration()
 
@@ -69,4 +76,38 @@ export const setVitestCucumberConfiguration = (
     options: VitestCucumberOptions,
 ) => {
     globalConfiguration = options
+}
+
+export function resetDefinedSteps() {
+    globalConfiguration.predefinedSteps = []
+}
+
+export const defineSteps: DefineStepsHandler = (defineStepsCallback) => {
+    defineStepsCallback({
+        Given: (name, callback) => {
+            globalConfiguration.predefinedSteps.push(
+                defineSharedStep(StepTypes.GIVEN, name, callback),
+            )
+        },
+        And: (name, callback) => {
+            globalConfiguration.predefinedSteps.push(
+                defineSharedStep(StepTypes.AND, name, callback),
+            )
+        },
+        Then: (name, callback) => {
+            globalConfiguration.predefinedSteps.push(
+                defineSharedStep(StepTypes.THEN, name, callback),
+            )
+        },
+        When: (name, callback) => {
+            globalConfiguration.predefinedSteps.push(
+                defineSharedStep(StepTypes.WHEN, name, callback),
+            )
+        },
+        But: (name, callback) => {
+            globalConfiguration.predefinedSteps.push(
+                defineSharedStep(StepTypes.BUT, name, callback),
+            )
+        },
+    })
 }

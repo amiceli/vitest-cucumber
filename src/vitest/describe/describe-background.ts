@@ -1,5 +1,4 @@
 import { onTestFailed, test } from 'vitest'
-import { ExpressionStep } from '../../parser/expression/ExpressionStep'
 import type { Background } from '../../parser/models/Background'
 import { getVitestCucumberConfiguration } from '../configuration'
 import type {
@@ -9,18 +8,21 @@ import type {
     MaybePromise,
     StepCallbackDefinition,
 } from '../types'
-import type { ScenarioSteps, StepMap } from './common'
+import { defineStepToTest, orderStepsToRun } from './define-step-test'
+import type { ScenarioSteps, StepMap } from './types'
 
 type DescribeScenarioArgs = {
     background: Background
+    predefinedSteps: ScenarioSteps[]
     backgroundCallback: (op: BackgroundStepTest) => MaybePromise
 }
 
 export function createBackgroundDescribeHandler({
     background,
+    predefinedSteps,
     backgroundCallback,
 }: DescribeScenarioArgs): () => void {
-    const backgroundStepsToRun: ScenarioSteps[] = []
+    let backgroundStepsToRun: ScenarioSteps[] = []
     const config = getVitestCucumberConfiguration()
 
     const createScenarioStepCallback = (
@@ -32,29 +34,14 @@ export function createBackgroundDescribeHandler({
                 | CallbackWithSingleContext
                 | CallbackWithParamsAndContext,
         ) => {
-            const foundStep = background.checkIfStepExists(
-                stepType,
-                stepDetails,
+            backgroundStepsToRun.push(
+                defineStepToTest({
+                    parent: background,
+                    stepDetails,
+                    stepType,
+                    scenarioStepCallback,
+                }),
             )
-            const params: unknown[] = ExpressionStep.matchStep(
-                foundStep,
-                stepDetails,
-            )
-
-            foundStep.isCalled = true
-
-            backgroundStepsToRun.push({
-                key: foundStep.getTitle(),
-                fn: scenarioStepCallback,
-                step: foundStep,
-                params: [
-                    ...params,
-                    foundStep.dataTables.length > 0
-                        ? foundStep.dataTables
-                        : null,
-                    foundStep.docStrings,
-                ].filter((p) => p !== null),
-            })
         }
     }
 
@@ -65,6 +52,33 @@ export function createBackgroundDescribeHandler({
     }
 
     backgroundCallback(scenarioStepsCallback)
+
+    const missingSteps = background.steps.filter((step) => {
+        return (
+            backgroundStepsToRun.find((s) => {
+                return step.matchStep(s.step)
+            }) === undefined
+        )
+    })
+
+    for (const predefineStep of predefinedSteps) {
+        const missingStep = missingSteps.find((s) => {
+            return s.matchStep(predefineStep.step)
+        })
+
+        if (missingStep) {
+            backgroundStepsToRun.push(
+                defineStepToTest({
+                    parent: background,
+                    stepDetails: predefineStep.step.details,
+                    stepType: predefineStep.step.type,
+                    scenarioStepCallback: predefineStep.fn,
+                }),
+            )
+        }
+    }
+
+    backgroundStepsToRun = orderStepsToRun(background, backgroundStepsToRun)
 
     background.checkIfStepWasCalled()
 

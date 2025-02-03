@@ -1,5 +1,4 @@
 import { afterAll, beforeAll, onTestFailed, test } from 'vitest'
-import { ExpressionStep } from '../../parser/expression/ExpressionStep'
 import type { Scenario } from '../../parser/models/scenario'
 import { getVitestCucumberConfiguration } from '../configuration'
 import type {
@@ -9,10 +8,12 @@ import type {
     StepCallbackDefinition,
     StepTest,
 } from '../types'
-import type { ScenarioSteps, StepMap } from './common'
+import { defineStepToTest, orderStepsToRun } from './define-step-test'
+import type { ScenarioSteps, StepMap } from './types'
 
 type DescribeScenarioArgs = {
     scenario: Scenario
+    predefinedSteps: ScenarioSteps[]
     scenarioTestCallback: (op: StepTest) => MaybePromise
     beforeEachScenarioHook: () => MaybePromise
     afterEachScenarioHook: () => MaybePromise
@@ -20,11 +21,12 @@ type DescribeScenarioArgs = {
 
 export function createScenarioDescribeHandler({
     scenario,
+    predefinedSteps,
     scenarioTestCallback,
     afterEachScenarioHook,
     beforeEachScenarioHook,
 }: DescribeScenarioArgs): () => void {
-    const scenarioStepsToRun: ScenarioSteps[] = []
+    let scenarioStepsToRun: ScenarioSteps[] = []
     const config = getVitestCucumberConfiguration()
 
     const createScenarioStepCallback = (
@@ -36,26 +38,14 @@ export function createScenarioDescribeHandler({
                 | CallbackWithSingleContext
                 | CallbackWithParamsAndContext,
         ) => {
-            const foundStep = scenario.checkIfStepExists(stepType, stepDetails)
-            const params: unknown[] = ExpressionStep.matchStep(
-                foundStep,
-                stepDetails,
+            scenarioStepsToRun.push(
+                defineStepToTest({
+                    parent: scenario,
+                    stepDetails,
+                    stepType,
+                    scenarioStepCallback,
+                }),
             )
-
-            foundStep.isCalled = true
-
-            scenarioStepsToRun.push({
-                key: foundStep.getTitle(),
-                fn: scenarioStepCallback,
-                step: foundStep,
-                params: [
-                    ...params,
-                    foundStep.dataTables.length > 0
-                        ? foundStep.dataTables
-                        : null,
-                    foundStep.docStrings,
-                ].filter((p) => p !== null),
-            })
         }
     }
 
@@ -69,6 +59,33 @@ export function createScenarioDescribeHandler({
     }
 
     scenarioTestCallback(scenarioStepsCallback)
+
+    const missingSteps = scenario.steps.filter((step) => {
+        return (
+            scenarioStepsToRun.find((s) => {
+                return step.matchStep(s.step)
+            }) === undefined
+        )
+    })
+
+    for (const predefineStep of predefinedSteps) {
+        const missingStep = missingSteps.find((s) => {
+            return s.matchStep(predefineStep.step)
+        })
+
+        if (missingStep) {
+            scenarioStepsToRun.push(
+                defineStepToTest({
+                    parent: scenario,
+                    stepDetails: predefineStep.step.details,
+                    stepType: predefineStep.step.type,
+                    scenarioStepCallback: predefineStep.fn,
+                }),
+            )
+        }
+    }
+
+    scenarioStepsToRun = orderStepsToRun(scenario, scenarioStepsToRun)
 
     scenario.checkIfStepWasCalled()
 

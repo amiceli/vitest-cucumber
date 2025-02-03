@@ -37,4 +37,8 @@ export class Step {
     public setDocStrings(docStrings: string) {
         this.docStrings = docStrings
     }
+
+    public matchStep(step: Step): boolean {
+        return this.type === step.type && this.details === step.details
+    }
 }

@@ -26,6 +26,16 @@ export type StepTest<T = any> = {
     context: T
 }
 
+export type DefineStepsHandler = (
+    callback: (defineStepsOptions: {
+        Given: StepCallbackDefinition
+        When: StepCallbackDefinition
+        Then: StepCallbackDefinition
+        And: StepCallbackDefinition
+        But: StepCallbackDefinition
+    }) => void,
+) => void
+
 // biome-ignore lint/suspicious/noExplicitAny: required for feature context type
 export type FeatureDescriibeCallbackParams<T = any> = {
     Background: BackgroundTest & {
@@ -47,6 +57,8 @@ export type FeatureDescriibeCallbackParams<T = any> = {
         skip: RuleTest
         only: RuleTest
     }
+    /** should be called before Scenario, Rule, ScenarioOutline or Background */
+    defineSteps: DefineStepsHandler
     context: T
 }
 
@@ -67,6 +79,8 @@ export type RuleOptions<T = any> = {
         skip: ScenarioOutlineTest
         only: ScenarioOutlineTest
     }
+    /** should be called before RuleScenario, RuleScenarioOutline or RuleBackground */
+    defineSteps: DefineStepsHandler
     context: T
 }
 

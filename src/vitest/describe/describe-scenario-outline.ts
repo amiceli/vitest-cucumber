@@ -1,5 +1,4 @@
 import { afterAll, beforeAll, onTestFailed, test } from 'vitest'
-import { ExpressionStep } from '../../parser/expression/ExpressionStep'
 import type { Example, ScenarioOutline } from '../../parser/models/scenario'
 import { getVitestCucumberConfiguration } from '../configuration'
 import type {
@@ -9,10 +8,12 @@ import type {
     StepCallbackDefinition,
     StepTest,
 } from '../types'
-import type { ScenarioSteps, StepMap } from './common'
+import { defineStepToTest, orderStepsToRun } from './define-step-test'
+import type { ScenarioSteps, StepMap } from './types'
 
 type DescribeScenarioArgs = {
     scenario: ScenarioOutline
+    predefinedSteps: ScenarioSteps[]
     scenarioTestCallback: (op: StepTest, variables: Example[0]) => MaybePromise
     beforeEachScenarioHook: () => MaybePromise
     afterEachScenarioHook: () => MaybePromise
@@ -20,12 +21,42 @@ type DescribeScenarioArgs = {
 
 export function createScenarioOutlineDescribeHandler({
     scenario,
+    predefinedSteps,
     scenarioTestCallback,
     afterEachScenarioHook,
     beforeEachScenarioHook,
 }: DescribeScenarioArgs): Array<() => void> {
     let scenarioStepsToRun: ScenarioSteps[] = []
     const config = getVitestCucumberConfiguration()
+
+    function addPredefinedSteps(list: ScenarioSteps[]) {
+        const missingSteps = scenario.steps.filter((step) => {
+            return (
+                scenarioStepsToRun.find((s) => {
+                    return step.matchStep(s.step)
+                }) === undefined
+            )
+        })
+
+        for (const predefineStep of list) {
+            const missingStep = missingSteps.find((s) => {
+                return s.matchStep(predefineStep.step)
+            })
+
+            if (missingStep) {
+                scenarioStepsToRun.push(
+                    defineStepToTest({
+                        parent: scenario,
+                        stepDetails: predefineStep.step.details,
+                        stepType: predefineStep.step.type,
+                        scenarioStepCallback: predefineStep.fn,
+                    }),
+                )
+            }
+        }
+
+        scenarioStepsToRun = orderStepsToRun(scenario, scenarioStepsToRun)
+    }
 
     const createScenarioStepCallback = (
         stepType: string,
@@ -36,26 +67,14 @@ export function createScenarioOutlineDescribeHandler({
                 | CallbackWithSingleContext
                 | CallbackWithParamsAndContext,
         ) => {
-            const foundStep = scenario.checkIfStepExists(stepType, stepDetails)
-            const params: unknown[] = ExpressionStep.matchStep(
-                foundStep,
-                stepDetails,
+            scenarioStepsToRun.push(
+                defineStepToTest({
+                    parent: scenario,
+                    stepDetails,
+                    stepType,
+                    scenarioStepCallback,
+                }),
             )
-
-            foundStep.isCalled = true
-
-            scenarioStepsToRun.push({
-                key: foundStep.getTitle(),
-                fn: scenarioStepCallback,
-                step: foundStep,
-                params: [
-                    ...params,
-                    foundStep.dataTables.length > 0
-                        ? foundStep.dataTables
-                        : null,
-                    foundStep.docStrings,
-                ].filter((p) => p !== null),
-            })
         }
     }
 
@@ -74,6 +93,8 @@ export function createScenarioOutlineDescribeHandler({
         return example?.map((exampleVariables) => {
             scenarioStepsToRun = []
             scenarioTestCallback(scenarioStepsCallback, exampleVariables)
+
+            addPredefinedSteps(predefinedSteps)
 
             scenario.checkIfStepWasCalled()
 

@@ -2,6 +2,7 @@ import { type TaskContext, afterEach, describe, expect, it, vi } from 'vitest'
 import { FeatureContentReader } from '../../__mocks__/FeatureContentReader.spec'
 import { Step, StepTypes } from '../../parser/models/step'
 import {
+    type VitestCucumberOptions,
     getVitestCucumberConfiguration,
     setVitestCucumberConfiguration,
 } from '../configuration'
@@ -44,6 +45,7 @@ describe('getVitestCucumberConfiguration', () => {
             includeTags: [],
             excludeTags: ['ignore'],
             onStepError: expect.any(Function),
+            predefinedSteps: [],
         })
     })
 
@@ -69,6 +71,7 @@ describe('getVitestCucumberConfiguration', () => {
             includeTags: ['alpha'],
             excludeTags: ['beta'],
             onStepError: expect.any(Function),
+            predefinedSteps: [],
         })
         expect(fn).toHaveBeenCalled()
     })
@@ -76,7 +79,7 @@ describe('getVitestCucumberConfiguration', () => {
 
 describe('setVitestCucumberConfiguration', () => {
     it('empty configuration should set the default configuration', () => {
-        const config = {}
+        const config = {} as VitestCucumberOptions
 
         setVitestCucumberConfiguration(config)
 
@@ -85,6 +88,7 @@ describe('setVitestCucumberConfiguration', () => {
             includeTags: [],
             excludeTags: ['ignore'],
             onStepError: expect.any(Function),
+            predefinedSteps: [],
         })
     })
 
@@ -92,7 +96,7 @@ describe('setVitestCucumberConfiguration', () => {
         const config = {
             language: 'fr',
             excludeTags: ['beta'],
-        }
+        } as VitestCucumberOptions
 
         setVitestCucumberConfiguration(config)
 
@@ -101,6 +105,7 @@ describe('setVitestCucumberConfiguration', () => {
             includeTags: [],
             excludeTags: ['beta'],
             onStepError: expect.any(Function),
+            predefinedSteps: [],
         })
     })
 
@@ -136,6 +141,7 @@ describe('setVitestCucumberConfiguration', () => {
             includeTags: [],
             excludeTags: ['ignore'],
             onStepError: expect.any(Function),
+            predefinedSteps: [],
         })
     })
 })

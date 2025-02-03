@@ -216,14 +216,18 @@ describe(`excludeTags`, () => {
 
         describeFeature(feature, (f) => {
             f.AfterAllScenarios(() => {
-                expect(featureCheck).toHaveBeenCalledWith({
-                    includeTags: [],
-                    excludeTags: ['ignore'],
-                })
-                expect(ruleCheck).toHaveBeenCalledWith({
-                    includeTags: [],
-                    excludeTags: ['ignore'],
-                })
+                expect(featureCheck).toHaveBeenCalledWith(
+                    expect.objectContaining({
+                        includeTags: [],
+                        excludeTags: ['ignore'],
+                    }),
+                )
+                expect(ruleCheck).toHaveBeenCalledWith(
+                    expect.objectContaining({
+                        includeTags: [],
+                        excludeTags: ['ignore'],
+                    }),
+                )
             })
             f.Rule(`sample rule`, (r) => {
                 r.RuleScenario(`excludeTags is optional`, (s) => {
@@ -288,10 +292,15 @@ describe(`excludeTags`, () => {
                     ]
 
                     for (const fn of checks) {
-                        expect(fn).toHaveBeenCalledWith({
-                            includeTags: [],
-                            excludeTags: [`ignored-scenario`, `ignored-rule`],
-                        })
+                        expect(fn).toHaveBeenCalledWith(
+                            expect.objectContaining({
+                                includeTags: [],
+                                excludeTags: [
+                                    `ignored-scenario`,
+                                    `ignored-rule`,
+                                ],
+                            }),
+                        )
                     }
 
                     expect(
