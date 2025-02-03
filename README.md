@@ -120,6 +120,7 @@ Currently it generates `TS` file, if you need more options open an issue ;).
 - [Rule](https://vitest-cucumber.miceli.click/features/rule)
 - [Scneario hooks](https://vitest-cucumber.miceli.click/features/hooks)
 - [Structure hooks](https://vitest-cucumber.miceli.click/features/structure-context)
+- [Predefine steps](https://vitest-cucumber.miceli.click/features/predefine-steps)
 - [`skip`, `only` with scenario, rule and background](https://vitest-cucumber.miceli.click/features/skip-only)
 - [Step sequentially and async](https://vitest-cucumber.miceli.click/features/sequentially-and-async)
 - [Gherkin tags](https://vitest-cucumber.miceli.click/features/gherkin-tags)
