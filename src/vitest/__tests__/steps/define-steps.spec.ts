@@ -150,3 +150,35 @@ describe('global.defineSteps', () => {
         })
     })
 })
+
+describe('defineSteps with docStrings', () => {
+    const feature = FeatureContentReader.fromString([
+        `Feature: DocStrings`,
+        `    Scenario: DocStrings example`,
+        `        Given I use DocStrings`,
+        `            """`,
+        `            DocStrings love me`,
+        `            """`,
+        `        When I run unit test`,
+        `        Then I can read it`,
+        `            """`,
+        `            DocStrings love you`,
+        `            """`,
+    ]).parseContent()
+
+    describeFeature(feature, (f) => {
+        f.defineSteps(({ Given, Then }) => {
+            Given('I use DocStrings', (ctx, docs) => {
+                expect(docs).toEqual('DocStrings love me')
+            })
+            Then('I can read it', (_, docs: string) => {
+                expect(docs).toEqual('DocStrings love you')
+            })
+        })
+        f.Scenario('DocStrings example', (s) => {
+            s.When('I run unit test', () => {
+                expect(true).toBe(true)
+            })
+        })
+    })
+})
