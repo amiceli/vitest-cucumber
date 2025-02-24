@@ -17,11 +17,13 @@ type DescribeScenarioArgs = {
     scenarioTestCallback: (op: StepTest, variables: Example[0]) => MaybePromise
     beforeEachScenarioHook: () => MaybePromise
     afterEachScenarioHook: () => MaybePromise
+    mappedExamples: { [key: string]: unknown }
 }
 
 export function createScenarioOutlineDescribeHandler({
     scenario,
     predefinedSteps,
+    mappedExamples,
     scenarioTestCallback,
     afterEachScenarioHook,
     beforeEachScenarioHook,
@@ -91,8 +93,14 @@ export function createScenarioOutlineDescribeHandler({
 
     if (example) {
         return example?.map((exampleVariables) => {
+            const mappedExampleVariables = Object.fromEntries(
+                Object.entries(exampleVariables).map(([index, value]) => {
+                    return [index, mappedExamples[value] ?? value]
+                }),
+            )
+
             scenarioStepsToRun = []
-            scenarioTestCallback(scenarioStepsCallback, exampleVariables)
+            scenarioTestCallback(scenarioStepsCallback, mappedExampleVariables)
 
             addPredefinedSteps(predefinedSteps)
 
@@ -111,7 +119,10 @@ export function createScenarioOutlineDescribeHandler({
                     test.for(
                         steps.map((s): StepMap => {
                             return [
-                                scenario.getStepTitle(s.step, exampleVariables),
+                                scenario.getStepTitle(
+                                    s.step,
+                                    mappedExampleVariables,
+                                ),
                                 s,
                             ]
                         }),
@@ -121,7 +132,7 @@ export function createScenarioOutlineDescribeHandler({
                                 scenarioStep.params.length - 1
                             ] = scenario.getStepDocStrings(
                                 scenarioStep.step,
-                                exampleVariables,
+                                mappedExampleVariables,
                             )
                         }
                         onTestFailed((e) => {

@@ -204,6 +204,7 @@ export function describeFeature(
                 describeScenarios.push(
                     ...createScenarioOutlineDescribeHandler({
                         scenario,
+                        mappedExamples: configuration.mappedExamples,
                         predefinedSteps: updatePredefinedStepsAccordingLevel({
                             globallyPredefinedSteps:
                                 configuration.predefinedSteps,
@@ -443,6 +444,8 @@ export function describeFeature(
                             describeRuleScenarios.push(
                                 ...createScenarioOutlineDescribeHandler({
                                     scenario,
+                                    mappedExamples:
+                                        configuration.mappedExamples,
                                     predefinedSteps:
                                         updatePredefinedStepsAccordingLevel({
                                             globallyPredefinedSteps:
