@@ -43,6 +43,7 @@ describe(`describeScenarioOutline`, () => {
     const scenarioTest = createScenarioOutlineDescribeHandler({
         scenario,
         predefinedSteps: [],
+        mappedExamples: {},
         scenarioTestCallback: ({ Given }) => {
             Given(`given <test>`, () => {})
         },
