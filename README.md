@@ -117,6 +117,7 @@ Currently it generates `TS` file, if you need more options open an issue ;).
 - [Background](https://vitest-cucumber.miceli.click/features/background)
 - [Scenario](https://vitest-cucumber.miceli.click/features/scenario)
 - [Scenario Outline and Examples](https://vitest-cucumber.miceli.click/features/scenario-outline)
+- [Scenario Outline mapped examples](https://vitest-cucumber.miceli.click/features/mapped-examples/)
 - [Rule](https://vitest-cucumber.miceli.click/features/rule)
 - [Scneario hooks](https://vitest-cucumber.miceli.click/features/hooks)
 - [Structure hooks](https://vitest-cucumber.miceli.click/features/structure-context)

@@ -46,6 +46,7 @@ describe('getVitestCucumberConfiguration', () => {
             excludeTags: ['ignore'],
             onStepError: expect.any(Function),
             predefinedSteps: [],
+            mappedExamples: {},
         })
     })
 
@@ -72,6 +73,7 @@ describe('getVitestCucumberConfiguration', () => {
             excludeTags: ['beta'],
             onStepError: expect.any(Function),
             predefinedSteps: [],
+            mappedExamples: {},
         })
         expect(fn).toHaveBeenCalled()
     })
@@ -89,6 +91,7 @@ describe('setVitestCucumberConfiguration', () => {
             excludeTags: ['ignore'],
             onStepError: expect.any(Function),
             predefinedSteps: [],
+            mappedExamples: {},
         })
     })
 
@@ -106,6 +109,7 @@ describe('setVitestCucumberConfiguration', () => {
             excludeTags: ['beta'],
             onStepError: expect.any(Function),
             predefinedSteps: [],
+            mappedExamples: {},
         })
     })
 
@@ -142,6 +146,7 @@ describe('setVitestCucumberConfiguration', () => {
             excludeTags: ['ignore'],
             onStepError: expect.any(Function),
             predefinedSteps: [],
+            mappedExamples: {},
         })
     })
 })

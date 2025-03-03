@@ -1,6 +1,6 @@
 {
   "name": "@amiceli/vitest-cucumber",
-  "version": "4.6.0",
+  "version": "4.7.0",
   "description": "vitest tools to use Gherkin feature in unit tests",
   "main": "dist/src/module.js",
   "bin": "dist/cli-generate.js",
@@ -37,14 +37,14 @@
     "@commitlint/config-conventional": "^19.7.1",
     "@types/node": "^20.4.5",
     "@vitest/coverage-v8": "^2.1.8",
-    "esbuild": "0.24.2",
-    "lefthook": "^1.11.0",
+    "esbuild": "0.25.0",
+    "lefthook": "^1.11.2",
     "typescript": "^5.7.3"
   },
   "dependencies": {
     "callsites": "^4.2.0",
-    "parsecurrency": "^1.1.0",
-    "ts-morph": "^25.0.0",
+    "parsecurrency": "^1.1.1",
+    "ts-morph": "^25.0.1",
     "vitest": "^2.1.8"
   },
   "repository": {
