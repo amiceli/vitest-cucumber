@@ -43,7 +43,7 @@ let globalConfiguration: VitestCucumberOptions = {
 } as VitestCucumberOptions
 
 export const getVitestCucumberConfiguration = (
-    options?: Omit<VitestCucumberOptions, 'predefinedSteps'>,
+    options?: Omit<VitestCucumberOptions, 'predefinedSteps' | 'mappedExamples'>,
 ) => {
     const defaultConfiguration = getDefaultConfiguration()
 
