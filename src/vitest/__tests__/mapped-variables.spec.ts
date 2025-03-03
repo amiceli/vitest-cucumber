@@ -44,4 +44,40 @@ describe('Mapped examples', () => {
             })
         })
     })
+    describe(`RuleScenarioOutline`, () => {
+        const feature = FeatureContentReader.fromString([
+            `Feature: Mapped examples`,
+            `    Rule: Mapped examples`,
+            `        Scenario Outline: Mapped examples`,
+            `            Given I am <type> developper`,
+            `            Then Figma is <state>`,
+            `            But  Git is <other-state>`,
+            `            And  I can use <another>`,
+            `            Examples:`,
+            `               | type      | state   | other-state | another   |`,
+            `               | front-end | useful  | required    | mercurial |`,
+            `               | back-end  | useless | required    | svn       |`,
+        ]).parseContent()
+
+        describeFeature(feature, (f) => {
+            f.Rule('Mapped examples', (r) => {
+                r.RuleScenarioOutline(`Mapped examples`, (s, variables) => {
+                    s.Given(`I am <type> developper`, () => {
+                        expect(['front', 'back']).toContain(variables.type)
+                    })
+                    s.Then(`Figma is <state>`, () => {
+                        expect([true, false]).toContain(variables.state)
+                    })
+                    s.But('Git is <other-state>', () => {
+                        expect(variables['other-state']).toEqual('required')
+                    })
+                    s.And('I can use <another>', () => {
+                        expect(['mercurial', 'svn']).toContain(
+                            variables.another,
+                        )
+                    })
+                })
+            })
+        })
+    })
 })

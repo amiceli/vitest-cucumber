@@ -119,10 +119,7 @@ export function createScenarioOutlineDescribeHandler({
                     test.for(
                         steps.map((s): StepMap => {
                             return [
-                                scenario.getStepTitle(
-                                    s.step,
-                                    mappedExampleVariables,
-                                ),
+                                scenario.getStepTitle(s.step, exampleVariables),
                                 s,
                             ]
                         }),
