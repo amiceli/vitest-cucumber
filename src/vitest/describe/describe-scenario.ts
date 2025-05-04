@@ -103,8 +103,8 @@ export function createScenarioDescribeHandler({
                 return [s.key, s]
             }),
         )(`%s`, async ([, scenarioStep], ctx) => {
-            onTestFailed((e) => {
-                const message = e.errors?.at(0)?.message
+            onTestFailed(({ task }) => {
+                const message = task.result?.errors?.at(0)?.message
 
                 config.onStepError({
                     error: new Error(

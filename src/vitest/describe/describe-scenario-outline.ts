@@ -132,8 +132,8 @@ export function createScenarioOutlineDescribeHandler({
                                 mappedExampleVariables,
                             )
                         }
-                        onTestFailed((e) => {
-                            const message = e.errors?.at(0)?.message
+                        onTestFailed(({ task }) => {
+                            const message = task.result?.errors?.at(0)?.message
 
                             config.onStepError({
                                 error: new Error(

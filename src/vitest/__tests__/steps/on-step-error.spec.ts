@@ -36,9 +36,15 @@ describe('Use onStepError', () => {
         describeFeature(feature, (f) => {
             f.Scenario('Simple scenario', (s) => {
                 s.Given('I throw an error', () => {
-                    onTestFailedCallback({})
                     onTestFailedCallback({
-                        errors: [{ message: 'epic fail !' }],
+                        task: {},
+                    })
+                    onTestFailedCallback({
+                        task: {
+                            result: {
+                                errors: [{ message: 'epic fail !' }],
+                            },
+                        },
                     })
                 })
                 s.Then('my onStepError is called', () => {
@@ -73,11 +79,17 @@ describe('Use onStepError', () => {
         describeFeature(feature, (f) => {
             f.Background((s) => {
                 s.Given('I am a step', () => {
-                    onTestFailedCallback({})
+                    onTestFailedCallback({
+                        task: {},
+                    })
                 })
                 s.And('onTestFailedCallback is called', () => {
                     onTestFailedCallback({
-                        errors: [{ message: 'test' }],
+                        task: {
+                            result: {
+                                errors: [{ message: 'test' }],
+                            },
+                        },
                     })
                 })
             })
@@ -115,9 +127,15 @@ describe('Use onStepError', () => {
         describeFeature(feature, (f) => {
             f.ScenarioOutline('Simple scenario outline', (s) => {
                 s.Given('I throw an error', () => {
-                    onTestFailedCallback({})
                     onTestFailedCallback({
-                        errors: [{ message: 'miss !' }],
+                        task: {},
+                    })
+                    onTestFailedCallback({
+                        task: {
+                            result: {
+                                errors: [{ message: 'miss !' }],
+                            },
+                        },
                     })
                 })
                 s.Then('my onStepError <test> is called', () => {
