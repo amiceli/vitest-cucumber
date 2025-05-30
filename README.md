@@ -100,15 +100,18 @@ Since `3.4.1` vitest-cucumber provide a script to generate spec file from featur
 
 You can use it like this : 
 
-    npx @amiceli/vitest-cucumber <path-to-feature> <path-to-spec>
+    npx @amiceli/vitest-cucumber --feature <path-to-feature> --space <path-to-spec> --lang <lang:optional>
 
 An example : 
 
-    npx @amiceli/vitest-cucumber features/example.feature src/__tests__/example.spec.ts
+    npx @amiceli/vitest-cucumber --feature features/example.feature --spec src/__tests__/example.spec.ts --lang fr
 
 You just have to format spec file after this script ;).
 
 Currently it generates `TS` file, if you need more options open an issue ;).
+
+`lang` allow to specify which lang is used in feature file. 
+Required if you don't use `en` language.
 
 ## [Docs](https://vitest-cucumber.miceli.click/)
 
