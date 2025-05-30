@@ -110,7 +110,8 @@ You just have to format spec file after this script ;).
 
 Currently it generates `TS` file, if you need more options open an issue ;).
 
-`lang` is for language used in feature file.
+`lang` allow to specify which lang is used in feature file. 
+Required if you don't use `en` language.
 
 ## [Docs](https://vitest-cucumber.miceli.click/)
 
