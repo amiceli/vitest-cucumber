@@ -12,3 +12,4 @@ export {
     defineParameterExpression,
     type CustomParameterExpressionArgs,
 } from './parser/expression/custom'
+export { StepTest, FeatureDescriibeCallbackParams } from "./vitest/types"
