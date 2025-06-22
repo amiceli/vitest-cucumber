@@ -1,6 +1,7 @@
 export {
     type VitestCucumberOptions,
     setVitestCucumberConfiguration,
+    getVitestCucumberConfiguration,
     defineSteps,
 } from './vitest/configuration'
 export { describeFeature } from './vitest/describe-feature'
