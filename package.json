@@ -10,7 +10,7 @@
     ".": "./dist/src/module.js",
     "./browser": "./dist/src/browser/index.js"
   },
-  "types": "./dist/src/types.d.ts",
+  "types": "./dist/src/module.d.ts",
   "files": [
     "dist"
   ],
