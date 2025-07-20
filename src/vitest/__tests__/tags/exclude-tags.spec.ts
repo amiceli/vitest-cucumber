@@ -26,9 +26,9 @@ describe(`Execute all scenarii if no exclusion tag`, async () => {
                     feature.getScenarioByName(`Beta scenario`)?.isCalled,
                 ).toBe(true)
                 expect(
-                    feature
-                        .getScenarioByName(`Beta scenario`)
-                        ?.matchTags([`beta`]),
+                    feature.getScenarioByName(`Beta scenario`)?.matchTags([
+                        `beta`,
+                    ]),
                 ).toBe(true)
             })
             Scenario(`Simple scenario`, ({ Given, Then }) => {
@@ -40,7 +40,9 @@ describe(`Execute all scenarii if no exclusion tag`, async () => {
                 Then(`It check I am executed`, () => {})
             })
         },
-        { excludeTags: [] },
+        {
+            excludeTags: [],
+        },
     )
 })
 
@@ -64,9 +66,9 @@ describe(`Ignore scenario with a tag`, async () => {
                     feature.getScenarioByName(`Ignored scenario`)?.isCalled,
                 ).toBe(false)
                 expect(
-                    feature
-                        .getScenarioByName(`Ignored scenario`)
-                        ?.matchTags([`beta`]),
+                    feature.getScenarioByName(`Ignored scenario`)?.matchTags([
+                        `beta`,
+                    ]),
                 ).toBe(true)
             })
             Scenario(`Simple scenario`, ({ Given, Then }) => {
@@ -74,7 +76,11 @@ describe(`Ignore scenario with a tag`, async () => {
                 Then(`It check I am executed`, () => {})
             })
         },
-        { excludeTags: [`beta`] },
+        {
+            excludeTags: [
+                `beta`,
+            ],
+        },
     )
 })
 
@@ -98,9 +104,9 @@ describe(`Ignore scenario with a tag (alternative with an @ prefix)`, async () =
                     feature.getScenarioByName(`Ignored scenario`)?.isCalled,
                 ).toBe(false)
                 expect(
-                    feature
-                        .getScenarioByName(`Ignored scenario`)
-                        ?.matchTags([`beta`]),
+                    feature.getScenarioByName(`Ignored scenario`)?.matchTags([
+                        `beta`,
+                    ]),
                 ).toBe(true)
             })
             Scenario(`Simple scenario`, ({ Given, Then }) => {
@@ -108,7 +114,11 @@ describe(`Ignore scenario with a tag (alternative with an @ prefix)`, async () =
                 Then(`It check I am executed`, () => {})
             })
         },
-        { excludeTags: [`@beta`] },
+        {
+            excludeTags: [
+                `@beta`,
+            ],
+        },
     )
 })
 
@@ -134,9 +144,9 @@ describe(`Ignore rule with a tag`, async () => {
                     false,
                 )
                 expect(
-                    feature
-                        .getRuleByName(`ignored rule`)
-                        ?.matchTags([`normal`]),
+                    feature.getRuleByName(`ignored rule`)?.matchTags([
+                        `normal`,
+                    ]),
                 ).toBe(true)
             })
             Scenario(`Simple scenario`, ({ Given, Then }) => {
@@ -146,7 +156,11 @@ describe(`Ignore rule with a tag`, async () => {
                 Then(`check if I am called`, () => {})
             })
         },
-        { excludeTags: [`normal`] },
+        {
+            excludeTags: [
+                `normal`,
+            ],
+        },
     )
 })
 
@@ -181,7 +195,9 @@ describe(`Ignore scenario in rule with a tag`, async () => {
                     feature
                         .getRuleByName(`rule with ignored scenario`)
                         ?.getScenarioByName(`Simple scenario`)
-                        ?.matchTags([`ignored`]),
+                        ?.matchTags([
+                            `ignored`,
+                        ]),
                 ).toBe(true)
             })
             Scenario(`Me I am executed`, ({ Given, Then }) => {
@@ -197,7 +213,11 @@ describe(`Ignore scenario in rule with a tag`, async () => {
                 })
             })
         },
-        { excludeTags: [`ignored`] },
+        {
+            excludeTags: [
+                `ignored`,
+            ],
+        },
     )
 })
 
@@ -219,13 +239,17 @@ describe(`excludeTags`, () => {
                 expect(featureCheck).toHaveBeenCalledWith(
                     expect.objectContaining({
                         includeTags: [],
-                        excludeTags: ['ignore'],
+                        excludeTags: [
+                            'ignore',
+                        ],
                     }),
                 )
                 expect(ruleCheck).toHaveBeenCalledWith(
                     expect.objectContaining({
                         includeTags: [],
-                        excludeTags: ['ignore'],
+                        excludeTags: [
+                            'ignore',
+                        ],
                     }),
                 )
             })
@@ -335,7 +359,10 @@ describe(`excludeTags`, () => {
                 })
             },
             {
-                excludeTags: [`ignored-scenario`, `ignored-rule`],
+                excludeTags: [
+                    `ignored-scenario`,
+                    `ignored-rule`,
+                ],
             },
         )
     })

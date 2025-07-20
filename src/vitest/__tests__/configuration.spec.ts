@@ -26,9 +26,9 @@ describe(`Ignore scenario with @ignore tag by default`, () => {
                 feature.getScenarioByName(`Ignored scenario`)?.isCalled,
             ).toBe(false)
             expect(
-                feature
-                    .getScenarioByName(`Ignored scenario`)
-                    ?.matchTags([`ignore`]),
+                feature.getScenarioByName(`Ignored scenario`)?.matchTags([
+                    `ignore`,
+                ]),
             ).toBe(true)
         })
         Scenario(`Simple scenario`, ({ Given, Then }) => {
@@ -43,7 +43,9 @@ describe('getVitestCucumberConfiguration', () => {
         expect(getVitestCucumberConfiguration()).toEqual({
             language: 'en',
             includeTags: [],
-            excludeTags: ['ignore'],
+            excludeTags: [
+                'ignore',
+            ],
             onStepError: expect.any(Function),
             predefinedSteps: [],
             mappedExamples: {},
@@ -55,8 +57,12 @@ describe('getVitestCucumberConfiguration', () => {
 
         const config = {
             language: 'fr',
-            includeTags: ['alpha'],
-            excludeTags: ['beta'],
+            includeTags: [
+                'alpha',
+            ],
+            excludeTags: [
+                'beta',
+            ],
             onStepError: fn,
         }
 
@@ -69,8 +75,12 @@ describe('getVitestCucumberConfiguration', () => {
 
         expect(newConfig).toEqual({
             language: 'fr',
-            includeTags: ['alpha'],
-            excludeTags: ['beta'],
+            includeTags: [
+                'alpha',
+            ],
+            excludeTags: [
+                'beta',
+            ],
             onStepError: expect.any(Function),
             predefinedSteps: [],
             mappedExamples: {},
@@ -88,7 +98,9 @@ describe('setVitestCucumberConfiguration', () => {
         expect(getVitestCucumberConfiguration()).toEqual({
             language: 'en',
             includeTags: [],
-            excludeTags: ['ignore'],
+            excludeTags: [
+                'ignore',
+            ],
             onStepError: expect.any(Function),
             predefinedSteps: [],
             mappedExamples: {},
@@ -98,7 +110,9 @@ describe('setVitestCucumberConfiguration', () => {
     it('custom configuration', () => {
         const config = {
             language: 'fr',
-            excludeTags: ['beta'],
+            excludeTags: [
+                'beta',
+            ],
         } as VitestCucumberOptions
 
         setVitestCucumberConfiguration(config)
@@ -106,7 +120,9 @@ describe('setVitestCucumberConfiguration', () => {
         expect(getVitestCucumberConfiguration()).toEqual({
             language: 'fr',
             includeTags: [],
-            excludeTags: ['beta'],
+            excludeTags: [
+                'beta',
+            ],
             onStepError: expect.any(Function),
             predefinedSteps: [],
             mappedExamples: {},
@@ -116,7 +132,9 @@ describe('setVitestCucumberConfiguration', () => {
     it('override configuration defaults to empty configuration', () => {
         const fn = vi.fn()
         const config1 = {
-            excludeTags: ['beta'],
+            excludeTags: [
+                'beta',
+            ],
             onStepError: fn,
         }
 
@@ -143,7 +161,9 @@ describe('setVitestCucumberConfiguration', () => {
         expect(lastConfiguration).toEqual({
             language: 'fr',
             includeTags: [],
-            excludeTags: ['ignore'],
+            excludeTags: [
+                'ignore',
+            ],
             onStepError: expect.any(Function),
             predefinedSteps: [],
             mappedExamples: {},

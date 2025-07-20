@@ -11,4 +11,7 @@ export type ScenarioSteps = {
     params: unknown[]
 }
 
-export type StepMap = [string, ScenarioSteps]
+export type StepMap = [
+    string,
+    ScenarioSteps,
+]

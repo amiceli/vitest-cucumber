@@ -16,7 +16,9 @@ if (!spec) {
     process.exit(-1)
 }
 
-loadFeature(feature, { language: lang || 'en' }).then((f) => {
+loadFeature(feature, {
+    language: lang || 'en',
+}).then((f) => {
     writeSpecFile({
         feature: f,
         featureFilePath: feature,

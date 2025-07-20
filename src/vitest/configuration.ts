@@ -16,7 +16,9 @@ export type VitestCucumberOptions = {
     includeTags?: TagFilterItem[]
     excludeTags?: TagFilterItem[]
     predefinedSteps: ScenarioSteps[]
-    mappedExamples: { [key: string]: unknown }
+    mappedExamples: {
+        [key: string]: unknown
+    }
     onStepError?: (args: { error: Error; ctx: TaskContext; step: Step }) => void
 }
 
@@ -26,7 +28,9 @@ function getDefaultConfiguration(): VitestCucumberOptions {
     return {
         language: 'en',
         includeTags: [],
-        excludeTags: ['ignore'],
+        excludeTags: [
+            'ignore',
+        ],
         onStepError: ({ error }) => {},
         predefinedSteps: [],
         mappedExamples: {},

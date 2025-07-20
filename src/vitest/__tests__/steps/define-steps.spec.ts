@@ -82,7 +82,10 @@ describe('Rule.defineSteps', () => {
 
         f.ScenarioOutline('first scenario outline', (s, variables) => {
             s.Then('I am called <count>', () => {
-                expect([1, 2]).toContain(Number.parseInt(variables.count))
+                expect([
+                    1,
+                    2,
+                ]).toContain(Number.parseInt(variables.count))
             })
         })
 

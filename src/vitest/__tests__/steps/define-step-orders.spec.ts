@@ -133,7 +133,10 @@ describe('defineSteps order with background', () => {
         })
         f.ScenarioOutline('outline', (s, variables) => {
             s.Then('I use variable <name>', () => {
-                expect(['test', 'boom']).toContain(variables.name)
+                expect([
+                    'test',
+                    'boom',
+                ]).toContain(variables.name)
             })
         })
     })

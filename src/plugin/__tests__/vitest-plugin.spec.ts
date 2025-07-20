@@ -25,7 +25,9 @@ describeFeature(feature, (f) => {
         } as any
 
         s.Given("{string} doesn't exists", (_, specPath: string) => {
-            fs.rmSync(specPath, { force: true })
+            fs.rmSync(specPath, {
+                force: true,
+            })
         })
         s.When(
             'I write {string}',

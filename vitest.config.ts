@@ -14,7 +14,9 @@ export default defineConfig({
         // }),
     ],
     test: {
-        setupFiles: ['vitest.setup.ts'],
+        setupFiles: [
+            'vitest.setup.ts',
+        ],
         passWithNoTests: true,
         globals: true,
         coverage: {

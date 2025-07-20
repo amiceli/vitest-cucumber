@@ -72,7 +72,9 @@ export class ExpressionStep {
         regexString = `^${regexString}$`
 
         const regex = new RegExp(regexString, `g`)
-        const matches = [...step.details.matchAll(regex)]
+        const matches = [
+            ...step.details.matchAll(regex),
+        ]
 
         const result = matches.map((match) => {
             const res: Array<{

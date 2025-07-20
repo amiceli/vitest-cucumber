@@ -17,7 +17,9 @@ type DescribeScenarioArgs = {
     scenarioTestCallback: (op: StepTest, variables: Example[0]) => MaybePromise
     beforeEachScenarioHook: () => MaybePromise
     afterEachScenarioHook: () => MaybePromise
-    mappedExamples: { [key: string]: unknown }
+    mappedExamples: {
+        [key: string]: unknown
+    }
 }
 
 export function createScenarioOutlineDescribeHandler({
@@ -95,7 +97,10 @@ export function createScenarioOutlineDescribeHandler({
         return example?.map((exampleVariables) => {
             const mappedExampleVariables = Object.fromEntries(
                 Object.entries(exampleVariables).map(([index, value]) => {
-                    return [index, mappedExamples[value] ?? value]
+                    return [
+                        index,
+                        mappedExamples[value] ?? value,
+                    ]
                 }),
             )
 
@@ -147,7 +152,9 @@ export function createScenarioOutlineDescribeHandler({
 
                         await scenarioStep.fn(ctx, ...scenarioStep.params)
                     })
-                })([...scenarioStepsToRun])
+                })([
+                ...scenarioStepsToRun,
+            ])
         })
     }
 

@@ -15,7 +15,9 @@ export function generateScenarii(
     scenarii: Feature['scenarii'],
     forRule = false,
 ) {
-    const fileContent = ['']
+    const fileContent = [
+        '',
+    ]
 
     for (const scenario of scenarii) {
         const isOutline = scenario instanceof ScenarioOutline
@@ -60,13 +62,20 @@ export function generateScenarii(
 }
 
 export function generateBackground(back: Background, forRule = false) {
-    const fileContent = ['']
+    const fileContent = [
+        '',
+    ]
 
-    const scenarioStepTypes = ['Given', 'When', 'Then', 'And', 'But'].filter(
-        (step) =>
-            back.steps
-                .map((scenarioSteps) => scenarioSteps.type.toString())
-                .includes(step),
+    const scenarioStepTypes = [
+        'Given',
+        'When',
+        'Then',
+        'And',
+        'But',
+    ].filter((step) =>
+        back.steps
+            .map((scenarioSteps) => scenarioSteps.type.toString())
+            .includes(step),
     )
 
     const scenarioType = forRule ? 'RuleBackground' : 'Background'
@@ -140,7 +149,9 @@ export async function writeSpecFile({
         'BeforeEachScenario',
         'AfterEachScenario',
     ]
-    const describeFeatureArgs = [...describeHook]
+    const describeFeatureArgs = [
+        ...describeHook,
+    ]
     if (featureHasBackground) {
         describeFeatureArgs.push('Background')
     }

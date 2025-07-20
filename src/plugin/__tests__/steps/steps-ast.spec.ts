@@ -131,7 +131,11 @@ describeFeature(
                             getScenarioArgument(specFilePath, scenarioName),
                         ).toContain(type)
 
-                        for (const stepType of ['Given', 'When', type]) {
+                        for (const stepType of [
+                            'Given',
+                            'When',
+                            type,
+                        ]) {
                             expect(
                                 AstUtils.fromSourceFile(
                                     getSourceFileFromPath(specFilePath),

@@ -25,9 +25,9 @@ describe(`Run scenario selected with a tag`, async () => {
                     feature.getScenarioByName(`Selected scenario`)?.isCalled,
                 ).toBe(true)
                 expect(
-                    feature
-                        .getScenarioByName(`Selected scenario`)
-                        ?.matchTags([`beta`]),
+                    feature.getScenarioByName(`Selected scenario`)?.matchTags([
+                        `beta`,
+                    ]),
                 ).toBe(true)
             })
             Scenario(`Selected scenario`, ({ Given, Then }) => {
@@ -35,7 +35,11 @@ describe(`Run scenario selected with a tag`, async () => {
                 Then(`It check I am executed`, () => {})
             })
         },
-        { includeTags: [`beta`] },
+        {
+            includeTags: [
+                `beta`,
+            ],
+        },
     )
 })
 
@@ -62,9 +66,9 @@ describe(`Run scenario selected with a tag (alternative with an @ prefix)`, asyn
                     feature.getScenarioByName(`Selected scenario`)?.isCalled,
                 ).toBe(true)
                 expect(
-                    feature
-                        .getScenarioByName(`Selected scenario`)
-                        ?.matchTags([`beta`]),
+                    feature.getScenarioByName(`Selected scenario`)?.matchTags([
+                        `beta`,
+                    ]),
                 ).toBe(true)
             })
             Scenario(`Selected scenario`, ({ Given, Then }) => {
@@ -72,7 +76,11 @@ describe(`Run scenario selected with a tag (alternative with an @ prefix)`, asyn
                 Then(`It check I am executed`, () => {})
             })
         },
-        { includeTags: [`@beta`] },
+        {
+            includeTags: [
+                `@beta`,
+            ],
+        },
     )
 })
 
@@ -98,9 +106,9 @@ describe(`Run rule with a tag`, async () => {
                     false,
                 )
                 expect(
-                    feature
-                        .getRuleByName(`ignored rule`)
-                        ?.matchTags([`normal`]),
+                    feature.getRuleByName(`ignored rule`)?.matchTags([
+                        `normal`,
+                    ]),
                 ).toBe(true)
             })
             Scenario(`Simple scenario`, ({ Given, Then }) => {
@@ -110,7 +118,11 @@ describe(`Run rule with a tag`, async () => {
                 Then(`check if I am called`, () => {})
             })
         },
-        { includeTags: [`awesome`] },
+        {
+            includeTags: [
+                `awesome`,
+            ],
+        },
     )
 })
 
@@ -145,7 +157,9 @@ describe(`Run scenario in rule with a tag`, async () => {
                     feature
                         .getRuleByName(`rule with ignored scenario`)
                         ?.getScenarioByName(`Simple scenario`)
-                        ?.matchTags([`ignored`]),
+                        ?.matchTags([
+                            `ignored`,
+                        ]),
                 ).toBe(true)
             })
             Scenario(`Me I am executed`, ({ Given, Then }) => {
@@ -161,7 +175,11 @@ describe(`Run scenario in rule with a tag`, async () => {
                 })
             })
         },
-        { includeTags: [`inside`] },
+        {
+            includeTags: [
+                `inside`,
+            ],
+        },
     )
 })
 
@@ -183,13 +201,17 @@ describe(`includeTags`, () => {
                 expect(featureCheck).toHaveBeenCalledWith(
                     expect.objectContaining({
                         includeTags: [],
-                        excludeTags: ['ignore'],
+                        excludeTags: [
+                            'ignore',
+                        ],
                     }),
                 )
                 expect(ruleCheck).toHaveBeenCalledWith(
                     expect.objectContaining({
                         includeTags: [],
-                        excludeTags: ['ignore'],
+                        excludeTags: [
+                            'ignore',
+                        ],
                     }),
                 )
             })
@@ -258,7 +280,9 @@ describe(`includeTags`, () => {
                     for (const fn of checks) {
                         expect(fn).toHaveBeenCalledWith(
                             expect.objectContaining({
-                                includeTags: [`simple`],
+                                includeTags: [
+                                    `simple`,
+                                ],
                                 excludeTags: [],
                             }),
                         )
@@ -296,7 +320,9 @@ describe(`includeTags`, () => {
                 })
             },
             {
-                includeTags: [`simple`],
+                includeTags: [
+                    `simple`,
+                ],
                 excludeTags: [],
             },
         )
@@ -340,7 +366,9 @@ describe('handle skipped Scenario', () => {
             })
         },
         {
-            excludeTags: ['skip'],
+            excludeTags: [
+                'skip',
+            ],
         },
     )
 })
@@ -370,7 +398,9 @@ describe('handle skipped Background', () => {
             })
         },
         {
-            excludeTags: ['skip'],
+            excludeTags: [
+                'skip',
+            ],
         },
     )
 })
@@ -403,7 +433,9 @@ describe('handle skipped Rule', () => {
             })
         },
         {
-            excludeTags: ['skip'],
+            excludeTags: [
+                'skip',
+            ],
         },
     )
 })
@@ -433,7 +465,9 @@ describe('handle skipped Background', () => {
             })
         },
         {
-            excludeTags: ['skip'],
+            excludeTags: [
+                'skip',
+            ],
         },
     )
 })
@@ -471,8 +505,12 @@ describe('handle include/exclude tags for skipped Scenario', () => {
             })
         },
         {
-            excludeTags: ['skip'],
-            includeTags: ['awesome'],
+            excludeTags: [
+                'skip',
+            ],
+            includeTags: [
+                'awesome',
+            ],
         },
     )
 })

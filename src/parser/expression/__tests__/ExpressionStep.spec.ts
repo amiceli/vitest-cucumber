@@ -18,7 +18,9 @@ describe(`ExpressionStep`, () => {
                 step,
                 `This information is {boolean}`,
             )
-            expect(params).toEqual([true])
+            expect(params).toEqual([
+                true,
+            ])
         })
 
         it(`should match multiple {boolean}`, () => {
@@ -27,7 +29,10 @@ describe(`ExpressionStep`, () => {
                 step,
                 `Is it {boolean} or {boolean}?`,
             )
-            expect(params).toEqual([true, false])
+            expect(params).toEqual([
+                true,
+                false,
+            ])
         })
 
         it(`should not match {boolean} that start with expected keyword`, () => {
@@ -50,7 +55,9 @@ describe(`ExpressionStep`, () => {
                 step,
                 `This is a {word} reward`,
             )
-            expect(params).toEqual([`special`])
+            expect(params).toEqual([
+                `special`,
+            ])
         })
 
         it(`should match multiple {word}`, () => {
@@ -59,7 +66,10 @@ describe(`ExpressionStep`, () => {
                 step,
                 `Either a {word} or a {word}`,
             )
-            expect(params).toEqual([`book`, `movie`])
+            expect(params).toEqual([
+                `book`,
+                `movie`,
+            ])
         })
     })
 
@@ -70,7 +80,9 @@ describe(`ExpressionStep`, () => {
                 step,
                 `I got an {char} grade`,
             )
-            expect(params).toEqual([`A`])
+            expect(params).toEqual([
+                `A`,
+            ])
         })
 
         it(`should match multiple {char}`, () => {
@@ -82,7 +94,10 @@ describe(`ExpressionStep`, () => {
                 step,
                 `A grade between {char} and {char} is required to pass the exam`,
             )
-            expect(params).toEqual([`A`, `C`])
+            expect(params).toEqual([
+                `A`,
+                `C`,
+            ])
         })
 
         it(`should match {char} inside a word`, () => {
@@ -94,7 +109,9 @@ describe(`ExpressionStep`, () => {
                 step,
                 `should be the 7th char of the word "Alphab{char}t"`,
             )
-            expect(params).toEqual([`e`])
+            expect(params).toEqual([
+                `e`,
+            ])
         })
 
         it(`should match consecutive {char}`, () => {
@@ -103,7 +120,12 @@ describe(`ExpressionStep`, () => {
                 step,
                 `{char}{char}{char}{char}`,
             )
-            expect(params).toEqual([`A`, `T`, `C`, `G`])
+            expect(params).toEqual([
+                `A`,
+                `T`,
+                `C`,
+                `G`,
+            ])
         })
     })
 
@@ -111,7 +133,9 @@ describe(`ExpressionStep`, () => {
         it(`should match {string}`, () => {
             const step = new Step(StepTypes.GIVEN, `I love 'Vue'`)
             const params = ExpressionStep.matchStep(step, `I love {string}`)
-            expect(params).toEqual([`Vue`])
+            expect(params).toEqual([
+                `Vue`,
+            ])
         })
 
         it(`should match multiple {string}`, () => {
@@ -120,7 +144,10 @@ describe(`ExpressionStep`, () => {
                 step,
                 `I love {string} for {string}`,
             )
-            expect(params).toEqual([`Vue`, `web`])
+            expect(params).toEqual([
+                `Vue`,
+                `web`,
+            ])
         })
     })
 
@@ -134,7 +161,9 @@ describe(`ExpressionStep`, () => {
                 step,
                 `This message will be sent to {email}`,
             )
-            expect(params).toEqual([`john.smith@example.com`])
+            expect(params).toEqual([
+                `john.smith@example.com`,
+            ])
         })
 
         it(`should match multiple {email}`, () => {
@@ -181,7 +210,9 @@ describe(`ExpressionStep`, () => {
                 step,
                 `I visit the page {url}`,
             )
-            expect(params).toEqual([new URL('http://localhost:8080')])
+            expect(params).toEqual([
+                new URL('http://localhost:8080'),
+            ])
         })
 
         it(`should match multiple {url}`, () => {
@@ -208,7 +239,9 @@ describe(`ExpressionStep`, () => {
                 step,
                 `I visit the page {url}`,
             )
-            expect(params).toEqual([new URL('ws://localhost:8080')])
+            expect(params).toEqual([
+                new URL('ws://localhost:8080'),
+            ])
         })
 
         it(`should fail to match {url}`, () => {
@@ -224,7 +257,9 @@ describe(`ExpressionStep`, () => {
         it(`should match {int}`, () => {
             const step = new Step(StepTypes.GIVEN, `I love Vue 3`)
             const params = ExpressionStep.matchStep(step, `I love Vue {int}`)
-            expect(params).toEqual([3])
+            expect(params).toEqual([
+                3,
+            ])
         })
 
         it(`should match multiple {int}`, () => {
@@ -233,7 +268,10 @@ describe(`ExpressionStep`, () => {
                 step,
                 `I love Vue {int} or {int}`,
             )
-            expect(params).toEqual([2, 3])
+            expect(params).toEqual([
+                2,
+                3,
+            ])
         })
 
         it(`should fail to match {int}`, () => {
@@ -249,7 +287,9 @@ describe(`ExpressionStep`, () => {
         it(`should match negative {int}`, () => {
             const step = new Step(StepTypes.GIVEN, `It is cold. -14°C`)
             const params = ExpressionStep.matchStep(step, `It is cold. {int}°C`)
-            expect(params).toEqual([-14])
+            expect(params).toEqual([
+                -14,
+            ])
         })
     })
 
@@ -257,7 +297,9 @@ describe(`ExpressionStep`, () => {
         it(`should match {number}`, () => {
             const step = new Step(StepTypes.GIVEN, `I love Vue 3.1`)
             const params = ExpressionStep.matchStep(step, `I love Vue {number}`)
-            expect(params).toEqual([3.1])
+            expect(params).toEqual([
+                3.1,
+            ])
         })
 
         it(`should match multiple {number}`, () => {
@@ -266,13 +308,18 @@ describe(`ExpressionStep`, () => {
                 step,
                 `I love Vue {number} or {number}`,
             )
-            expect(params).toEqual([3.1, 3.2])
+            expect(params).toEqual([
+                3.1,
+                3.2,
+            ])
         })
 
         it(`should match integer {number}`, () => {
             const step = new Step(StepTypes.GIVEN, `I love Vue 3`)
             const params = ExpressionStep.matchStep(step, `I love Vue {number}`)
-            expect(params).toEqual([3])
+            expect(params).toEqual([
+                3,
+            ])
         })
 
         it(`should match negative {number}`, () => {
@@ -281,7 +328,9 @@ describe(`ExpressionStep`, () => {
                 step,
                 `It is cold. {number}°C`,
             )
-            expect(params).toEqual([-4.73])
+            expect(params).toEqual([
+                -4.73,
+            ])
         })
     })
 
@@ -296,7 +345,9 @@ describe(`ExpressionStep`, () => {
                     step,
                     `the order was created at {date}`,
                 )
-                expect(params).toEqual([new Date(2022, 11, 1)])
+                expect(params).toEqual([
+                    new Date(2022, 11, 1),
+                ])
             })
 
             it(`should match multiple {date}`, () => {
@@ -327,7 +378,9 @@ describe(`ExpressionStep`, () => {
                     step,
                     `the order was created at {date}`,
                 )
-                expect(params).toEqual([new Date(Date.UTC(2022, 11, 1))])
+                expect(params).toEqual([
+                    new Date(Date.UTC(2022, 11, 1)),
+                ])
             })
 
             it(`should match multiple {date}`, () => {
@@ -356,7 +409,9 @@ describe(`ExpressionStep`, () => {
                     step,
                     `The log was created at {date}`,
                 )
-                expect(params).toEqual([new Date(2017, 4, 23, 15, 2, 27)])
+                expect(params).toEqual([
+                    new Date(2017, 4, 23, 15, 2, 27),
+                ])
             })
         })
 
@@ -370,7 +425,9 @@ describe(`ExpressionStep`, () => {
                     step,
                     `The log was created at {date}`,
                 )
-                expect(params).toEqual([new Date(2017, 4, 23, 15, 2, 27)])
+                expect(params).toEqual([
+                    new Date(2017, 4, 23, 15, 2, 27),
+                ])
             })
 
             it(`should match {date} with UTC timezone`, () => {
@@ -420,19 +477,25 @@ describe(`ExpressionStep`, () => {
             it(`should match {date}`, () => {
                 const step = new Step(StepTypes.GIVEN, `today is Jan 25 2015`)
                 const params = ExpressionStep.matchStep(step, `today is {date}`)
-                expect(params).toEqual([new Date(2015, 0, 25)])
+                expect(params).toEqual([
+                    new Date(2015, 0, 25),
+                ])
             })
 
             it(`should match {date} starting with day`, () => {
                 const step = new Step(StepTypes.GIVEN, `today is 03 Mar 2016`)
                 const params = ExpressionStep.matchStep(step, `today is {date}`)
-                expect(params).toEqual([new Date(2016, 2, 3)])
+                expect(params).toEqual([
+                    new Date(2016, 2, 3),
+                ])
             })
 
             it(`should match {date} with optional commas`, () => {
                 const step = new Step(StepTypes.GIVEN, `today is Jan, 25, 2015`)
                 const params = ExpressionStep.matchStep(step, `today is {date}`)
-                expect(params).toEqual([new Date(2015, 0, 25)])
+                expect(params).toEqual([
+                    new Date(2015, 0, 25),
+                ])
             })
         })
 
@@ -443,13 +506,17 @@ describe(`ExpressionStep`, () => {
                     `today is January 25 2015`,
                 )
                 const params = ExpressionStep.matchStep(step, `today is {date}`)
-                expect(params).toEqual([new Date(2015, 0, 25)])
+                expect(params).toEqual([
+                    new Date(2015, 0, 25),
+                ])
             })
 
             it(`should match {date} starting with day`, () => {
                 const step = new Step(StepTypes.GIVEN, `today is 03 March 2016`)
                 const params = ExpressionStep.matchStep(step, `today is {date}`)
-                expect(params).toEqual([new Date(2016, 2, 3)])
+                expect(params).toEqual([
+                    new Date(2016, 2, 3),
+                ])
             })
 
             it(`should match {date} with optional commas`, () => {
@@ -458,7 +525,9 @@ describe(`ExpressionStep`, () => {
                     `today is January, 25, 2015`,
                 )
                 const params = ExpressionStep.matchStep(step, `today is {date}`)
-                expect(params).toEqual([new Date(2015, 0, 25)])
+                expect(params).toEqual([
+                    new Date(2015, 0, 25),
+                ])
             })
         })
 
@@ -489,7 +558,9 @@ describe(`ExpressionStep`, () => {
                 value: 200,
             }
 
-            expect(params).toEqual([parsedValue])
+            expect(params).toEqual([
+                parsedValue,
+            ])
         })
 
         it(`should match multiple {number}`, () => {
@@ -510,7 +581,10 @@ describe(`ExpressionStep`, () => {
                 value: 3,
             }
 
-            expect(params).toEqual([parsedValue1, parsedValue2])
+            expect(params).toEqual([
+                parsedValue1,
+                parsedValue2,
+            ])
         })
 
         it(`should match negative {currency}`, () => {
@@ -525,7 +599,9 @@ describe(`ExpressionStep`, () => {
                 value: -50,
             }
 
-            expect(params).toEqual([parsedValue])
+            expect(params).toEqual([
+                parsedValue,
+            ])
         })
     })
 
@@ -536,9 +612,15 @@ describe(`ExpressionStep`, () => {
                 `I use React, Astro, TypeScript`,
             )
             const params = ExpressionStep.matchStep(step, `I use {list}`)
-            const expectedList = ['React', 'Astro', 'TypeScript']
+            const expectedList = [
+                'React',
+                'Astro',
+                'TypeScript',
+            ]
 
-            expect(params).toEqual([expectedList])
+            expect(params).toEqual([
+                expectedList,
+            ])
         })
 
         it(`should match multiple {list}`, () => {
@@ -550,14 +632,32 @@ describe(`ExpressionStep`, () => {
                 step,
                 `I use {list} and I also use {list}`,
             )
-            const expectedList1 = ['React', 'Astro', 'TypeScript']
-            const expectedList2 = ['Vue', 'Svelte', 'Angular']
+            const expectedList1 = [
+                'React',
+                'Astro',
+                'TypeScript',
+            ]
+            const expectedList2 = [
+                'Vue',
+                'Svelte',
+                'Angular',
+            ]
 
-            expect(params).toEqual([expectedList1, expectedList2])
+            expect(params).toEqual([
+                expectedList1,
+                expectedList2,
+            ])
         })
 
         describe('with weparators', () => {
-            const separators = ["';'", '"/"', "':'", '"_"', "' '", "'-'"]
+            const separators = [
+                "';'",
+                '"/"',
+                "':'",
+                '"_"',
+                "' '",
+                "'-'",
+            ]
 
             for (const separator of separators) {
                 it(`should match {list} with separator - {list:${separator}}`, () => {
@@ -570,8 +670,14 @@ describe(`ExpressionStep`, () => {
                         step,
                         `I read line {list:${separator}}`,
                     )
-                    const expectedList = ['id', 'name', 'city']
-                    expect(params).toEqual([expectedList])
+                    const expectedList = [
+                        'id',
+                        'name',
+                        'city',
+                    ]
+                    expect(params).toEqual([
+                        expectedList,
+                    ])
                 })
             }
         })
@@ -585,10 +691,21 @@ describe(`ExpressionStep`, () => {
                 step,
                 `I use {list} and I also use {list:";"}`,
             )
-            const expectedList1 = ['React', 'Astro', 'TypeScript']
-            const expectedList2 = ['Vue', 'Svelte', 'Angular']
+            const expectedList1 = [
+                'React',
+                'Astro',
+                'TypeScript',
+            ]
+            const expectedList2 = [
+                'Vue',
+                'Svelte',
+                'Angular',
+            ]
 
-            expect(params).toEqual([expectedList1, expectedList2])
+            expect(params).toEqual([
+                expectedList1,
+                expectedList2,
+            ])
         })
     })
 
@@ -600,7 +717,9 @@ describe(`ExpressionStep`, () => {
             )
             const params = ExpressionStep.matchStep(step, `should catch {any}`)
 
-            expect(params).toEqual([`the rest of the string`])
+            expect(params).toEqual([
+                `the rest of the string`,
+            ])
         })
 
         it(`should match {any} within text`, () => {
@@ -613,7 +732,9 @@ describe(`ExpressionStep`, () => {
                 `should catch {any} of the string`,
             )
 
-            expect(params).toEqual([`a single part`])
+            expect(params).toEqual([
+                `a single part`,
+            ])
         })
     })
 
@@ -623,7 +744,11 @@ describe(`ExpressionStep`, () => {
             step,
             `I love {string} {number} and {number}`,
         )
-        expect(params).toEqual([`Vue`, 3, 12])
+        expect(params).toEqual([
+            `Vue`,
+            3,
+            12,
+        ])
     })
 
     it(`should detect wrong expression`, () => {
@@ -704,7 +829,9 @@ describe(`ExpressionStep`, () => {
                 step,
                 `My favorite color is {color}`,
             )
-            expect(params).toEqual([`red`])
+            expect(params).toEqual([
+                `red`,
+            ])
         })
 
         it(`should match multiple {color}`, () => {
@@ -718,7 +845,10 @@ describe(`ExpressionStep`, () => {
                 step,
                 `The english flag has both {color} and {color} colors`,
             )
-            expect(params).toEqual([`red`, `blue`])
+            expect(params).toEqual([
+                `red`,
+                `blue`,
+            ])
         })
 
         it(`should fail to match {color} expression`, () => {

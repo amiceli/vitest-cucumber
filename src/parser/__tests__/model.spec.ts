@@ -55,7 +55,14 @@ describe(`Models`, () => {
 
             expect(outline.missingExamplesKeyword).toBeFalsy()
             expect(outline.examples).toEqual([])
-            outline.examples = [{ test: [`yes`, `no`] }]
+            outline.examples = [
+                {
+                    test: [
+                        `yes`,
+                        `no`,
+                    ],
+                },
+            ]
 
             feature.addScenario(scenario)
             feature.addScenario(outline)
@@ -98,7 +105,9 @@ describe(`Models`, () => {
             expect(
                 feature.getFirstRuleNotCalled({
                     includeTags: [],
-                    excludeTags: [`ignore`],
+                    excludeTags: [
+                        `ignore`,
+                    ],
                 }),
             ).toBeUndefined()
 
@@ -128,13 +137,17 @@ describe(`Models`, () => {
             expect(() => {
                 feature.checkUncalledRule({
                     includeTags: [],
-                    excludeTags: [`test`],
+                    excludeTags: [
+                        `test`,
+                    ],
                 })
             }).toThrowError(new RuleNotCalledError(rule))
 
             expect(() => {
                 feature.checkUncalledRule({
-                    includeTags: [`ignore`],
+                    includeTags: [
+                        `ignore`,
+                    ],
                     excludeTags: [],
                 })
             }).toThrowError(new RuleNotCalledError(rule))
@@ -142,7 +155,9 @@ describe(`Models`, () => {
             expect(() => {
                 feature.checkUncalledRule({
                     includeTags: [],
-                    excludeTags: [`ignore`],
+                    excludeTags: [
+                        `ignore`,
+                    ],
                 })
             }).not.toThrowError()
 
@@ -299,7 +314,14 @@ describe(`Models`, () => {
 
             expect(outline.missingExamplesKeyword).toBeFalsy()
             expect(outline.examples).toEqual([])
-            outline.examples = [{ test: [`yes`, `no`] }]
+            outline.examples = [
+                {
+                    test: [
+                        `yes`,
+                        `no`,
+                    ],
+                },
+            ]
 
             rule.addScenario(scenario)
             rule.addScenario(outline)
@@ -428,7 +450,9 @@ describe(`Models`, () => {
         test(`Scenario Outline can replace example in step title`, () => {
             const step = new Step(StepTypes?.GIVEN, `I use <framework>`)
             const scenarioOutline = new ScenarioOutline(`outline`)
-            const example = { framework: `Vue` }
+            const example = {
+                framework: `Vue`,
+            }
 
             expect(scenarioOutline.getStepTitle(step, example)).toEqual(
                 `Given I use Vue`,
@@ -461,40 +485,86 @@ describe(`Models`, () => {
 
         describe('scenario without tag', () => {
             test(`false if not present`, () => {
-                expect(scenario.matchTags([`test`])).toBe(false)
+                expect(
+                    scenario.matchTags([
+                        `test`,
+                    ]),
+                ).toBe(false)
             })
         })
 
         describe('scenario with a single tag', () => {
-            scenario.tags = new Set([`vitests`])
+            scenario.tags = new Set([
+                `vitests`,
+            ])
 
             test(`false if not matching`, () => {
-                expect(scenario.matchTags([`test`])).toBe(false)
+                expect(
+                    scenario.matchTags([
+                        `test`,
+                    ]),
+                ).toBe(false)
             })
             test(`true if one tag matches`, () => {
-                expect(scenario.matchTags([`vitests`, `another`])).toBe(true)
+                expect(
+                    scenario.matchTags([
+                        `vitests`,
+                        `another`,
+                    ]),
+                ).toBe(true)
             })
         })
 
         describe('scenario with multiple tags', () => {
-            scenario.tags = new Set([`vitests`, `another`])
+            scenario.tags = new Set([
+                `vitests`,
+                `another`,
+            ])
 
             test(`true if at least one tag matches`, () => {
-                expect(scenario.matchTags([`vitests`, `test`])).toBe(true)
+                expect(
+                    scenario.matchTags([
+                        `vitests`,
+                        `test`,
+                    ]),
+                ).toBe(true)
             })
             test(`true if all tags matches`, () => {
-                expect(scenario.matchTags([`vitests`, `another`])).toBe(true)
+                expect(
+                    scenario.matchTags([
+                        `vitests`,
+                        `another`,
+                    ]),
+                ).toBe(true)
             })
             test(`false if no tag match`, () => {
-                expect(scenario.matchTags([`test`])).toBe(false)
+                expect(
+                    scenario.matchTags([
+                        `test`,
+                    ]),
+                ).toBe(false)
             })
             test(`false if 'AND' operation does not match`, () => {
-                const operation = [`vitests`, `test`]
-                expect(scenario.matchTags([operation])).toBe(false)
+                const operation = [
+                    `vitests`,
+                    `test`,
+                ]
+                expect(
+                    scenario.matchTags([
+                        operation,
+                    ]),
+                ).toBe(false)
             })
             test(`true if 'AND' operation does match`, () => {
-                const operation = [`vitests`, `another`]
-                expect(scenario.matchTags([operation])).toBe(true)
+                const operation = [
+                    `vitests`,
+                    `another`,
+                ]
+                expect(
+                    scenario.matchTags([
+                        operation,
+                    ]),
+                ).toBe(true)
             })
         })
     })

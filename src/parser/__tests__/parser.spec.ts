@@ -389,8 +389,20 @@ describe(`GherkinParser`, () => {
         const [oneTag, manyLineTags, oneLineTags] = currentFeature.scenarii
 
         expect(oneTag.tags).toContain(`example`)
-        expect([...manyLineTags.tags]).toEqual([`example`, `awesome`, `again`])
-        expect([...oneLineTags.tags]).toEqual([`example`, `awesome`, `again`])
+        expect([
+            ...manyLineTags.tags,
+        ]).toEqual([
+            `example`,
+            `awesome`,
+            `again`,
+        ])
+        expect([
+            ...oneLineTags.tags,
+        ]).toEqual([
+            `example`,
+            `awesome`,
+            `again`,
+        ])
     })
 
     it(`should ignore tags without @`, () => {
@@ -405,7 +417,12 @@ describe(`GherkinParser`, () => {
         const [noTag, twoTags] = currentFeature.scenarii
 
         expect(noTag.tags.size).toBe(0)
-        expect([...twoTags.tags]).toEqual([`example`, `again`])
+        expect([
+            ...twoTags.tags,
+        ]).toEqual([
+            `example`,
+            `again`,
+        ])
     })
 
     it(`should be able to add tag to Feature`, () => {
@@ -655,7 +672,11 @@ describe(`GherkinParser`, () => {
 })
 
 describe('GherkinParser - language', () => {
-    const langs = ['fr', 'it', 'sr-Latn']
+    const langs = [
+        'fr',
+        'it',
+        'sr-Latn',
+    ]
 
     for (const language of langs) {
         const languageKeys = avalaibleLanguages[language]
@@ -663,7 +684,9 @@ describe('GherkinParser - language', () => {
         describe(`GherkinParser - language - ${language}`, () => {
             for (const featureKey of languageKeys.feature) {
                 test(`${language} - Feature - ${featureKey}`, () => {
-                    const parser = new GherkinParser({ language })
+                    const parser = new GherkinParser({
+                        language,
+                    })
 
                     parser.addLine(`${featureKey}: allez l'OM`)
 
@@ -674,7 +697,9 @@ describe('GherkinParser - language', () => {
             for (const scenarioKey of languageKeys.scenario) {
                 const [featureKey] = languageKeys.feature
                 test(`${language} - Scenario - ${scenarioKey}`, () => {
-                    const parser = new GherkinParser({ language })
+                    const parser = new GherkinParser({
+                        language,
+                    })
 
                     parser.addLine(`${featureKey}: allez l'OM`)
                     parser.addLine(`${scenarioKey}: gagner le match`)
@@ -689,7 +714,9 @@ describe('GherkinParser - language', () => {
             for (const outlineKey of languageKeys.scenarioOutline) {
                 const [featureKey] = languageKeys.feature
                 test(`${language} - ScenarioOutline - ${outlineKey}`, () => {
-                    const parser = new GherkinParser({ language })
+                    const parser = new GherkinParser({
+                        language,
+                    })
 
                     parser.addLine(`${featureKey}: allez l'OM`)
                     parser.addLine(`${outlineKey}: gagner le match`)
@@ -705,7 +732,9 @@ describe('GherkinParser - language', () => {
             for (const outlineKey of languageKeys.rule) {
                 const [featureKey] = languageKeys.feature
                 test(`${language} - Rule - ${outlineKey}`, () => {
-                    const parser = new GherkinParser({ language })
+                    const parser = new GherkinParser({
+                        language,
+                    })
 
                     parser.addLine(`${featureKey}: allez l'OM`)
                     parser.addLine(`${outlineKey}: En lique 1`)
@@ -738,14 +767,23 @@ describe('GherkinParser - language', () => {
 
                     expect(
                         (scenarioOutline as ScenarioOutline).examples,
-                    ).toEqual([{ test: 'one' }, { test: 'two' }])
+                    ).toEqual([
+                        {
+                            test: 'one',
+                        },
+                        {
+                            test: 'two',
+                        },
+                    ])
                 })
             }
 
             for (const backgroundKey of languageKeys.background) {
                 const [featureKey] = languageKeys.feature
                 test(`${language} - Background - ${backgroundKey}`, () => {
-                    const parser = new GherkinParser({ language })
+                    const parser = new GherkinParser({
+                        language,
+                    })
 
                     parser.addLine(`${featureKey}: allez l'OM`)
                     parser.addLine(`${backgroundKey}:`)
@@ -770,7 +808,9 @@ describe('GherkinParser - language', () => {
             const [andKey] = languageKeys.and.filter((v: string) => v !== '* ')
             const [butKey] = languageKeys.but.filter((v: string) => v !== '* ')
 
-            const parser = new GherkinParser({ language })
+            const parser = new GherkinParser({
+                language,
+            })
 
             parser.addLine(`${featureKey}: check GherkinParser`)
             parser.addLine(`${scenarioKey}: I use ${language} lang`)
@@ -925,7 +965,9 @@ describe('Gherkin Parse - DocStrings && ExpressionStep && DataTables', () => {
         `           | two  |`,
     ]).parseContent()
 
-    type GivenStepTables = { test: string }
+    type GivenStepTables = {
+        test: string
+    }
 
     describeFeature(feature, (f) => {
         f.Scenario('DocStrings & DataTables', (s) => {
