@@ -17,11 +17,7 @@ export type VitestCucumberOptions = {
     excludeTags?: TagFilterItem[]
     predefinedSteps: ScenarioSteps[]
     mappedExamples: { [key: string]: unknown }
-    onStepError?: (args: {
-        error: Error
-        ctx: TaskContext
-        step: Step
-    }) => void
+    onStepError?: (args: { error: Error; ctx: TaskContext; step: Step }) => void
 }
 
 export type RequiredVitestCucumberOptions = Required<VitestCucumberOptions>

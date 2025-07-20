@@ -1,9 +1,9 @@
 import { afterAll, beforeAll, describe } from 'vitest'
 import { type Example, type Feature, StepTypes } from '../parser/models'
 import {
+    getVitestCucumberConfiguration,
     type TagFilterItem,
     type VitestCucumberOptions,
-    getVitestCucumberConfiguration,
 } from './configuration'
 import {
     defineSharedStep,

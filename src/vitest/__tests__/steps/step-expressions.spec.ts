@@ -1,4 +1,4 @@
-import { type TestContext, describe, expect } from 'vitest'
+import { describe, expect, type TestContext } from 'vitest'
 import { FeatureContentReader } from '../../../__mocks__/FeatureContentReader.spec'
 import { StepAbleStepExpressionError } from '../../../errors/errors'
 import type { Currency } from '../../../parser/expression/regexes'

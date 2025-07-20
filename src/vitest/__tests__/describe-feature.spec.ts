@@ -14,8 +14,8 @@ import {
     StepAbleStepsNotCalledError,
     StepAbleUnknowStepError,
 } from '../../errors/errors'
-import { Rule, Rule as RuleType } from '../../parser/models/Rule'
 import { Feature } from '../../parser/models/feature'
+import { Rule, Rule as RuleType } from '../../parser/models/Rule'
 import { Scenario as ScenarioType } from '../../parser/models/scenario'
 import { Step, StepTypes } from '../../parser/models/step'
 import { describeFeature } from '../describe-feature'

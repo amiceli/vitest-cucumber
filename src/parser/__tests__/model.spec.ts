@@ -10,8 +10,8 @@ import {
     RuleNotCalledError,
 } from '../../errors/errors'
 import { Background } from '../models/Background'
-import { Rule } from '../models/Rule'
 import { Feature } from '../models/feature'
+import { Rule } from '../models/Rule'
 import { Scenario, ScenarioOutline } from '../models/scenario'
 import { Step, StepTypes } from '../models/step'
 

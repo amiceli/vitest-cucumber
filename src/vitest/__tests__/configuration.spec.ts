@@ -1,10 +1,10 @@
-import { type TaskContext, afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, type TaskContext, vi } from 'vitest'
 import { FeatureContentReader } from '../../__mocks__/FeatureContentReader.spec'
 import { Step, StepTypes } from '../../parser/models/step'
 import {
-    type VitestCucumberOptions,
     getVitestCucumberConfiguration,
     setVitestCucumberConfiguration,
+    type VitestCucumberOptions,
 } from '../configuration'
 import { describeFeature } from '../describe-feature'
 

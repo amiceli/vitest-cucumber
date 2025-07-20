@@ -10,8 +10,8 @@ import {
 } from '../../errors/errors'
 import type { RequiredDescribeFeatureOptions } from '../../vitest/describe-feature'
 import type { Background } from './Background'
-import { Taggable } from './Taggable'
 import { type Example, Scenario, ScenarioOutline } from './scenario'
+import { Taggable } from './Taggable'
 
 export abstract class ScenarioParent extends Taggable {
     public readonly name: string

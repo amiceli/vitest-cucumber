@@ -12,12 +12,12 @@ import type {
 } from '../vitest/configuration'
 import { type SpokenParser, SpokenParserFactory } from './lang/SpokenParser'
 import { Background } from './models/Background'
+import { Feature } from './models/feature'
 import { Rule } from './models/Rule'
 import type { StepAble } from './models/Stepable'
-import type { Taggable } from './models/Taggable'
-import { Feature } from './models/feature'
 import { type Example, Scenario, ScenarioOutline } from './models/scenario'
 import { Step, type StepDataTanle } from './models/step'
+import type { Taggable } from './models/Taggable'
 
 type SteppableName = 'Scenario' | 'ScenarioOutline' | 'Background'
 
@@ -322,7 +322,6 @@ export class GherkinParser {
         // biome-ignore lint/suspicious/noExplicitAny: <explanation>
         const res = exampleVariables.reduce((acc: any, cur, index) => {
             // biome-ignore lint/suspicious/noAssignInExpressions: <explanation>
-            // biome-ignore lint/style/noCommaOperator: <explanation>
             return (acc[keys[index]] = cur), acc
         }, {})
 
@@ -342,7 +341,6 @@ export class GherkinParser {
         // biome-ignore lint/suspicious/noExplicitAny: <explanation>
         const res = this.exampleKeys.reduce((acc: any, cur, index) => {
             // biome-ignore lint/suspicious/noAssignInExpressions: <explanation>
-            // biome-ignore lint/style/noCommaOperator: <explanation>
             return (acc[this.exampleKeys[index]] = null), acc
         }, {})
 

@@ -7,8 +7,8 @@ import {
     StepExpressionMatchError,
 } from '../../../errors/errors'
 import { Step, StepTypes } from '../../models/step'
-import { ExpressionStep, builtInExpressionRegEx } from '../ExpressionStep'
 import { customExpressionRegEx, defineParameterExpression } from '../custom'
+import { builtInExpressionRegEx, ExpressionStep } from '../ExpressionStep'
 
 describe(`ExpressionStep`, () => {
     describe('{boolean}', () => {
