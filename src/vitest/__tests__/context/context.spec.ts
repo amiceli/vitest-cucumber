@@ -71,7 +71,11 @@ describe('Feature.context', () => {
 
     describeFeature(
         feature,
-        (f: FeatureDescriibeCallbackParams<{ value: number }>) => {
+        (
+            f: FeatureDescriibeCallbackParams<{
+                value: number
+            }>,
+        ) => {
             f.BeforeAllScenarios(() => {
                 f.context.value = 0
             })
@@ -79,7 +83,9 @@ describe('Feature.context', () => {
                 f.context.value += 1
             })
             f.AfterAllScenarios(() => {
-                expect(f.context).toEqual({ value: 2 })
+                expect(f.context).toEqual({
+                    value: 2,
+                })
             })
             f.Background((b) => {
                 b.Given('I have a feature-background context', () => {
@@ -93,8 +99,13 @@ describe('Feature.context', () => {
 
                         r.context.isRule = true
                     })
-                    type Variables = { name: string; value: string }
-                    type CustomContext = { name: string }
+                    type Variables = {
+                        name: string
+                        value: string
+                    }
+                    type CustomContext = {
+                        name: string
+                    }
                     r.RuleScenarioOutline(
                         'use scenario context',
                         (s: StepTest<CustomContext>, variables) => {

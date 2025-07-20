@@ -62,7 +62,10 @@ describe('RuleScenarioOutline.only', () => {
                 'called scenario outline',
                 (s, variables) => {
                     s.Given('My favorite game is <game>', () => {
-                        expect(['GTA', 'AC Unity']).toContain(variables.game)
+                        expect([
+                            'GTA',
+                            'AC Unity',
+                        ]).toContain(variables.game)
                         fn()
                     })
                 },

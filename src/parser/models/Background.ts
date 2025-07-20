@@ -2,7 +2,10 @@ import { NotAllowedBackgroundStepTypeError } from '../../errors/errors'
 import { StepAble } from './Stepable'
 import { type Step, StepTypes } from './step'
 
-const BackgroundAllowedSteps = [StepTypes.GIVEN, StepTypes.AND]
+const BackgroundAllowedSteps = [
+    StepTypes.GIVEN,
+    StepTypes.AND,
+]
 
 export class Background extends StepAble {
     public constructor(title: string = 'Background') {

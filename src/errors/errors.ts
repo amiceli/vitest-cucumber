@@ -1,8 +1,8 @@
 import type { Background } from '../parser/models/Background'
+import type { Feature } from '../parser/models/feature'
 import type { Rule } from '../parser/models/Rule'
 import type { ScenarioParent } from '../parser/models/ScenarioParent'
 import type { StepAble } from '../parser/models/Stepable'
-import type { Feature } from '../parser/models/feature'
 import type { Scenario, ScenarioOutline } from '../parser/models/scenario'
 import type { Step, StepTypes } from '../parser/models/step'
 
@@ -195,9 +195,10 @@ export class MissingScnearioOutlineError extends VitestsCucumberError {
 export class MissingExamplesError extends VitestsCucumberError {
     public constructor(line: string) {
         super(
-            [`Missing Examples before add value`, `   ${line.trim()} ❌`].join(
-                '\n',
-            ),
+            [
+                `Missing Examples before add value`,
+                `   ${line.trim()} ❌`,
+            ].join('\n'),
         )
     }
 }
@@ -260,6 +261,11 @@ export class ItemAlreadyExistsError extends VitestsCucumberError {
 
 export class RequiredTitleError extends VitestsCucumberError {
     public constructor(line: string, keyword: string) {
-        super([`${line} ❌`, `   ${keyword} required a title`].join('\n'))
+        super(
+            [
+                `${line} ❌`,
+                `   ${keyword} required a title`,
+            ].join('\n'),
+        )
     }
 }

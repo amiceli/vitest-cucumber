@@ -18,35 +18,41 @@ export function VitestCucumberPlugin(options: VitestCucumberPluginOptions) {
                 options.featureFilesDir,
             )
 
-            fs.watch(featureDir, { recursive: true }, async (_, filename) => {
-                if (filename?.endsWith('.feature')) {
-                    const featureFilePath = `${options.featureFilesDir}${filename}`
-                    const specFilePath = featureFilePath.replace(
-                        '.feature',
-                        '.spec.ts',
-                    )
+            fs.watch(
+                featureDir,
+                {
+                    recursive: true,
+                },
+                async (_, filename) => {
+                    if (filename?.endsWith('.feature')) {
+                        const featureFilePath = `${options.featureFilesDir}${filename}`
+                        const specFilePath = featureFilePath.replace(
+                            '.feature',
+                            '.spec.ts',
+                        )
 
-                    try {
-                        if (fs.existsSync(specFilePath) === false) {
-                            fs.writeFileSync(specFilePath, '')
+                        try {
+                            if (fs.existsSync(specFilePath) === false) {
+                                fs.writeFileSync(specFilePath, '')
+                            }
+
+                            await FeatureAst.fromOptions({
+                                featureFilePath,
+                                specFilePath,
+                                onDeleteAction: options.onDeleteAction,
+                                formatCommand: options.formatCommand,
+                            }).updateSpecFile()
+                        } catch (e) {
+                            console.error(e)
                         }
 
-                        await FeatureAst.fromOptions({
-                            featureFilePath,
-                            specFilePath,
-                            onDeleteAction: options.onDeleteAction,
-                            formatCommand: options.formatCommand,
-                        }).updateSpecFile()
-                    } catch (e) {
-                        console.error(e)
+                        server.ws.send({
+                            type: 'full-reload',
+                            path: '*',
+                        })
                     }
-
-                    server.ws.send({
-                        type: 'full-reload',
-                        path: '*',
-                    })
-                }
-            })
+                },
+            )
         },
     }
 }

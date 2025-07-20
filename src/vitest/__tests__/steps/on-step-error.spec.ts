@@ -31,7 +31,9 @@ describe('Use onStepError', () => {
         ]).parseContent()
 
         const onStepError = vi.fn()
-        setVitestCucumberConfiguration({ onStepError })
+        setVitestCucumberConfiguration({
+            onStepError,
+        })
 
         describeFeature(feature, (f) => {
             f.Scenario('Simple scenario', (s) => {
@@ -42,7 +44,11 @@ describe('Use onStepError', () => {
                     onTestFailedCallback({
                         task: {
                             result: {
-                                errors: [{ message: 'epic fail !' }],
+                                errors: [
+                                    {
+                                        message: 'epic fail !',
+                                    },
+                                ],
                             },
                         },
                     })
@@ -74,7 +80,9 @@ describe('Use onStepError', () => {
         ]).parseContent()
 
         const onStepError = vi.fn()
-        setVitestCucumberConfiguration({ onStepError })
+        setVitestCucumberConfiguration({
+            onStepError,
+        })
 
         describeFeature(feature, (f) => {
             f.Background((s) => {
@@ -87,7 +95,11 @@ describe('Use onStepError', () => {
                     onTestFailedCallback({
                         task: {
                             result: {
-                                errors: [{ message: 'test' }],
+                                errors: [
+                                    {
+                                        message: 'test',
+                                    },
+                                ],
                             },
                         },
                     })
@@ -122,7 +134,9 @@ describe('Use onStepError', () => {
         ]).parseContent()
 
         const onStepError = vi.fn()
-        setVitestCucumberConfiguration({ onStepError })
+        setVitestCucumberConfiguration({
+            onStepError,
+        })
 
         describeFeature(feature, (f) => {
             f.ScenarioOutline('Simple scenario outline', (s) => {
@@ -133,7 +147,11 @@ describe('Use onStepError', () => {
                     onTestFailedCallback({
                         task: {
                             result: {
-                                errors: [{ message: 'miss !' }],
+                                errors: [
+                                    {
+                                        message: 'miss !',
+                                    },
+                                ],
                             },
                         },
                     })

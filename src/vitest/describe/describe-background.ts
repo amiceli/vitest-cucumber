@@ -85,7 +85,10 @@ export function createBackgroundDescribeHandler({
     return function backgroundDescribe() {
         test.for(
             backgroundStepsToRun.map((s): StepMap => {
-                return [s.key, s]
+                return [
+                    s.key,
+                    s,
+                ]
             }),
         )(`%s`, async ([, scenarioStep], ctx) => {
             onTestFailed(({ task }) => {

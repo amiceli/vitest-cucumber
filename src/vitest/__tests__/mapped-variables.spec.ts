@@ -33,10 +33,16 @@ describe('Mapped examples', () => {
         describeFeature(feature, (f) => {
             f.ScenarioOutline(`Mapped examples`, (s, variables) => {
                 s.Given(`I am <type> developper`, () => {
-                    expect(['front', 'back']).toContain(variables.type)
+                    expect([
+                        'front',
+                        'back',
+                    ]).toContain(variables.type)
                 })
                 s.Then(`Figma is <state>`, () => {
-                    expect([true, false]).toContain(variables.state)
+                    expect([
+                        true,
+                        false,
+                    ]).toContain(variables.state)
                 })
                 s.But('Git is <other-state>', () => {
                     expect(variables['other-state']).toEqual('required')
@@ -63,18 +69,25 @@ describe('Mapped examples', () => {
             f.Rule('Mapped examples', (r) => {
                 r.RuleScenarioOutline(`Mapped examples`, (s, variables) => {
                     s.Given(`I am <type> developper`, () => {
-                        expect(['front', 'back']).toContain(variables.type)
+                        expect([
+                            'front',
+                            'back',
+                        ]).toContain(variables.type)
                     })
                     s.Then(`Figma is <state>`, () => {
-                        expect([true, false]).toContain(variables.state)
+                        expect([
+                            true,
+                            false,
+                        ]).toContain(variables.state)
                     })
                     s.But('Git is <other-state>', () => {
                         expect(variables['other-state']).toEqual('required')
                     })
                     s.And('I can use <another>', () => {
-                        expect(['mercurial', 'svn']).toContain(
-                            variables.another,
-                        )
+                        expect([
+                            'mercurial',
+                            'svn',
+                        ]).toContain(variables.another)
                     })
                 })
             })

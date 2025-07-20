@@ -1,9 +1,9 @@
 import { afterAll, beforeAll, describe } from 'vitest'
 import { type Example, type Feature, StepTypes } from '../parser/models'
 import {
+    getVitestCucumberConfiguration,
     type TagFilterItem,
     type VitestCucumberOptions,
-    getVitestCucumberConfiguration,
 } from './configuration'
 import {
     defineSharedStep,
@@ -596,7 +596,10 @@ export function describeFeature(
 
                         describe.only.each(
                             onlyDescribeToRun.map((s) => {
-                                return [s.describeTitle, s]
+                                return [
+                                    s.describeTitle,
+                                    s,
+                                ]
                             }),
                         )(`%s`, (_, { describeHandler }) => {
                             describeHandler()
@@ -604,7 +607,10 @@ export function describeFeature(
 
                         describe.skip.each(
                             describeToSkip.map((s) => {
-                                return [s.describeTitle, s]
+                                return [
+                                    s.describeTitle,
+                                    s,
+                                ]
                             }),
                         )(`%s`, (_, { describeHandler }) => {
                             describeHandler()
@@ -612,7 +618,10 @@ export function describeFeature(
 
                         describe.each(
                             describeToRun.map((s) => {
-                                return [s.describeTitle, s]
+                                return [
+                                    s.describeTitle,
+                                    s,
+                                ]
                             }),
                         )(`%s`, (_, { describeHandler }) => {
                             describeHandler()
@@ -713,7 +722,10 @@ export function describeFeature(
 
         describe.only.each(
             onlyDescribeToRun.map((s) => {
-                return [s.describeTitle, s]
+                return [
+                    s.describeTitle,
+                    s,
+                ]
             }),
         )(`%s`, (_, { describeHandler }) => {
             describeHandler()
@@ -721,7 +733,10 @@ export function describeFeature(
 
         describe.skip.each(
             describeToSkip.map((s) => {
-                return [s.describeTitle, s]
+                return [
+                    s.describeTitle,
+                    s,
+                ]
             }),
         )(`%s`, (_, { describeHandler }) => {
             describeHandler()
@@ -730,7 +745,10 @@ export function describeFeature(
         // )(`%s`, async ([, scenarioStep], ctx) => {
         describe.each(
             describeToRun.map((s) => {
-                return [s.describeTitle, s]
+                return [
+                    s.describeTitle,
+                    s,
+                ]
             }),
         )(`%s`, (_, parent) => {
             parent.describeHandler()

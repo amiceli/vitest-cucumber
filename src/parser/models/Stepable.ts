@@ -5,8 +5,8 @@ import {
     StepAbleUnknowStepError,
 } from '../../errors/errors'
 import { ExpressionStep } from '../expression/ExpressionStep'
-import { Taggable } from './Taggable'
 import { Step, type StepTypes } from './step'
+import { Taggable } from './Taggable'
 
 export abstract class StepAble extends Taggable {
     public abstract getTitle(): string

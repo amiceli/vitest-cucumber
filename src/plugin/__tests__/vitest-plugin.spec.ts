@@ -1,9 +1,9 @@
 import fs from 'node:fs'
 import { expect, vi } from 'vitest'
 import {
-    VitestCucumberPlugin,
     describeFeature,
     loadFeature,
+    VitestCucumberPlugin,
 } from '../../../src/module'
 import { AstUtils } from '../ast/AstUtils'
 import { getSourceFileFromPath } from './spec-utils'
@@ -25,7 +25,9 @@ describeFeature(feature, (f) => {
         } as any
 
         s.Given("{string} doesn't exists", (_, specPath: string) => {
-            fs.rmSync(specPath, { force: true })
+            fs.rmSync(specPath, {
+                force: true,
+            })
         })
         s.When(
             'I write {string}',

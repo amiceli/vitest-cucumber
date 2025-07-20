@@ -1,8 +1,7 @@
-import { type Mock, beforeAll, describe, expect, vi } from 'vitest'
+import { beforeAll, describe, expect, type Mock, vi } from 'vitest'
 import { FeatureContentReader } from '../../../__mocks__/FeatureContentReader.spec'
 import { Scenario, Step, StepTypes } from '../../../parser/models'
 import { defineSteps, resetDefinedSteps } from '../../configuration'
-import { describeFeature } from '../../describe-feature'
 import {
     defineSharedStep,
     defineStepToTest,
@@ -10,6 +9,7 @@ import {
     updatePredefinedStepsAccordingLevel,
 } from '../../describe/define-step-test'
 import type { ScenarioSteps } from '../../describe/types'
+import { describeFeature } from '../../describe-feature'
 
 describe('defineSteps order', () => {
     beforeAll(() => {
@@ -133,7 +133,10 @@ describe('defineSteps order with background', () => {
         })
         f.ScenarioOutline('outline', (s, variables) => {
             s.Then('I use variable <name>', () => {
-                expect(['test', 'boom']).toContain(variables.name)
+                expect([
+                    'test',
+                    'boom',
+                ]).toContain(variables.name)
             })
         })
     })

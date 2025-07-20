@@ -1,4 +1,4 @@
-import { type Suite, type Task, describe, expect, test, vi } from 'vitest'
+import { describe, expect, type Suite, type Task, test, vi } from 'vitest'
 import { FeatureContentReader } from '../../../__mocks__/FeatureContentReader.spec'
 import type { ScenarioOutline } from '../../../parser/models/scenario'
 import { StepTypes } from '../../../parser/models/step'

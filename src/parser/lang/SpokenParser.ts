@@ -5,7 +5,10 @@ import availableLanguages from './lang.json'
 type Languages = keyof typeof availableLanguages
 type GherkinLanguageDetails = (typeof availableLanguages)['en']
 
-type LineDetails = { keyword: string; title: string }
+type LineDetails = {
+    keyword: string
+    title: string
+}
 
 // biome-ignore lint/complexity/noStaticOnlyClass: <explanation>
 export abstract class SpokenParserFactory {
@@ -169,11 +172,26 @@ export class SpokenParser {
 
     private get stepsMatch(): SpokenStepMatch {
         return [
-            { type: StepTypes.GIVEN, keys: this.details.given },
-            { type: StepTypes.WHEN, keys: this.details.when },
-            { type: StepTypes.THEN, keys: this.details.then },
-            { type: StepTypes.AND, keys: this.details.and },
-            { type: StepTypes.BUT, keys: this.details.but },
+            {
+                type: StepTypes.GIVEN,
+                keys: this.details.given,
+            },
+            {
+                type: StepTypes.WHEN,
+                keys: this.details.when,
+            },
+            {
+                type: StepTypes.THEN,
+                keys: this.details.then,
+            },
+            {
+                type: StepTypes.AND,
+                keys: this.details.and,
+            },
+            {
+                type: StepTypes.BUT,
+                keys: this.details.but,
+            },
         ]
     }
 }

@@ -11,7 +11,9 @@ import { getSourceFileFromPath } from '../spec-utils'
 
 const feature = await loadFeature(
     'src/plugin/__tests__/lang/lang-ast.feature',
-    { language: 'fr' },
+    {
+        language: 'fr',
+    },
 )
 
 describeFeature(

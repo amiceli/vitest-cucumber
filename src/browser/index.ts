@@ -1,11 +1,11 @@
 export {
-    type VitestCucumberOptions,
+    type CustomParameterExpressionArgs,
+    defineParameterExpression,
+} from '../parser/expression/custom'
+export type { Currency } from '../parser/expression/regexes'
+export {
     setVitestCucumberConfiguration,
+    type VitestCucumberOptions,
 } from '../vitest/configuration'
 export { describeFeature } from '../vitest/describe-feature'
 export { loadFeature } from './load-feature'
-export type { Currency } from '../parser/expression/regexes'
-export {
-    defineParameterExpression,
-    type CustomParameterExpressionArgs,
-} from '../parser/expression/custom'

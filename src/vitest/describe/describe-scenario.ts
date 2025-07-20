@@ -100,7 +100,10 @@ export function createScenarioDescribeHandler({
 
         test.for(
             scenarioStepsToRun.map((s): StepMap => {
-                return [s.key, s]
+                return [
+                    s.key,
+                    s,
+                ]
             }),
         )(`%s`, async ([, scenarioStep], ctx) => {
             onTestFailed(({ task }) => {

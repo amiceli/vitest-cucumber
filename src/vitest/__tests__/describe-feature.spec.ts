@@ -14,8 +14,8 @@ import {
     StepAbleStepsNotCalledError,
     StepAbleUnknowStepError,
 } from '../../errors/errors'
-import { Rule, Rule as RuleType } from '../../parser/models/Rule'
 import { Feature } from '../../parser/models/feature'
+import { Rule, Rule as RuleType } from '../../parser/models/Rule'
 import { Scenario as ScenarioType } from '../../parser/models/scenario'
 import { Step, StepTypes } from '../../parser/models/step'
 import { describeFeature } from '../describe-feature'
@@ -555,7 +555,10 @@ describe('use language for feature', () => {
         f.Rule('utiliser des plans de scénario', (r) => {
             r.RuleScenarioOutline('plusieurs versions', (s, variables) => {
                 s.Given("J'utilise Vue <version>", () => {
-                    expect(['2', '3']).toContain(variables.version)
+                    expect([
+                        '2',
+                        '3',
+                    ]).toContain(variables.version)
                 })
                 s.And(`J'utilise {string}`, (ctx, tool: string) => {
                     expect(tool).toEqual('nanostores')
