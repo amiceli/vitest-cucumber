@@ -76,37 +76,40 @@ export class ExpressionStep {
             ...step.details.matchAll(regex),
         ]
 
-        const result = matches.map((match) => {
-            const res: Array<{
-                index: number
-                value: unknown
-            }> = []
+        const result = matches
+            .filter((match) => match.groups !== undefined)
+            .map((match) => {
+                const res: Array<{
+                    index: number
+                    value: unknown
+                }> = []
 
-            if (!match.groups) {
-                return
-            }
+                Object.keys(match.groups).forEach((key, index) => {
+                    const matchRegex = allExpressionRegEx.find((r) =>
+                        r.matchGroupName(key),
+                    )
+                    if (matchRegex) {
+                        res.push({
+                            index,
+                            // biome-ignore lint/style/noNonNullAssertion: <explanation>
+                            value: matchRegex.getValue(
+                                match.groups![key],
+                                index,
+                            ),
+                        })
+                    } else {
+                        res.push({
+                            index,
+                            // biome-ignore lint/style/noNonNullAssertion: <explanation>
+                            value: new StringRegex().getValue(
+                                match.groups![key],
+                            ),
+                        })
+                    }
+                })
 
-            Object.keys(match.groups).forEach((key, index) => {
-                const matchRegex = allExpressionRegEx.find((r) =>
-                    r.matchGroupName(key),
-                )
-                if (matchRegex) {
-                    res.push({
-                        index,
-                        // biome-ignore lint/style/noNonNullAssertion: <explanation>
-                        value: matchRegex.getValue(match.groups![key], index),
-                    })
-                } else {
-                    res.push({
-                        index,
-                        // biome-ignore lint/style/noNonNullAssertion: <explanation>
-                        value: new StringRegex().getValue(match.groups![key]),
-                    })
-                }
+                return res
             })
-
-            return res
-        })
 
         const allValues = result
             .flat()

@@ -47,14 +47,14 @@ export const getVitestCucumberConfiguration = (
 ) => {
     const defaultConfiguration = getDefaultConfiguration()
 
-    // @ts-ignore
+    // @ts-expect-error
     if (typeof window !== 'undefined') {
         defaultConfiguration.includeTags?.push(
-            // @ts-ignore
+            // @ts-expect-error
             ...(import.meta.env.VITEST_INCLUDE_TAGS?.split(' ') || []),
         )
         defaultConfiguration.excludeTags?.push(
-            // @ts-ignore
+            // @ts-expect-error
             ...(import.meta.env.VITEST_EXCLUDE_TAGS?.split(' ') || []),
         )
     } else {
