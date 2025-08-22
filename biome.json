@@ -12,12 +12,12 @@
             "**",
             "!**/package.json",
             "!**/package-lock.json",
-            "!**/dist/**",
-            "!**/coverage/**",
+            "!**/dist",
+            "!**/coverage",
             "!**/tsconfig.json",
             "!**/tsconfig.vitest.json",
             "!**/src/parser/lang/lang.json",
-            "!**/reports/**"
+            "!**/reports"
         ]
     },
     "linter": {

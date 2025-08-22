@@ -7,7 +7,7 @@ beforeEach(() => {
 })
 
 it('should load config from impot.meta.env', () => {
-    // @ts-ignore
+    // @ts-expect-error
     globalThis.window = {}
 
     vi.stubEnv('VITEST_INCLUDE_TAGS', 'awesome')

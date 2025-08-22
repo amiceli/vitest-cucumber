@@ -143,7 +143,7 @@ export class UrlRegex extends ExpressionRegex<URL> {
     }
 
     public getRegex(index: number) {
-        const urlRegex = `(https?:\/\/)?([^\\s$.?#].[^\\s]*)`
+        const urlRegex = `(https?://)?([^\\s$.?#].[^\\s]*)`
         return `\\b(?<url${index}>${urlRegex})\\b`
     }
 
@@ -202,7 +202,7 @@ export class DateRegex extends ExpressionRegex<Date> {
     }
 
     public getRegex(index: number) {
-        const dateRegex = `[0-9]{1,2}\/[0-9]{1,2}\/[0-9]{4}(?: [0-9]{2}:[0-9]{2}:[0-9]{2})?`
+        const dateRegex = `[0-9]{1,2}/[0-9]{1,2}/[0-9]{4}(?: [0-9]{2}:[0-9]{2}:[0-9]{2})?`
         const isoDateRegex = `(?:\\d{4})-(?:\\d{2})-(?:\\d{2})`
         const isoDatetimeRegex = `(?:\\d{4})-(?:\\d{2})-(?:\\d{2})T(?:\\d{2}):(?:\\d{2}):(?:\\d{2}(?:\\.\\d*)?)(?:(?:[-|+](?:\\d{2}):(?:\\d{2})|Z)?)`
 

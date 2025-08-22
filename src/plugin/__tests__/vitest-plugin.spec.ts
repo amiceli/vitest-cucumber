@@ -33,7 +33,7 @@ describeFeature(feature, (f) => {
             'I write {string}',
             async (_, featurePath: string, docString: string) => {
                 vi.spyOn(fs, 'watch').mockImplementation(
-                    // @ts-ignore
+                    // @ts-expect-error
                     (_: unknown, __: unknown, cb) => {
                         cb('', 'awesome.feature')
                     },
