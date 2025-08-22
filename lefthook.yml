@@ -7,7 +7,7 @@ pre-commit:
 pre-push:
   commands:
     test:
-      run: npm run test:unit
+      run: npm run test:silent
 
 commit-msg:
   commands:

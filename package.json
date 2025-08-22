@@ -24,7 +24,7 @@
     "lint:fix": "biome check --write",
     "prebuild": "node prebuild.js",
     "test:unit": "npm run prebuild && vitest",
-    "test:silent": "npm run prebuild && vitest --silent --run",
+    "test:silent": "npm run prebuild && vitest --run",
     "test:coverage": "npm run prebuild && vitest run --coverage"
   },
   "keywords": [
