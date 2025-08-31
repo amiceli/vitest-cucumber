@@ -11,5 +11,5 @@ export {
     type VitestCucumberOptions,
 } from './vitest/configuration'
 export { describeFeature } from './vitest/describe-feature'
-export { loadFeature } from './vitest/load-feature'
+export { loadFeature, loadFeatureFromText } from './vitest/load-feature'
 export { FeatureDescriibeCallbackParams, StepTest } from './vitest/types'
