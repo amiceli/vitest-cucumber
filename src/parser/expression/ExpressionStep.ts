@@ -84,6 +84,7 @@ export class ExpressionStep {
                     value: unknown
                 }> = []
 
+                // @ts-ignore
                 Object.keys(match.groups).forEach((key, index) => {
                     const matchRegex = allExpressionRegEx.find((r) =>
                         r.matchGroupName(key),
