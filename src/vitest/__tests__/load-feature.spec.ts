@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises'
 import { expect, test } from 'vitest'
 import { FeatureFileNotFoundError, MissingFeature } from '../../errors/errors'
-import { loadFeature } from '../load-feature'
+import { loadFeature, loadFeatureFromText } from '../load-feature'
 
 test(`should be able to load feature file`, async () => {
     const feature = await loadFeature(`src/vitest/__tests__/example.feature`)
@@ -37,7 +37,7 @@ test(`should be able to load file from relative path another example`, async () 
     const content = `
         Feature: another relative feature file
             Scenario: Detect relative path
-                Given I use relative path 
+                Given I use relative path
                 When  I use vitest-cucumber
                 Then  It can load me
 
@@ -56,7 +56,7 @@ test('Handle error during parsing', async () => {
     const content = `
         Feature: another relative feature file
             Scénario: Detect relative path
-                Given I use relative path 
+                Given I use relative path
                 When  I use vitest-cucumber
                 Then  It can load me
 
@@ -73,4 +73,36 @@ test('Handle error during parsing', async () => {
         expect(e).toEqual(new MissingFeature('Scénario: Detect relative path'))
     }
     await fs.unlink(featureFilePaht)
+})
+
+test('Load feature by text', () => {
+    const content = `
+        Feature: another relative feature file
+            Scenario: Detect relative path
+                Given I use relative path
+                When  I use vitest-cucumber
+                Then  It can load me
+    `
+
+    const feature = loadFeatureFromText(content)
+
+    expect(feature.scenarii.length).toBe(1)
+    expect(feature.scenarii.at(0)?.steps.length).toBe(3)
+})
+
+test('Load feature by text with language', () => {
+    const content = `
+        Fonctionnalité: feature mais sans fichier
+            Scénario: Detect relative path
+                Etant donné que I use relative path
+                Lorsque  I use vitest-cucumber
+                Alors  It can load me
+    `
+
+    const feature = loadFeatureFromText(content, {
+        language: 'fr',
+    })
+
+    expect(feature.scenarii.length).toBe(1)
+    expect(feature.scenarii.at(0)?.steps.length).toBe(3)
 })
