@@ -269,3 +269,9 @@ export class RequiredTitleError extends VitestsCucumberError {
         )
     }
 }
+
+export class BrowserModeFeatureError extends VitestsCucumberError {
+    public constructor(path: string) {
+        super(`Failed to load feature from ${path} in browser mode`)
+    }
+}

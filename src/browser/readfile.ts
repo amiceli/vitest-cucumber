@@ -17,7 +17,7 @@ export class BrowserFeatureFileReader {
     }
 
     private constructor(params: FeatureFileReaderParams) {
-        this.path = `/${params.featureFilePath}`
+        this.path = `${params.featureFilePath}`
         this.parser = new GherkinParser(params.options)
     }
 

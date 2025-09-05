@@ -21,7 +21,7 @@ it('should load config from impot.meta.env', () => {
 })
 
 it('should be able to fetch featuee file', async () => {
-    const featureFilePath = 'awesome.feature'
+    const featureFilePath = '/awesome.feature'
     const reader = BrowserFeatureFileReader.fromPath({
         featureFilePath,
         options: getVitestCucumberConfiguration(),
@@ -40,7 +40,7 @@ it('should be able to fetch featuee file', async () => {
 
     const [feature] = await reader.parseFile()
 
-    expect(global.fetch).toHaveBeenCalledWith(`/${featureFilePath}`)
+    expect(global.fetch).toHaveBeenCalledWith(featureFilePath)
 
     expect(feature.name).toBe('awesome')
     expect(feature.scenarii.length).toBe(1)
