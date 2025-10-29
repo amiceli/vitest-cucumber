@@ -1,4 +1,4 @@
-import type { TaskContext } from 'vitest'
+import type { TestContext } from 'vitest'
 import { type Step, StepTypes } from '../parser/models/step'
 import { defineSharedStep } from './describe/define-step-test'
 import type { ScenarioSteps } from './describe/types'
@@ -19,7 +19,7 @@ export type VitestCucumberOptions = {
     mappedExamples: {
         [key: string]: unknown
     }
-    onStepError?: (args: { error: Error; ctx: TaskContext; step: Step }) => void
+    onStepError?: (args: { error: Error; ctx: TestContext; step: Step }) => void
 }
 
 export type RequiredVitestCucumberOptions = Required<VitestCucumberOptions>

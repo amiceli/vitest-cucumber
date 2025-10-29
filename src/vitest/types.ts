@@ -1,13 +1,13 @@
-import type { TaskContext } from 'vitest'
+import type { TestContext } from 'vitest'
 import type { Example } from '../parser/models/scenario'
 
 export type MaybePromise<T = void> = T | Promise<T>
 
-export type CallbackWithSingleContext = (context: TaskContext) => MaybePromise
+export type CallbackWithSingleContext = (context: TestContext) => MaybePromise
 
 // biome-ignore lint/suspicious/noExplicitAny: <explanation>
 export type CallbackWithParamsAndContext<T = any> = (
-    ctx: TaskContext,
+    ctx: TestContext,
     ...params: T[]
 ) => MaybePromise
 
