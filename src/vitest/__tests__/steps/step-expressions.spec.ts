@@ -50,11 +50,7 @@ describe(`step with expressions`, () => {
                         expect(currency.raw).toEqual('$2')
                         expect(currency.value).toEqual(2)
                         expect(currency.currency).toEqual('USD')
-                        // Since vitest 3 we received undefined insteaf of $2
-                        // But Step is correctly found
-                        expect(ctx.task.name).toEqual(
-                            'And I use Dart for undefined',
-                        )
+                        expect(ctx.task.name).toEqual('And I use Dart for $2')
                     },
                 )
             })
