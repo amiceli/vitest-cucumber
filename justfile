@@ -3,3 +3,8 @@ test_all:
 
 test file="":
     npm run test:unit {{file}}
+
+# install dpes and build project
+build:
+    npm i
+    npm run build:all
