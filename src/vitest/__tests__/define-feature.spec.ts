@@ -44,16 +44,15 @@ defineFeature('Define feature without Gherkin', (f) => {
                 r.context.testFn()
             })
         })
-
-        r.RuleScenario('Skip', (s) => {
-            s.Given('I skip Background', () => {
-                expect(r.context.tests).toEqual(1)
-            })
-            s.Then("Fn isn't called", () => {
-                expect(r.context.testFn).not.toHaveBeenCalled()
-            })
-        })
     })
+})
+
+describe('DefineFeature without ScenarioOutline', () => {
+    expect(() => {
+        defineFeature('Feature without ScenarioOutline', (f) => {
+            f.ScenarioOutline('Throw error', (s) => {})
+        })
+    }).toThrow("ScenarioOutline isn't avalaible on defineFeature")
 })
 
 describe('Keep describeFeature checks', () => {
