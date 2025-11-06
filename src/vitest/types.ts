@@ -74,7 +74,7 @@ export type DefineFeatureRuleTest = (
 export type DefineFeatureCallback = (
     scenarioCallback: Omit<
         FeatureDescriibeCallbackParams,
-        'ScenarioOutline'
+        'ScenarioOutline' | 'defineSteps'
     > & {
         Rule: DefineFeatureRuleTest & {
             skip: DefineFeatureRuleTest
