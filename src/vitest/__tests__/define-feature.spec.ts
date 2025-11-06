@@ -47,14 +47,6 @@ defineFeature('Define feature without Gherkin', (f) => {
     })
 })
 
-describe('DefineFeature without ScenarioOutline', () => {
-    expect(() => {
-        defineFeature('Feature without ScenarioOutline', (f) => {
-            f.ScenarioOutline('Throw error', (s) => {})
-        })
-    }).toThrow("ScenarioOutline isn't avalaible on defineFeature")
-})
-
 describe('Keep describeFeature checks', () => {
     describe('Same steps', () => {
         expect(() => {

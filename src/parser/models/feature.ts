@@ -9,7 +9,6 @@ import {
     DefineBackground,
     DefineScenario,
     type Scenario,
-    type ScenarioOutline,
 } from '.'
 import { DefineRule, Rule } from './Rule'
 import { ScenarioParent } from './ScenarioParent'
@@ -100,10 +99,6 @@ export class Feature extends ScenarioParent {
 export class DefineFeature extends Feature {
     public getBackground(): Background {
         return new DefineBackground()
-    }
-
-    public getScenarioOutline(_: string): ScenarioOutline {
-        throw "ScenarioOutline isn't avalaible on defineFeature"
     }
 
     public getScenario(description: string): Scenario {
