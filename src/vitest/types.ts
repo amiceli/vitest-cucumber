@@ -66,6 +66,23 @@ export type DescribeFeatureCallback = (
     scenarioCallback: FeatureDescriibeCallbackParams,
 ) => void
 
+export type DefineFeatureRuleTest = (
+    ruleName: string,
+    fn: (options: Omit<RuleOptions, 'RuleScenarioOutline'>) => void,
+) => void
+
+export type DefineFeatureCallback = (
+    scenarioCallback: Omit<
+        FeatureDescriibeCallbackParams,
+        'ScenarioOutline' | 'defineSteps'
+    > & {
+        Rule: DefineFeatureRuleTest & {
+            skip: DefineFeatureRuleTest
+            only: DefineFeatureRuleTest
+        }
+    },
+) => void
+
 // biome-ignore lint/suspicious/noExplicitAny: required for rule context type
 export type RuleOptions<T = any> = {
     RuleBackground: BackgroundTest & {

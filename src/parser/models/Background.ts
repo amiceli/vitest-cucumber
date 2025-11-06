@@ -1,6 +1,6 @@
 import { NotAllowedBackgroundStepTypeError } from '../../errors/errors'
 import { StepAble } from './Stepable'
-import { type Step, StepTypes } from './step'
+import { Step, StepTypes } from './step'
 
 const BackgroundAllowedSteps = [
     StepTypes.GIVEN,
@@ -22,5 +22,14 @@ export class Background extends StepAble {
         } else {
             throw new NotAllowedBackgroundStepTypeError(step.type)
         }
+    }
+}
+
+export class DefineBackground extends Background {
+    public checkIfStepExists(stepType: string, stepDetails: string): Step {
+        const step = new Step(stepType as StepTypes, stepDetails)
+        this.addStep(step)
+
+        return super.checkIfStepExists(stepType, stepDetails)
     }
 }

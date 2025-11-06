@@ -10,6 +10,7 @@ export {
     setVitestCucumberConfiguration,
     type VitestCucumberOptions,
 } from './vitest/configuration'
+export { defineFeature } from './vitest/define-feature'
 export { describeFeature } from './vitest/describe-feature'
 export { loadFeature, loadFeatureFromText } from './vitest/load-feature'
 export { FeatureDescriibeCallbackParams, StepTest } from './vitest/types'
