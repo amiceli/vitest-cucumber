@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest'
+import { describe, expect, vi } from 'vitest'
 import { defineFeature } from '../define-feature'
 
 defineFeature('Define feature without Gherkin', (f) => {
@@ -53,5 +53,18 @@ defineFeature('Define feature without Gherkin', (f) => {
                 expect(r.context.testFn).not.toHaveBeenCalled()
             })
         })
+    })
+})
+
+describe('Keep describeFeature checks', () => {
+    describe('Same steps', () => {
+        expect(() => {
+            defineFeature('Same steps', (f) => {
+                f.Scenario('Example', (s) => {
+                    s.Given('I rune vitest', () => {})
+                    s.Given('I rune vitest', () => {})
+                })
+            })
+        }).toThrow('Scenario: Example already has Given I rune vitest')
     })
 })
