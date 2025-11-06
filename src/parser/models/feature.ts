@@ -10,7 +10,7 @@ import {
     DefineScenario,
     type Scenario,
 } from '.'
-import { Rule } from './Rule'
+import { DefineRule, Rule } from './Rule'
 import { ScenarioParent } from './ScenarioParent'
 
 export class Feature extends ScenarioParent {
@@ -103,5 +103,9 @@ export class DefineFeature extends Feature {
 
     public getScenario(description: string): Scenario {
         return new DefineScenario(description)
+    }
+
+    public checkIfRuleExists(ruleName: string): Rule {
+        return new DefineRule(ruleName)
     }
 }

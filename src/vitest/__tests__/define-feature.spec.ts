@@ -33,4 +33,25 @@ defineFeature('Define feature without Gherkin', (f) => {
             expect(testFn).toHaveBeenCalledTimes(1)
         })
     })
+
+    f.Rule('Vitest', (r) => {
+        r.context.tests = 1
+        r.context.testFn = vi.fn()
+
+        r.RuleBackground.skip((b) => {
+            b.Given('I love vitest', () => {
+                r.context.tests += 1
+                r.context.testFn()
+            })
+        })
+
+        r.RuleScenario('Skip', (s) => {
+            s.Given('I skip Background', () => {
+                expect(r.context.tests).toEqual(1)
+            })
+            s.Then("Fn isn't called", () => {
+                expect(r.context.testFn).not.toHaveBeenCalled()
+            })
+        })
+    })
 })
