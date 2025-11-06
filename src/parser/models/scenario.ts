@@ -1,5 +1,5 @@
 import { StepAble } from './Stepable'
-import type { Step } from './step'
+import { Step, type StepTypes } from './step'
 
 export class Scenario extends StepAble {
     public description: string
@@ -55,5 +55,14 @@ export class ScenarioOutline extends Scenario {
         }
 
         return null
+    }
+}
+
+export class DefineScenario extends Scenario {
+    public checkIfStepExists(stepType: string, stepDetails: string): Step {
+        const step = new Step(stepType as StepTypes, stepDetails)
+        this.addStep(step)
+
+        return super.checkIfStepExists(stepType, stepDetails)
     }
 }

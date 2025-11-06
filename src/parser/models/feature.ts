@@ -4,15 +4,29 @@ import {
     RuleNotCalledError,
 } from '../../errors/errors'
 import type { RequiredDescribeFeatureOptions } from '../../vitest/describe-feature'
+import {
+    type Background,
+    DefineBackground,
+    DefineScenario,
+    type Scenario,
+} from '.'
 import { Rule } from './Rule'
 import { ScenarioParent } from './ScenarioParent'
 
 export class Feature extends ScenarioParent {
     private readonly _rules: Rule[]
 
-    public constructor(name: string, title: string = 'Feature') {
+    public readonly withoutGherkin: boolean
+
+    public constructor(
+        name: string,
+        title: string = 'Feature',
+        withoutGherkin: boolean = false,
+    ) {
         super(name, title)
+
         this._rules = []
+        this.withoutGherkin = withoutGherkin
     }
 
     public getRuleByName(name: string): Rule | undefined {
@@ -79,5 +93,15 @@ export class Feature extends ScenarioParent {
 
     public get rules(): Readonly<Rule[]> {
         return this._rules
+    }
+}
+
+export class DefineFeature extends Feature {
+    public getBackground(): Background {
+        return new DefineBackground()
+    }
+
+    public getScenario(description: string): Scenario {
+        return new DefineScenario(description)
     }
 }
