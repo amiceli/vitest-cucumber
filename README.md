@@ -34,7 +34,7 @@ So you don't need to use `it` or `test` inside `Scenario` or scenario steps.
 
 ## Usage
 
-First write your `feature` file. By example : 
+First write your `feature` file. By example :
 
 ~~~feature
 Feature: Improve my unit tests
@@ -47,7 +47,7 @@ Feature: Improve my unit tests
 
 Now you can write unit tests with **vitest-cucumber**.
 
-Foe example : 
+Foe example :
 
 ~~~typescript
 import { loadFeature, describeFeature } from '@amiceli/vitest-cucumber'
@@ -56,7 +56,7 @@ import { expect } from 'vitest'
 const feature = await loadFeature('path/to/my/file.feature')
 
 describeFeature(feature, ({ Scenario }) => {
-            
+
     Scenario('Use vitest-cucumber in my unit tests', ({ Given, When, Then, And }) => {
         Given('Developer using feature file', () => {
             expect(false).toBeFalsy()
@@ -75,7 +75,7 @@ describeFeature(feature, ({ Scenario }) => {
 })
 ~~~
 
-When you run your test with vitest, **vitest-cucumber** will check : 
+When you run your test with vitest, **vitest-cucumber** will check :
 
 - if you forget a Scenario or a Scenario Outline
 - if you use correct Scenario description
@@ -84,7 +84,7 @@ When you run your test with vitest, **vitest-cucumber** will check :
 - missing variables value in Scenario Outline
 - missing variables name in Scenario Outline steps
 
-For example, if you forgot to write : 
+For example, if you forgot to write :
 
 ~~~typescript
 When('I run my unit tests', () => {
@@ -98,11 +98,11 @@ It will throw **When I run my unit tests was not called**.
 
 Since `3.4.1` vitest-cucumber provide a script to generate spec file from feature file.
 
-You can use it like this : 
+You can use it like this :
 
     npx @amiceli/vitest-cucumber --feature <path-to-feature> --space <path-to-spec> --lang <lang:optional>
 
-An example : 
+An example :
 
     npx @amiceli/vitest-cucumber --feature features/example.feature --spec src/__tests__/example.spec.ts --lang fr
 
@@ -110,7 +110,7 @@ You just have to format spec file after this script ;).
 
 Currently it generates `TS` file, if you need more options open an issue ;).
 
-`lang` allow to specify which lang is used in feature file. 
+`lang` allow to specify which lang is used in feature file.
 Required if you don't use `en` language.
 
 ## [Docs](https://vitest-cucumber.miceli.click/)
@@ -132,6 +132,7 @@ Required if you don't use `en` language.
 - [DocStrings](https://vitest-cucumber.miceli.click/features/doc-strings)
 - [DataTables](https://vitest-cucumber.miceli.click/features/data-tables)
 - [Spoken languages](https://vitest-cucumber.miceli.click/features/spoken-languages)
+- [Tests without feature file](https://vitest-cucumber.miceli.click/features/define-feature)
 
 Doc is maintain in this project [vitest-cucumber-docs](https://github.com/amiceli/vitest-cucumber-docs).
 
