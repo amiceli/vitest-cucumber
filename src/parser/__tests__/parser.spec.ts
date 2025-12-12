@@ -538,7 +538,7 @@ describe(`GherkinParser`, () => {
                 f.ScenarioOutline(`DocStrings example`, (s) => {
                     s.Given(
                         `I use "DocStrings" with <lang>`,
-                        (_ctx, docStrings: string) => {
+                        (ctx, docStrings: string) => {
                             const expectedValues = [
                                 `DocStrings love js`,
                                 `DocStrings love ts`,
@@ -546,7 +546,7 @@ describe(`GherkinParser`, () => {
                             expect(expectedValues).toContain(docStrings)
                         },
                     )
-                    s.Then(`I use <framework>`, (_ctx, docStrings: string) => {
+                    s.Then(`I use <framework>`, (ctx, docStrings: string) => {
                         const expectedValues = [
                             `DocStrings love Vue`,
                             `DocStrings love Stencil`,
@@ -575,7 +575,7 @@ describe(`GherkinParser`, () => {
                     s.Given(
                         `I use {string} {number} hours`,
                         (
-                            _ctx,
+                            ctx,
                             text: string,
                             hours: number,
                             docStrings: string,
@@ -625,7 +625,7 @@ describe(`GherkinParser`, () => {
                     b.Given(
                         `I use {string} {number} tumes`,
                         (
-                            _ctx,
+                            ctx,
                             text: string,
                             hours: number,
                             docStrings: string,
@@ -641,7 +641,7 @@ describe(`GherkinParser`, () => {
                     )
                 })
                 f.Scenario(`DocStrings example`, (s) => {
-                    s.Then(`I can check it twice`, (_ctx, docStrings) => {
+                    s.Then(`I can check it twice`, (ctx, docStrings) => {
                         expect(docStrings).toEqual(`DocStrings is awesome`)
                     })
                 })
@@ -927,21 +927,21 @@ describe('GherkinParser - Data Table', () => {
 
     describeFeature(feature, (f) => {
         f.Background((b) => {
-            b.Given('I have a game', (_ctx, tables) => {
+            b.Given('I have a game', (ctx, tables) => {
                 expect(tables.length).toBe(2)
                 expect(tables[0].title).toEqual("Assassin's Creed")
                 expect(tables[1].title).toEqual('GTA IV')
             })
         })
         f.Scenario('Data Table scenaio', (s) => {
-            s.Then('I can run it on my play', (_ctx, tables) => {
+            s.Then('I can run it on my play', (ctx, tables) => {
                 expect(tables.length).toBe(2)
                 expect(tables[0].name).toEqual('PS4')
                 expect(tables[1].name).toEqual('PS5')
             })
         })
         f.ScenarioOutline('Data Table scenaio outline', (so) => {
-            so.Then('I can run it on my switch <version>', (_ctx, tables) => {
+            so.Then('I can run it on my switch <version>', (ctx, tables) => {
                 expect(tables.length).toBe(2)
                 expect(tables[0].name).toEqual('switch')
                 expect(tables[1].name).toEqual('switch XL')
@@ -974,7 +974,7 @@ describe('Gherkin Parse - DocStrings && ExpressionStep && DataTables', () => {
             s.Given(
                 `I use {string} {number} hours`,
                 (
-                    _ctx,
+                    ctx,
                     text: string,
                     hours: number,
                     dataTables: GivenStepTables[],

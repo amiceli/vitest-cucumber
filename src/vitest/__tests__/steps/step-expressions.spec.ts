@@ -61,7 +61,7 @@ describe(`step with expressions`, () => {
                 f.Scenario(`scenario with expression`, (s) => {
                     s.Given(
                         `I use {number} {number}`,
-                        (_ctx, framework: string, version: number) => {
+                        (ctx, framework: string, version: number) => {
                             expect(framework).toEqual(`Vue`)
                             expect(version).toEqual(3.2)
                         },
@@ -177,14 +177,14 @@ describe(`step with expressions`, () => {
                     (s, variables) => {
                         s.Given(
                             `I use {string} {number}`,
-                            (_ctx, framework: string, version: number) => {
+                            (ctx, framework: string, version: number) => {
                                 expect(framework).toEqual(`Vue`)
                                 expect(version).toEqual(3.2)
                             },
                         )
                         s.Then(
                             `I can't use {string} {number}`,
-                            (_ctx, frame: string, version: number) => {
+                            (ctx, frame: string, version: number) => {
                                 expect(variables.framework).toEqual(`Angular`)
                                 expect(frame).toEqual(`oo`)
                                 expect(version).toEqual(2)
@@ -192,7 +192,7 @@ describe(`step with expressions`, () => {
                         )
                         s.And(
                             `Not work with variable`,
-                            (_ctx, ...params: undefined[]) => {
+                            (ctx, ...params: undefined[]) => {
                                 expect(params.length).toBe(0)
                             },
                         )

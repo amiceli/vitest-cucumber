@@ -594,7 +594,7 @@ export function describeFeature(
                             featureBackground: describeBackground,
                         })
 
-                        describe.each(
+                        describe.only.each(
                             onlyDescribeToRun.map((s) => {
                                 return [
                                     s.describeTitle,
@@ -720,7 +720,7 @@ export function describeFeature(
                 describeRules,
             })
 
-        describe.each(
+        describe.only.each(
             onlyDescribeToRun.map((s) => {
                 return [
                     s.describeTitle,

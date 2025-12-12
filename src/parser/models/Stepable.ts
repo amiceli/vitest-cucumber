@@ -47,7 +47,7 @@ export abstract class StepAble extends Taggable {
                 }
 
                 return sameType && sameDetails
-            } catch (_e) {
+            } catch (e) {
                 this.stepFailedExpressionMatch[details] += 1
                 return false
             }

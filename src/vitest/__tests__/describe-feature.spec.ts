@@ -72,7 +72,7 @@ describe(`Feature`, () => {
         })
 
         expect(() => {
-            describeFeature(feature, (_f) => {})
+            describeFeature(feature, (f) => {})
         }).toThrowError(
             // biome-ignore lint/style/noNonNullAssertion: <explanation>
             new BackgroundNotCalledError(feature.background!),
@@ -543,7 +543,7 @@ describe('use language for feature', () => {
 
     describeFeature(feature, (f) => {
         f.Background((b) => {
-            b.Given('Je parle {string}', (_ctx, lang: string) => {
+            b.Given('Je parle {string}', (ctx, lang: string) => {
                 expect(lang).toBe('français')
             })
         })
@@ -560,7 +560,7 @@ describe('use language for feature', () => {
                         '3',
                     ]).toContain(variables.version)
                 })
-                s.And(`J'utilise {string}`, (_ctx, tool: string) => {
+                s.And(`J'utilise {string}`, (ctx, tool: string) => {
                     expect(tool).toEqual('nanostores')
                 })
                 s.When('Je lance les tests', () => {})
@@ -624,7 +624,7 @@ describe('Feature / Rule without Scenario', () => {
 describe('Scenario/Step without description', () => {
     describe('Scenario without title', () => {
         expect(() => {
-            const _feature = FeatureContentReader.fromString([
+            const feature = FeatureContentReader.fromString([
                 `Feature: scenario without name`,
                 `    Scenario:`,
                 `        Given I use a long string`,
@@ -633,7 +633,7 @@ describe('Scenario/Step without description', () => {
     })
     describe('Rule without title', () => {
         expect(() => {
-            const _feature = FeatureContentReader.fromString([
+            const feature = FeatureContentReader.fromString([
                 `Feature: scenario without name`,
                 `    Rule:`,
                 `        Scenario: simple scenario`,
@@ -643,7 +643,7 @@ describe('Scenario/Step without description', () => {
     })
     describe('Scenario Outline without title', () => {
         expect(() => {
-            const _feature = FeatureContentReader.fromString([
+            const feature = FeatureContentReader.fromString([
                 `Feature: scenario without name`,
                 `    Scenario Outline:`,
                 `        Given I use a long string`,
