@@ -94,7 +94,7 @@ export class ExpressionStep {
                             index,
                             // biome-ignore lint/style/noNonNullAssertion: <explanation>
                             value: matchRegex.getValue(
-                                match.groups![key],
+                                match.groups?.[key],
                                 index,
                             ),
                         })
@@ -103,7 +103,7 @@ export class ExpressionStep {
                             index,
                             // biome-ignore lint/style/noNonNullAssertion: <explanation>
                             value: new StringRegex().getValue(
-                                match.groups![key],
+                                match.groups?.[key],
                             ),
                         })
                     }

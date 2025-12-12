@@ -196,18 +196,18 @@ describe(`ScenarioOutline with Examples`, () => {
                 ({ Given, And, Then }, variables) => {
                     Given(`I know <width> value`, () => {
                         expect(
-                            Number.parseInt(variables.width) >= 100,
+                            Number.parseInt(variables.width, 10) >= 100,
                         ).toBeTruthy()
                     })
                     And(`I know <height> value`, () => {
                         expect(
-                            Number.parseInt(variables.height) >= 100,
+                            Number.parseInt(variables.height, 10) >= 100,
                         ).toBeTruthy()
                     })
                     Then(`I can make a <sum>`, () => {
                         expect(
-                            Number.parseInt(variables.width) +
-                                Number.parseInt(variables.height),
+                            Number.parseInt(variables.width, 10) +
+                                Number.parseInt(variables.height, 10),
                         ).toEqual(Number.parseInt(variables.sum, 10))
                     })
                 },

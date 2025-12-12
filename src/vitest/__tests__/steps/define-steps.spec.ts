@@ -23,7 +23,7 @@ describe('Feature.defineSteps', () => {
         f.context.stepCallback = vi.fn()
 
         f.defineSteps(({ Given }) => {
-            Given('I am predefined step', (ctx) => {
+            Given('I am predefined step', (_ctx) => {
                 f.context.stepCallback()
             })
         })
@@ -66,7 +66,7 @@ describe('Rule.defineSteps', () => {
         f.context.stepCallback = vi.fn()
 
         f.defineSteps(({ Given }) => {
-            Given('I am predefined step', (ctx) => {
+            Given('I am predefined step', (_ctx) => {
                 f.context.stepCallback()
             })
             Given('I am predefined step <count>', () => {
@@ -85,7 +85,7 @@ describe('Rule.defineSteps', () => {
                 expect([
                     1,
                     2,
-                ]).toContain(Number.parseInt(variables.count))
+                ]).toContain(Number.parseInt(variables.count, 10))
             })
         })
 
@@ -134,7 +134,7 @@ describe('global.defineSteps', () => {
         f.context.stepCallback = vi.fn()
 
         f.defineSteps(({ Given }) => {
-            Given('I am predefined step', (ctx) => {
+            Given('I am predefined step', (_ctx) => {
                 f.context.stepCallback()
             })
         })
@@ -171,7 +171,7 @@ describe('defineSteps with docStrings', () => {
 
     describeFeature(feature, (f) => {
         f.defineSteps(({ Given, Then }) => {
-            Given('I use DocStrings', (ctx, docs) => {
+            Given('I use DocStrings', (_ctx, docs) => {
                 expect(docs).toEqual('DocStrings love me')
             })
             Then('I can read it', (_, docs: string) => {

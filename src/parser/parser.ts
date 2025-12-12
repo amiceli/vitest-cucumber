@@ -339,7 +339,7 @@ export class GherkinParser {
 
     private getEmptyExamplesValues() {
         // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-        const res = this.exampleKeys.reduce((acc: any, cur, index) => {
+        const res = this.exampleKeys.reduce((acc: any, _cur, index) => {
             // biome-ignore lint/suspicious/noAssignInExpressions: <explanation>
             return (acc[this.exampleKeys[index]] = null), acc
         }, {})

@@ -31,7 +31,7 @@ export class BrowserFeatureFileReader {
             }
 
             return this.parser.finish()
-        } catch (e) {
+        } catch (_e) {
             throw new FeatureFileNotFoundError(this.path)
         }
     }

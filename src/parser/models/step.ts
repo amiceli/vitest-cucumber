@@ -1,3 +1,5 @@
+import { ExpressionStep } from '../expression/ExpressionStep'
+
 export enum StepTypes {
     THEN = `Then`,
     AND = `And`,
@@ -39,6 +41,25 @@ export class Step {
     }
 
     public matchStep(step: Step): boolean {
-        return this.type === step.type && this.details === step.details
+        if (this.type !== step.type) {
+            return false
+        }
+
+        // Exact match
+        if (this.details === step.details) {
+            return true
+        }
+
+        // Expression match: step contains pattern (e.g. {string}), this has actual value
+        if (ExpressionStep.stepContainsRegex(step.details)) {
+            try {
+                ExpressionStep.matchStep(this, step.details)
+                return true
+            } catch {
+                return false
+            }
+        }
+
+        return false
     }
 }

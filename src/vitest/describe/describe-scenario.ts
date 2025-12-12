@@ -1,4 +1,5 @@
 import { afterAll, beforeAll, onTestFailed, test } from 'vitest'
+import { ExpressionStep } from '../../parser/expression/ExpressionStep'
 import type { Scenario } from '../../parser/models/scenario'
 import { getVitestCucumberConfiguration } from '../configuration'
 import type {
@@ -74,14 +75,22 @@ export function createScenarioDescribeHandler({
         })
 
         if (missingStep) {
-            scenarioStepsToRun.push(
-                defineStepToTest({
-                    parent: scenario,
-                    stepDetails: predefineStep.step.details,
-                    stepType: predefineStep.step.type,
-                    scenarioStepCallback: predefineStep.fn,
-                }),
-            )
+            scenarioStepsToRun.push({
+                key: missingStep.getTitle(),
+                fn: predefineStep.fn,
+                step: missingStep,
+                params: [
+                    ...ExpressionStep.matchStep(
+                        missingStep,
+                        predefineStep.step.details,
+                    ),
+                    missingStep.dataTables.length > 0
+                        ? missingStep.dataTables
+                        : null,
+                    missingStep.docStrings,
+                ].filter((p) => p !== null),
+            })
+            missingStep.isCalled = true
         }
     }
 
