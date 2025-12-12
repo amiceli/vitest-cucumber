@@ -1,4 +1,5 @@
 import { afterAll, beforeAll, onTestFailed, test } from 'vitest'
+import { ExpressionStep } from '../../parser/expression/ExpressionStep'
 import type { Example, ScenarioOutline } from '../../parser/models/scenario'
 import { getVitestCucumberConfiguration } from '../configuration'
 import type {
@@ -33,7 +34,12 @@ export function createScenarioOutlineDescribeHandler({
     let scenarioStepsToRun: ScenarioSteps[] = []
     const config = getVitestCucumberConfiguration()
 
-    function addPredefinedSteps(list: ScenarioSteps[]) {
+    function addPredefinedSteps(
+        list: ScenarioSteps[],
+        exampleVars: {
+            [key: string]: unknown
+        },
+    ) {
         const missingSteps = scenario.steps.filter((step) => {
             return (
                 scenarioStepsToRun.find((s) => {
@@ -43,19 +49,58 @@ export function createScenarioOutlineDescribeHandler({
         })
 
         for (const predefineStep of list) {
-            const missingStep = missingSteps.find((s) => {
-                return s.matchStep(predefineStep.step)
+            const matchingSteps = missingSteps.filter((featureStep) => {
+                if (featureStep.type !== predefineStep.step.type) {
+                    return false
+                }
+
+                if (featureStep.details === predefineStep.step.details) {
+                    return true
+                }
+
+                if (predefineStep.compiledPattern) {
+                    predefineStep.compiledPattern.regex.lastIndex = 0
+                    return predefineStep.compiledPattern.regex.test(
+                        featureStep.details,
+                    )
+                }
+
+                return false
             })
 
-            if (missingStep) {
-                scenarioStepsToRun.push(
-                    defineStepToTest({
-                        parent: scenario,
-                        stepDetails: predefineStep.step.details,
-                        stepType: predefineStep.step.type,
-                        scenarioStepCallback: predefineStep.fn,
-                    }),
+            for (const missingStep of matchingSteps) {
+                const params = ExpressionStep.matchStep(
+                    missingStep,
+                    predefineStep.step.details,
                 )
+
+                const substitutedParams = params.map((param) => {
+                    if (typeof param === 'string') {
+                        let result = param
+                        for (const [key, value] of Object.entries(
+                            exampleVars,
+                        )) {
+                            result = result.replace(`<${key}>`, String(value))
+                        }
+                        return result
+                    }
+                    return param
+                })
+
+                scenarioStepsToRun.push({
+                    key: missingStep.getTitle(),
+                    fn: predefineStep.fn,
+                    step: missingStep,
+                    params: [
+                        ...substitutedParams,
+                        missingStep.dataTables.length > 0
+                            ? missingStep.dataTables
+                            : null,
+                        missingStep.docStrings,
+                    ].filter((p) => p !== null),
+                })
+
+                missingStep.isCalled = true
             }
         }
 
@@ -107,7 +152,7 @@ export function createScenarioOutlineDescribeHandler({
             scenarioStepsToRun = []
             scenarioTestCallback(scenarioStepsCallback, mappedExampleVariables)
 
-            addPredefinedSteps(predefinedSteps)
+            addPredefinedSteps(predefinedSteps, mappedExampleVariables)
 
             scenario.checkIfStepWasCalled()
 

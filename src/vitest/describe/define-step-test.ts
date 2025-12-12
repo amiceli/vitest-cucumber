@@ -1,4 +1,8 @@
-import { ExpressionStep } from '../../parser/expression/ExpressionStep'
+import { customExpressionRegEx } from '../../parser/expression/custom'
+import {
+    builtInExpressionRegEx,
+    ExpressionStep,
+} from '../../parser/expression/ExpressionStep'
 import {
     type Background,
     type Scenario,
@@ -9,7 +13,47 @@ import type {
     CallbackWithParamsAndContext,
     CallbackWithSingleContext,
 } from '../types'
-import type { ScenarioSteps } from './types'
+import type { CompiledPattern, ScenarioSteps } from './types'
+
+function compilePattern(pattern: string): CompiledPattern | undefined {
+    const allExpressionRegEx = builtInExpressionRegEx.concat(
+        customExpressionRegEx,
+    )
+
+    const hasExpressions = allExpressionRegEx.some((r) =>
+        pattern.includes(r.keyword),
+    )
+
+    if (!hasExpressions) {
+        return undefined
+    }
+
+    let regexString = pattern
+    const groupCount: {
+        [key: string]: number
+    } = {}
+
+    regexString = regexString.replace(/[?]/g, '\\$&')
+
+    for (const r of allExpressionRegEx) {
+        r.resetExpressionStates()
+        groupCount[r.groupName] = 0
+    }
+
+    for (const r of allExpressionRegEx) {
+        regexString = regexString.replace(r.keywordRegex, (originalRegex) => {
+            groupCount[r.groupName] += 1
+            return r.getRegex(groupCount[r.groupName], originalRegex)
+        })
+    }
+
+    regexString = `^${regexString}$`
+
+    return {
+        regex: new RegExp(regexString, 'g'),
+        originalPattern: pattern,
+    }
+}
 
 export function defineSharedStep(
     type: StepTypes,
@@ -17,17 +61,17 @@ export function defineSharedStep(
     scenarioStepCallback: ScenarioSteps['fn'],
 ): ScenarioSteps {
     const foundStep = new Step(type, name)
-    const params: unknown[] = ExpressionStep.matchStep(foundStep, name)
+    const compiledPattern = compilePattern(name)
 
     return {
         key: foundStep.getTitle(),
         fn: scenarioStepCallback,
         step: foundStep,
         params: [
-            ...params,
             foundStep.dataTables.length > 0 ? foundStep.dataTables : null,
             foundStep.docStrings,
         ].filter((p) => p !== null),
+        compiledPattern,
     }
 }
 
