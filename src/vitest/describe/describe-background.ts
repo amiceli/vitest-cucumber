@@ -1,4 +1,5 @@
 import { onTestFailed, test } from 'vitest'
+import { ExpressionStep } from '../../parser/expression/ExpressionStep'
 import type { Background } from '../../parser/models/Background'
 import { getVitestCucumberConfiguration } from '../configuration'
 import type {
@@ -62,19 +63,45 @@ export function createBackgroundDescribeHandler({
     })
 
     for (const predefineStep of predefinedSteps) {
-        const missingStep = missingSteps.find((s) => {
-            return s.matchStep(predefineStep.step)
+        const matchingSteps = missingSteps.filter((featureStep) => {
+            if (featureStep.type !== predefineStep.step.type) {
+                return false
+            }
+
+            if (featureStep.details === predefineStep.step.details) {
+                return true
+            }
+
+            if (predefineStep.compiledPattern) {
+                predefineStep.compiledPattern.regex.lastIndex = 0
+                return predefineStep.compiledPattern.regex.test(
+                    featureStep.details,
+                )
+            }
+
+            return false
         })
 
-        if (missingStep) {
-            backgroundStepsToRun.push(
-                defineStepToTest({
-                    parent: background,
-                    stepDetails: predefineStep.step.details,
-                    stepType: predefineStep.step.type,
-                    scenarioStepCallback: predefineStep.fn,
-                }),
+        for (const missingStep of matchingSteps) {
+            const params = ExpressionStep.matchStep(
+                missingStep,
+                predefineStep.step.details,
             )
+
+            backgroundStepsToRun.push({
+                key: missingStep.getTitle(),
+                fn: predefineStep.fn,
+                step: missingStep,
+                params: [
+                    ...params,
+                    missingStep.dataTables.length > 0
+                        ? missingStep.dataTables
+                        : null,
+                    missingStep.docStrings,
+                ].filter((p) => p !== null),
+            })
+
+            missingStep.isCalled = true
         }
     }
 
