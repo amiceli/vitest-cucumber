@@ -1,3 +1,9 @@
+biome:
+    npx biome check --write
+
+biome_migrate:
+    npx biome migrate --write
+
 test_all:
     npm run test:unit
 
