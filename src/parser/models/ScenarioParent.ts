@@ -16,6 +16,8 @@ import { Taggable } from './Taggable'
 export abstract class ScenarioParent extends Taggable {
     public readonly name: string
 
+    public description: string = ''
+
     private readonly _scenarii: Scenario[] = []
 
     public background: Background | null = null

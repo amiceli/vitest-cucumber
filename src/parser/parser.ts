@@ -73,6 +73,20 @@ export class GherkinParser {
 
     private lastStep: Step | null = null
 
+    private descriptionLines: string[] = []
+
+    private flushDescription() {
+        if (this.descriptionLines.length > 0) {
+            const description = this.descriptionLines.join('\n')
+            if (this.currentRule) {
+                this.currentRule.description = description
+            } else if (this.currentFeature) {
+                this.currentFeature.description = description
+            }
+            this.descriptionLines = []
+        }
+    }
+
     private resetStepDataTable() {
         this.currentDataTable = []
         this.currentStepDataTableLine = -1
@@ -143,6 +157,7 @@ export class GherkinParser {
 
             this.addTagToParent(feature)
         } else if (this.spokenParser.isRule(line) && this.hasFeature(line)) {
+            this.flushDescription()
             this.previousAction = FeatureActions.RULE
             this.resetStepDataTable()
 
@@ -160,6 +175,7 @@ export class GherkinParser {
             this.spokenParser.isScenarioOutline(line) &&
             this.hasFeature(line)
         ) {
+            this.flushDescription()
             this.previousAction = FeatureActions.SCENARIO
             this.resetStepDataTable()
 
@@ -197,6 +213,7 @@ export class GherkinParser {
             this.spokenParser.isScenario(line) &&
             this.hasFeature(line)
         ) {
+            this.flushDescription()
             this.previousAction = FeatureActions.SCENARIO
             this.resetStepDataTable()
             this.currentScenarioIndex++
@@ -212,6 +229,7 @@ export class GherkinParser {
             this.spokenParser.isBackground(line) &&
             this.hasFeature(line)
         ) {
+            this.flushDescription()
             this.previousAction = FeatureActions.BACKGROUND
             this.resetStepDataTable()
 
@@ -271,6 +289,12 @@ export class GherkinParser {
 
             this.currentExample = null
             this.currentExampleLine = -1
+        } else if (
+            (this.previousAction === FeatureActions.FEATURE ||
+                this.previousAction === FeatureActions.RULE) &&
+            line.trim().length > 0
+        ) {
+            this.descriptionLines.push(line.trim())
         }
     }
 
@@ -291,6 +315,8 @@ export class GherkinParser {
     }
 
     public finish(): Feature[] {
+        this.flushDescription()
+
         if (this.lastScenarioOutline && this.currentExample) {
             if (this.currentExample.length === 0) {
                 this.currentExample.push(this.getEmptyExamplesValues())
