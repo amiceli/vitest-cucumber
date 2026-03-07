@@ -46,6 +46,7 @@ describe(`GherkinParser`, () => {
         expect(currentFeature).not.toBeUndefined()
         expect(currentFeature.name).toEqual(featureTitle)
         expect(currentFeature.scenarii.length).toEqual(0)
+        expect(currentFeature.description).toEqual(``)
     })
 
     it(`should prevent more than one Feature`, () => {
@@ -296,6 +297,7 @@ describe(`GherkinParser`, () => {
 
         expect(currentFeature.rules.length).toEqual(1)
         expect(rule.name).toEqual(ruleName)
+        expect(rule.description).toEqual(``)
     })
 
     it(`should add scenario to rule`, () => {
@@ -791,6 +793,46 @@ describe('GherkinParser - language', () => {
                     expect(getCurrentFeaut(parser).background).not.toBeNull()
                 })
             }
+
+            test(`${language} - Feature description`, () => {
+                const [featureKey] = languageKeys.feature
+                const [scenarioKey] = languageKeys.scenario
+                const parser = new GherkinParser({
+                    language,
+                })
+
+                parser.addLine(`${featureKey}: allez l'OM`)
+                parser.addLine(`    En tant que développeur`)
+                parser.addLine(`    Je veux tester`)
+                parser.addLine(`${scenarioKey}: gagner le match`)
+                parser.addLine(``)
+
+                const currentFeature = getCurrentFeaut(parser)
+
+                expect(currentFeature.description).toEqual(
+                    `En tant que développeur\nJe veux tester`,
+                )
+            })
+
+            test(`${language} - Rule description`, () => {
+                const [featureKey] = languageKeys.feature
+                const [ruleKey] = languageKeys.rule
+                const [scenarioKey] = languageKeys.scenario
+                const parser = new GherkinParser({
+                    language,
+                })
+
+                parser.addLine(`${featureKey}: allez l'OM`)
+                parser.addLine(`${ruleKey}: En lique 1`)
+                parser.addLine(`    Description de la règle`)
+                parser.addLine(`${scenarioKey}: gagner le match`)
+                parser.addLine(``)
+
+                const currentFeature = getCurrentFeaut(parser)
+                const [rule] = currentFeature.rules
+
+                expect(rule.description).toEqual(`Description de la règle`)
+            })
         })
 
         test(`GherkinParser - ${language} - steps`, () => {
@@ -826,6 +868,96 @@ describe('GherkinParser - language', () => {
             expect(scenario.steps.length).toBe(5)
         })
     }
+})
+
+describe(`GherkinParser - description`, () => {
+    let parser: GherkinParser
+
+    beforeEach(() => {
+        parser = new GherkinParser(getVitestCucumberConfiguration())
+    })
+
+    it(`should flush Feature description when Background starts`, () => {
+        parser.addLine(`Feature: awesome feature`)
+        parser.addLine(`    Feature description`)
+        parser.addLine(`    Background:`)
+        parser.addLine(`        Given something`)
+        parser.addLine(`Scenario: first scenario`)
+        parser.addLine(``)
+
+        const currentFeature = getCurrentFeaut(parser)
+
+        expect(currentFeature.description).toEqual(`Feature description`)
+    })
+
+    it(`should flush Feature description when Scenario Outline starts`, () => {
+        parser.addLine(`Feature: awesome feature`)
+        parser.addLine(`    Feature description`)
+        parser.addLine(`Scenario Outline: my outline`)
+        parser.addLine(`Examples:`)
+        parser.addLine(`| key |`)
+        parser.addLine(`| val |`)
+        parser.addLine(``)
+
+        const currentFeature = getCurrentFeaut(parser)
+
+        expect(currentFeature.description).toEqual(`Feature description`)
+    })
+
+    it(`should flush description at finish`, () => {
+        parser.addLine(`Feature: awesome feature`)
+        parser.addLine(`Rule: my rule`)
+        parser.addLine(`    Rule description`)
+        parser.addLine(`Scenario: first scenario`)
+
+        parser.finish()
+
+        const currentFeature = getCurrentFeaut(parser)
+        const [rule] = currentFeature.rules
+
+        expect(rule.description).toEqual(`Rule description`)
+    })
+
+    it(`should ignore empty lines in description`, () => {
+        parser.addLine(`Feature: awesome feature`)
+        parser.addLine(`    Feature description`)
+        parser.addLine(``)
+        parser.addLine(`Scenario: first scenario`)
+        parser.addLine(``)
+
+        const currentFeature = getCurrentFeaut(parser)
+
+        expect(currentFeature.description).toEqual(`Feature description`)
+    })
+
+    it(`should handle Feature and Rule descriptions together`, () => {
+        parser.addLine(`Feature: awesome feature`)
+        parser.addLine(`    Feature description`)
+        parser.addLine(`Rule: my rule`)
+        parser.addLine(`    Rule description`)
+        parser.addLine(`Scenario: first scenario`)
+        parser.addLine(``)
+
+        const currentFeature = getCurrentFeaut(parser)
+        const [rule] = currentFeature.rules
+
+        expect(currentFeature.description).toEqual(`Feature description`)
+        expect(rule.description).toEqual(`Rule description`)
+    })
+
+    it(`should parse description with FeatureContentReader`, () => {
+        const feature = FeatureContentReader.fromString([
+            `Feature: with description`,
+            `    As a developer`,
+            `    I want descriptions`,
+            `    Scenario: first scenario`,
+            `        Given something`,
+        ]).parseContent()
+
+        expect(feature.description).toEqual(
+            `As a developer\nI want descriptions`,
+        )
+    })
 })
 
 describe('Missing parent', () => {
