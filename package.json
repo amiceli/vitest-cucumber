@@ -8,7 +8,8 @@
   },
   "exports": {
     ".": "./dist/src/module.js",
-    "./browser": "./dist/src/browser/index.js"
+    "./browser": "./dist/src/browser/index.js",
+    "./loadFeatureFromText": "./dist/src/load-feature.js"
   },
   "types": "./dist/src/module.d.ts",
   "files": [
