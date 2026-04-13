@@ -12,11 +12,10 @@
     "compilerOptions": {
         "target": "ESNext",
         "lib": [
-            "es2015"
+            "ESNext"
         ],
         "resolveJsonModule": true,
         "module": "ESNext",
-        "moduleResolution": "node",
         "outDir": "./dist",
         "esModuleInterop": true,
         "forceConsistentCasingInFileNames": true,
