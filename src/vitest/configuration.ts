@@ -112,5 +112,10 @@ export const defineSteps: DefineStepsHandler = (defineStepsCallback) => {
                 defineSharedStep(StepTypes.BUT, name, callback),
             )
         },
+        Step: (name, callback) => {
+            globalConfiguration.predefinedSteps.push(
+                defineSharedStep(StepTypes.GENERIC, name, callback),
+            )
+        },
     })
 }

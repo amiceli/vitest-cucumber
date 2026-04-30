@@ -4,6 +4,7 @@ export enum StepTypes {
     WHEN = `When`,
     GIVEN = `Given`,
     BUT = `But`,
+    GENERIC = `Step`,
 }
 
 export type StepDataTanle = {
@@ -39,6 +40,10 @@ export class Step {
     }
 
     public matchStep(step: Step): boolean {
+        if (this.type === StepTypes.GENERIC) {
+            return this.details === step.details
+        }
+
         return this.type === step.type && this.details === step.details
     }
 }

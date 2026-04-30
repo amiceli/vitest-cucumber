@@ -1,6 +1,7 @@
 import { onTestFailed, test } from 'vitest'
 import { ExpressionStep } from '../../parser/expression/ExpressionStep'
 import type { Background } from '../../parser/models/Background'
+import { StepTypes } from '../../parser/models/step'
 import { getVitestCucumberConfiguration } from '../configuration'
 import type {
     BackgroundStepTest,
@@ -64,6 +65,21 @@ export function createBackgroundDescribeHandler({
 
     for (const predefineStep of predefinedSteps) {
         const matchingSteps = missingSteps.filter((featureStep) => {
+            // For generic steps (GENERIC type), match any type with same details or pattern
+            if (predefineStep.step.type === StepTypes.GENERIC) {
+                if (featureStep.details === predefineStep.step.details) {
+                    return true
+                }
+                if (predefineStep.compiledPattern) {
+                    predefineStep.compiledPattern.regex.lastIndex = 0
+                    return predefineStep.compiledPattern.regex.test(
+                        featureStep.details,
+                    )
+                }
+                return false
+            }
+
+            // For specific steps, match exact type
             if (featureStep.type !== predefineStep.step.type) {
                 return false
             }

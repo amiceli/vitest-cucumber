@@ -33,6 +33,7 @@ export type DefineStepsHandler = (
         Then: StepCallbackDefinition
         And: StepCallbackDefinition
         But: StepCallbackDefinition
+        Step: StepCallbackDefinition
     }) => void,
 ) => void
 
