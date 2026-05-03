@@ -185,3 +185,26 @@ describe('defineSteps with docStrings', () => {
         })
     })
 })
+
+describe('defineSteps with generic Step', () => {
+    const feature = FeatureContentReader.fromString([
+        `Feature: Generic Step`,
+        `    Scenario: Generic step example`,
+        `        Given I have a generic step`,
+        `        And I have a generic step`,
+        `        But I have a generic step`,
+        `        Then I can use it`,
+    ]).parseContent()
+
+    describeFeature(feature, (f) => {
+        f.defineSteps(({ Step, Then }) => {
+            Step('I have a generic step', () => {
+                f.context.called = (f.context.called || 0) + 1
+            })
+            Then('I can use it', () => {
+                expect(f.context.called).toBe(3)
+            })
+        })
+        f.Scenario('Generic step example', () => {})
+    })
+})

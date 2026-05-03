@@ -7,7 +7,7 @@ import {
     type Background,
     type Scenario,
     Step,
-    type StepTypes,
+    StepTypes,
 } from '../../parser/models'
 import type {
     CallbackWithParamsAndContext,
@@ -143,7 +143,19 @@ export function orderStepsToRun(
     const orderedSteps: ScenarioSteps[] = []
 
     for (const step of parent.steps) {
-        const defineStep = steps.find((s) => s.step.matchStep(step))
+        // First try exact match (same type and details)
+        let defineStep = steps.find(
+            (s) => s.step.type === step.type && s.step.details === step.details,
+        )
+
+        // If not found, try generic step (Step type with same details)
+        if (!defineStep) {
+            defineStep = steps.find(
+                (s) =>
+                    s.step.type === StepTypes.GENERIC &&
+                    s.step.details === step.details,
+            )
+        }
 
         if (defineStep) {
             orderedSteps.push(defineStep)

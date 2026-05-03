@@ -563,6 +563,15 @@ export function describeFeature(
                                     ),
                                 )
                             },
+                            Step: (name, callback) => {
+                                options.predefinedRuleSteps.push(
+                                    defineSharedStep(
+                                        StepTypes.GENERIC,
+                                        name,
+                                        callback,
+                                    ),
+                                )
+                            },
                         })
                     },
                 })
@@ -690,6 +699,11 @@ export function describeFeature(
                 But: (name, callback) => {
                     options.predefinedSteps.push(
                         defineSharedStep(StepTypes.BUT, name, callback),
+                    )
+                },
+                Step: (name, callback) => {
+                    options.predefinedSteps.push(
+                        defineSharedStep(StepTypes.GENERIC, name, callback),
                     )
                 },
             })
