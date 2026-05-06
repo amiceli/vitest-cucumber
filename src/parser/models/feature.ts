@@ -12,6 +12,11 @@ import {
 } from '.'
 import { DefineRule, Rule } from './Rule'
 import { ScenarioParent } from './ScenarioParent'
+import {
+    DefineScenarioOutline,
+    type Example,
+    type ScenarioOutline,
+} from './scenario'
 
 export class Feature extends ScenarioParent {
     private readonly _rules: Rule[]
@@ -97,6 +102,11 @@ export class Feature extends ScenarioParent {
 }
 
 export class DefineFeature extends Feature {
+    private readonly definedOutlines: Map<string, DefineScenarioOutline> =
+        new Map()
+
+    private readonly definedRules: Map<string, DefineRule> = new Map()
+
     public getBackground(): Background {
         return new DefineBackground()
     }
@@ -106,6 +116,39 @@ export class DefineFeature extends Feature {
     }
 
     public checkIfRuleExists(ruleName: string): Rule {
-        return new DefineRule(ruleName)
+        const existing = this.definedRules.get(ruleName)
+
+        if (existing) {
+            return existing
+        }
+
+        const rule = new DefineRule(ruleName)
+        this.definedRules.set(ruleName, rule)
+
+        return rule
+    }
+
+    public registerScenarioOutline(
+        description: string,
+        examples: Example,
+    ): DefineScenarioOutline {
+        const outline = new DefineScenarioOutline(description)
+        outline.examples = examples
+        this.definedOutlines.set(description, outline)
+
+        return outline
+    }
+
+    public getScenarioOutline(description: string): ScenarioOutline {
+        const existing = this.definedOutlines.get(description)
+
+        if (existing) {
+            return existing
+        }
+
+        const outline = new DefineScenarioOutline(description)
+        this.definedOutlines.set(description, outline)
+
+        return outline
     }
 }

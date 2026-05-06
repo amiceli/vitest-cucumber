@@ -67,19 +67,39 @@ export type DescribeFeatureCallback = (
     scenarioCallback: FeatureDescriibeCallbackParams,
 ) => void
 
+export type DefineRuleOptions<T = any> = Omit<
+    RuleOptions<T>,
+    'RuleScenarioOutline'
+> & {
+    RuleScenarioOutline: DefineScenarioOutlineTest & {
+        skip: DefineScenarioOutlineTest
+        only: DefineScenarioOutlineTest
+    }
+}
+
 export type DefineFeatureRuleTest = (
     ruleName: string,
-    fn: (options: Omit<RuleOptions, 'RuleScenarioOutline'>) => void,
+    fn: (options: DefineRuleOptions) => void,
+) => void
+
+export type DefineScenarioOutlineTest = (
+    scenarioDescription: string,
+    fn: (options: StepTest, examples: Example[0]) => MaybePromise,
+    examples: Example,
 ) => void
 
 export type DefineFeatureCallback = (
     scenarioCallback: Omit<
         FeatureDescriibeCallbackParams,
-        'ScenarioOutline' | 'defineSteps'
+        'ScenarioOutline' | 'defineSteps' | 'Rule'
     > & {
         Rule: DefineFeatureRuleTest & {
             skip: DefineFeatureRuleTest
             only: DefineFeatureRuleTest
+        }
+        ScenarioOutline: DefineScenarioOutlineTest & {
+            skip: DefineScenarioOutlineTest
+            only: DefineScenarioOutlineTest
         }
     },
 ) => void

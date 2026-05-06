@@ -66,3 +66,13 @@ export class DefineScenario extends Scenario {
         return super.checkIfStepExists(stepType, stepDetails)
     }
 }
+
+export class DefineScenarioOutline extends ScenarioOutline {
+    public checkIfStepExists(stepType: string, stepDetails: string): Step {
+        if (!this.findStepByTypeAndDetails(stepType, stepDetails)) {
+            this.addStep(new Step(stepType as StepTypes, stepDetails))
+        }
+
+        return super.checkIfStepExists(stepType, stepDetails)
+    }
+}

@@ -5,7 +5,10 @@ import {
     ScenarioOutlineVariablesDeclaredWithoutExamplesError,
 } from '../../errors/errors'
 import type { StepAble } from '../../parser/models/Stepable'
-import { ScenarioOutline } from '../../parser/models/scenario'
+import {
+    DefineScenarioOutline,
+    ScenarioOutline,
+} from '../../parser/models/scenario'
 
 export class ScenarioStateDetector {
     private readonly scenario: StepAble
@@ -76,7 +79,9 @@ export class ScenarioStateDetector {
                 )
             }
             this.checkIfScenarioHasNoExample()
-            this.detectMissingVariableInSteps()
+            if (!(this.scenario instanceof DefineScenarioOutline)) {
+                this.detectMissingVariableInSteps()
+            }
             this.detectMissingVariableValue()
         }
     }
