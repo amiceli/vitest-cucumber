@@ -141,3 +141,4 @@ Required if you don't use `en` language.
 Doc is maintain in this project [vitest-cucumber-docs](https://github.com/amiceli/vitest-cucumber-docs).
 
 Don't hesitate to open an issue on it if you want more details ;).
+
