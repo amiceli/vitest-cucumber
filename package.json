@@ -35,13 +35,13 @@
   "author": "amiceli",
   "license": "ISC",
   "devDependencies": {
-    "@biomejs/biome": "2.4.14",
-    "@commitlint/cli": "20.5.3",
-    "@commitlint/config-conventional": "20.5.3",
+    "@biomejs/biome": "2.4.16",
+    "@commitlint/cli": "21.0.2",
+    "@commitlint/config-conventional": "21.0.2",
     "@types/node": "^24.12.2",
     "@vitest/coverage-v8": "4.0.4",
     "esbuild": "0.28.0",
-    "lefthook": "2.1.6",
+    "lefthook": "2.1.9",
     "typescript": "6.0.3",
     "vite": "8.0.10"
   },
