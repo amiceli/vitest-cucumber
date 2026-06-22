@@ -3,7 +3,6 @@ export {
     defineParameterExpression,
 } from './parser/expression/custom'
 export type { Currency } from './parser/expression/regexes'
-export { VitestCucumberPlugin } from './plugin/index'
 export {
     defineSteps,
     getVitestCucumberConfiguration,
@@ -13,4 +12,4 @@ export {
 export { defineFeature } from './vitest/define-feature'
 export { describeFeature } from './vitest/describe-feature'
 export { loadFeature, loadFeatureFromText } from './vitest/load-feature'
-export { FeatureDescriibeCallbackParams, StepTest } from './vitest/types'
+export type { FeatureDescriibeCallbackParams, StepTest } from './vitest/types'
