@@ -18,6 +18,10 @@
     "./plugin": {
       "types": "./dist/plugin.d.mts",
       "default": "./dist/plugin.mjs"
+    },
+    "./load-feature": {
+      "types": "./dist/load-feature.d.mts",
+      "default": "./dist/load-feature.mjs"
     }
   },
   "types": "./dist/module.d.mts",
@@ -27,8 +31,6 @@
   "scripts": {
     "build": "npx tsdown",
     "build:watch": "npx tsdown --watch",
-    "build:script": "esbuild scripts/cli.ts --bundle --platform=node > dist/cli-generate.js",
-    "build:all": "npm run build && npm run build:script",
     "lefthook:prepare": "lefthook install",
     "lint": "biome check",
     "lint:fix": "biome check --write",
@@ -50,7 +52,6 @@
     "@commitlint/config-conventional": "21.0.2",
     "@types/node": "^24.12.2",
     "@vitest/coverage-v8": "4.0.4",
-    "esbuild": "0.28.0",
     "lefthook": "2.1.9",
     "tsdown": "^0.22.3",
     "typescript": "6.0.3",
