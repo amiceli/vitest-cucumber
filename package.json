@@ -30,8 +30,8 @@
     "dist"
   ],
   "scripts": {
-    "build": "npx tsdown",
-    "build:watch": "npx tsdown --watch",
+    "build": "npm run prebuild && npx tsdown",
+    "build:watch": "npm run prebuild && npx tsdown --watch",
     "lefthook:prepare": "lefthook install",
     "lint": "biome check",
     "lint:fix": "biome check --write",
