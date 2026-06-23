@@ -197,4 +197,18 @@ describe('env variables', () => {
         expect(options.excludeTags).toContain('ignore')
         expect(options.excludeTags).not.toContain('ignore-e2e')
     })
+
+    it('handle process.env when window is defined', () => {
+        // @ts-expect-error simulate jsdom environment
+        globalThis.window = {}
+
+        vi.stubEnv('VITEST_INCLUDE_TAGS', 'jsdom-tag')
+
+        const options = getVitestCucumberConfiguration()
+
+        expect(options.includeTags).toContain('jsdom-tag')
+
+        // @ts-expect-error
+        delete globalThis.window
+    })
 })

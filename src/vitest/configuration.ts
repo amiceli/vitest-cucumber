@@ -47,24 +47,19 @@ export const getVitestCucumberConfiguration = (
 ) => {
     const defaultConfiguration = getDefaultConfiguration()
 
-    // @ts-expect-error
-    if (typeof window !== 'undefined') {
-        defaultConfiguration.includeTags?.push(
-            // @ts-expect-error
-            ...(import.meta.env.VITEST_INCLUDE_TAGS?.split(' ') || []),
-        )
-        defaultConfiguration.excludeTags?.push(
-            // @ts-expect-error
-            ...(import.meta.env.VITEST_EXCLUDE_TAGS?.split(' ') || []),
-        )
-    } else {
-        defaultConfiguration.includeTags?.push(
-            ...(process.env.VITEST_INCLUDE_TAGS?.split(' ') || []),
-        )
-        defaultConfiguration.excludeTags?.push(
-            ...(process.env.VITEST_EXCLUDE_TAGS?.split(' ') || []),
-        )
-    }
+    // @ts-expect-error import.meta.env only exists when bundled by Vite
+    const importMetaEnv =
+        typeof import.meta !== 'undefined' ? import.meta.env : undefined
+    const processEnv = typeof process !== 'undefined' ? process.env : undefined
+
+    defaultConfiguration.includeTags?.push(
+        ...(importMetaEnv?.VITEST_INCLUDE_TAGS?.split(' ') ?? []),
+        ...(processEnv?.VITEST_INCLUDE_TAGS?.split(' ') ?? []),
+    )
+    defaultConfiguration.excludeTags?.push(
+        ...(importMetaEnv?.VITEST_EXCLUDE_TAGS?.split(' ') ?? []),
+        ...(processEnv?.VITEST_EXCLUDE_TAGS?.split(' ') ?? []),
+    )
 
     const mergedOptions = {
         ...defaultConfiguration,
