@@ -23,14 +23,7 @@ export default defineConfig([
         entry: {
             'cli-generate': 'scripts/cli.ts',
         },
-        format: 'cjs',
+        format: 'esm',
         dts: false,
-        clean: false,
-        outExtensions: () => ({
-            js: '.js',
-        }),
-        define: {
-            'import.meta': '({})',
-        },
     },
 ])
