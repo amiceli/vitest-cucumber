@@ -1,24 +1,37 @@
 {
   "name": "@amiceli/vitest-cucumber",
-  "version": "6.5.0",
+  "version": "7.0.0",
   "description": "vitest tools to use Gherkin feature in unit tests",
-  "main": "dist/src/module.js",
+  "main": "dist/module.mjs",
+  "type": "module",
   "bin": {
     "vitest-cucumber": "dist/cli-generate.js"
   },
   "exports": {
-    ".": "./dist/src/module.js",
-    "./browser": "./dist/src/browser/index.js"
+    ".": {
+      "types": "./dist/module.d.mts",
+      "default": "./dist/module.mjs"
+    },
+    "./browser": {
+      "types": "./dist/browser.d.mts",
+      "default": "./dist/browser.mjs"
+    },
+    "./plugin": {
+      "types": "./dist/plugin.d.mts",
+      "default": "./dist/plugin.mjs"
+    },
+    "./load-feature": {
+      "types": "./dist/load-feature.d.mts",
+      "default": "./dist/load-feature.mjs"
+    }
   },
-  "types": "./dist/src/module.d.ts",
+  "types": "./dist/module.d.mts",
   "files": [
     "dist"
   ],
   "scripts": {
-    "build": "npx tsc --declaration --project tsconfig.json",
-    "build:watch": "npx tsc -w --declaration --project tsconfig.json",
-    "build:script": "esbuild scripts/cli.ts --bundle --platform=node > dist/cli-generate.js",
-    "build:all": "npm run build && npm run build:script",
+    "build": "npm run prebuild && npx tsdown",
+    "build:watch": "npm run prebuild && npx tsdown --watch",
     "lefthook:prepare": "lefthook install",
     "lint": "biome check",
     "lint:fix": "biome check --write",
@@ -35,13 +48,13 @@
   "author": "amiceli",
   "license": "ISC",
   "devDependencies": {
-    "@biomejs/biome": "2.5.0",
-    "@commitlint/cli": "21.0.2",
-    "@commitlint/config-conventional": "21.0.2",
+    "@biomejs/biome": "2.5.1",
+    "@commitlint/cli": "21.1.0",
+    "@commitlint/config-conventional": "21.1.0",
     "@types/node": "^24.12.2",
     "@vitest/coverage-v8": "4.0.4",
-    "esbuild": "0.28.0",
     "lefthook": "2.1.9",
+    "tsdown": "^0.22.3",
     "typescript": "6.0.3",
     "vite": "8.0.10"
   },
