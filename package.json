@@ -48,9 +48,9 @@
   "author": "amiceli",
   "license": "ISC",
   "devDependencies": {
-    "@biomejs/biome": "2.5.1",
-    "@commitlint/cli": "21.1.0",
-    "@commitlint/config-conventional": "21.1.0",
+    "@biomejs/biome": "2.5.2",
+    "@commitlint/cli": "21.2.0",
+    "@commitlint/config-conventional": "21.2.0",
     "@types/node": "^24.12.2",
     "@vitest/coverage-v8": "4.0.4",
     "lefthook": "2.1.9",
