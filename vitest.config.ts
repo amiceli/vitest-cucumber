@@ -14,27 +14,14 @@ export default defineConfig({
         // }),
     ],
     test: {
+        // a scenario is several tests : mocks must survive between steps
+        clearMocks: false,
         fileParallelism: false,
         setupFiles: [
             'vitest.setup.ts',
         ],
         passWithNoTests: true,
         globals: true,
-        coverage: {
-            provider: 'v8',
-            exclude: [
-                'src/module.ts',
-                'vitest.config.ts',
-                'commitlint.config.js',
-                'src/vitest/types.ts',
-                'scripts/cli-generate.ts',
-                '**/__mocks__/*',
-                '**/__tests__/*',
-                'dist/',
-                'prebuild.js',
-                'dist/',
-            ],
-        },
         exclude: [
             'examples/vue-example.spec.ts',
             'node_modules',

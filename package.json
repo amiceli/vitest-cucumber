@@ -37,8 +37,7 @@
     "lint:fix": "biome check --write",
     "prebuild": "node prebuild.js",
     "test": "npm run prebuild && vitest",
-    "test:unit": "npm run prebuild && vitest --run",
-    "test:coverage": "npm run prebuild && vitest run --coverage"
+    "test:unit": "npm run prebuild && vitest --run"
   },
   "keywords": [
     "vitest",
@@ -52,14 +51,14 @@
     "@commitlint/cli": "21.2.0",
     "@commitlint/config-conventional": "21.2.0",
     "@types/node": "^24.12.2",
-    "@vitest/coverage-v8": "4.0.4",
     "lefthook": "2.1.9",
     "tsdown": "^0.22.3",
     "typescript": "6.0.3",
-    "vite": "8.0.10"
+    "vite": "8.0.10",
+    "vitest": "^5.0.0"
   },
   "peerDependencies": {
-    "vitest": "^4.0.4"
+    "vitest": "^5.0.0"
   },
   "dependencies": {
     "callsites": "4.2.0",
