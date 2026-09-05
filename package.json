@@ -47,14 +47,14 @@
   "author": "amiceli",
   "license": "ISC",
   "devDependencies": {
-    "@biomejs/biome": "2.5.2",
-    "@commitlint/cli": "21.2.0",
-    "@commitlint/config-conventional": "21.2.0",
+    "@biomejs/biome": "2.5.12",
+    "@commitlint/cli": "21.2.2",
+    "@commitlint/config-conventional": "21.2.2",
     "@types/node": "^24.12.2",
-    "lefthook": "2.1.9",
+    "lefthook": "2.1.12",
     "tsdown": "^0.22.3",
     "typescript": "6.0.3",
-    "vite": "8.0.10",
+    "vite": "8.2.2",
     "vitest": "^5.0.0"
   },
   "peerDependencies": {
