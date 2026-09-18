@@ -1,8 +1,8 @@
 <p align="center">
-<img src="https://vitest-cucumber.miceli.click/logo.png" width="100" />
+<img src="https://amiceli.github.io/vitest-cucumber-docs/logo.png" width="100" />
 </p>
 
-# [vitest-cucumber](https://vitest-cucumber.miceli.click/)
+# [vitest-cucumber](https://amiceli.github.io/vitest-cucumber-docs/)
 
 [![NPM](https://nodei.co/npm/@amiceli/vitest-cucumber.svg?data=n,v,u,d,s)](https://nodei.co/npm/@amiceli/vitest-cucumber/)
 
@@ -117,26 +117,26 @@ Currently it generates `TS` file, if you need more options open an issue ;).
 `lang` allow to specify which lang is used in feature file.
 Required if you don't use `en` language.
 
-## [Docs](https://vitest-cucumber.miceli.click/)
+## [Docs](https://amiceli.github.io/vitest-cucumber-docs/)
 
-- [Configuration](https://vitest-cucumber.miceli.click/configuration)
-- [Vitest plugin to sync spec and feature files](https://vitest-cucumber.miceli.click/plugin)
-- [Background](https://vitest-cucumber.miceli.click/features/background)
-- [Scenario](https://vitest-cucumber.miceli.click/features/scenario)
-- [Scenario Outline and Examples](https://vitest-cucumber.miceli.click/features/scenario-outline)
-- [Scenario Outline mapped examples](https://vitest-cucumber.miceli.click/features/mapped-examples/)
-- [Rule](https://vitest-cucumber.miceli.click/features/rule)
-- [Scneario hooks](https://vitest-cucumber.miceli.click/features/hooks)
-- [Structure hooks](https://vitest-cucumber.miceli.click/features/structure-context)
-- [Predefine steps](https://vitest-cucumber.miceli.click/features/predefine-steps)
-- [`skip`, `only` with scenario, rule and background](https://vitest-cucumber.miceli.click/features/skip-only)
-- [Step sequentially and async](https://vitest-cucumber.miceli.click/features/sequentially-and-async)
-- [Gherkin tags](https://vitest-cucumber.miceli.click/features/gherkin-tags)
-- [Step with expression / parameter type](https://vitest-cucumber.miceli.click/features/step-expression)
-- [DocStrings](https://vitest-cucumber.miceli.click/features/doc-strings)
-- [DataTables](https://vitest-cucumber.miceli.click/features/data-tables)
-- [Spoken languages](https://vitest-cucumber.miceli.click/features/spoken-languages)
-- [Tests without feature file](https://vitest-cucumber.miceli.click/features/define-feature)
+- [Configuration](https://amiceli.github.io/vitest-cucumber-docs/configuration)
+- [Vitest plugin to sync spec and feature files](https://amiceli.github.io/vitest-cucumber-docs/plugin)
+- [Background](https://amiceli.github.io/vitest-cucumber-docs/features/background)
+- [Scenario](https://amiceli.github.io/vitest-cucumber-docs/features/scenario)
+- [Scenario Outline and Examples](https://amiceli.github.io/vitest-cucumber-docs/features/scenario-outline)
+- [Scenario Outline mapped examples](https://amiceli.github.io/vitest-cucumber-docs/features/mapped-examples/)
+- [Rule](https://amiceli.github.io/vitest-cucumber-docs/features/rule)
+- [Scneario hooks](https://amiceli.github.io/vitest-cucumber-docs/features/hooks)
+- [Structure hooks](https://amiceli.github.io/vitest-cucumber-docs/features/structure-context)
+- [Predefine steps](https://amiceli.github.io/vitest-cucumber-docs/features/predefine-steps)
+- [`skip`, `only` with scenario, rule and background](https://amiceli.github.io/vitest-cucumber-docs/features/skip-only)
+- [Step sequentially and async](https://amiceli.github.io/vitest-cucumber-docs/features/sequentially-and-async)
+- [Gherkin tags](https://amiceli.github.io/vitest-cucumber-docs/features/gherkin-tags)
+- [Step with expression / parameter type](https://amiceli.github.io/vitest-cucumber-docs/features/step-expression)
+- [DocStrings](https://amiceli.github.io/vitest-cucumber-docs/features/doc-strings)
+- [DataTables](https://amiceli.github.io/vitest-cucumber-docs/features/data-tables)
+- [Spoken languages](https://amiceli.github.io/vitest-cucumber-docs/features/spoken-languages)
+- [Tests without feature file](https://amiceli.github.io/vitest-cucumber-docs/features/define-feature)
 
 Doc is maintain in this project [vitest-cucumber-docs](https://github.com/amiceli/vitest-cucumber-docs).
 
