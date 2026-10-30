@@ -13,4 +13,4 @@ test file="":
 # install dpes and build project
 build:
     npm i
-    npm run build:all
+    npm run build
