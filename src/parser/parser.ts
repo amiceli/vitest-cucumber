@@ -348,7 +348,7 @@ export class GherkinParser {
         // biome-ignore lint/suspicious/noExplicitAny: <explanation>
         const res = exampleVariables.reduce((acc: any, cur, index) => {
             // biome-ignore lint/suspicious/noAssignInExpressions: <explanation>
-            return (acc[keys[index]] = cur), acc
+            return ((acc[keys[index]] = cur), acc)
         }, {})
 
         return res
@@ -367,7 +367,7 @@ export class GherkinParser {
         // biome-ignore lint/suspicious/noExplicitAny: <explanation>
         const res = this.exampleKeys.reduce((acc: any, cur, index) => {
             // biome-ignore lint/suspicious/noAssignInExpressions: <explanation>
-            return (acc[this.exampleKeys[index]] = null), acc
+            return ((acc[this.exampleKeys[index]] = null), acc)
         }, {})
 
         return res

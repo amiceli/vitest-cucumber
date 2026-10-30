@@ -40,44 +40,45 @@ So you don't need to use `it` or `test` inside `Scenario` or scenario steps.
 
 First write your `feature` file. By example :
 
-~~~feature
+```feature
 Feature: Improve my unit tests
     Scenario: Use vitest-cucumber in my unit tests
         Given Developer using feature file
         And   Using vitest-cucumber
         When  I run my unit tests
         Then  I know if I forgot a scenario
-~~~
+```
 
 Now you can write unit tests with **vitest-cucumber**.
 
 Foe example :
 
-~~~typescript
+```typescript
 import { loadFeature, describeFeature } from '@amiceli/vitest-cucumber'
 import { expect } from 'vitest'
 
 const feature = await loadFeature('path/to/my/file.feature')
 
 describeFeature(feature, ({ Scenario }) => {
-
-    Scenario('Use vitest-cucumber in my unit tests', ({ Given, When, Then, And }) => {
-        Given('Developer using feature file', () => {
-            expect(false).toBeFalsy()
-        })
-        And('sing vitest-cucumber', () => {
-            // ...
-        })
-        When('I run my unit tests', () => {
-            // ...
-        })
-        Then('I know if I forgot a scenario', () => {
-            // ...
-        })
-    })
-
+    Scenario(
+        'Use vitest-cucumber in my unit tests',
+        ({ Given, When, Then, And }) => {
+            Given('Developer using feature file', () => {
+                expect(false).toBeFalsy()
+            })
+            And('sing vitest-cucumber', () => {
+                // ...
+            })
+            When('I run my unit tests', () => {
+                // ...
+            })
+            Then('I know if I forgot a scenario', () => {
+                // ...
+            })
+        },
+    )
 })
-~~~
+```
 
 When you run your test with vitest, **vitest-cucumber** will check :
 
@@ -90,11 +91,11 @@ When you run your test with vitest, **vitest-cucumber** will check :
 
 For example, if you forgot to write :
 
-~~~typescript
+```typescript
 When('I run my unit tests', () => {
     // ...
 })
-~~~
+```
 
 It will throw **When I run my unit tests was not called**.
 
@@ -141,4 +142,3 @@ Required if you don't use `en` language.
 Doc is maintain in this project [vitest-cucumber-docs](https://github.com/amiceli/vitest-cucumber-docs).
 
 Don't hesitate to open an issue on it if you want more details ;).
-

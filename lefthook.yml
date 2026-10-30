@@ -1,15 +1,15 @@
 pre-commit:
-  commands:
-    check:
-      glob: "*.{js,ts,cjs,mjs,d.cts,d.mts,jsx,tsx,json,jsonc}"
-      run: npx biome check --no-errors-on-unmatched --files-ignore-unknown=true {staged_files}
+    commands:
+        check:
+            glob: "*.{js,ts,cjs,mjs,d.cts,d.mts,jsx,tsx,json,jsonc}"
+            run: npx biome check --no-errors-on-unmatched --files-ignore-unknown=true {staged_files}
 
 pre-push:
-  commands:
-    test:
-      run: npm run test:unit
+    commands:
+        test:
+            run: npm run test:unit
 
 commit-msg:
-  commands:
-    lint:
-      run: npx --no -- commitlint --edit $1
+    commands:
+        lint:
+            run: npx --no -- commitlint --edit $1
