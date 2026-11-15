@@ -8,9 +8,67 @@ import {
 } from '../../../errors/errors'
 import { Step, StepTypes } from '../../models/step'
 import { customExpressionRegEx, defineParameterExpression } from '../custom'
-import { builtInExpressionRegEx, ExpressionStep } from '../ExpressionStep'
+import {
+    builtInExpressionRegEx,
+    compileExpressionRegex,
+    ExpressionStep,
+} from '../ExpressionStep'
 
 describe(`ExpressionStep`, () => {
+    describe('literal regex characters', () => {
+        it.each([
+            [
+                'the total is 5 (USD)',
+                'the total is {number} (USD)',
+                [
+                    5,
+                ],
+            ],
+            [
+                'the price is $5 for 2 items',
+                'the price is $5 for {int} items',
+                [
+                    2,
+                ],
+            ],
+            [
+                '2 + 3 equals 5',
+                '{int} + {int} equals {int}',
+                [
+                    2,
+                    3,
+                    5,
+                ],
+            ],
+            [
+                'item [0] is "pear"',
+                'item [0] is {string}',
+                [
+                    'pear',
+                ],
+            ],
+            [
+                'mode is a|b with 5',
+                'mode is a|b with {int}',
+                [
+                    5,
+                ],
+            ],
+        ])(
+            'matches literal characters in %s',
+            (details, expression, values) => {
+                const step = new Step(StepTypes.GIVEN, details)
+
+                expect(ExpressionStep.matchStep(step, expression)).toEqual(
+                    values,
+                )
+                expect(compileExpressionRegex(expression).test(details)).toBe(
+                    true,
+                )
+            },
+        )
+    })
+
     describe('{boolean}', () => {
         it(`should match {boolean}`, () => {
             const step = new Step(StepTypes.GIVEN, `This information is true`)
@@ -649,6 +707,20 @@ describe(`ExpressionStep`, () => {
             ])
         })
 
+        it('should match a list after another parameter', () => {
+            const step = new Step(StepTypes.GIVEN, 'I buy 2 items: apple, pear')
+
+            expect(
+                ExpressionStep.matchStep(step, 'I buy {int} items: {list}'),
+            ).toEqual([
+                2,
+                [
+                    'apple',
+                    'pear',
+                ],
+            ])
+        })
+
         describe('with weparators', () => {
             const separators = [
                 "';'",
@@ -831,6 +903,25 @@ describe(`ExpressionStep`, () => {
             )
             expect(params).toEqual([
                 `red`,
+            ])
+        })
+
+        it('should not confuse a custom name with a built-in prefix', () => {
+            defineParameterExpression({
+                name: 'intList',
+                regexp: /\d+(?:,\d+)*/,
+                transformer: (value) => value.split(',').map(Number),
+            })
+
+            const step = new Step(StepTypes.GIVEN, 'the ids are 1,2,3')
+            expect(
+                ExpressionStep.matchStep(step, 'the ids are {intList}'),
+            ).toEqual([
+                [
+                    1,
+                    2,
+                    3,
+                ],
             ])
         })
 

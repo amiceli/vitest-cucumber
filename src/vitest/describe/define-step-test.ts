@@ -1,6 +1,5 @@
-import { customExpressionRegEx } from '../../parser/expression/custom'
 import {
-    builtInExpressionRegEx,
+    compileExpressionRegex,
     ExpressionStep,
 } from '../../parser/expression/ExpressionStep'
 import {
@@ -16,41 +15,12 @@ import type {
 import type { CompiledPattern, ScenarioSteps } from './types'
 
 function compilePattern(pattern: string): CompiledPattern | undefined {
-    const allExpressionRegEx = builtInExpressionRegEx.concat(
-        customExpressionRegEx,
-    )
-
-    const hasExpressions = allExpressionRegEx.some((r) =>
-        pattern.includes(r.keyword),
-    )
-
-    if (!hasExpressions) {
+    if (!ExpressionStep.stepContainsRegex(pattern)) {
         return undefined
     }
 
-    let regexString = pattern
-    const groupCount: {
-        [key: string]: number
-    } = {}
-
-    regexString = regexString.replace(/[?]/g, '\\$&')
-
-    for (const r of allExpressionRegEx) {
-        r.resetExpressionStates()
-        groupCount[r.groupName] = 0
-    }
-
-    for (const r of allExpressionRegEx) {
-        regexString = regexString.replace(r.keywordRegex, (originalRegex) => {
-            groupCount[r.groupName] += 1
-            return r.getRegex(groupCount[r.groupName], originalRegex)
-        })
-    }
-
-    regexString = `^${regexString}$`
-
     return {
-        regex: new RegExp(regexString, 'g'),
+        regex: compileExpressionRegex(pattern),
         originalPattern: pattern,
     }
 }
