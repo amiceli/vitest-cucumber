@@ -1,4 +1,4 @@
-import { expect } from 'vitest'
+import { describe, expect } from 'vitest'
 import { defineParameterExpression } from '../../parser/expression/custom'
 import { describeFeature } from '../describe-feature'
 import { loadFeatureFromText } from '../load-feature'
@@ -7,16 +7,16 @@ describe('Issue #280', () => {
     defineParameterExpression({
         name: 'intList',
         regexp: /\d+(?:,\d+)*/,
-        transformer: (s) => s.split(',').map(Number),
+        transformer: (s: string) => s.split(',').map(Number),
     })
 
     const feature = loadFeatureFromText(`
-Feature: Step expressions
-  Scenario: parameters
-    Given I buy 2 items: apple, pear
-    And the ids are 1,2,3
-    And mode is a|b with 5
-`)
+        Feature: Step expressions
+        Scenario: parameters
+            Given I buy 2 items: apple, pear
+            And the ids are 1,2,3
+            And mode is a|b with 5
+    `)
 
     describeFeature(feature, ({ Scenario }) => {
         Scenario('parameters', ({ Given, And }) => {
