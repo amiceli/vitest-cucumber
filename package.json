@@ -1,6 +1,6 @@
 {
   "name": "@amiceli/vitest-cucumber",
-  "version": "8.0.0",
+  "version": "8.0.1",
   "description": "vitest tools to use Gherkin feature in unit tests",
   "main": "dist/module.mjs",
   "type": "module",
@@ -47,7 +47,7 @@
   "author": "amiceli",
   "license": "ISC",
   "devDependencies": {
-    "@biomejs/biome": "2.6.4",
+    "@biomejs/biome": "2.6.8",
     "@commitlint/cli": "21.2.4",
     "@commitlint/config-conventional": "21.2.4",
     "@types/node": "^24.12.2",

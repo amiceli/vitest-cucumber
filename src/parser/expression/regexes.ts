@@ -32,7 +32,10 @@ export abstract class ExpressionRegex<T = unknown> {
     public abstract getValue(str: string, index: number): T
 
     public matchGroupName(str: string): boolean {
-        return str.startsWith(this.groupName)
+        return (
+            str.startsWith(this.groupName) &&
+            /^\d+$/.test(str.slice(this.groupName.length))
+        )
     }
 
     public get cloneKeywordRegex() {

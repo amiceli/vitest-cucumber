@@ -32,46 +32,56 @@ export const builtInExpressionRegEx: ExpressionRegex[] = [
     new AnyRegex(),
 ]
 
+function getExpressionRegexes(): ExpressionRegex[] {
+    return builtInExpressionRegEx.concat(customExpressionRegEx)
+}
+
+function escapeExpressionLiterals(
+    expression: string,
+    expressionRegexes: ExpressionRegex[],
+): string {
+    return expression.replace(/\{[^{}]*\}|[.*+?^${}()|[\]\\]/g, (literal) => {
+        if (
+            literal.startsWith('{') &&
+            literal.endsWith('}') &&
+            expressionRegexes.some((r) => {
+                const keywordRegex = r.cloneKeywordRegex
+                return keywordRegex.test(literal)
+            })
+        ) {
+            return literal
+        }
+
+        return literal.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    })
+}
+
+export function compileExpressionRegex(expression: string): RegExp {
+    const allExpressionRegEx = getExpressionRegexes()
+    let regexString = escapeExpressionLiterals(expression, allExpressionRegEx)
+    const groupCount: Record<string, number> = {}
+
+    for (const r of allExpressionRegEx) {
+        r.resetExpressionStates()
+        groupCount[r.groupName] = 0
+    }
+
+    for (const r of allExpressionRegEx) {
+        regexString = regexString.replace(r.keywordRegex, (originalRegex) => {
+            groupCount[r.groupName] += 1
+            return r.getRegex(groupCount[r.groupName], originalRegex)
+        })
+    }
+
+    return new RegExp(`^${regexString}$`, 'g')
+}
+
 // biome-ignore lint/complexity/noStaticOnlyClass: <explanation>
 export class ExpressionStep {
     // biome-ignore lint/suspicious/noExplicitAny: <explanation>
     public static matchStep(step: Step, stepExpression: string): any[] {
-        // TODO use a feactory to have one ExpressionRegex by regex
-        // TODO to remove used of index and resetExpressionStates for regex options like {list} with separator
-
-        const allExpressionRegEx = builtInExpressionRegEx.concat(
-            customExpressionRegEx,
-        )
-
-        let regexString = stepExpression
-        const groupCount: {
-            [key: string]: number
-        } = {}
-
-        // 💡 escape special characters
-        // TODO : among [-\/\\^$*+?.()|[\]{}] which characters need to be escaped?
-        regexString = regexString.replace(/[?]/g, `\\$&`)
-
-        for (const r of allExpressionRegEx) {
-            r.resetExpressionStates()
-            groupCount[r.groupName] = 0
-        }
-
-        for (const r of allExpressionRegEx) {
-            regexString = regexString.replace(
-                r.keywordRegex,
-                (originalRegex) => {
-                    groupCount[r.groupName] += 1
-
-                    return r.getRegex(groupCount[r.groupName], originalRegex)
-                },
-            )
-        }
-
-        // 💡 should match the full string
-        regexString = `^${regexString}$`
-
-        const regex = new RegExp(regexString, `g`)
+        const allExpressionRegEx = getExpressionRegexes()
+        const regex = compileExpressionRegex(stepExpression)
         const matches = [
             ...step.details.matchAll(regex),
         ]
@@ -95,7 +105,8 @@ export class ExpressionStep {
                             // biome-ignore lint/style/noNonNullAssertion: <explanation>
                             value: matchRegex.getValue(
                                 match.groups![key],
-                                index,
+                                Number(key.slice(matchRegex.groupName.length)) -
+                                    1,
                             ),
                         })
                     } else {
@@ -129,9 +140,7 @@ export class ExpressionStep {
     }
 
     public static stepContainsRegex(expression: string): boolean {
-        const allExpressionRegEx = builtInExpressionRegEx.concat(
-            customExpressionRegEx,
-        )
+        const allExpressionRegEx = getExpressionRegexes()
 
         return allExpressionRegEx.some((r) => {
             return expression.includes(r.keyword)
